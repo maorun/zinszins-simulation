@@ -78,7 +78,7 @@ describe('ReverseCalculatorCard', () => {
       () => {
         expect(screen.getByText(/Berechnete Sparrate/i)).toBeInTheDocument()
       },
-      { timeout: 3000 },
+      { timeout: 3000 }
     )
   })
 

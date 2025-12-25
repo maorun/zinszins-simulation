@@ -39,7 +39,7 @@ function ChildBasicInfoFields({
           id={childNameId}
           type="text"
           value={config.childName}
-          onChange={e => onChildNameChange(e.target.value)}
+          onChange={(e) => onChildNameChange(e.target.value)}
           placeholder="z.B. Max Mustermann"
         />
       </div>
@@ -50,7 +50,7 @@ function ChildBasicInfoFields({
           id={birthYearId}
           type="number"
           value={config.birthYear}
-          onChange={e => onBirthYearChange(Number(e.target.value) || currentYear - 5)}
+          onChange={(e) => onBirthYearChange(Number(e.target.value) || currentYear - 5)}
           min={currentYear - 30}
           max={currentYear}
           step={1}
@@ -202,8 +202,8 @@ export function ChildrenEducationConfigSection({
     onUpdate({
       ...editingSource,
       kinderBildungConfig: newConfig,
-      startYear: Math.min(...newConfig.phases.map(p => p.startYear)),
-      endYear: Math.max(...newConfig.phases.map(p => p.endYear)),
+      startYear: Math.min(...newConfig.phases.map((p) => p.startYear)),
+      endYear: Math.max(...newConfig.phases.map((p) => p.endYear)),
     })
   }
 

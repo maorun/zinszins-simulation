@@ -1,10 +1,6 @@
 import { useNestingLevel } from '../lib/nesting-utils'
 import { useFormId } from '../utils/unique-id'
-import {
-  createDefaultEMRenteConfig,
-  estimatePensionPointsFromMonthlyPension,
-  type EMRenteConfig,
-} from '../../helpers/em-rente'
+import { createDefaultEMRenteConfig, estimatePensionPointsFromMonthlyPension, type EMRenteConfig } from '../../helpers/em-rente'
 import { EMRenteDisabledState } from './EMRenteConfiguration/EMRenteDisabledState'
 import { EMRenteEnabledState } from './EMRenteConfiguration/EMRenteEnabledState'
 
@@ -15,12 +11,7 @@ interface EMRenteConfigurationProps {
   birthYear?: number
 }
 
-export function EMRenteConfiguration({
-  config,
-  onChange,
-  currentYear = new Date().getFullYear(),
-  birthYear,
-}: EMRenteConfigurationProps) {
+export function EMRenteConfiguration({ config, onChange, currentYear = new Date().getFullYear(), birthYear }: EMRenteConfigurationProps) {
   const nestingLevel = useNestingLevel()
   const enabledSwitchId = useFormId('em-rente', 'enabled')
   const disabilityStartYearId = useFormId('em-rente', 'disability-start-year')
@@ -45,42 +36,11 @@ export function EMRenteConfiguration({
   const handleUpdate = (updates: Partial<EMRenteConfig>) => onChange({ ...currentConfig, ...updates })
   const handleEstimateFromMonthlyPension = (monthlyPension: number) => {
     if (monthlyPension > 0) {
-      const estimatedPoints = estimatePensionPointsFromMonthlyPension(
-        monthlyPension,
-        currentConfig.region,
-        currentConfig.type,
-        currentConfig.customPensionValue,
-      )
+      const estimatedPoints = estimatePensionPointsFromMonthlyPension(monthlyPension, currentConfig.region, currentConfig.type, currentConfig.customPensionValue)
       handleUpdate({ accumulatedPensionPoints: Math.round(estimatedPoints * 100) / 100 })
     }
   }
-  if (!config?.enabled)
-    return (
-      <EMRenteDisabledState
-        nestingLevel={nestingLevel}
-        enabledSwitchId={enabledSwitchId}
-        onToggle={handleToggleEnabled}
-      />
-    )
-  return (
-    <EMRenteEnabledState
-      nestingLevel={nestingLevel}
-      enabledSwitchId={enabledSwitchId}
-      currentConfig={currentConfig}
-      currentYear={currentYear}
-      disabilityStartYearId={disabilityStartYearId}
-      birthYearId={birthYearId}
-      pensionPointsId={pensionPointsId}
-      contributionYearsId={contributionYearsId}
-      estimateMonthlyPensionId={estimateMonthlyPensionId}
-      annualIncreaseRateId={annualIncreaseRateId}
-      taxablePercentageId={taxablePercentageId}
-      monthlyAdditionalIncomeId={monthlyAdditionalIncomeId}
-      zurechnungszeitenSwitchId={zurechnungszeitenSwitchId}
-      abschlaegeSwitchId={abschlaegeSwitchId}
-      onToggle={handleToggleEnabled}
-      onUpdate={handleUpdate}
-      onEstimate={handleEstimateFromMonthlyPension}
-    />
-  )
+  if (!config?.enabled) return <EMRenteDisabledState nestingLevel={nestingLevel} enabledSwitchId={enabledSwitchId} onToggle={handleToggleEnabled} />
+  return <EMRenteEnabledState nestingLevel={nestingLevel} enabledSwitchId={enabledSwitchId} currentConfig={currentConfig} currentYear={currentYear} disabilityStartYearId={disabilityStartYearId} birthYearId={birthYearId} pensionPointsId={pensionPointsId} contributionYearsId={contributionYearsId} estimateMonthlyPensionId={estimateMonthlyPensionId} annualIncreaseRateId={annualIncreaseRateId} taxablePercentageId={taxablePercentageId} monthlyAdditionalIncomeId={monthlyAdditionalIncomeId} zurechnungszeitenSwitchId={zurechnungszeitenSwitchId} abschlaegeSwitchId={abschlaegeSwitchId} onToggle={handleToggleEnabled} onUpdate={handleUpdate} onEstimate={handleEstimateFromMonthlyPension} />
 }
+

@@ -88,12 +88,7 @@ describe('QuellensteuerconfigurationSection', () => {
 
   it('should not display calculation result when income is zero', () => {
     render(
-      <QuellensteuerconfigurationSection
-        {...defaultProps}
-        enabled={true}
-        foreignIncome={0}
-        withholdingTaxRate={0.15}
-      />,
+      <QuellensteuerconfigurationSection {...defaultProps} enabled={true} foreignIncome={0} withholdingTaxRate={0.15} />,
     )
 
     expect(screen.queryByText('📊 Steuerberechnung')).not.toBeInTheDocument()
@@ -101,7 +96,12 @@ describe('QuellensteuerconfigurationSection', () => {
 
   it('should show DBA rate by default', () => {
     render(
-      <QuellensteuerconfigurationSection {...defaultProps} enabled={true} countryCode="US" withholdingTaxRate={0.15} />,
+      <QuellensteuerconfigurationSection
+        {...defaultProps}
+        enabled={true}
+        countryCode="US"
+        withholdingTaxRate={0.15}
+      />,
     )
 
     expect(screen.getByText(/DBA-Satz USA:/)).toBeInTheDocument()

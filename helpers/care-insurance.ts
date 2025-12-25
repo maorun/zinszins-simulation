@@ -165,7 +165,11 @@ function findAgeBrackets(age: number, ages: number[]): { lower: number; upper: n
 /**
  * Interpolate probability between two age brackets
  */
-function interpolateProbability(age: number, lowerAge: number, upperAge: number): number {
+function interpolateProbability(
+  age: number,
+  lowerAge: number,
+  upperAge: number,
+): number {
   const lowerProb = CARE_NEED_PROBABILITY_BY_AGE[lowerAge] ?? 1.0
   const upperProb = CARE_NEED_PROBABILITY_BY_AGE[upperAge] ?? 70.0
   const ageDiff = upperAge - lowerAge
@@ -196,7 +200,7 @@ function getCareNeedProbability(age: number): number {
   const ages = Object.keys(CARE_NEED_PROBABILITY_BY_AGE)
     .map(Number)
     .sort((a, b) => a - b)
-
+  
   const { lower, upper } = findAgeBrackets(age, ages)
   return interpolateProbability(age, lower, upper)
 }
@@ -216,7 +220,10 @@ const DAILY_BENEFIT_PERCENTAGE_BY_LEVEL: Record<CareLevel, number> = {
 /**
  * Calculate daily benefit for a specific care level
  */
-function calculateDailyBenefitForLevel(dailyBenefitPflegegrad5: number, careLevel: CareLevel): number {
+function calculateDailyBenefitForLevel(
+  dailyBenefitPflegegrad5: number,
+  careLevel: CareLevel,
+): number {
   const percentage = DAILY_BENEFIT_PERCENTAGE_BY_LEVEL[careLevel] ?? 1.0
   return dailyBenefitPflegegrad5 * percentage
 }
@@ -355,7 +362,7 @@ export function comparePolicyTypes(
   maxMonthlyBenefit: number
   totalStateSubsidies: number
 }> {
-  return policyTypes.map(policyType => {
+  return policyTypes.map((policyType) => {
     const config = { ...baseConfig, policyType }
     const summary = calculateCareInsurance(config)
 

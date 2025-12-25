@@ -167,7 +167,9 @@ function calculateYearCosts(
 
   const baseMortalityCost = 0.0005 // 0.05% base
   const ageFactor = Math.max(0, age - 30) / 10000 // Increases slowly with age
-  const deathBenefitCosts = config.includeDeathBenefitCosts ? portfolioValue * (baseMortalityCost + ageFactor) : 0
+  const deathBenefitCosts = config.includeDeathBenefitCosts
+    ? portfolioValue * (baseMortalityCost + ageFactor)
+    : 0
 
   const totalCosts = upfrontCosts + managementCosts + guaranteeCosts + deathBenefitCosts
 
@@ -201,7 +203,9 @@ function calculateSummaryMetrics(
 
   const years = config.endYear - config.startYear
   const effectiveAnnualReturn =
-    years > 0 && totalContributions > 0 ? (Math.pow(finalPortfolioValue / totalContributions, 1 / years) - 1) * 100 : 0
+    years > 0 && totalContributions > 0
+      ? (Math.pow(finalPortfolioValue / totalContributions, 1 / years) - 1) * 100
+      : 0
 
   const costRatio = totalContributions > 0 ? (totalCostsPaid / totalContributions) * 100 : 0
 
@@ -217,7 +221,12 @@ function calculateSummaryMetrics(
 /**
  * Apply guarantee if needed at maturity
  */
-function applyGuarantee(portfolioValue: number, year: number, endYear: number, guaranteedMinimum: number): number {
+function applyGuarantee(
+  portfolioValue: number,
+  year: number,
+  endYear: number,
+  guaranteedMinimum: number,
+): number {
   if (year === endYear && guaranteedMinimum > 0) {
     return Math.max(portfolioValue, guaranteedMinimum)
   }
@@ -291,20 +300,20 @@ function computeYearParams(
   portfolioValue: number,
   annualUpfrontCost: number,
   upfrontCostYears: number,
-): {
-  age: number
-  annualContribution: number
-  yearIndex: number
-  investmentReturn: number
-  portfolioBeforeCosts: number
-  costs: ReturnType<typeof calculateYearCosts>
-} {
+): { age: number; annualContribution: number; yearIndex: number; investmentReturn: number; portfolioBeforeCosts: number; costs: ReturnType<typeof calculateYearCosts> } {
   const age = year - config.birthYear
   const annualContribution = config.monthlyContribution * 12
   const yearIndex = year - config.startYear
   const investmentReturn = portfolioValue * (config.expectedReturnRate / 100)
   const portfolioBeforeCosts = portfolioValue + investmentReturn + annualContribution
-  const costs = calculateYearCosts(config, portfolioBeforeCosts, age, yearIndex, annualUpfrontCost, upfrontCostYears)
+  const costs = calculateYearCosts(
+    config,
+    portfolioBeforeCosts,
+    age,
+    yearIndex,
+    annualUpfrontCost,
+    upfrontCostYears,
+  )
   return { age, annualContribution, yearIndex, investmentReturn, portfolioBeforeCosts, costs }
 }
 
@@ -362,7 +371,8 @@ export function calculateFundLinkedLifeInsurance(
   let totalContributions = config.initialInvestment
   let totalCostsPaid = 0
 
-  const totalPlannedContributions = config.monthlyContribution * 12 * (config.endYear - config.startYear)
+  const totalPlannedContributions =
+    config.monthlyContribution * 12 * (config.endYear - config.startYear)
   const totalUpfrontCosts = (totalPlannedContributions * config.upfrontCostPercent) / 100
   const upfrontCostYears = Math.min(5, config.endYear - config.startYear)
   const annualUpfrontCost = totalUpfrontCosts / upfrontCostYears

@@ -216,7 +216,11 @@ function calculateTeilverkaufYearResult(
 /**
  * Calculate Teilverkauf scenario for a given time period
  */
-export function calculateTeilverkauf(config: TeilverkaufConfig, startAge: number, endAge: number): TeilverkaufResult {
+export function calculateTeilverkauf(
+  config: TeilverkaufConfig,
+  startAge: number,
+  endAge: number,
+): TeilverkaufResult {
   const { liquidity, transactionCosts, soldValue } = calculateInitialLiquidity(
     config.propertyValue,
     config.salePercentage,
@@ -231,14 +235,7 @@ export function calculateTeilverkauf(config: TeilverkaufConfig, startAge: number
   let totalNiessbrauchPaid = 0
 
   for (let age = startAge; age <= endAge; age++) {
-    const yearResult = calculateTeilverkaufYearResult(
-      age,
-      startAge,
-      config,
-      ownedPercentage,
-      liquidity,
-      cumulativeCosts,
-    )
+    const yearResult = calculateTeilverkaufYearResult(age, startAge, config, ownedPercentage, liquidity, cumulativeCosts)
 
     if (age >= config.saleAge) {
       cumulativeCosts += yearResult.annualNiessbrauchFee

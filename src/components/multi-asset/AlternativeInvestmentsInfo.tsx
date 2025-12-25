@@ -75,8 +75,8 @@ function RiskWarnings() {
           <p className="text-xs font-semibold text-red-900">Wichtige Risikohinweise:</p>
           <ul className="text-xs text-red-800 space-y-1">
             <li>
-              <strong>Höhere Volatilität:</strong> Rohstoffe schwanken oft stärker als traditionelle Anlagen (bis zu 25%
-              Volatilität)
+              <strong>Höhere Volatilität:</strong> Rohstoffe schwanken oft stärker als traditionelle Anlagen (bis zu
+              25% Volatilität)
             </li>
             <li>
               <strong>Keine laufenden Erträge:</strong> Im Gegensatz zu Aktien oder Anleihen werfen viele Rohstoffe

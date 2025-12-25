@@ -19,17 +19,17 @@ import { calculatePensionPoints, createProjectedSalaryHistory } from './helpers/
 
 // Create a salary history projection
 const { salaryHistory, averageSalaryHistory } = createProjectedSalaryHistory(
-  2000, // Start year
-  2040, // End year
+  2000,  // Start year
+  2040,  // End year
   35000, // Starting salary
-  3.0, // Annual increase percentage
+  3.0    // Annual increase percentage
 )
 
 // Calculate pension points
 const result = calculatePensionPoints({
   salaryHistory,
   region: 'west',
-  customAverageSalaryHistory: averageSalaryHistory,
+  customAverageSalaryHistory: averageSalaryHistory
 })
 
 console.log(`Total pension points: ${result.totalPensionPoints}`)
@@ -47,9 +47,9 @@ const result = calculatePensionPoints({
     2020: 40000,
     2021: 42000,
     2022: 44000,
-    2023: 46000,
+    2023: 46000
   },
-  region: 'west',
+  region: 'west'
 })
 ```
 

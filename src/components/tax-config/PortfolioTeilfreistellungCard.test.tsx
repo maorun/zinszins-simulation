@@ -117,11 +117,10 @@ describe('PortfolioTeilfreistellungCard', () => {
     // Click first remove button
     const removeButtons = screen.getAllByRole('button', { name: '' })
     const trashButtons = removeButtons.filter(
-      btn =>
-        btn.querySelector('svg')?.classList.contains('lucide-trash-2') ||
-        (btn.textContent === '' && btn.className.includes('ghost')),
+      btn => btn.querySelector('svg')?.classList.contains('lucide-trash-2') ||
+      btn.textContent === '' && btn.className.includes('ghost')
     )
-
+    
     if (trashButtons.length > 0) {
       await user.click(trashButtons[0])
 
@@ -137,7 +136,7 @@ describe('PortfolioTeilfreistellungCard', () => {
     // Get all buttons and filter for disabled trash buttons
     const allButtons = screen.getAllByRole('button')
     const removeButtons = allButtons.filter(
-      btn => btn.hasAttribute('disabled') || btn.getAttribute('aria-disabled') === 'true',
+      btn => btn.hasAttribute('disabled') || btn.getAttribute('aria-disabled') === 'true'
     )
 
     // With 2 holdings, should have some enabled remove buttons
@@ -150,7 +149,7 @@ describe('PortfolioTeilfreistellungCard', () => {
     // This test would require manipulating sliders
     // For now, we verify the validation error alert can appear
     const alerts = screen.queryAllByRole('alert')
-
+    
     // Should have info alert initially
     expect(alerts.length).toBeGreaterThan(0)
   })
@@ -169,7 +168,9 @@ describe('PortfolioTeilfreistellungCard', () => {
   it('should display info box with explanation', () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
 
-    expect(screen.getByText(/Dieser Rechner hilft Ihnen, die steueroptimale Portfolio-Struktur/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Dieser Rechner hilft Ihnen, die steueroptimale Portfolio-Struktur/i),
+    ).toBeInTheDocument()
   })
 
   it('should show TFS badge for each holding', () => {
@@ -199,7 +200,7 @@ describe('PortfolioTeilfreistellungCard', () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
 
     const selects = screen.getAllByLabelText(/Anlageklasse/i)
-
+    
     // Each select should have a unique ID
     const ids = selects.map(select => select.id)
     const uniqueIds = new Set(ids)

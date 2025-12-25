@@ -1,12 +1,12 @@
 /**
  * Pension Comparison Calculator
- *
+ * 
  * Provides side-by-side comparison of different German pension insurance types:
  * - Statutory Pension (Gesetzliche Rente)
  * - Riester-Rente (state-subsidized private pension)
  * - Rürup-Rente (Basis-Rente for self-employed)
  * - Betriebsrente (bAV - company pension)
- *
+ * 
  * Helps users make informed decisions about retirement planning by comparing:
  * - Annual contributions during working years
  * - Tax benefits during contribution phase
@@ -155,7 +155,7 @@ export interface PensionComparisonResult {
  */
 function calculateStatutoryPensionComparison(
   config: StatutoryPensionConfig,
-  pensionEndYear: number,
+  pensionEndYear: number
 ): PensionTypeComparison {
   // Statutory pension is paid by the state, no direct employee contributions
   // (contributions are part of social security, not tracked separately here)
@@ -188,7 +188,7 @@ function calculateRiesterRenteComparison(
   currentYear: number,
   pensionEndYear: number,
   annualGrossIncome: number,
-  personalTaxRate: number,
+  personalTaxRate: number
 ): PensionTypeComparison {
   // Calculate tax benefit for current year
   const taxBenefit = calculateRiesterTaxBenefit(
@@ -197,7 +197,7 @@ function calculateRiesterRenteComparison(
     config.numberOfChildren,
     config.childrenBirthYears,
     currentYear,
-    personalTaxRate,
+    personalTaxRate
   )
 
   const yearsOfContribution = config.pensionStartYear - currentYear
@@ -240,14 +240,14 @@ function calculateRuerupRenteComparison(
   currentYear: number,
   pensionEndYear: number,
   personalTaxRate: number,
-  pensionTaxRate: number,
+  pensionTaxRate: number
 ): PensionTypeComparison {
   // Calculate tax deduction for current year
   const taxDeduction = calculateRuerupTaxDeduction(
     config.annualContribution,
     currentYear,
     config.civilStatus,
-    personalTaxRate,
+    personalTaxRate
   )
 
   const yearsOfContribution = config.pensionStartYear - currentYear
@@ -293,7 +293,7 @@ function calculateBetriebsrenteComparison(
   pensionTaxRate: number,
   socialSecurityRate: number,
   inStatutoryHealthInsurance: boolean,
-  hasChildren: boolean,
+  hasChildren: boolean
 ): PensionTypeComparison {
   // Calculate tax benefit for current year
   const taxBenefit = calculateBetriebsrenteTaxBenefit(
@@ -301,7 +301,7 @@ function calculateBetriebsrenteComparison(
     config.annualEmployerContribution,
     currentYear,
     personalTaxRate,
-    socialSecurityRate,
+    socialSecurityRate
   )
 
   // Calculate lifetime benefit
@@ -314,7 +314,7 @@ function calculateBetriebsrenteComparison(
     pensionTaxRate,
     socialSecurityRate,
     inStatutoryHealthInsurance,
-    hasChildren,
+    hasChildren
   )
 
   const yearsOfPension = pensionEndYear - config.pensionStartYear + 1
@@ -343,7 +343,7 @@ function calculateBetriebsrenteComparison(
  */
 function createEmptyComparison(
   type: 'statutory' | 'riester' | 'ruerup' | 'betriebsrente',
-  displayName: string,
+  displayName: string
 ): PensionTypeComparison {
   return {
     type,
@@ -395,7 +395,7 @@ function buildRiesterComparison(config: PensionComparisonConfig): PensionTypeCom
       config.currentYear,
       config.pensionEndYear,
       config.annualGrossIncome,
-      config.personalTaxRate,
+      config.personalTaxRate
     )
   }
   return createEmptyComparison('riester', 'Riester-Rente')
@@ -411,7 +411,7 @@ function buildRuerupComparison(config: PensionComparisonConfig): PensionTypeComp
       config.currentYear,
       config.pensionEndYear,
       config.personalTaxRate,
-      config.pensionTaxRate,
+      config.pensionTaxRate
     )
   }
   return createEmptyComparison('ruerup', 'Rürup-Rente')
@@ -430,7 +430,7 @@ function buildBetriebsrenteComparison(config: PensionComparisonConfig): PensionT
       config.pensionTaxRate,
       config.socialSecurityRate,
       config.inStatutoryHealthInsurance,
-      config.hasChildren,
+      config.hasChildren
     )
   }
   return createEmptyComparison('betriebsrente', 'Betriebliche Altersvorsorge')
@@ -440,7 +440,7 @@ function buildBetriebsrenteComparison(config: PensionComparisonConfig): PensionT
  * Calculate summary statistics
  */
 function calculateSummary(comparisons: PensionTypeComparison[]) {
-  const enabled = comparisons.filter(c => c.enabled)
+  const enabled = comparisons.filter((c) => c.enabled)
   const totalContributions = enabled.reduce((sum, c) => sum + c.totalContributions, 0)
 
   return {
@@ -466,7 +466,7 @@ function findBestOptions(comparisons: PensionTypeComparison[]): {
   bestROI: PensionTypeComparison | null
   bestNetBenefit: PensionTypeComparison | null
 } {
-  const enabled = comparisons.filter(c => c.enabled)
+  const enabled = comparisons.filter((c) => c.enabled)
 
   const bestROI =
     enabled.length > 0 ? enabled.reduce((best, current) => (current.roi > best.roi ? current : best)) : null
@@ -481,7 +481,7 @@ function findBestOptions(comparisons: PensionTypeComparison[]): {
 
 /**
  * Compare all pension types side-by-side
- *
+ * 
  * @param config - Pension comparison configuration
  * @returns Complete comparison result with summary and rankings
  */

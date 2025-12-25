@@ -122,25 +122,25 @@ export const HYPOTHETICAL_STRESS_SCENARIOS: StressScenario[] = [
   {
     name: 'Moderater Crash (-20%)',
     description: 'Typische Korrektur, wie sie alle paar Jahre vorkommt',
-    marketShock: -0.2,
+    marketShock: -0.20,
     category: 'hypothetical',
   },
   {
     name: 'Schwerer Crash (-40%)',
     description: 'Schwere Krise, vergleichbar mit 2008',
-    marketShock: -0.4,
+    marketShock: -0.40,
     category: 'hypothetical',
   },
   {
     name: 'Extremer Crash (-60%)',
     description: 'Worst-Case-Szenario, historisch sehr selten',
-    marketShock: -0.6,
+    marketShock: -0.60,
     category: 'hypothetical',
   },
   {
     name: 'Leichte Korrektur (-10%)',
     description: 'Häufige Marktschwankung',
-    marketShock: -0.1,
+    marketShock: -0.10,
     category: 'hypothetical',
   },
 ]
@@ -207,7 +207,11 @@ export function runStressTestAnalysis(
  * @param marketShock - Market shock as decimal (e.g., -0.30 for -30%)
  * @returns Custom stress scenario
  */
-export function createCustomStressScenario(name: string, description: string, marketShock: number): StressScenario {
+export function createCustomStressScenario(
+  name: string,
+  description: string,
+  marketShock: number,
+): StressScenario {
   return {
     name,
     description,

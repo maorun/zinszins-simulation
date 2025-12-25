@@ -35,22 +35,34 @@ function RuerupCardHeader() {
             </TooltipTrigger>
             <TooltipContent className="max-w-sm">
               <p className="text-sm">
-                Die Rürup-Rente ist eine steuerlich geförderte Altersvorsorge, besonders für Selbstständige und
-                Gutverdiener. Beiträge sind steuerlich absetzbar, Renten werden nachgelagert besteuert.
+                Die Rürup-Rente ist eine steuerlich geförderte Altersvorsorge, besonders für
+                Selbstständige und Gutverdiener. Beiträge sind steuerlich absetzbar, Renten
+                werden nachgelagert besteuert.
               </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </CardTitle>
-      <CardDescription>Steuerlich geförderte private Altersvorsorge für Selbstständige und Angestellte</CardDescription>
+      <CardDescription>
+        Steuerlich geförderte private Altersvorsorge für Selbstständige und Angestellte
+      </CardDescription>
     </CardHeader>
   )
 }
 
-function useRuerupCalculations(config: RuerupRenteConfig, contributionYear: number, personalTaxRate: number) {
+function useRuerupCalculations(
+  config: RuerupRenteConfig,
+  contributionYear: number,
+  personalTaxRate: number
+) {
   const contributionResult = useMemo(() => {
     if (!config.enabled) return null
-    return calculateRuerupTaxDeduction(config.annualContribution, contributionYear, config.civilStatus, personalTaxRate)
+    return calculateRuerupTaxDeduction(
+      config.annualContribution,
+      contributionYear,
+      config.civilStatus,
+      personalTaxRate
+    )
   }, [config.enabled, config.annualContribution, config.civilStatus, contributionYear, personalTaxRate])
 
   const pensionResult = useMemo(() => {
@@ -60,20 +72,14 @@ function useRuerupCalculations(config: RuerupRenteConfig, contributionYear: numb
       config.pensionStartYear,
       config.pensionStartYear,
       config.pensionIncreaseRate,
-      personalTaxRate * 0.6,
+      personalTaxRate * 0.6
     )
-  }, [
-    config.enabled,
-    config.expectedMonthlyPension,
-    config.pensionStartYear,
-    config.pensionIncreaseRate,
-    personalTaxRate,
-  ])
+  }, [config.enabled, config.expectedMonthlyPension, config.pensionStartYear, config.pensionIncreaseRate, personalTaxRate])
 
   const limits = useMemo(() => getRuerupDeductibilityLimits(contributionYear), [contributionYear])
   const taxablePercentage = useMemo(
     () => getRuerupPensionTaxablePercentage(config.pensionStartYear),
-    [config.pensionStartYear],
+    [config.pensionStartYear]
   )
 
   return { contributionResult, pensionResult, limits, taxablePercentage }
@@ -110,7 +116,11 @@ function RuerupEnabledContent({
         onChange={onChange}
       />
 
-      <button type="button" className="text-sm text-blue-600 hover:text-blue-800 underline" onClick={onToggleDetails}>
+      <button
+        type="button"
+        className="text-sm text-blue-600 hover:text-blue-800 underline"
+        onClick={onToggleDetails}
+      >
         {showDetails ? 'Steuerberechnung ausblenden' : 'Steuerberechnung anzeigen'}
       </button>
 
@@ -189,7 +199,7 @@ export function RuerupRenteConfiguration({
   const { contributionResult, pensionResult, limits, taxablePercentage } = useRuerupCalculations(
     config,
     contributionYear,
-    personalTaxRate,
+    personalTaxRate
   )
 
   const handleChange = (updates: Partial<RuerupRenteConfig>) => {
@@ -209,7 +219,7 @@ export function RuerupRenteConfiguration({
           contributionResult={contributionResult}
           pensionResult={pensionResult}
           taxablePercentage={taxablePercentage}
-          onEnabledChange={enabled => handleChange({ enabled })}
+          onEnabledChange={(enabled) => handleChange({ enabled })}
           onChange={handleChange}
           onToggleDetails={() => setShowDetails(!showDetails)}
         />

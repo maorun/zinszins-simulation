@@ -815,7 +815,8 @@ function calculateElterngeldPeriod(config: ElterngeldConfig): {
   endMonthsSinceBirth: number
 } {
   const startMonthsSinceBirth =
-    (config.elterngeldStartYear - config.childBirthYear) * 12 + (config.elterngeldStartMonth - config.childBirthMonth)
+    (config.elterngeldStartYear - config.childBirthYear) * 12 +
+    (config.elterngeldStartMonth - config.childBirthMonth)
 
   const totalElterngeldMonths = config.durationMonths + config.partnerschaftsBonusMonths
   const endMonthsSinceBirth = startMonthsSinceBirth + totalElterngeldMonths
@@ -1107,7 +1108,9 @@ function calculatePflegezusatzversicherungStatus(
   // Tax deduction benefit: Pflegepflichtversicherung premiums are tax-deductible as Vorsorgeaufwendungen
   // Maximum deduction according to § 10 Abs. 1 Nr. 3 EStG
   // Simplified: Use the configured max annual deduction or actual premiums, whichever is lower
-  const taxDeductionBenefit = config.applyTaxBenefits ? Math.min(annualPremiumsCost, config.maxAnnualTaxDeduction) : 0
+  const taxDeductionBenefit = config.applyTaxBenefits
+    ? Math.min(annualPremiumsCost, config.maxAnnualTaxDeduction)
+    : 0
 
   // Net benefit: Benefits received minus premiums paid, plus tax deduction benefit
   const netBenefit = monthlyBenefit * 12 - annualPremiumsCost + taxDeductionBenefit
@@ -1416,7 +1419,7 @@ function applyKapitallebensversicherungLogic(
   }
 
   const status = calculateKapitallebensversicherungStatus(source.kapitallebensversicherungConfig, year)
-
+  
   // Only pay out in the maturity year
   if (!status.isPayoutYear) {
     return {
@@ -1536,11 +1539,7 @@ function calculateTaxableAmount(
 
   // For BU-Rente with Leibrenten-Besteuerung, only tax the Ertragsanteil
   if (source.type === 'bu_rente') {
-    return getBURenteTaxableAmount(
-      buRenteDetails,
-      source.buRenteConfig?.applyLeibrentenBesteuerung ?? false,
-      grossAnnualAmount,
-    )
+    return getBURenteTaxableAmount(buRenteDetails, source.buRenteConfig?.applyLeibrentenBesteuerung ?? false, grossAnnualAmount)
   }
 
   return grossAnnualAmount
@@ -1590,7 +1589,7 @@ function calculateRuerupContributionPhase(
     config.annualContribution,
     year,
     config.civilStatus,
-    config.contributionPhaseTaxRate,
+    config.contributionPhaseTaxRate
   )
 
   const limits = getRuerupDeductibilityLimits(year)
@@ -1633,7 +1632,7 @@ function calculateRuerupPensionPhase(
     config.pensionStartYear,
     year,
     config.pensionIncreaseRate,
-    config.pensionPhaseTaxRate,
+    config.pensionPhaseTaxRate
   )
 
   const taxablePercentage = getRuerupPensionTaxablePercentage(config.pensionStartYear)
@@ -1703,10 +1702,14 @@ function calculateRiesterContributionPhase(
     config.numberOfChildren,
     config.childrenBirthYears,
     year,
-    config.contributionPhaseTaxRate,
+    config.contributionPhaseTaxRate
   )
 
-  const allowances = calculateRiesterAllowances(config.numberOfChildren, config.childrenBirthYears, year)
+  const allowances = calculateRiesterAllowances(
+    config.numberOfChildren,
+    config.childrenBirthYears,
+    year
+  )
 
   return {
     grossMonthlyAmount: -config.annualContribution / 12,
@@ -1747,7 +1750,7 @@ function calculateRiesterPensionPhase(
     config.pensionStartYear,
     year,
     config.pensionIncreaseRate,
-    config.pensionPhaseTaxRate,
+    config.pensionPhaseTaxRate
   )
 
   return {
@@ -1864,8 +1867,10 @@ function assignIncomeTypeDetails2(
     result.pflegezusatzversicherungDetails = incomeTypeResult.pflegezusatzversicherungDetails
   if (incomeTypeResult.risikolebensversicherungDetails)
     result.risikolebensversicherungDetails = incomeTypeResult.risikolebensversicherungDetails
-  if (incomeTypeResult.ruerupRenteDetails) result.ruerupRenteDetails = incomeTypeResult.ruerupRenteDetails
-  if (incomeTypeResult.riesterRenteDetails) result.riesterRenteDetails = incomeTypeResult.riesterRenteDetails
+  if (incomeTypeResult.ruerupRenteDetails)
+    result.ruerupRenteDetails = incomeTypeResult.ruerupRenteDetails
+  if (incomeTypeResult.riesterRenteDetails)
+    result.riesterRenteDetails = incomeTypeResult.riesterRenteDetails
 }
 
 // Helper: Build the final year result

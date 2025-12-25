@@ -32,7 +32,9 @@ export default function AlimonyConfiguration() {
       <AlimonyHeader />
       <CollapsibleCardContent>
         <div className="space-y-6">
-          <CardDescription>Kindesunterhalt, Ehegattenunterhalt und Trennungsunterhalt planen</CardDescription>
+          <CardDescription>
+            Kindesunterhalt, Ehegattenunterhalt und Trennungsunterhalt planen
+          </CardDescription>
 
           <div className="flex items-center space-x-2">
             <Switch id={enabledSwitchId} checked={config.enabled} onCheckedChange={handleToggleEnabled} />

@@ -13,7 +13,10 @@ interface SegmentBasicConfigProps {
   onEndYearChange: (year: number) => void
 }
 
-const handleNumberInputChange = (e: ChangeEvent<HTMLInputElement>, onChange: (value: number | undefined) => void) => {
+const handleNumberInputChange = (
+  e: ChangeEvent<HTMLInputElement>,
+  onChange: (value: number | undefined) => void,
+) => {
   const value = e.target.value
   onChange(value ? Math.round(Number(value)) : undefined)
 }

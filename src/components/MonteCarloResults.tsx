@@ -109,20 +109,12 @@ function MonteCarloResultsContent({
   return (
     <CardContent nestingLevel={nestingLevel}>
       {renderAnalysisTable(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
-      <VaRSection
-        portfolioValue={portfolioValue}
-        config={accumulationConfig}
-        title="Value at Risk (VaR) - Ansparphase"
-      />
+      <VaRSection portfolioValue={portfolioValue} config={accumulationConfig} title="Value at Risk (VaR) - Ansparphase" />
 
       {withdrawalScenarios && withdrawalConfig && (
         <>
           {renderAnalysisTable(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')}
-          <VaRSection
-            portfolioValue={portfolioValue}
-            config={withdrawalConfig}
-            title="Value at Risk (VaR) - Entnahmephase"
-          />
+          <VaRSection portfolioValue={portfolioValue} config={withdrawalConfig} title="Value at Risk (VaR) - Entnahmephase" />
         </>
       )}
 

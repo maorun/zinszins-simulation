@@ -24,12 +24,19 @@ interface AssetClassSelectorProps {
 function AssetClassOption({ assetClassOption }: { assetClassOption: AssetClass }) {
   const quote = getTeilfreistellungsquoteForAssetClass(assetClassOption)
   const displayQuote = formatTeilfreistellungsquote(quote)
-
+  
   return (
     <div className="flex items-start space-x-3">
-      <RadioGroupItem value={assetClassOption} id={`asset-class-${assetClassOption}`} className="mt-1" />
+      <RadioGroupItem
+        value={assetClassOption}
+        id={`asset-class-${assetClassOption}`}
+        className="mt-1"
+      />
       <div className="flex-1">
-        <Label htmlFor={`asset-class-${assetClassOption}`} className="font-normal cursor-pointer">
+        <Label
+          htmlFor={`asset-class-${assetClassOption}`}
+          className="font-normal cursor-pointer"
+        >
           <div className="flex items-center justify-between">
             <span>{getAssetClassName(assetClassOption)}</span>
             {!isCustomAssetClass(assetClassOption) && (
@@ -38,7 +45,9 @@ function AssetClassOption({ assetClassOption }: { assetClassOption: AssetClass }
               </span>
             )}
           </div>
-          <p className="text-sm text-muted-foreground mt-1">{getAssetClassDescription(assetClassOption)}</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {getAssetClassDescription(assetClassOption)}
+          </p>
         </Label>
       </div>
     </div>
@@ -85,7 +94,7 @@ export function AssetClassSelector({
 }: AssetClassSelectorProps) {
   const assetClasses = getAllAssetClasses()
   const isCustom = isCustomAssetClass(assetClass)
-
+  
   const assetClassGroupId = useMemo(() => generateFormId('asset-class-selector', 'group'), [])
   const customSlideId = useMemo(() => generateFormId('asset-class-selector', 'custom-slider'), [])
 
@@ -96,14 +105,16 @@ export function AssetClassSelector({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor={assetClassGroupId}>Anlageklasse (Asset Class)</Label>
+        <Label htmlFor={assetClassGroupId}>
+          Anlageklasse (Asset Class)
+        </Label>
         <RadioGroup
           id={assetClassGroupId}
           value={assetClass}
-          onValueChange={value => onAssetClassChange(value as AssetClass)}
+          onValueChange={(value) => onAssetClassChange(value as AssetClass)}
           className="space-y-2"
         >
-          {assetClasses.map(assetClassOption => (
+          {assetClasses.map((assetClassOption) => (
             <AssetClassOption key={assetClassOption} assetClassOption={assetClassOption} />
           ))}
         </RadioGroup>

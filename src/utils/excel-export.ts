@@ -42,7 +42,12 @@ function generateSparplanRows(elements: SavingsData['sparplanElements']): unknow
     const startYear = startDate.getFullYear()
     const endCapital = 'gesamtkapitalNachSteuern' in element ? element.gesamtkapitalNachSteuern : 0
 
-    return [element.type === 'sparplan' ? 'Sparplan' : 'Einmalzahlung', element.einzahlung, startYear, endCapital]
+    return [
+      element.type === 'sparplan' ? 'Sparplan' : 'Einmalzahlung',
+      element.einzahlung,
+      startYear,
+      endCapital,
+    ]
   })
 }
 
@@ -64,10 +69,7 @@ function applyCurrencyFormat(sheet: XLSX.WorkSheet, columns: number[], startRow 
 /**
  * Generate Excel workbook with formulas for savings phase
  */
-export function generateSavingsExcelWithFormulas(
-  savingsData: SavingsData,
-  context: SimulationContextState,
-): XLSX.WorkBook {
+export function generateSavingsExcelWithFormulas(savingsData: SavingsData, context: SimulationContextState): XLSX.WorkBook {
   const wb = XLSX.utils.book_new()
 
   // Sheet 1: Summary
@@ -210,10 +212,7 @@ export function generateWithdrawalExcelWithFormulas(
 /**
  * Export withdrawal data as Excel file with formulas
  */
-export function exportWithdrawalDataToExcel(
-  withdrawalData: WithdrawalDataForExcel,
-  context: SimulationContextState,
-): void {
+export function exportWithdrawalDataToExcel(withdrawalData: WithdrawalDataForExcel, context: SimulationContextState): void {
   try {
     const wb = generateWithdrawalExcelWithFormulas(withdrawalData, context)
     const [startYear, endYear] = getWithdrawalYearRange(withdrawalData, context)

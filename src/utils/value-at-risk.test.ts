@@ -78,8 +78,8 @@ describe('Value at Risk (VaR) Calculations', () => {
       const portfolioValue = 100000
       const averageReturn = 0.07
 
-      const lowVol = calculateParametricVaR(portfolioValue, averageReturn, 0.1, 1, [95])
-      const highVol = calculateParametricVaR(portfolioValue, averageReturn, 0.2, 1, [95])
+      const lowVol = calculateParametricVaR(portfolioValue, averageReturn, 0.10, 1, [95])
+      const highVol = calculateParametricVaR(portfolioValue, averageReturn, 0.20, 1, [95])
 
       // Higher volatility should result in higher VaR
       expect(highVol.results[0].maxExpectedLossEur).toBeGreaterThan(lowVol.results[0].maxExpectedLossEur)
@@ -91,7 +91,13 @@ describe('Value at Risk (VaR) Calculations', () => {
       const standardDeviation = 0.15
       const customLevels: VaRConfidenceLevel[] = [90, 99]
 
-      const result = calculateParametricVaR(portfolioValue, averageReturn, standardDeviation, 1, customLevels)
+      const result = calculateParametricVaR(
+        portfolioValue,
+        averageReturn,
+        standardDeviation,
+        1,
+        customLevels,
+      )
 
       expect(result.results).toHaveLength(2)
       expect(result.results[0].confidenceLevel).toBe(90)
@@ -117,8 +123,8 @@ describe('Value at Risk (VaR) Calculations', () => {
       const portfolioValue = 100000
       // Simulated historical returns: mix of positive and negative
       const historicalReturns = [
-        0.15, 0.08, -0.05, 0.12, 0.03, -0.1, 0.2, 0.05, -0.02, 0.1, 0.07, -0.15, 0.18, 0.06, -0.08, 0.09, 0.11, -0.03,
-        0.14, 0.04,
+        0.15, 0.08, -0.05, 0.12, 0.03, -0.10, 0.20, 0.05, -0.02, 0.10, 0.07, -0.15, 0.18, 0.06,
+        -0.08, 0.09, 0.11, -0.03, 0.14, 0.04,
       ]
 
       const result = calculateHistoricalVaR(portfolioValue, historicalReturns)
@@ -139,20 +145,24 @@ describe('Value at Risk (VaR) Calculations', () => {
     it('should calculate higher VaR for higher confidence levels', () => {
       const portfolioValue = 100000
       const historicalReturns = [
-        0.15, 0.08, -0.05, 0.12, 0.03, -0.1, 0.2, 0.05, -0.02, 0.1, 0.07, -0.15, 0.18, 0.06, -0.08, 0.09, 0.11, -0.03,
-        0.14, 0.04,
+        0.15, 0.08, -0.05, 0.12, 0.03, -0.10, 0.20, 0.05, -0.02, 0.10, 0.07, -0.15, 0.18, 0.06,
+        -0.08, 0.09, 0.11, -0.03, 0.14, 0.04,
       ]
 
       const result = calculateHistoricalVaR(portfolioValue, historicalReturns)
 
       // Higher confidence level = more extreme percentile = higher VaR
-      expect(result.results[0].maxExpectedLossEur).toBeLessThanOrEqual(result.results[1].maxExpectedLossEur)
-      expect(result.results[1].maxExpectedLossEur).toBeLessThanOrEqual(result.results[2].maxExpectedLossEur)
+      expect(result.results[0].maxExpectedLossEur).toBeLessThanOrEqual(
+        result.results[1].maxExpectedLossEur,
+      )
+      expect(result.results[1].maxExpectedLossEur).toBeLessThanOrEqual(
+        result.results[2].maxExpectedLossEur,
+      )
     })
 
     it('should handle all positive returns', () => {
       const portfolioValue = 100000
-      const historicalReturns = [0.05, 0.08, 0.1, 0.12, 0.15, 0.07, 0.09, 0.11, 0.13, 0.06]
+      const historicalReturns = [0.05, 0.08, 0.10, 0.12, 0.15, 0.07, 0.09, 0.11, 0.13, 0.06]
 
       const result = calculateHistoricalVaR(portfolioValue, historicalReturns)
 
@@ -165,7 +175,7 @@ describe('Value at Risk (VaR) Calculations', () => {
 
     it('should handle all negative returns (crisis scenario)', () => {
       const portfolioValue = 100000
-      const historicalReturns = [-0.05, -0.08, -0.1, -0.12, -0.15, -0.07, -0.09, -0.11, -0.13, -0.06]
+      const historicalReturns = [-0.05, -0.08, -0.10, -0.12, -0.15, -0.07, -0.09, -0.11, -0.13, -0.06]
 
       const result = calculateHistoricalVaR(portfolioValue, historicalReturns)
 
@@ -187,13 +197,15 @@ describe('Value at Risk (VaR) Calculations', () => {
 
     it('should adjust for time horizon', () => {
       const portfolioValue = 100000
-      const historicalReturns = [0.05, 0.08, -0.03, 0.1, 0.02, -0.05, 0.12, 0.04]
+      const historicalReturns = [0.05, 0.08, -0.03, 0.10, 0.02, -0.05, 0.12, 0.04]
 
       const oneYear = calculateHistoricalVaR(portfolioValue, historicalReturns, 1, [95])
       const twoYears = calculateHistoricalVaR(portfolioValue, historicalReturns, 2, [95])
 
       // Two-year horizon should scale returns by 2
-      expect(twoYears.results[0].maxExpectedLossPercent).not.toBe(oneYear.results[0].maxExpectedLossPercent)
+      expect(twoYears.results[0].maxExpectedLossPercent).not.toBe(
+        oneYear.results[0].maxExpectedLossPercent,
+      )
     })
   })
 
@@ -232,14 +244,21 @@ describe('Value at Risk (VaR) Calculations', () => {
       const result = calculateMonteCarloVaR(portfolioValue, simulatedValues)
 
       // Higher confidence level = more extreme percentile = higher VaR
-      expect(result.results[0].maxExpectedLossEur).toBeLessThanOrEqual(result.results[1].maxExpectedLossEur)
-      expect(result.results[1].maxExpectedLossEur).toBeLessThanOrEqual(result.results[2].maxExpectedLossEur)
+      expect(result.results[0].maxExpectedLossEur).toBeLessThanOrEqual(
+        result.results[1].maxExpectedLossEur,
+      )
+      expect(result.results[1].maxExpectedLossEur).toBeLessThanOrEqual(
+        result.results[2].maxExpectedLossEur,
+      )
     })
 
     it('should handle favorable simulations (all gains)', () => {
       const portfolioValue = 100000
       // All simulations show gains
-      const simulatedValues = Array.from({ length: 100 }, (_v, i) => portfolioValue * (1.05 + i * 0.01))
+      const simulatedValues = Array.from(
+        { length: 100 },
+        (_v, i) => portfolioValue * (1.05 + i * 0.01),
+      )
 
       const result = calculateMonteCarloVaR(portfolioValue, simulatedValues)
 
@@ -397,7 +416,9 @@ describe('Value at Risk (VaR) Calculations', () => {
       const standardDeviation = 0.15
 
       // Parametric VaR
-      const parametric = calculateParametricVaR(portfolioValue, averageReturn, standardDeviation, 1, [95])
+      const parametric = calculateParametricVaR(portfolioValue, averageReturn, standardDeviation, 1, [
+        95,
+      ])
 
       // Generate historical returns that match the parametric assumptions using Box-Muller
       const historicalReturns = Array.from({ length: 1000 }, () => {
@@ -433,7 +454,12 @@ describe('Value at Risk (VaR) Calculations', () => {
       const standardDeviation = 0.18
       const timeHorizon = 1
 
-      const result = calculateParametricVaR(portfolioValue, averageReturn, standardDeviation, timeHorizon)
+      const result = calculateParametricVaR(
+        portfolioValue,
+        averageReturn,
+        standardDeviation,
+        timeHorizon,
+      )
 
       // Check that results are reasonable
       result.results.forEach(r => {

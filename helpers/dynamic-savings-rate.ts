@@ -61,13 +61,13 @@ export type DynamicSavingsRateConfig = {
   enabled: boolean
   baseSavingsRate: number // Base monthly/yearly savings amount
   birthYear: number // User's birth year for age calculations
-
+  
   // Life phase-based adjustments
   lifePhases?: LifePhaseConfig[]
-
+  
   // Income development-based adjustments
   incomeDevelopment?: IncomeDevelopmentConfig
-
+  
   // Event-triggered adjustments
   lifeEvents?: LifeEvent[]
 }
@@ -112,24 +112,28 @@ export function getActiveLifePhase(
   lifePhases: LifePhaseConfig[],
 ): LifePhaseConfig | null {
   const age = calculateAge(birthYear, year)
-
+  
   for (const phase of lifePhases) {
     if (age >= phase.startAge && age <= phase.endAge) {
       return phase
     }
   }
-
+  
   return null
 }
 
 /**
  * Calculate savings rate multiplier based on life phase
  */
-export function calculateLifePhaseMultiplier(birthYear: number, year: number, lifePhases?: LifePhaseConfig[]): number {
+export function calculateLifePhaseMultiplier(
+  birthYear: number,
+  year: number,
+  lifePhases?: LifePhaseConfig[],
+): number {
   if (!lifePhases || lifePhases.length === 0) {
     return 1.0
   }
-
+  
   const activePhase = getActiveLifePhase(birthYear, year, lifePhases)
   return activePhase?.savingsRateMultiplier ?? 1.0
 }
@@ -147,58 +151,72 @@ export function calculateIncomeDevelopmentAdjustment(
   if (!incomeDevelopment?.enabled || !incomeDevelopment.salaryIncreases) {
     return 0
   }
-
+  
   let cumulativeAdjustment = 0
-
+  
   // Calculate for each year from start to current
   for (let year = startYear + 1; year <= currentYear; year++) {
     const age = calculateAge(birthYear, year)
-
+    
     // Find applicable salary increase for this age
     const salaryIncrease = incomeDevelopment.salaryIncreases.find(
-      increase => age >= increase.startAge && age <= increase.endAge,
+      (increase) => age >= increase.startAge && age <= increase.endAge,
     )
-
+    
     if (salaryIncrease) {
       // Calculate the increase in savings from salary growth
       // Assume savings rate applies to the increase
       const salaryGrowthRate = salaryIncrease.annualIncreasePercent / 100
-      const savingsIncrease = baseSavingsRate * salaryGrowthRate * incomeDevelopment.savingsRateOfIncrease
+      const savingsIncrease =
+        baseSavingsRate * salaryGrowthRate * incomeDevelopment.savingsRateOfIncrease
       cumulativeAdjustment += savingsIncrease
     }
   }
-
+  
   return cumulativeAdjustment
 }
 
 /**
  * Calculate cumulative life event adjustments up to a given year
  */
-export function calculateLifeEventAdjustments(year: number, lifeEvents?: LifeEvent[]): number {
+export function calculateLifeEventAdjustments(
+  year: number,
+  lifeEvents?: LifeEvent[],
+): number {
   if (!lifeEvents || lifeEvents.length === 0) {
     return 0
   }
-
+  
   // Sum all event adjustments that have occurred up to this year
-  return lifeEvents.filter(event => event.year <= year).reduce((sum, event) => sum + event.savingsRateChange, 0)
+  return lifeEvents
+    .filter((event) => event.year <= year)
+    .reduce((sum, event) => sum + event.savingsRateChange, 0)
 }
 
 /**
  * Calculate the adjusted savings rate for a given year
  * This is the main function that combines all adjustment types
  */
-export function calculateDynamicSavingsRate(year: number, startYear: number, config: DynamicSavingsRateConfig): number {
+export function calculateDynamicSavingsRate(
+  year: number,
+  startYear: number,
+  config: DynamicSavingsRateConfig,
+): number {
   if (!config.enabled) {
     return config.baseSavingsRate
   }
-
+  
   // Start with base savings rate
   let adjustedRate = config.baseSavingsRate
-
+  
   // Apply life phase multiplier
-  const lifePhaseMultiplier = calculateLifePhaseMultiplier(config.birthYear, year, config.lifePhases)
+  const lifePhaseMultiplier = calculateLifePhaseMultiplier(
+    config.birthYear,
+    year,
+    config.lifePhases,
+  )
   adjustedRate *= lifePhaseMultiplier
-
+  
   // Add income development adjustment
   const incomeAdjustment = calculateIncomeDevelopmentAdjustment(
     config.birthYear,
@@ -208,11 +226,11 @@ export function calculateDynamicSavingsRate(year: number, startYear: number, con
     config.incomeDevelopment,
   )
   adjustedRate += incomeAdjustment
-
+  
   // Add life event adjustments
   const eventAdjustment = calculateLifeEventAdjustments(year, config.lifeEvents)
   adjustedRate += eventAdjustment
-
+  
   // Ensure rate doesn't go negative
   return Math.max(0, adjustedRate)
 }
@@ -236,7 +254,11 @@ export function getSavingsRateBreakdown(
   config: DynamicSavingsRateConfig,
 ): SavingsRateBreakdown {
   const baseRate = config.baseSavingsRate
-  const lifePhaseMultiplier = calculateLifePhaseMultiplier(config.birthYear, year, config.lifePhases)
+  const lifePhaseMultiplier = calculateLifePhaseMultiplier(
+    config.birthYear,
+    year,
+    config.lifePhases,
+  )
   const lifePhaseAmount = baseRate * lifePhaseMultiplier
   const incomeDevelopmentAdjustment = calculateIncomeDevelopmentAdjustment(
     config.birthYear,
@@ -247,9 +269,11 @@ export function getSavingsRateBreakdown(
   )
   const lifeEventAdjustment = calculateLifeEventAdjustments(year, config.lifeEvents)
   const totalRate = Math.max(0, lifePhaseAmount + incomeDevelopmentAdjustment + lifeEventAdjustment)
-
-  const activePhase = config.lifePhases ? getActiveLifePhase(config.birthYear, year, config.lifePhases) : undefined
-
+  
+  const activePhase = config.lifePhases
+    ? getActiveLifePhase(config.birthYear, year, config.lifePhases)
+    : undefined
+  
   return {
     baseRate,
     lifePhaseMultiplier,
@@ -276,7 +300,7 @@ function validateBasicFields(config: DynamicSavingsRateConfig, errors: Validatio
       message: 'Basis-Sparrate darf nicht negativ sein',
     })
   }
-
+  
   const currentYear = new Date().getFullYear()
   if (config.birthYear < 1900 || config.birthYear > currentYear) {
     errors.push({
@@ -290,11 +314,11 @@ function validateLifePhaseOverlaps(config: DynamicSavingsRateConfig, errors: Val
   if (!config.lifePhases || config.lifePhases.length <= 1) {
     return
   }
-
+  
   for (let i = 0; i < config.lifePhases.length - 1; i++) {
     const current = config.lifePhases[i]
     const next = config.lifePhases[i + 1]
-
+    
     if (current.endAge >= next.startAge) {
       errors.push({
         field: 'lifePhases',
@@ -308,7 +332,7 @@ function validateLifePhaseDetails(config: DynamicSavingsRateConfig, errors: Vali
   if (!config.lifePhases) {
     return
   }
-
+  
   for (const phase of config.lifePhases) {
     if (phase.savingsRateMultiplier < 0) {
       errors.push({
@@ -329,16 +353,16 @@ function validateIncomeDevelopment(config: DynamicSavingsRateConfig, errors: Val
   if (!config.incomeDevelopment?.enabled) {
     return
   }
-
+  
   const { savingsRateOfIncrease, salaryIncreases } = config.incomeDevelopment
-
+  
   if (savingsRateOfIncrease < 0 || savingsRateOfIncrease > 1) {
     errors.push({
       field: 'incomeDevelopment.savingsRateOfIncrease',
       message: 'Sparquote der Gehaltserhöhung muss zwischen 0% und 100% liegen',
     })
   }
-
+  
   if (salaryIncreases) {
     for (const increase of salaryIncreases) {
       if (increase.annualIncreasePercent < 0) {
@@ -351,14 +375,16 @@ function validateIncomeDevelopment(config: DynamicSavingsRateConfig, errors: Val
   }
 }
 
-export function validateDynamicSavingsConfig(config: DynamicSavingsRateConfig): ValidationError[] {
+export function validateDynamicSavingsConfig(
+  config: DynamicSavingsRateConfig,
+): ValidationError[] {
   const errors: ValidationError[] = []
-
+  
   validateBasicFields(config, errors)
   validateLifePhaseOverlaps(config, errors)
   validateLifePhaseDetails(config, errors)
   validateIncomeDevelopment(config, errors)
-
+  
   return errors
 }
 
@@ -371,7 +397,7 @@ export function createDefaultDynamicSavingsConfig(
 ): DynamicSavingsRateConfig {
   const currentYear = new Date().getFullYear()
   const defaultBirthYear = birthYear ?? currentYear - 30 // Default: 30 years old
-
+  
   return {
     enabled: false,
     baseSavingsRate,

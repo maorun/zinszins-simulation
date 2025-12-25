@@ -15,10 +15,10 @@ interface GoalListProps {
 /**
  * Component for displaying a list of financial goals
  */
-export function GoalList({
-  goals,
-  currentCapital,
-  onToggleActive,
+export function GoalList({ 
+  goals, 
+  currentCapital, 
+  onToggleActive, 
   onRemove,
   monthlySavingsRate,
   expectedReturn,

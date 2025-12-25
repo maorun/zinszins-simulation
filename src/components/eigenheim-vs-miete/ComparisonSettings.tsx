@@ -26,14 +26,7 @@ export function ComparisonSettings({ config, setConfig, ids }: ComparisonSetting
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor={ids.comparisonYears}>Vergleichszeitraum (Jahre)</Label>
-          <Slider
-            id={ids.comparisonYears}
-            min={5}
-            max={40}
-            step={1}
-            value={[config.comparison.comparisonYears]}
-            onValueChange={handleYearsChange}
-          />
+          <Slider id={ids.comparisonYears} min={5} max={40} step={1} value={[config.comparison.comparisonYears]} onValueChange={handleYearsChange} />
           <p className="text-sm text-gray-600">{config.comparison.comparisonYears} Jahre</p>
         </div>
         <div className="space-y-2">
@@ -50,15 +43,7 @@ export function ComparisonSettings({ config, setConfig, ids }: ComparisonSetting
               </Tooltip>
             </TooltipProvider>
           </Label>
-          <Input
-            id={ids.investmentReturn}
-            type="number"
-            min={0}
-            max={15}
-            step={0.1}
-            value={config.comparison.investmentReturnRate}
-            onChange={e => handleInvestmentReturnChange(e.target.value)}
-          />
+          <Input id={ids.investmentReturn} type="number" min={0} max={15} step={0.1} value={config.comparison.investmentReturnRate} onChange={(e) => handleInvestmentReturnChange(e.target.value)} />
         </div>
       </div>
     </div>

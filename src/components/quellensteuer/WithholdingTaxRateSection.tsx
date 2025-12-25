@@ -38,9 +38,7 @@ export function WithholdingTaxRateSection({
             max="100"
             step="0.1"
             value={(withholdingTaxRate * 100).toFixed(1)}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              onWithholdingTaxRateChange(Number(e.target.value) / 100)
-            }
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onWithholdingTaxRateChange(Number(e.target.value) / 100)}
             placeholder="15.0"
           />
           <p className="text-xs text-muted-foreground">
@@ -53,7 +51,9 @@ export function WithholdingTaxRateSection({
             <span className="text-sm font-medium">DBA-Satz {selectedCountry?.country}:</span>
             <span className="text-lg font-bold text-green-600">{(withholdingTaxRate * 100).toFixed(1)}%</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">Reduzierter Satz nach Doppelbesteuerungsabkommen</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Reduzierter Satz nach Doppelbesteuerungsabkommen
+          </p>
         </div>
       )}
     </div>

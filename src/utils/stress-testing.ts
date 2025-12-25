@@ -81,7 +81,7 @@ function calculateCrisisValue(
   const crisisYears = new Set(Array.from({ length: event.duration }, (_, i) => i))
 
   for (let year = 0; year < years; year++) {
-    const returnRate = crisisYears.has(year) ? (event.yearlyReturns[year] ?? normalReturn) : normalReturn
+    const returnRate = crisisYears.has(year) ? event.yearlyReturns[year] ?? normalReturn : normalReturn
     value = value * (1 + returnRate) + annualContribution
   }
   return value

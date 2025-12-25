@@ -177,12 +177,12 @@ export function calculateVorabpauschaleDetailed(
 
 /**
  * Calculates the tax due on a given Vorabpauschale amount.
- *
+ * 
  * German tax law provides a partial tax exemption (Teilfreistellungsquote) for certain fund types:
  * - Equity funds (Aktienfonds): 30% exemption
  * - Mixed funds (Mischfonds): 15% exemption
  * - Real estate funds (Immobilienfonds): 60-80% exemption
- *
+ * 
  * The effective tax rate is: Kapitalertragsteuer × (1 - Teilfreistellungsquote)
  * Example: 26.375% tax × (1 - 0.30) = 18.4625% effective tax for equity funds
  *
@@ -259,13 +259,13 @@ function buildTaxSystemText(
   if (useProgressiveTax) {
     return 'Progressiver Tarif'
   }
-
+  
   const kirchensteuerText = kirchensteuerAktiv ? ` (inkl. ${kirchensteuersatz}% Kirchensteuer)` : ''
-
+  
   if (personalTaxRate !== undefined) {
     return `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
   }
-
+  
   return 'Persönlicher Steuersatz'
 }
 
@@ -302,21 +302,26 @@ function determineFavorableTaxOption(
   usedTaxRate: number
   explanation: string
 } {
-  const taxSystemText = buildTaxSystemText(useProgressiveTax, personalTaxRate, kirchensteuerAktiv, kirchensteuersatz)
+  const taxSystemText = buildTaxSystemText(
+    useProgressiveTax,
+    personalTaxRate,
+    kirchensteuerAktiv,
+    kirchensteuersatz,
+  )
 
   if (personalTaxAmount < abgeltungssteuerAmount) {
     // Avoid division by zero
     const usedTaxRate = personalTaxAmount / Math.max(vorabpauschale * (1 - teilfreistellungsquote), 0.01)
     const baseExplanation = `${taxSystemText} ist günstiger als Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
     const explanation = addEffectiveRateInfo(baseExplanation, useProgressiveTax, effectiveRate)
-
+    
     return { isFavorable: 'personal', usedTaxRate, explanation }
   }
 
   if (personalTaxAmount > abgeltungssteuerAmount) {
     const baseExplanation = `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als ${taxSystemText}`
     const explanation = addEffectiveRateInfo(baseExplanation, useProgressiveTax, effectiveRate)
-
+    
     return { isFavorable: 'abgeltungssteuer', usedTaxRate: abgeltungssteuer, explanation }
   }
 
@@ -487,13 +492,11 @@ function calculateTaxZone1(
   return {
     totalTax: 0,
     marginalRate: 0,
-    bracketBreakdown: [
-      {
-        bracket: taxBrackets[0],
-        taxableAmount: incomeAfterOffset,
-        taxAmount: 0,
-      },
-    ],
+    bracketBreakdown: [{
+      bracket: taxBrackets[0],
+      taxableAmount: incomeAfterOffset,
+      taxAmount: 0,
+    }],
   }
 }
 
@@ -508,13 +511,11 @@ function calculateTaxZone2Result(
   return {
     totalTax,
     marginalRate: 0.14,
-    bracketBreakdown: [
-      {
-        bracket: taxBrackets[1],
-        taxableAmount: incomeAfterOffset - 11604,
-        taxAmount: totalTax,
-      },
-    ],
+    bracketBreakdown: [{
+      bracket: taxBrackets[1],
+      taxableAmount: incomeAfterOffset - 11604,
+      taxAmount: totalTax,
+    }],
   }
 }
 
@@ -529,13 +530,11 @@ function calculateTaxZone3Result(
   return {
     totalTax,
     marginalRate: 0.2397,
-    bracketBreakdown: [
-      {
-        bracket: taxBrackets[2],
-        taxableAmount: incomeAfterOffset - 17005,
-        taxAmount: totalTax,
-      },
-    ],
+    bracketBreakdown: [{
+      bracket: taxBrackets[2],
+      taxableAmount: incomeAfterOffset - 17005,
+      taxAmount: totalTax,
+    }],
   }
 }
 
@@ -549,17 +548,15 @@ function calculateTaxZone4Result(
   const baseTax = calculateZone3Tax(66760, 181.19, 2397)
   const incomeAbove66760 = incomeAfterOffset - 66760
   const totalTax = baseTax + incomeAbove66760 * 0.42
-
+  
   return {
     totalTax,
     marginalRate: 0.42,
-    bracketBreakdown: [
-      {
-        bracket: taxBrackets[3],
-        taxableAmount: incomeAbove66760,
-        taxAmount: totalTax,
-      },
-    ],
+    bracketBreakdown: [{
+      bracket: taxBrackets[3],
+      taxableAmount: incomeAbove66760,
+      taxAmount: totalTax,
+    }],
   }
 }
 
@@ -575,17 +572,15 @@ function calculateTaxZone5Result(
   const baseTaxZone4 = baseTaxZone3 + zone4Income * 0.42
   const incomeAbove277825 = incomeAfterOffset - 277825
   const totalTax = baseTaxZone4 + incomeAbove277825 * 0.45
-
+  
   return {
     totalTax,
     marginalRate: 0.45,
-    bracketBreakdown: [
-      {
-        bracket: taxBrackets[4],
-        taxableAmount: incomeAbove277825,
-        taxAmount: totalTax,
-      },
-    ],
+    bracketBreakdown: [{
+      bracket: taxBrackets[4],
+      taxableAmount: incomeAbove277825,
+      taxAmount: totalTax,
+    }],
   }
 }
 
@@ -599,19 +594,19 @@ function calculateTaxByZone(
   if (incomeAfterOffset <= 11604) {
     return calculateTaxZone1(incomeAfterOffset, taxBrackets)
   }
-
+  
   if (incomeAfterOffset <= 17005) {
     return calculateTaxZone2Result(incomeAfterOffset, taxBrackets)
   }
-
+  
   if (incomeAfterOffset <= 66760) {
     return calculateTaxZone3Result(incomeAfterOffset, taxBrackets)
   }
-
+  
   if (incomeAfterOffset <= 277825) {
     return calculateTaxZone4Result(incomeAfterOffset, taxBrackets)
   }
-
+  
   return calculateTaxZone5Result(incomeAfterOffset, taxBrackets)
 }
 
@@ -631,7 +626,7 @@ function calculateTaxByZone(
  * NOTE: The `grundfreibetrag` parameter is used when capital gains are being taxed
  * with progressive tax instead of Abgeltungssteuer (via Günstigerprüfung).
  * In this case, the Grundfreibetrag can be used to offset capital gains.
- *
+ * 
  * Important distinction:
  * - The built-in Grundfreibetrag (Zone 1: 0-11,604€) applies to ALL income types
  * - The `grundfreibetrag` parameter is an ADDITIONAL offset specifically for capital gains
@@ -729,18 +724,18 @@ export function calculateProgressiveTaxOnVorabpauschale(
 /**
  * Performs Günstigerprüfung (tax optimization check) to determine whether
  * Abgeltungssteuer (capital gains tax) or personal income tax is more favorable.
- *
+ * 
  * Günstigerprüfung is a German tax regulation that allows taxpayers to choose
  * the more favorable tax treatment for capital gains:
- *
+ * 
  * 1. **Abgeltungssteuer (default)**: Flat 26.375% (including Solidaritätszuschlag)
  * 2. **Personal Income Tax**: Progressive rates from 0% to 45%
- *
+ * 
  * **When is Günstigerprüfung beneficial?**
  * - Retirees with low total income (below or near Grundfreibetrag)
  * - Taxpayers with personal income tax rate below 26.375%
  * - Situations where Grundfreibetrag can offset capital gains
- *
+ * 
  * **Tax calculation includes:**
  * - Teilfreistellungsquote (partial exemption for fund types)
  * - Grundfreibetrag (basic tax allowance - can be used for capital gains)
@@ -773,11 +768,7 @@ export function performGuenstigerPruefung(
     return createEmptyGuenstigerPruefungResult(abgeltungssteuer, grundfreibetrag, alreadyUsedGrundfreibetrag)
   }
   validateGuenstigerPruefungInputs(vorabpauschale, useProgressiveTax, personalTaxRate)
-  const abgeltungssteuerAmount = calculateSteuerOnVorabpauschale(
-    vorabpauschale,
-    abgeltungssteuer,
-    teilfreistellungsquote,
-  )
+  const abgeltungssteuerAmount = calculateSteuerOnVorabpauschale(vorabpauschale, abgeltungssteuer, teilfreistellungsquote)
   const { personalTaxAmount, usedGrundfreibetrag, effectiveRate } = calculatePersonalIncomeTax(
     vorabpauschale,
     personalTaxRate,

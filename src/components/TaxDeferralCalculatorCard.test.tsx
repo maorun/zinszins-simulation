@@ -27,7 +27,7 @@ describe('TaxDeferralCalculatorCard', () => {
 
     // Card header should be visible
     expect(screen.getAllByText(/Steuerstundungs-Kalkulator/i)[0]).toBeInTheDocument()
-
+    
     // Content should not be visible initially (collapsed)
     expect(screen.queryByText(/Anfangsinvestition/i)).not.toBeInTheDocument()
   })
@@ -104,7 +104,7 @@ describe('TaxDeferralCalculatorCard', () => {
     // Tax comparison sections should be visible
     expect(screen.getByText(/📘 Thesaurierend/i)).toBeInTheDocument()
     expect(screen.getByText(/📙 Ausschüttend/i)).toBeInTheDocument()
-
+    
     // Both should show tax paid
     const taxLabels = screen.getAllByText(/Gezahlte Steuern/i)
     expect(taxLabels).toHaveLength(2)
@@ -174,7 +174,7 @@ describe('TaxDeferralCalculatorCard', () => {
 
     // Should show that accumulating is better
     expect(screen.getByText(/Vorteil Thesaurierung/i)).toBeInTheDocument()
-
+    
     // Should show percentage advantage
     const percentageText = screen.getByText(/% mehr\)/)
     expect(percentageText).toBeInTheDocument()

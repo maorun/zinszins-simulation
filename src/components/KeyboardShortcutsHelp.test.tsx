@@ -43,7 +43,9 @@ describe('KeyboardShortcutsHelp', () => {
   })
 
   it('should not render when closed', () => {
-    render(<KeyboardShortcutsHelp open={false} onClose={mockOnClose} shortcuts={mockShortcuts} />)
+    render(
+      <KeyboardShortcutsHelp open={false} onClose={mockOnClose} shortcuts={mockShortcuts} />,
+    )
 
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   })
@@ -59,7 +61,9 @@ describe('KeyboardShortcutsHelp', () => {
     render(<KeyboardShortcutsHelp open={true} onClose={mockOnClose} shortcuts={mockShortcuts} />)
 
     expect(
-      screen.getByText(/Verwenden Sie diese Tastaturkürzel für eine schnellere Navigation und effizienteres Arbeiten/),
+      screen.getByText(
+        /Verwenden Sie diese Tastaturkürzel für eine schnellere Navigation und effizienteres Arbeiten/,
+      ),
     ).toBeInTheDocument()
   })
 

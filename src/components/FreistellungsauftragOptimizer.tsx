@@ -231,7 +231,9 @@ function AccountCard({ account, optimizationResult, effectiveTaxRates, onRemove,
           <AccountCardHeader
             accountNameId={accountNameId}
             accountName={account.name}
-            onAccountNameChange={(e: ChangeEvent<HTMLInputElement>) => onChange(account.id, 'name', e.target.value)}
+            onAccountNameChange={(e: ChangeEvent<HTMLInputElement>) =>
+              onChange(account.id, 'name', e.target.value)
+            }
             onRemoveAccount={() => onRemove(account.id)}
           />
           <AccountCardBody

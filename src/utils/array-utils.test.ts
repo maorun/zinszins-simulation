@@ -61,7 +61,7 @@ describe('array-utils', () => {
     it('should handle mixed string and number types separately', () => {
       const numbers = [1, 2, 1, 3, 2]
       const strings = ['a', 'b', 'a', 'c', 'b']
-
+      
       expect(unique(numbers)).toEqual([1, 2, 3])
       expect(unique(strings)).toEqual(['a', 'b', 'c'])
     })

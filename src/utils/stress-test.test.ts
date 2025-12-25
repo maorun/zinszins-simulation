@@ -85,7 +85,7 @@ describe('Stress Test Functionality', () => {
       const scenario: StressScenario = {
         name: 'Test Crash',
         description: 'Test scenario',
-        marketShock: -0.4, // -40%
+        marketShock: -0.40, // -40%
         category: 'hypothetical',
       }
 
@@ -101,7 +101,7 @@ describe('Stress Test Functionality', () => {
       const scenario: StressScenario = {
         name: 'Test',
         description: 'Test',
-        marketShock: -0.3,
+        marketShock: -0.30,
         category: 'hypothetical',
       }
 
@@ -149,9 +149,9 @@ describe('Stress Test Functionality', () => {
     it('should calculate loss percentages correctly', () => {
       const portfolioValue = 100000
       const scenarios = [
-        { marketShock: -0.1, expectedLossPercent: 10 },
+        { marketShock: -0.10, expectedLossPercent: 10 },
         { marketShock: -0.25, expectedLossPercent: 25 },
-        { marketShock: -0.5, expectedLossPercent: 50 },
+        { marketShock: -0.50, expectedLossPercent: 50 },
         { marketShock: -0.75, expectedLossPercent: 75 },
       ]
 
@@ -171,7 +171,7 @@ describe('Stress Test Functionality', () => {
       const scenario: StressScenario = {
         name: 'Test',
         description: 'Test',
-        marketShock: -0.4,
+        marketShock: -0.40,
         category: 'hypothetical',
       }
 
@@ -203,14 +203,17 @@ describe('Stress Test Functionality', () => {
       }, analysis.results[0])
 
       expect(analysis.worstCase).toEqual(manualWorst)
-      expect(analysis.worstCase.absoluteLoss).toBeGreaterThanOrEqual(analysis.results[0].absoluteLoss)
+      expect(analysis.worstCase.absoluteLoss).toBeGreaterThanOrEqual(
+        analysis.results[0].absoluteLoss,
+      )
     })
 
     it('should calculate average loss correctly', () => {
       const portfolioValue = 100000
       const analysis = runStressTestAnalysis(portfolioValue)
 
-      const manualAverage = analysis.results.reduce((sum, r) => sum + r.absoluteLoss, 0) / analysis.results.length
+      const manualAverage =
+        analysis.results.reduce((sum, r) => sum + r.absoluteLoss, 0) / analysis.results.length
 
       expect(analysis.averageLoss).toBe(manualAverage)
       expect(analysis.averageLoss).toBeGreaterThan(0)
@@ -222,13 +225,13 @@ describe('Stress Test Functionality', () => {
         {
           name: 'Custom 1',
           description: 'First custom',
-          marketShock: -0.2,
+          marketShock: -0.20,
           category: 'hypothetical',
         },
         {
           name: 'Custom 2',
           description: 'Second custom',
-          marketShock: -0.5,
+          marketShock: -0.50,
           category: 'hypothetical',
         },
       ]
@@ -266,7 +269,7 @@ describe('Stress Test Functionality', () => {
         {
           name: 'Only Scenario',
           description: 'Single test',
-          marketShock: -0.3,
+          marketShock: -0.30,
           category: 'hypothetical',
         },
       ]
@@ -281,7 +284,11 @@ describe('Stress Test Functionality', () => {
 
   describe('createCustomStressScenario', () => {
     it('should create a valid custom scenario', () => {
-      const scenario = createCustomStressScenario('Mein Szenario', 'Benutzerdefiniertes Test-Szenario', -0.35)
+      const scenario = createCustomStressScenario(
+        'Mein Szenario',
+        'Benutzerdefiniertes Test-Szenario',
+        -0.35,
+      )
 
       expect(scenario.name).toBe('Mein Szenario')
       expect(scenario.description).toBe('Benutzerdefiniertes Test-Szenario')
@@ -290,15 +297,19 @@ describe('Stress Test Functionality', () => {
     })
 
     it('should work with different market shocks', () => {
-      const scenario1 = createCustomStressScenario('Test 1', 'Description', -0.1)
-      expect(scenario1.marketShock).toBe(-0.1)
+      const scenario1 = createCustomStressScenario('Test 1', 'Description', -0.10)
+      expect(scenario1.marketShock).toBe(-0.10)
 
       const scenario2 = createCustomStressScenario('Test 2', 'Description', -0.75)
       expect(scenario2.marketShock).toBe(-0.75)
     })
 
     it('should handle German characters in names', () => {
-      const scenario = createCustomStressScenario('Börsenkrise in Österreich', 'Szenario für spezielle Märkte', -0.25)
+      const scenario = createCustomStressScenario(
+        'Börsenkrise in Österreich',
+        'Szenario für spezielle Märkte',
+        -0.25,
+      )
 
       expect(scenario.name).toContain('Österreich')
       expect(scenario.description).toContain('Märkte')
@@ -310,7 +321,7 @@ describe('Stress Test Functionality', () => {
       const scenario: StressScenario = {
         name: 'Test Crash',
         description: 'Test',
-        marketShock: -0.4,
+        marketShock: -0.40,
         category: 'hypothetical',
       }
       const result = applyStressTest(100000, scenario)
@@ -327,7 +338,7 @@ describe('Stress Test Functionality', () => {
       const scenario: StressScenario = {
         name: 'Major Crisis',
         description: 'Large portfolio test',
-        marketShock: -0.5,
+        marketShock: -0.50,
         category: 'hypothetical',
       }
       const result = applyStressTest(1000000, scenario)
@@ -415,14 +426,21 @@ describe('Stress Test Functionality', () => {
 
     it('should work with mixed scenario types', () => {
       const portfolioValue = 100000
-      const mixedScenarios = [...HISTORICAL_STRESS_SCENARIOS.slice(0, 2), ...HYPOTHETICAL_STRESS_SCENARIOS.slice(0, 2)]
+      const mixedScenarios = [
+        ...HISTORICAL_STRESS_SCENARIOS.slice(0, 2),
+        ...HYPOTHETICAL_STRESS_SCENARIOS.slice(0, 2),
+      ]
 
       const analysis = runStressTestAnalysis(portfolioValue, mixedScenarios)
 
       expect(analysis.results).toHaveLength(4)
 
-      const historicalCount = analysis.results.filter(r => r.scenario.category === 'historical').length
-      const hypotheticalCount = analysis.results.filter(r => r.scenario.category === 'hypothetical').length
+      const historicalCount = analysis.results.filter(
+        r => r.scenario.category === 'historical',
+      ).length
+      const hypotheticalCount = analysis.results.filter(
+        r => r.scenario.category === 'hypothetical',
+      ).length
 
       expect(historicalCount).toBe(2)
       expect(hypotheticalCount).toBe(2)
@@ -433,14 +451,18 @@ describe('Stress Test Functionality', () => {
       const analysis = runStressTestAnalysis(portfolioValue)
 
       // Sort by loss
-      const sortedResults = [...analysis.results].sort((a, b) => b.absoluteLoss - a.absoluteLoss)
+      const sortedResults = [...analysis.results].sort(
+        (a, b) => b.absoluteLoss - a.absoluteLoss,
+      )
 
       // First should be worst case
       expect(sortedResults[0].absoluteLoss).toBe(analysis.worstCase.absoluteLoss)
 
       // Should be in descending order
       for (let i = 1; i < sortedResults.length; i++) {
-        expect(sortedResults[i - 1].absoluteLoss).toBeGreaterThanOrEqual(sortedResults[i].absoluteLoss)
+        expect(sortedResults[i - 1].absoluteLoss).toBeGreaterThanOrEqual(
+          sortedResults[i].absoluteLoss,
+        )
       }
     })
 

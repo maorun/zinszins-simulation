@@ -39,9 +39,12 @@ export function ObjectiveSelector({ selectedObjective, onSelect }: ObjectiveSele
   return (
     <div className="space-y-3">
       <Label className="text-sm font-medium">Optimierungsziel</Label>
-      <RadioGroup value={selectedObjective} onValueChange={value => onSelect(value as OptimizationObjective)}>
+      <RadioGroup
+        value={selectedObjective}
+        onValueChange={(value) => onSelect(value as OptimizationObjective)}
+      >
         <div className="space-y-2">
-          {objectives.map(objective => (
+          {objectives.map((objective) => (
             <div
               key={objective}
               className="flex items-start space-x-2 p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer"
@@ -52,7 +55,9 @@ export function ObjectiveSelector({ selectedObjective, onSelect }: ObjectiveSele
                   {getObjectiveIcon(objective)}
                   <span className="font-medium">{getOptimizationObjectiveLabel(objective)}</span>
                 </div>
-                <p className="text-xs text-gray-600">{getOptimizationObjectiveDescription(objective)}</p>
+                <p className="text-xs text-gray-600">
+                  {getOptimizationObjectiveDescription(objective)}
+                </p>
               </Label>
             </div>
           ))}

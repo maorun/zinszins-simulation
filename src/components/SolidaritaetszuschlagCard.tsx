@@ -93,7 +93,7 @@ function SoliResultsDisplay({ result, incomeTax }: SoliResultsDisplayProps) {
       </div>
 
       <SavingsInfo calculation={calculation} />
-
+      
       <div className={`mt-3 pt-3 border-t border-opacity-50 text-xs ${colorScheme.light}`}>
         <p className="font-medium mb-1">ℹ️ Erklärung:</p>
         <p>{calculation.explanation}</p>
@@ -120,7 +120,7 @@ function PlanningModeSelector({
       <RadioGroup
         id="planning-mode"
         value={planningMode}
-        onValueChange={value => onPlanningModeChange(value as SoliPlanningMode)}
+        onValueChange={(value) => onPlanningModeChange(value as SoliPlanningMode)}
         className="flex flex-col sm:flex-row gap-4"
       >
         <div className="flex items-center space-x-2">
@@ -181,7 +181,9 @@ function BackgroundInfo() {
       <ul className="space-y-1 ml-4 list-disc">
         <li>Der Solidaritätszuschlag beträgt grundsätzlich 5,5% der Einkommensteuer</li>
         <li>Seit 2021 gilt eine Freigrenze: Etwa 90% der Steuerzahler zahlen keinen Soli mehr</li>
-        <li>In der Gleitzone wird der Soli schrittweise eingeführt (11,9% des Betrags über der Freigrenze)</li>
+        <li>
+          In der Gleitzone wird der Soli schrittweise eingeführt (11,9% des Betrags über der Freigrenze)
+        </li>
         <li>Oberhalb der Gleitzone wird der volle Soli (5,5%) auf die gesamte Einkommensteuer fällig</li>
       </ul>
     </div>
@@ -200,12 +202,17 @@ export function SolidaritaetszuschlagCard() {
   const [planningMode, setPlanningMode] = useState<SoliPlanningMode>('individual')
   const [incomeTax, setIncomeTax] = useState(25000)
 
-  const soliResult = useMemo(() => calculateSolidaritaetszuschlag(incomeTax, planningMode), [incomeTax, planningMode])
+  const soliResult = useMemo(
+    () => calculateSolidaritaetszuschlag(incomeTax, planningMode),
+    [incomeTax, planningMode],
+  )
 
   return (
     <Card>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleCardHeader titleClassName="text-left">🏛️ Solidaritätszuschlag-Rechner</CollapsibleCardHeader>
+        <CollapsibleCardHeader titleClassName="text-left">
+          🏛️ Solidaritätszuschlag-Rechner
+        </CollapsibleCardHeader>
         <CollapsibleContent>
           <CardContent className="pt-4 space-y-4">
             <div className="text-sm text-muted-foreground mb-2">

@@ -20,8 +20,8 @@ export function ComparisonYearsInput({ comparisonYears, onComparisonYearsChange 
     <div className="space-y-3">
       <Label className="text-sm font-medium">Jahresbruttoeinkommen für Vergleichsjahre</Label>
       <p className="text-xs text-muted-foreground mb-3">
-        Geben Sie Ihr erwartetes Bruttoeinkommen für verschiedene Jahre ein, um den steuerlich günstigsten Zeitpunkt zu
-        finden.
+        Geben Sie Ihr erwartetes Bruttoeinkommen für verschiedene Jahre ein, um den steuerlich
+        günstigsten Zeitpunkt zu finden.
       </p>
       {Object.entries(comparisonYears)
         .sort(([a], [b]) => parseInt(a, 10) - parseInt(b, 10))

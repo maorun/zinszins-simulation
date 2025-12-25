@@ -52,7 +52,7 @@ export function PortfolioInputs({
         max="50"
         step="1"
         onChange={onYearsChange}
-        parseValue={v => parseInt(v) || 30}
+        parseValue={(v) => parseInt(v) || 30}
       />
     </>
   )

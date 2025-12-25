@@ -193,7 +193,7 @@ describe('Stress Testing Integration', () => {
     const user = userEvent.setup()
 
     const highReturnConfig: RandomReturnConfig = {
-      averageReturn: 0.1, // 10% return
+      averageReturn: 0.10, // 10% return
       standardDeviation: 0.15,
       seed: 12345,
     }

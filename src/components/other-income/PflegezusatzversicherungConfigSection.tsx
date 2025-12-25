@@ -259,14 +259,14 @@ function PflegezusatzversicherungInfoBox({
         <strong>ℹ️ Pflegezusatzversicherung - Übersicht:</strong>
       </p>
       <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
-        <li>
-          Pflegegrad {pflegegrad}: {getBenefitInfo(pflegegrad)}
-        </li>
+        <li>Pflegegrad {pflegegrad}: {getBenefitInfo(pflegegrad)}</li>
         <li>Monatliche Leistung: {monthlyBenefit.toLocaleString('de-DE')} €</li>
         <li>Jährliche Leistung: {annualBenefit.toLocaleString('de-DE')} €</li>
         <li>Monatlicher Beitrag: {monthlyPremium.toLocaleString('de-DE')} €</li>
         <li>Jährlicher Beitrag: {annualPremium.toLocaleString('de-DE')} €</li>
-        <li>Netto-Nutzen (Leistung - Beitrag): {netAnnualBenefit.toLocaleString('de-DE')} € jährlich</li>
+        <li>
+          Netto-Nutzen (Leistung - Beitrag): {netAnnualBenefit.toLocaleString('de-DE')} € jährlich
+        </li>
         <li className="font-semibold mt-2">
           💡 Steuerhinweis: Pflegeleistungen sind in Deutschland steuerfrei nach § 3 Nr. 1a EStG
         </li>

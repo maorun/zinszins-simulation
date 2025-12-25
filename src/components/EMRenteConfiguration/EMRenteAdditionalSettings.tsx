@@ -14,41 +14,18 @@ interface EMRenteAdditionalSettingsProps {
 }
 
 export function EMRenteAdditionalSettings(props: EMRenteAdditionalSettingsProps) {
-  const {
-    config,
-    onUpdate,
-    annualIncreaseRateId,
-    taxablePercentageId,
-    monthlyAdditionalIncomeId,
-    zurechnungszeitenSwitchId,
-    abschlaegeSwitchId,
-  } = props
+  const { config, onUpdate, annualIncreaseRateId, taxablePercentageId, monthlyAdditionalIncomeId, zurechnungszeitenSwitchId, abschlaegeSwitchId } = props
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor={annualIncreaseRateId}>Jährliche Rentenanpassung (%)</Label>
-          <Input
-            id={annualIncreaseRateId}
-            type="number"
-            step="0.1"
-            value={config.annualIncreaseRate}
-            onChange={e => onUpdate({ annualIncreaseRate: parseFloat(e.target.value) || 1.0 })}
-            min={0}
-            max={10}
-          />
+          <Input id={annualIncreaseRateId} type="number" step="0.1" value={config.annualIncreaseRate} onChange={e => onUpdate({ annualIncreaseRate: parseFloat(e.target.value) || 1.0 })} min={0} max={10} />
         </div>
         <div className="space-y-2">
           <Label htmlFor={taxablePercentageId}>Steuerpflichtiger Anteil (%)</Label>
-          <Input
-            id={taxablePercentageId}
-            type="number"
-            value={config.taxablePercentage}
-            onChange={e => onUpdate({ taxablePercentage: parseFloat(e.target.value) || 80 })}
-            min={0}
-            max={100}
-          />
+          <Input id={taxablePercentageId} type="number" value={config.taxablePercentage} onChange={e => onUpdate({ taxablePercentage: parseFloat(e.target.value) || 80 })} min={0} max={100} />
         </div>
         <div className="space-y-2 md:col-span-2">
           <Label htmlFor={monthlyAdditionalIncomeId}>Monatlicher Hinzuverdienst (€)</Label>
@@ -66,26 +43,15 @@ export function EMRenteAdditionalSettings(props: EMRenteAdditionalSettingsProps)
       </div>
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
-          <Switch
-            checked={config.applyZurechnungszeiten}
-            onCheckedChange={checked => onUpdate({ applyZurechnungszeiten: checked })}
-            id={zurechnungszeitenSwitchId}
-          />
-          <Label htmlFor={zurechnungszeitenSwitchId} className="cursor-pointer">
-            Zurechnungszeiten berücksichtigen (bis 67. Lebensjahr)
-          </Label>
+          <Switch checked={config.applyZurechnungszeiten} onCheckedChange={checked => onUpdate({ applyZurechnungszeiten: checked })} id={zurechnungszeitenSwitchId} />
+          <Label htmlFor={zurechnungszeitenSwitchId} className="cursor-pointer">Zurechnungszeiten berücksichtigen (bis 67. Lebensjahr)</Label>
         </div>
         <div className="flex items-center space-x-2">
-          <Switch
-            checked={config.applyAbschlaege}
-            onCheckedChange={checked => onUpdate({ applyAbschlaege: checked })}
-            id={abschlaegeSwitchId}
-          />
-          <Label htmlFor={abschlaegeSwitchId} className="cursor-pointer">
-            Abschläge anwenden (0,3% pro Monat, max. 10,8%)
-          </Label>
+          <Switch checked={config.applyAbschlaege} onCheckedChange={checked => onUpdate({ applyAbschlaege: checked })} id={abschlaegeSwitchId} />
+          <Label htmlFor={abschlaegeSwitchId} className="cursor-pointer">Abschläge anwenden (0,3% pro Monat, max. 10,8%)</Label>
         </div>
       </div>
     </>
   )
 }
+

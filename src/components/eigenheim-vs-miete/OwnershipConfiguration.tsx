@@ -39,61 +39,23 @@ export function OwnershipConfiguration({ config, setConfig, ids }: OwnershipConf
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor={ids.purchasePrice}>Kaufpreis (€)</Label>
-          <Input
-            id={ids.purchasePrice}
-            type="number"
-            min={0}
-            step={10000}
-            value={config.ownership.purchasePrice}
-            onChange={e => handlePurchasePriceChange(e.target.value)}
-          />
+          <Input id={ids.purchasePrice} type="number" min={0} step={10000} value={config.ownership.purchasePrice} onChange={(e) => handlePurchasePriceChange(e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label htmlFor={ids.downPayment}>Eigenkapital (€)</Label>
-          <Input
-            id={ids.downPayment}
-            type="number"
-            min={0}
-            step={5000}
-            value={config.ownership.downPayment}
-            onChange={e => handleDownPaymentChange(e.target.value)}
-          />
+          <Input id={ids.downPayment} type="number" min={0} step={5000} value={config.ownership.downPayment} onChange={(e) => handleDownPaymentChange(e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label htmlFor={ids.mortgageRate}>Darlehenszinssatz (%)</Label>
-          <Input
-            id={ids.mortgageRate}
-            type="number"
-            min={0}
-            max={10}
-            step={0.1}
-            value={config.ownership.mortgageInterestRate}
-            onChange={e => handleMortgageRateChange(e.target.value)}
-          />
+          <Input id={ids.mortgageRate} type="number" min={0} max={10} step={0.1} value={config.ownership.mortgageInterestRate} onChange={(e) => handleMortgageRateChange(e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label htmlFor={ids.mortgageTerm}>Darlehenslaufzeit (Jahre)</Label>
-          <Input
-            id={ids.mortgageTerm}
-            type="number"
-            min={5}
-            max={40}
-            step={1}
-            value={config.ownership.mortgageTerm}
-            onChange={e => handleMortgageTermChange(e.target.value)}
-          />
+          <Input id={ids.mortgageTerm} type="number" min={5} max={40} step={1} value={config.ownership.mortgageTerm} onChange={(e) => handleMortgageTermChange(e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label htmlFor={ids.propertyAppreciation}>Wertsteigerung p.a. (%)</Label>
-          <Input
-            id={ids.propertyAppreciation}
-            type="number"
-            min={-5}
-            max={10}
-            step={0.1}
-            value={config.ownership.propertyAppreciationRate}
-            onChange={e => handlePropertyAppreciationChange(e.target.value)}
-          />
+          <Input id={ids.propertyAppreciation} type="number" min={-5} max={10} step={0.1} value={config.ownership.propertyAppreciationRate} onChange={(e) => handlePropertyAppreciationChange(e.target.value)} />
         </div>
       </div>
     </div>

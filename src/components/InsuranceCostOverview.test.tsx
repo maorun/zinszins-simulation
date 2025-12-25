@@ -58,18 +58,18 @@ vi.mock('../hooks/useWithdrawalConfig', () => ({
 describe('InsuranceCostOverview', () => {
   it('should render the component', () => {
     render(<InsuranceCostOverview />)
-
+    
     expect(screen.getByText('🏥 Versicherungskostenübersicht')).toBeInTheDocument()
   })
 
   it('should display summary when expanded', async () => {
     const user = userEvent.setup()
     render(<InsuranceCostOverview />)
-
+    
     // Click to expand the collapsible
     const header = screen.getByText('🏥 Versicherungskostenübersicht')
     await user.click(header)
-
+    
     // Now the content should be visible
     expect(screen.getByText('💡 Versicherungskostenübersicht')).toBeInTheDocument()
     expect(screen.getByText('📊 Zusammenfassung')).toBeInTheDocument()
@@ -78,23 +78,25 @@ describe('InsuranceCostOverview', () => {
   it('should display info message when expanded', async () => {
     const user = userEvent.setup()
     render(<InsuranceCostOverview />)
-
+    
     // Expand
     const header = screen.getByText('🏥 Versicherungskostenübersicht')
     await user.click(header)
-
+    
     expect(screen.getByText('💡 Versicherungskostenübersicht')).toBeInTheDocument()
-    expect(screen.getByText(/Diese Übersicht zeigt Ihre konfigurierten Versicherungskosten/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Diese Übersicht zeigt Ihre konfigurierten Versicherungskosten/),
+    ).toBeInTheDocument()
   })
 
   it('should display summary statistics when expanded', async () => {
     const user = userEvent.setup()
     render(<InsuranceCostOverview />)
-
+    
     // Expand
     const header = screen.getByText('🏥 Versicherungskostenübersicht')
     await user.click(header)
-
+    
     expect(screen.getByText('📊 Zusammenfassung')).toBeInTheDocument()
     expect(screen.getByText('Durchschnittliche jährliche Kosten:')).toBeInTheDocument()
     expect(screen.getByText('Höchste jährliche Kosten:')).toBeInTheDocument()
@@ -104,22 +106,22 @@ describe('InsuranceCostOverview', () => {
   it('should display configured insurances when expanded', async () => {
     const user = userEvent.setup()
     render(<InsuranceCostOverview />)
-
+    
     // Expand
     const header = screen.getByText('🏥 Versicherungskostenübersicht')
     await user.click(header)
-
+    
     expect(screen.getByText('Konfigurierte Versicherungen:')).toBeInTheDocument()
   })
 
   it('should show category breakdown when expanded', async () => {
     const user = userEvent.setup()
     render(<InsuranceCostOverview />)
-
+    
     // Expand
     const header = screen.getByText('🏥 Versicherungskostenübersicht')
     await user.click(header)
-
+    
     // Should show category breakdown section
     expect(screen.getByText('Durchschnittliche Kosten nach Kategorie:')).toBeInTheDocument()
   })
@@ -128,7 +130,7 @@ describe('InsuranceCostOverview', () => {
 describe('InsuranceCostOverview - Accessibility', () => {
   it('should be collapsible', () => {
     const { container } = render(<InsuranceCostOverview />)
-
+    
     // Should have collapsible structure
     const collapsible = container.querySelector('[data-state]')
     expect(collapsible).toBeInTheDocument()
@@ -136,7 +138,7 @@ describe('InsuranceCostOverview - Accessibility', () => {
 
   it('should have proper heading structure', () => {
     render(<InsuranceCostOverview />)
-
+    
     // Card should have a title
     expect(screen.getByText('🏥 Versicherungskostenübersicht')).toBeInTheDocument()
   })
@@ -146,11 +148,11 @@ describe('InsuranceCostOverview - Integration', () => {
   it('should calculate costs from configured insurances', async () => {
     const user = userEvent.setup()
     render(<InsuranceCostOverview />)
-
+    
     // Expand
     const header = screen.getByText('🏥 Versicherungskostenübersicht')
     await user.click(header)
-
+    
     // Should show that insurances are configured
     expect(screen.getByText('📊 Zusammenfassung')).toBeInTheDocument()
     expect(screen.getByText('Konfigurierte Versicherungen:')).toBeInTheDocument()
@@ -159,11 +161,11 @@ describe('InsuranceCostOverview - Integration', () => {
   it('should use simulation time range', async () => {
     const user = userEvent.setup()
     render(<InsuranceCostOverview />)
-
+    
     // Expand
     const header = screen.getByText('🏥 Versicherungskostenübersicht')
     await user.click(header)
-
+    
     // Summary should exist, indicating calculation over the time range
     expect(screen.getByText('📊 Zusammenfassung')).toBeInTheDocument()
     expect(screen.getByText('Gesamtkosten über Zeitraum:')).toBeInTheDocument()

@@ -31,7 +31,9 @@ export function YearComparisonDisplay({ results }: YearComparisonDisplayProps) {
 function OptimalYearHighlight({ optimalYear }: { optimalYear: SeveranceComparisonResult }) {
   return (
     <div className="mb-3 p-3 bg-purple-100 border border-purple-300 rounded">
-      <div className="text-sm font-medium text-purple-900">🎯 Optimales Jahr: {optimalYear.year}</div>
+      <div className="text-sm font-medium text-purple-900">
+        🎯 Optimales Jahr: {optimalYear.year}
+      </div>
       <div className="text-xs text-purple-800 mt-1">
         Gesamte Steuerlast: {formatCurrency(optimalYear.taxResult.totalTaxBurden)}
       </div>
@@ -43,14 +45,18 @@ function YearResultCard({ result }: { result: SeveranceComparisonResult }) {
   return (
     <div
       className={`p-3 rounded ${
-        result.isOptimal ? 'bg-purple-200 border border-purple-400' : 'bg-white border border-purple-200'
+        result.isOptimal
+          ? 'bg-purple-200 border border-purple-400'
+          : 'bg-white border border-purple-200'
       }`}
     >
       <div className="flex justify-between items-center">
         <div className="font-medium text-sm">
           {result.year} {result.isOptimal && '⭐'}
         </div>
-        <div className="text-xs text-purple-800">Einkommen: {formatCurrency(result.annualGrossIncome)}</div>
+        <div className="text-xs text-purple-800">
+          Einkommen: {formatCurrency(result.annualGrossIncome)}
+        </div>
       </div>
       <div className="mt-2 space-y-1 text-xs">
         <div className="flex justify-between">

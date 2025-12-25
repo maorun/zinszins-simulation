@@ -29,7 +29,9 @@ export function EditProfileDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Profil bearbeiten</DialogTitle>
-          <DialogDescription>Bearbeiten Sie die Details Ihres gespeicherten Profils.</DialogDescription>
+          <DialogDescription>
+            Bearbeiten Sie die Details Ihres gespeicherten Profils.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>

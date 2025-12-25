@@ -45,7 +45,7 @@ export const RadioTile = React.forwardRef<HTMLInputElement, RadioTileProps>(
               name={name}
               value={value}
               checked={isChecked}
-              onChange={e => {
+              onChange={(e) => {
                 if (e.target.checked) {
                   onValueChange?.(value)
                 }
@@ -93,7 +93,12 @@ export const RadioTileGroup = React.forwardRef<HTMLDivElement, RadioTileGroupPro
 
     return (
       <RadioTileGroupContext.Provider value={contextValue}>
-        <div ref={ref} className={cn('grid grid-cols-1 gap-4 md:grid-cols-3', className)} role="radiogroup" {...props}>
+        <div
+          ref={ref}
+          className={cn('grid grid-cols-1 gap-4 md:grid-cols-3', className)}
+          role="radiogroup"
+          {...props}
+        >
           {children}
         </div>
       </RadioTileGroupContext.Provider>

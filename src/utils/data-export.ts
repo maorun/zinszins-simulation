@@ -778,7 +778,8 @@ function generateWithdrawalMetadataLines(params: WithdrawalMetadataParams): stri
 
   // Handle segmented withdrawal - multiple strategies
   const hasMultipleSegments =
-    withdrawalConfig.useSegmentedWithdrawal && (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
+    withdrawalConfig.useSegmentedWithdrawal &&
+    (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
 
   if (hasMultipleSegments) {
     lines.push('# Strategie: Segmentierte Entnahme')
@@ -1126,7 +1127,8 @@ function addWithdrawalParametersSection(context: SimulationContextState, lines: 
   lines.push('### Entnahme-Parameter')
 
   const hasMultipleSegments =
-    withdrawalConfig.useSegmentedWithdrawal && (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
+    withdrawalConfig.useSegmentedWithdrawal &&
+    (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
 
   if (hasMultipleSegments && withdrawalConfig.withdrawalSegments) {
     lines.push(`- **Strategie:** Segmentierte Entnahme`)
@@ -1293,7 +1295,8 @@ function addWithdrawalStrategySection(params: AddWithdrawalStrategyParams, lines
   lines.push('6. ENTNAHMESTRATEGIE')
 
   const hasMultipleSegments =
-    withdrawalConfig.useSegmentedWithdrawal && (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
+    withdrawalConfig.useSegmentedWithdrawal &&
+    (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
 
   if (hasMultipleSegments && withdrawalConfig.withdrawalSegments) {
     addSegmentedWithdrawalDetails(withdrawalConfig.withdrawalSegments, lines)

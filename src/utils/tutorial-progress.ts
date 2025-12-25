@@ -64,7 +64,7 @@ export function saveTutorialProgress(progress: TutorialProgress): void {
  */
 export function markTutorialCompleted(tutorialId: string): void {
   const progress = getTutorialProgress()
-
+  
   if (!progress.completedTutorials.includes(tutorialId)) {
     progress.completedTutorials.push(tutorialId)
     saveTutorialProgress(progress)

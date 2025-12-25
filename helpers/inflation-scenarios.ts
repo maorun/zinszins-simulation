@@ -292,9 +292,7 @@ export function getAvailableInflationScenarios(): InflationScenario[] {
  * @param category - 'realistic' for retirement planning scenarios, 'stress-test' for extreme scenarios
  */
 export function getScenariosByCategory(category: InflationScenarioCategory): InflationScenario[] {
-  return Object.values(INFLATION_SCENARIOS).filter(
-    scenario => scenario.category === category && scenario.id !== 'custom',
-  )
+  return Object.values(INFLATION_SCENARIOS).filter(scenario => scenario.category === category && scenario.id !== 'custom')
 }
 
 /**

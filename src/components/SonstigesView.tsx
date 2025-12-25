@@ -43,7 +43,10 @@ export function SonstigesView({
 
       <PlanningConfigurations startOfIndependence={startOfIndependence} />
 
-      <ConfigurationSection Component={ScenarioSelector} componentProps={{ onApplyScenario: handleApplyScenario }} />
+      <ConfigurationSection
+        Component={ScenarioSelector}
+        componentProps={{ onApplyScenario: handleApplyScenario }}
+      />
 
       <BehavioralFinanceInsights />
       <ConfigurationSection Component={DataExport} />

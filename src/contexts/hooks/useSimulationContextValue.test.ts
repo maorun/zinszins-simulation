@@ -29,7 +29,7 @@ describe('useSimulationContextValue', () => {
     setKirchensteuerAktiv: vi.fn(),
     kirchensteuersatz: 9,
     setKirchensteuersatz: vi.fn(),
-
+    
     // Return values
     rendite: 5,
     setRendite: vi.fn(),
@@ -53,7 +53,7 @@ describe('useSimulationContextValue', () => {
     setMultiAssetConfig: vi.fn(),
     withdrawalMultiAssetConfig: null,
     setWithdrawalMultiAssetConfig: vi.fn(),
-
+    
     // Inflation values
     inflationScenarioRates: null,
     setInflationScenarioRates: vi.fn(),
@@ -67,7 +67,7 @@ describe('useSimulationContextValue', () => {
     setInflationsrateSparphase: vi.fn(),
     inflationAnwendungSparphase: 'sparplan',
     setInflationAnwendungSparphase: vi.fn(),
-
+    
     // Sparplan values
     startEnd: [2040, 2023],
     setStartEnd: vi.fn(),
@@ -77,7 +77,7 @@ describe('useSimulationContextValue', () => {
     setSimulationAnnual: vi.fn(),
     sparplanElemente: [],
     setSparplanElemente: vi.fn(),
-
+    
     // Life values
     endOfLife: 2080,
     lifeExpectancyTable: 'destatis2023',
@@ -96,13 +96,13 @@ describe('useSimulationContextValue', () => {
     setExpectedLifespan: vi.fn(),
     useAutomaticCalculation: true,
     setUseAutomaticCalculation: vi.fn(),
-
+    
     // Withdrawal values
     withdrawalResults: null,
     setWithdrawalResults: vi.fn(),
     withdrawalConfig: null,
     setWithdrawalConfig: vi.fn(),
-
+    
     // Other config values
     statutoryPensionConfig: null,
     setStatutoryPensionConfig: vi.fn(),
@@ -112,7 +112,7 @@ describe('useSimulationContextValue', () => {
     setCareCostConfiguration: vi.fn(),
     financialGoals: [],
     setFinancialGoals: vi.fn(),
-
+    
     // Simulation data
     simulationData: null,
     isLoading: false,
@@ -205,8 +205,7 @@ describe('useSimulationContextValue', () => {
 
   it('updates context value when state changes', () => {
     const { result, rerender } = renderHook(
-      ({ state }) =>
-        useSimulationContextValue(state, mockConfigManagement, mockPerformSimulation, mockSetEndOfLifeRounded),
+      ({ state }) => useSimulationContextValue(state, mockConfigManagement, mockPerformSimulation, mockSetEndOfLifeRounded),
       { initialProps: { state: mockState } },
     )
 

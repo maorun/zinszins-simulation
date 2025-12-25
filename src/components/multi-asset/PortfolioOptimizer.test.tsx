@@ -36,12 +36,12 @@ describe('PortfolioOptimizer', () => {
   it('should show warning when less than 2 assets enabled', () => {
     const config = createDefaultMultiAssetConfig()
     config.enabled = true
-
+    
     // Disable all assets first
     for (const asset of Object.keys(config.assetClasses)) {
       config.assetClasses[asset as keyof typeof config.assetClasses].enabled = false
     }
-
+    
     // Enable only one asset
     config.assetClasses.stocks_domestic.enabled = true
 
@@ -49,18 +49,20 @@ describe('PortfolioOptimizer', () => {
 
     render(<PortfolioOptimizer config={config} onApplyAllocations={mockOnApply} />)
 
-    expect(screen.getByText(/Mindestens 2 Anlageklassen müssen aktiviert sein/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Mindestens 2 Anlageklassen müssen aktiviert sein/),
+    ).toBeInTheDocument()
   })
 
   it('should disable optimize button when less than 2 assets enabled', () => {
     const config = createDefaultMultiAssetConfig()
     config.enabled = true
-
+    
     // Disable all assets first
     for (const asset of Object.keys(config.assetClasses)) {
       config.assetClasses[asset as keyof typeof config.assetClasses].enabled = false
     }
-
+    
     // Enable only one asset
     config.assetClasses.stocks_domestic.enabled = true
 

@@ -118,7 +118,7 @@ const taxParams: TaxParameters = {
   sparerpauschbetrag: 1000,
   kapitalertragsteuerRate: 0.25,
   solidaritaetszuschlagRate: 0.055,
-  incomeTaxRate: 0.3,
+  incomeTaxRate: 0.30,
 }
 
 // Calculate optimal allocation

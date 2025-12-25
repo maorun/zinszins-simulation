@@ -38,7 +38,11 @@ export function ConfigurationContent({
 }: ConfigurationContentProps) {
   return (
     <div className="space-y-4 mt-4">
-      <CountrySelection countryCode={countryCode} countrySelectId={countrySelectId} onCountryChange={onCountryChange} />
+      <CountrySelection
+        countryCode={countryCode}
+        countrySelectId={countrySelectId}
+        onCountryChange={onCountryChange}
+      />
       <ForeignIncomeInput
         foreignIncome={foreignIncome}
         foreignIncomeInputId={foreignIncomeInputId}

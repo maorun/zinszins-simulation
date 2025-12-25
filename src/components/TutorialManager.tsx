@@ -10,7 +10,11 @@ import {
   getCategoryName,
   canStartTutorial as tutorialCanStart,
 } from '../data/tutorials'
-import { getCompletedTutorialIds, markTutorialCompleted, areTutorialsDismissed } from '../utils/tutorial-progress'
+import {
+  getCompletedTutorialIds,
+  markTutorialCompleted,
+  areTutorialsDismissed,
+} from '../utils/tutorial-progress'
 import { GraduationCap, ChevronDown } from 'lucide-react'
 
 /**
@@ -174,7 +178,10 @@ export function TutorialManager() {
           </CardHeader>
 
           <CollapsibleContent>
-            <TutorialCardContent completedTutorials={completedTutorials} onStartTutorial={handleStartTutorial} />
+            <TutorialCardContent
+              completedTutorials={completedTutorials}
+              onStartTutorial={handleStartTutorial}
+            />
           </CollapsibleContent>
         </Card>
       </Collapsible>

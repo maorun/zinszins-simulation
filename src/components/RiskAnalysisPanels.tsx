@@ -4,7 +4,11 @@ import { DrawdownAnalysis } from './DrawdownAnalysis'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import type { RandomReturnConfig } from '../utils/random-returns'
 import type { RiskMetrics, PortfolioData } from '../utils/risk-metrics'
-import { runStressTests, calculateStressTestSummary, type StressTestConfiguration } from '../utils/stress-testing'
+import {
+  runStressTests,
+  calculateStressTestSummary,
+  type StressTestConfiguration,
+} from '../utils/stress-testing'
 import { useMemo } from 'react'
 
 interface RiskAnalysisPanelsProps {

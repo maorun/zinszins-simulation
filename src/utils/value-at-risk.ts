@@ -170,7 +170,8 @@ export function calculateHistoricalVaR(
 
   // Calculate average and std dev for reference
   const avgReturn = adjustedReturns.reduce((sum, r) => sum + r, 0) / adjustedReturns.length
-  const variance = adjustedReturns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / adjustedReturns.length
+  const variance =
+    adjustedReturns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / adjustedReturns.length
   const stdDev = Math.sqrt(variance)
 
   return {
@@ -252,8 +253,8 @@ export function getVaRDescription(result: VaRResult): string {
   const confidence = `${confidenceLevel}%`
   const tailProbability = `${100 - confidenceLevel}%`
 
-  return `Mit ${confidence} Wahrscheinlichkeit wird der Verlust ${maxExpectedLossEur.toLocaleString('de-DE', {
-    style: 'currency',
+  return `Mit ${confidence} Wahrscheinlichkeit wird der Verlust ${maxExpectedLossEur.toLocaleString('de-DE', { 
+    style: 'currency', 
     currency: 'EUR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,

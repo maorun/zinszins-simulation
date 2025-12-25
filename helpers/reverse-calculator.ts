@@ -111,7 +111,10 @@ export function calculateRequiredSavingsRate(config: ReverseCalculatorConfig): R
 /**
  * Internal function to find savings rate using bisection method
  */
-function findSavingsRateByBisection(config: ReverseCalculatorConfig, targetCapital: number): ReverseCalculatorResult {
+function findSavingsRateByBisection(
+  config: ReverseCalculatorConfig,
+  targetCapital: number,
+): ReverseCalculatorResult {
   let lowerBound = 0
   let upperBound = targetCapital
   let iterations = 0
@@ -208,12 +211,23 @@ function simulateYearByYear(config: ReverseCalculatorConfig, savingsRatePerPerio
     const yearGain = capital - startCapitalYear - savingsRatePerPeriod * periodsPerYear
     const vorabpauschaleAmount = calculateYearlyVorabpauschale(startCapitalYear, basiszins, yearGain)
 
-    const taxPaid = calculateYearlyTax(vorabpauschaleAmount, taxRate, teilfreistellung, remainingFreibetrag)
+    const taxPaid = calculateYearlyTax(
+      vorabpauschaleAmount,
+      taxRate,
+      teilfreistellung,
+      remainingFreibetrag,
+    )
 
     capital -= taxPaid
     totalTaxesPaid += taxPaid
 
-    remainingFreibetrag = updateRemainingFreibetrag(remainingFreibetrag, vorabpauschaleAmount, year, years, freibetrag)
+    remainingFreibetrag = updateRemainingFreibetrag(
+      remainingFreibetrag,
+      vorabpauschaleAmount,
+      year,
+      years,
+      freibetrag,
+    )
   }
 
   return { capital, totalTaxesPaid, totalCostsPaid }
@@ -262,7 +276,8 @@ export function performSensitivityAnalysis(
     const scenarioConfig = { ...config, returnRate }
     const result = calculateRequiredSavingsRate(scenarioConfig)
 
-    const savingsRate = config.calculationMode === 'monthly' ? result.monthlyRate || 0 : result.yearlyRate || 0
+    const savingsRate =
+      config.calculationMode === 'monthly' ? result.monthlyRate || 0 : result.yearlyRate || 0
 
     let scenario: string
     if (returnRate < 0.03) scenario = 'Pessimistisch'

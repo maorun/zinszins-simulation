@@ -148,7 +148,10 @@ describe('abfindung - Severance Payment Optimization', () => {
 
       expect(result.effectiveTaxRate).toBeGreaterThan(0)
       expect(result.effectiveTaxRate).toBeLessThan(45) // Should not exceed top tax rate
-      expect(result.effectiveTaxRate).toBeCloseTo((result.fuenftelregelungIncomeTax / result.grossAmount) * 100, 2)
+      expect(result.effectiveTaxRate).toBeCloseTo(
+        (result.fuenftelregelungIncomeTax / result.grossAmount) * 100,
+        2,
+      )
     })
 
     it('should include capital gains tax in total burden', () => {
@@ -256,7 +259,13 @@ describe('abfindung - Severance Payment Optimization', () => {
         2025: 1000, // Low capital gains
       }
 
-      const results = compareSeveranceYears(severanceAmount, yearlyIncome, capitalGains, 26.375, 1000)
+      const results = compareSeveranceYears(
+        severanceAmount,
+        yearlyIncome,
+        capitalGains,
+        26.375,
+        1000,
+      )
 
       // Year with lower capital gains should have lower total tax burden
       const year2024 = results.find(r => r.year === 2024)!
@@ -295,7 +304,10 @@ describe('abfindung - Severance Payment Optimization', () => {
 
       expect(savingsPercentage).toBeGreaterThan(0)
       expect(savingsPercentage).toBeLessThan(100)
-      expect(savingsPercentage).toBeCloseTo((result.taxSavings / result.standardIncomeTax) * 100, 2)
+      expect(savingsPercentage).toBeCloseTo(
+        (result.taxSavings / result.standardIncomeTax) * 100,
+        2,
+      )
     })
 
     it('should return 0 when standard tax is 0', () => {

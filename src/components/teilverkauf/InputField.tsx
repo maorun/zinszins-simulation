@@ -16,15 +16,7 @@ export function InputField({ id, label, value, onChange, min, max, step, helpTex
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
-        type="number"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-      />
+      <Input id={id} type="number" min={min} max={max} step={step} value={value} onChange={(e) => onChange(e.target.value)} />
       {helpText && <p className="text-xs text-muted-foreground">{helpText}</p>}
     </div>
   )

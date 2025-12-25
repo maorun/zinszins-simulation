@@ -108,8 +108,8 @@ function TaxRulesInfoBox() {
           <p className="font-medium mb-1">Deutsche Verlustverrechnungsregeln:</p>
           <ul className="list-disc list-inside space-y-0.5">
             <li>
-              <GlossaryTerm term="aktienverluste">Aktienverluste</GlossaryTerm> können nur mit Aktiengewinnen verrechnet
-              werden
+              <GlossaryTerm term="aktienverluste">Aktienverluste</GlossaryTerm> können nur mit Aktiengewinnen
+              verrechnet werden
             </li>
             <li>Sonstige Verluste können mit allen Kapitalerträgen verrechnet werden</li>
             <li>Verluste können mit der Vorabpauschale verrechnet werden</li>
@@ -154,7 +154,9 @@ export function TaxLossHarvestingSection({ config, onConfigChange }: TaxLossHarv
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <Label className="text-base font-medium">📉 Verlustverrechnung (Tax-Loss Harvesting)</Label>
-          <p className="text-sm text-muted-foreground">Realisierte Verluste zum Ausgleich von Kapitalerträgen nutzen</p>
+          <p className="text-sm text-muted-foreground">
+            Realisierte Verluste zum Ausgleich von Kapitalerträgen nutzen
+          </p>
         </div>
         <Switch id={enableSwitchId} checked={config.enabled} onCheckedChange={handleEnabledChange} />
       </div>

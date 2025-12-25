@@ -41,30 +41,9 @@ describe('retirement-readiness-score', () => {
       }
 
       const withdrawalResult: WithdrawalResult = {
-        2040: {
-          startkapital: 1000000,
-          entnahme: 42000,
-          endkapital: 980000,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          zinsen: 0,
-        },
-        2041: {
-          startkapital: 980000,
-          entnahme: 42000,
-          endkapital: 960000,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          zinsen: 0,
-        },
-        2042: {
-          startkapital: 960000,
-          entnahme: 42000,
-          endkapital: 940000,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          zinsen: 0,
-        },
+        2040: { startkapital: 1000000, entnahme: 42000, endkapital: 980000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0 },
+        2041: { startkapital: 980000, entnahme: 42000, endkapital: 960000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0 },
+        2042: { startkapital: 960000, entnahme: 42000, endkapital: 940000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0 },
       }
 
       const result = calculateRetirementReadinessScore(enhancedSummary, withdrawalResult, 25, 25)
@@ -90,22 +69,8 @@ describe('retirement-readiness-score', () => {
       }
 
       const withdrawalResult: WithdrawalResult = {
-        2040: {
-          startkapital: 600000,
-          entnahme: 30000,
-          endkapital: 580000,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          zinsen: 0,
-        },
-        2041: {
-          startkapital: 580000,
-          entnahme: 30000,
-          endkapital: 560000,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          zinsen: 0,
-        },
+        2040: { startkapital: 600000, entnahme: 30000, endkapital: 580000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0 },
+        2041: { startkapital: 580000, entnahme: 30000, endkapital: 560000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0 },
       }
 
       const result = calculateRetirementReadinessScore(enhancedSummary, withdrawalResult, 25, 25)
@@ -129,22 +94,8 @@ describe('retirement-readiness-score', () => {
       }
 
       const withdrawalResult: WithdrawalResult = {
-        2040: {
-          startkapital: 400000,
-          entnahme: 26400,
-          endkapital: 380000,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          zinsen: 0,
-        },
-        2041: {
-          startkapital: 380000,
-          entnahme: 26400,
-          endkapital: 360000,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          zinsen: 0,
-        },
+        2040: { startkapital: 400000, entnahme: 26400, endkapital: 380000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0 },
+        2041: { startkapital: 380000, entnahme: 26400, endkapital: 360000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0 },
       }
 
       const result = calculateRetirementReadinessScore(enhancedSummary, withdrawalResult, 20, 25)
@@ -168,22 +119,8 @@ describe('retirement-readiness-score', () => {
       }
 
       const withdrawalResult: WithdrawalResult = {
-        2040: {
-          startkapital: 200000,
-          entnahme: 14400,
-          endkapital: 190000,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          zinsen: 0,
-        },
-        2041: {
-          startkapital: 190000,
-          entnahme: 14400,
-          endkapital: 180000,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          zinsen: 0,
-        },
+        2040: { startkapital: 200000, entnahme: 14400, endkapital: 190000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0 },
+        2041: { startkapital: 190000, entnahme: 14400, endkapital: 180000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0 },
       }
 
       const result = calculateRetirementReadinessScore(enhancedSummary, withdrawalResult, 15, 25)
@@ -206,14 +143,7 @@ describe('retirement-readiness-score', () => {
       }
 
       const withdrawalResult: WithdrawalResult = {
-        2040: {
-          startkapital: 500000,
-          entnahme: 0,
-          endkapital: 500000,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          zinsen: 0,
-        },
+        2040: { startkapital: 500000, entnahme: 0, endkapital: 500000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0 },
       }
 
       const result = calculateRetirementReadinessScore(enhancedSummary, withdrawalResult, 25, 25)
@@ -236,30 +166,9 @@ describe('retirement-readiness-score', () => {
       }
 
       const withdrawalResult: WithdrawalResult = {
-        2040: {
-          startkapital: 750000,
-          entnahme: 36000,
-          endkapital: 730000,
-          bezahlteSteuer: 5000,
-          genutzterFreibetrag: 1000,
-          zinsen: 20000,
-        },
-        2041: {
-          startkapital: 730000,
-          entnahme: 36000,
-          endkapital: 710000,
-          bezahlteSteuer: 5000,
-          genutzterFreibetrag: 1000,
-          zinsen: 20000,
-        },
-        2042: {
-          startkapital: 710000,
-          entnahme: 36000,
-          endkapital: 690000,
-          bezahlteSteuer: 5000,
-          genutzterFreibetrag: 1000,
-          zinsen: 20000,
-        },
+        2040: { startkapital: 750000, entnahme: 36000, endkapital: 730000, bezahlteSteuer: 5000, genutzterFreibetrag: 1000, zinsen: 20000 },
+        2041: { startkapital: 730000, entnahme: 36000, endkapital: 710000, bezahlteSteuer: 5000, genutzterFreibetrag: 1000, zinsen: 20000 },
+        2042: { startkapital: 710000, entnahme: 36000, endkapital: 690000, bezahlteSteuer: 5000, genutzterFreibetrag: 1000, zinsen: 20000 },
       }
 
       const result = calculateRetirementReadinessScore(enhancedSummary, withdrawalResult, 25, 25)
@@ -286,14 +195,7 @@ describe('retirement-readiness-score', () => {
       }
 
       const withdrawalResult: WithdrawalResult = {
-        2040: {
-          startkapital: 2000000,
-          entnahme: 36000,
-          endkapital: 1980000,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          zinsen: 0,
-        },
+        2040: { startkapital: 2000000, entnahme: 36000, endkapital: 1980000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0 },
       }
 
       const result = calculateRetirementReadinessScore(enhancedSummary, withdrawalResult, 30, 25)
@@ -371,9 +273,7 @@ describe('retirement-readiness-score', () => {
       }
 
       const recommendations = getScoreRecommendations(metrics)
-      expect(recommendations).toContain(
-        '📊 Planen Sie eine höhere Entnahmerate oder bauen Sie zusätzliche Einkommensquellen auf.',
-      )
+      expect(recommendations).toContain('📊 Planen Sie eine höhere Entnahmerate oder bauen Sie zusätzliche Einkommensquellen auf.')
     })
 
     it('should recommend extending savings phase for low sustainability', () => {
@@ -392,9 +292,7 @@ describe('retirement-readiness-score', () => {
       }
 
       const recommendations = getScoreRecommendations(metrics)
-      expect(recommendations).toContain(
-        '⏱️ Verlängern Sie die Ansparphase oder reduzieren Sie die Entnahmerate für mehr Nachhaltigkeit.',
-      )
+      expect(recommendations).toContain('⏱️ Verlängern Sie die Ansparphase oder reduzieren Sie die Entnahmerate für mehr Nachhaltigkeit.')
     })
 
     it('should warn about capital depletion', () => {
@@ -413,9 +311,7 @@ describe('retirement-readiness-score', () => {
       }
 
       const recommendations = getScoreRecommendations(metrics)
-      expect(recommendations).toContain(
-        '⚠️ Ihr Kapital wird voraussichtlich stark schrumpfen. Überdenken Sie Ihre Entnahmestrategie.',
-      )
+      expect(recommendations).toContain('⚠️ Ihr Kapital wird voraussichtlich stark schrumpfen. Überdenken Sie Ihre Entnahmestrategie.')
     })
 
     it('should provide positive feedback for excellent scores', () => {

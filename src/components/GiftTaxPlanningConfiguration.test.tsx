@@ -14,11 +14,13 @@ describe('GiftTaxPlanningConfiguration', () => {
     render(<GiftTaxPlanningConfiguration />)
 
     expect(screen.getByText('Schenkungssteuer-Planung')).toBeInTheDocument()
-
+    
     // Description is in collapsed content, need to expand to see it
     await expandCard(user)
     expect(
-      screen.getByText('Optimieren Sie lebzeitige Vermögensübertragungen unter Nutzung der 10-Jahres-Freibeträge'),
+      screen.getByText(
+        'Optimieren Sie lebzeitige Vermögensübertragungen unter Nutzung der 10-Jahres-Freibeträge',
+      ),
     ).toBeInTheDocument()
   })
 

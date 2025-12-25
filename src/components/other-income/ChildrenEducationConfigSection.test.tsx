@@ -24,35 +24,27 @@ describe('ChildrenEducationConfigSection', () => {
   }
 
   it('should render child name and birth year', () => {
-    render(
-      <ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
-    )
+    render(<ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByLabelText(/Name des Kindes/i)).toHaveValue('Max')
     expect(screen.getByLabelText(/Geburtsjahr/i)).toHaveValue(2020)
   })
 
   it('should display child age', () => {
-    render(
-      <ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
-    )
+    render(<ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByText(/Alter des Kindes im Jahr 2024: 4 Jahre/i)).toBeInTheDocument()
   })
 
   it('should render education path buttons', () => {
-    render(
-      <ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
-    )
+    render(<ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByRole('button', { name: /Regelweg \(Studium\)/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /^Berufsausbildung$/i })).toBeInTheDocument()
   })
 
   it('should display education phases overview', () => {
-    render(
-      <ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
-    )
+    render(<ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByText(/Kita\/Kindergarten:/i)).toBeInTheDocument()
     expect(screen.getByText(/Grundschule:/i)).toBeInTheDocument()
@@ -61,17 +53,13 @@ describe('ChildrenEducationConfigSection', () => {
   })
 
   it('should display estimated total costs', () => {
-    render(
-      <ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
-    )
+    render(<ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByText(/Geschätzte Gesamtkosten:/i)).toBeInTheDocument()
   })
 
   it('should display BAföG information when available', () => {
-    render(
-      <ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
-    )
+    render(<ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByText(/BAföG-Information/i)).toBeInTheDocument()
     expect(screen.getByText(/BAföG-Zeitraum:/i)).toBeInTheDocument()
@@ -80,9 +68,7 @@ describe('ChildrenEducationConfigSection', () => {
   it('should call onUpdate when child name changes', async () => {
     const user = userEvent.setup()
     mockOnUpdate.mockClear()
-    render(
-      <ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
-    )
+    render(<ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     const nameInput = screen.getByLabelText(/Name des Kindes/i)
     await user.type(nameInput, 'a')
@@ -96,9 +82,7 @@ describe('ChildrenEducationConfigSection', () => {
   it('should call onUpdate when birth year changes', async () => {
     const user = userEvent.setup()
     mockOnUpdate.mockClear()
-    render(
-      <ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
-    )
+    render(<ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     const birthYearInput = screen.getByLabelText(/Geburtsjahr/i)
     await user.clear(birthYearInput)
@@ -110,9 +94,7 @@ describe('ChildrenEducationConfigSection', () => {
   it('should switch to vocational path when button clicked', async () => {
     const user = userEvent.setup()
     mockOnUpdate.mockClear()
-    render(
-      <ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
-    )
+    render(<ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     const vocationalButton = screen.getByRole('button', { name: /^Berufsausbildung$/i })
     await user.click(vocationalButton)
@@ -129,29 +111,21 @@ describe('ChildrenEducationConfigSection', () => {
     }
 
     const { container } = render(
-      <ChildrenEducationConfigSection
-        editingSource={sourceWithoutConfig}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
+      <ChildrenEducationConfigSection editingSource={sourceWithoutConfig} currentYear={currentYear} onUpdate={mockOnUpdate} />,
     )
 
     expect(container.firstChild).toBeNull()
   })
 
   it('should display tax deductibility information', () => {
-    render(
-      <ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
-    )
+    render(<ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByText(/Steuerlich absetzbar/i)).toBeInTheDocument()
     expect(screen.getByText(/6\.000 € pro Jahr/i)).toBeInTheDocument()
   })
 
   it('should display BAföG explanation', () => {
-    render(
-      <ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
-    )
+    render(<ChildrenEducationConfigSection editingSource={baseSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByText(/50% ist Zuschuss, 50% zinsloses Darlehen/i)).toBeInTheDocument()
   })

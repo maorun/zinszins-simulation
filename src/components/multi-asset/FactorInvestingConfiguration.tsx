@@ -56,23 +56,31 @@ function FactorStatisticsSummary({ config }: { config: FactorPortfolioConfig }) 
         </div>
         <div>
           <span className="text-gray-700 font-medium">Erwartete Rendite:</span>
-          <span className="ml-2 text-green-700 font-semibold">{(enhancedReturn * 100).toFixed(2)}%</span>
+          <span className="ml-2 text-green-700 font-semibold">
+            {(enhancedReturn * 100).toFixed(2)}%
+          </span>
         </div>
         <div>
           <span className="text-gray-700 font-medium">Portfolio-Risiko:</span>
-          <span className="ml-2 text-orange-700 font-semibold">{(enhancedVolatility * 100).toFixed(2)}%</span>
+          <span className="ml-2 text-orange-700 font-semibold">
+            {(enhancedVolatility * 100).toFixed(2)}%
+          </span>
         </div>
         <div>
           <span className="text-gray-700 font-medium">Sharpe Ratio:</span>
-          <span className="ml-2 text-blue-700 font-semibold">{stats.enhancedSharpeRatio.toFixed(3)}</span>
+          <span className="ml-2 text-blue-700 font-semibold">
+            {stats.enhancedSharpeRatio.toFixed(3)}
+          </span>
         </div>
       </div>
       <div className="mt-2 text-xs text-gray-600">
         <p>
-          <strong>Faktor-Premium:</strong> {formatFactorPremium(stats.totalPremium)} zusätzliche erwartete Rendite
+          <strong>Faktor-Premium:</strong> {formatFactorPremium(stats.totalPremium)} zusätzliche
+          erwartete Rendite
         </p>
         <p>
-          <strong>Zusätzliches Risiko:</strong> +{(stats.totalAdditionalRisk * 100).toFixed(2)}% Volatilität
+          <strong>Zusätzliches Risiko:</strong> +{(stats.totalAdditionalRisk * 100).toFixed(2)}%
+          Volatilität
         </p>
       </div>
     </div>
@@ -82,10 +90,7 @@ function FactorStatisticsSummary({ config }: { config: FactorPortfolioConfig }) 
 /**
  * Factor description and metadata section
  */
-function FactorDescription({
-  factor,
-  factorConfig,
-}: {
+function FactorDescription({ factor, factorConfig }: {
   factor: InvestmentFactor
   factorConfig: FactorPortfolioConfig['factors'][InvestmentFactor]
 }) {
@@ -209,7 +214,11 @@ function FactorConfigRow({
         <FactorDescription factor={factor} factorConfig={factorConfig} />
         <Switch id={enabledSwitchId} checked={factorConfig.enabled} onCheckedChange={handleToggle} />
       </div>
-      <FactorExposureSlider factor={factor} factorConfig={factorConfig} onChange={handleExposureChange} />
+      <FactorExposureSlider
+        factor={factor}
+        factorConfig={factorConfig}
+        onChange={handleExposureChange}
+      />
     </div>
   )
 }
@@ -253,7 +262,9 @@ function FactorInvestingInfo() {
           <p className="font-medium mb-1">Hinweise zum Faktor-Investing:</p>
           <ul className="list-disc list-inside space-y-1 text-xs">
             <li>Faktoren basieren auf langfristigen historischen Renditen (Fama-French Forschung)</li>
-            <li>Value und Growth sind gegensätzliche Faktoren - Gesamtexposure sollte maximal 100% betragen</li>
+            <li>
+              Value und Growth sind gegensätzliche Faktoren - Gesamtexposure sollte maximal 100% betragen
+            </li>
             <li>Höhere Factor-Exposure bedeutet höheres Risiko und höhere erwartete Rendite</li>
             <li>Faktoren funktionieren am besten über lange Anlagehorizonte (10+ Jahre)</li>
             <li>Historische Prämien sind keine Garantie für zukünftige Renditen</li>
@@ -286,8 +297,9 @@ export function FactorInvestingConfiguration({ config, onChange }: FactorInvesti
           <Switch id={mainSwitchId} checked={config.enabled} onCheckedChange={handleToggleEnabled} />
         </div>
         <p className="text-sm text-gray-600 mt-2">
-          Nutzen Sie wissenschaftlich fundierte Faktor-Strategien (Value, Growth, Small-Cap, Momentum) zur Optimierung
-          Ihrer erwarteten Portfolio-Rendite. Basiert auf akademischer Forschung (Fama-French, Carhart).
+          Nutzen Sie wissenschaftlich fundierte Faktor-Strategien (Value, Growth, Small-Cap, Momentum) zur
+          Optimierung Ihrer erwarteten Portfolio-Rendite. Basiert auf akademischer Forschung (Fama-French,
+          Carhart).
         </p>
       </CardHeader>
 

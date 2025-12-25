@@ -11,7 +11,7 @@ describe('Rürup-Rente Helper Functions', () => {
   describe('getRuerupDeductibilityLimits', () => {
     it('should return correct limits for 2024', () => {
       const limits = getRuerupDeductibilityLimits(2024)
-
+      
       expect(limits.maxAmountSingle).toBe(27566)
       expect(limits.maxAmountMarried).toBe(55132)
       expect(limits.deductiblePercentage).toBe(0.98) // 98% in 2024, 100% from 2025
@@ -30,10 +30,10 @@ describe('Rürup-Rente Helper Functions', () => {
       expect(limits2012.deductiblePercentage).toBe(0.74)
 
       const limits2015 = getRuerupDeductibilityLimits(2015)
-      expect(limits2015.deductiblePercentage).toBe(0.8) // 74% + 6%
+      expect(limits2015.deductiblePercentage).toBe(0.80) // 74% + 6%
 
       const limits2020 = getRuerupDeductibilityLimits(2020)
-      expect(limits2020.deductiblePercentage).toBe(0.9) // 74% + 16%
+      expect(limits2020.deductiblePercentage).toBe(0.90) // 74% + 16%
     })
 
     it('should handle years before 2012', () => {
@@ -51,7 +51,7 @@ describe('Rürup-Rente Helper Functions', () => {
 
     it('should maintain married limits as double of single limits', () => {
       const years = [2020, 2024, 2025, 2030]
-
+      
       years.forEach(year => {
         const limits = getRuerupDeductibilityLimits(year)
         expect(limits.maxAmountMarried).toBe(limits.maxAmountSingle * 2)
@@ -80,7 +80,7 @@ describe('Rürup-Rente Helper Functions', () => {
     it('should apply deductible percentage for partial deductibility years', () => {
       const result = calculateRuerupTaxDeduction(20000, 2020, 'single', 0.35)
 
-      expect(result.deductiblePercentage).toBe(0.9) // 90% in 2020
+      expect(result.deductiblePercentage).toBe(0.90) // 90% in 2020
       expect(result.deductibleAmount).toBe(18000) // 20000 * 0.90
       expect(result.estimatedTaxSavings).toBe(6300) // 18000 * 0.35
     })
@@ -102,7 +102,7 @@ describe('Rürup-Rente Helper Functions', () => {
     })
 
     it('should correctly estimate tax savings for different tax rates', () => {
-      const lowTaxResult = calculateRuerupTaxDeduction(20000, 2025, 'single', 0.2)
+      const lowTaxResult = calculateRuerupTaxDeduction(20000, 2025, 'single', 0.20)
       const highTaxResult = calculateRuerupTaxDeduction(20000, 2025, 'single', 0.45)
 
       expect(lowTaxResult.estimatedTaxSavings).toBe(4000) // 20000 * 0.20
@@ -120,8 +120,8 @@ describe('Rürup-Rente Helper Functions', () => {
 
   describe('getRuerupPensionTaxablePercentage', () => {
     it('should return 50% for retirement in 2005 or earlier', () => {
-      expect(getRuerupPensionTaxablePercentage(2000)).toBe(0.5)
-      expect(getRuerupPensionTaxablePercentage(2005)).toBe(0.5)
+      expect(getRuerupPensionTaxablePercentage(2000)).toBe(0.50)
+      expect(getRuerupPensionTaxablePercentage(2005)).toBe(0.50)
     })
 
     it('should return 100% for retirement in 2040 or later', () => {
@@ -131,14 +131,14 @@ describe('Rürup-Rente Helper Functions', () => {
 
     it('should increase by 2% per year from 2006 to 2020', () => {
       expect(getRuerupPensionTaxablePercentage(2006)).toBe(0.52) // 50% + 2%
-      expect(getRuerupPensionTaxablePercentage(2010)).toBe(0.6) // 50% + 10%
-      expect(getRuerupPensionTaxablePercentage(2020)).toBe(0.8) // 50% + 30%
+      expect(getRuerupPensionTaxablePercentage(2010)).toBe(0.60) // 50% + 10%
+      expect(getRuerupPensionTaxablePercentage(2020)).toBe(0.80) // 50% + 30%
     })
 
     it('should increase by 1% per year from 2021 to 2039', () => {
       expect(getRuerupPensionTaxablePercentage(2021)).toBe(0.81) // Base 81%
       expect(getRuerupPensionTaxablePercentage(2025)).toBeCloseTo(0.85, 10) // 81% + 4%
-      expect(getRuerupPensionTaxablePercentage(2030)).toBeCloseTo(0.9, 10) // 81% + 9%
+      expect(getRuerupPensionTaxablePercentage(2030)).toBeCloseTo(0.90, 10) // 81% + 9%
       expect(getRuerupPensionTaxablePercentage(2039)).toBeCloseTo(0.99, 10) // 81% + 18%
     })
 
@@ -146,7 +146,7 @@ describe('Rürup-Rente Helper Functions', () => {
       const percentage2020 = getRuerupPensionTaxablePercentage(2020)
       const percentage2021 = getRuerupPensionTaxablePercentage(2021)
 
-      expect(percentage2020).toBe(0.8)
+      expect(percentage2020).toBe(0.80)
       expect(percentage2021).toBe(0.81)
     })
   })
@@ -157,7 +157,7 @@ describe('Rürup-Rente Helper Functions', () => {
 
       expect(result.grossMonthlyPension).toBe(2000)
       expect(result.grossAnnualPension).toBe(24000)
-      expect(result.taxablePercentage).toBe(0.9) // 2030 retirement
+      expect(result.taxablePercentage).toBe(0.90) // 2030 retirement
       expect(result.taxableAmount).toBe(21600) // 24000 * 0.90
       expect(result.incomeTax).toBe(5400) // 21600 * 0.25
       expect(result.netAnnualPension).toBe(18600) // 24000 - 5400
@@ -169,7 +169,7 @@ describe('Rürup-Rente Helper Functions', () => {
       // 5 years after retirement with 2% annual increase
       const expectedFactor = Math.pow(1.02, 5)
       const expectedMonthly = 2000 * expectedFactor
-
+      
       expect(result.grossMonthlyPension).toBeCloseTo(expectedMonthly, 2)
       expect(result.grossAnnualPension).toBeCloseTo(expectedMonthly * 12, 2)
     })
@@ -185,12 +185,12 @@ describe('Rürup-Rente Helper Functions', () => {
 
     it('should correctly apply different taxable percentages', () => {
       // Early retirement (2020): 80% taxable
-      const result2020 = calculateRuerupPensionTaxation(2000, 2020, 2020, 0.01, 0.3)
-      expect(result2020.taxablePercentage).toBe(0.8)
+      const result2020 = calculateRuerupPensionTaxation(2000, 2020, 2020, 0.01, 0.30)
+      expect(result2020.taxablePercentage).toBe(0.80)
       expect(result2020.taxableAmount).toBe(19200) // 24000 * 0.80
 
       // Late retirement (2040): 100% taxable
-      const result2040 = calculateRuerupPensionTaxation(2000, 2040, 2040, 0.01, 0.3)
+      const result2040 = calculateRuerupPensionTaxation(2000, 2040, 2040, 0.01, 0.30)
       expect(result2040.taxablePercentage).toBe(1.0)
       expect(result2040.taxableAmount).toBe(24000) // 24000 * 1.0
     })
@@ -259,13 +259,13 @@ describe('Rürup-Rente Helper Functions', () => {
     it('should handle a complete contribution and payout lifecycle', () => {
       // Contribution phase
       const contributionResult = calculateRuerupTaxDeduction(15000, 2025, 'single', 0.35)
-
+      
       expect(contributionResult.deductibleAmount).toBe(15000)
       expect(contributionResult.estimatedTaxSavings).toBe(5250) // 15000 * 0.35
 
       // Payout phase - retirement in 2045
-      const payoutResult = calculateRuerupPensionTaxation(1200, 2045, 2045, 0.015, 0.2)
-
+      const payoutResult = calculateRuerupPensionTaxation(1200, 2045, 2045, 0.015, 0.20)
+      
       expect(payoutResult.grossAnnualPension).toBe(14400)
       expect(payoutResult.taxablePercentage).toBe(1.0) // 100% taxable in 2045
       expect(payoutResult.netAnnualPension).toBe(11520) // After 20% tax
@@ -275,21 +275,21 @@ describe('Rürup-Rente Helper Functions', () => {
       // High earner contributes maximum in 2025
       const limits = getRuerupDeductibilityLimits(2025)
       const contribution = limits.maxAmountSingle
-
+      
       const highTaxResult = calculateRuerupTaxDeduction(contribution, 2025, 'single', 0.42)
-
+      
       // Tax savings during contribution phase
       expect(highTaxResult.estimatedTaxSavings).toBeGreaterThan(10000)
-
+      
       // Even with 100% taxation in retirement, effective tax rate is usually lower
       const retirementTaxRate = 0.25 // Lower in retirement
       const monthlyPension = 2500
       const payoutResult = calculateRuerupPensionTaxation(monthlyPension, 2045, 2045, 0.01, retirementTaxRate)
-
+      
       // Net benefit exists due to tax rate differential
       const contributionTaxRate = 0.42
       const retirementEffectiveRate = payoutResult.incomeTax / payoutResult.grossAnnualPension
-
+      
       expect(retirementEffectiveRate).toBeLessThan(contributionTaxRate)
     })
 
@@ -314,8 +314,8 @@ describe('Rürup-Rente Helper Functions', () => {
       const late2040 = calculateRuerupPensionTaxation(monthlyPension, 2040, 2040, 0.01, taxRate)
 
       // Later retirement = higher taxable percentage = more tax
-      expect(early2020.taxablePercentage).toBe(0.8)
-      expect(mid2030.taxablePercentage).toBe(0.9)
+      expect(early2020.taxablePercentage).toBe(0.80)
+      expect(mid2030.taxablePercentage).toBe(0.90)
       expect(late2040.taxablePercentage).toBe(1.0)
 
       expect(early2020.incomeTax).toBeLessThan(mid2030.incomeTax)

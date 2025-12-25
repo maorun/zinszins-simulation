@@ -20,8 +20,8 @@ function InfoMessage() {
     <div className="text-sm text-muted-foreground bg-blue-50 border border-blue-200 rounded-lg p-3">
       <p className="font-medium text-blue-900 mb-1">💡 Fünftelregelung (§34 EStG)</p>
       <p className="text-xs text-blue-800">
-        Die Fünftelregelung ist ein Steuervergünstigung für außerordentliche Einkünfte wie Abfindungen. Die Steuer wird
-        so berechnet, als würde die Abfindung über 5 Jahre verteilt:
+        Die Fünftelregelung ist ein Steuervergünstigung für außerordentliche Einkünfte wie Abfindungen.
+        Die Steuer wird so berechnet, als würde die Abfindung über 5 Jahre verteilt:
         <br />
         <strong>Steuer = 5 × (Steuer(Einkommen + Abfindung/5) - Steuer(Einkommen))</strong>
         <br />
@@ -117,7 +117,9 @@ function SeveranceCalculatorContent({
         onComparisonYearsChange={setComparisonYears}
       />
       {comparisonMode === 'single' && singleResult && <SingleResultDisplay result={singleResult} />}
-      {comparisonMode === 'comparison' && comparisonResults && <YearComparisonDisplay results={comparisonResults} />}
+      {comparisonMode === 'comparison' && comparisonResults && (
+        <YearComparisonDisplay results={comparisonResults} />
+      )}
     </div>
   )
 }

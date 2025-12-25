@@ -1,10 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
-import {
-  optimizePortfolio,
-  type OptimizationObjective,
-  type OptimizationConfig,
-  type OptimizationResult,
-} from '../utils/portfolio-optimization'
+import { optimizePortfolio, type OptimizationObjective, type OptimizationConfig, type OptimizationResult } from '../utils/portfolio-optimization'
 import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
 
 /**
@@ -16,7 +11,7 @@ export function usePortfolioOptimization(config: MultiAssetPortfolioConfig) {
   const [isOptimizing, setIsOptimizing] = useState(false)
 
   const canOptimize = useMemo(() => {
-    const enabledAssets = Object.values(config.assetClasses).filter(asset => asset.enabled)
+    const enabledAssets = Object.values(config.assetClasses).filter((asset) => asset.enabled)
     return enabledAssets.length >= 2
   }, [config])
 

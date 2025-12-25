@@ -285,7 +285,7 @@ describe('calculateYearlySoli', () => {
     const incomeTaxes = [20000, 30000]
     const results = calculateYearlySoli(incomeTaxes, 'couple')
 
-    results.forEach(result => {
+    results.forEach((result) => {
       expect(result.freigrenze).toBe(SOLI_CONSTANTS.FREIGRENZE_COUPLE)
     })
   })
@@ -514,7 +514,7 @@ describe('Type Safety', () => {
   it('should accept valid planning modes', () => {
     const modes: SoliPlanningMode[] = ['individual', 'couple']
 
-    modes.forEach(mode => {
+    modes.forEach((mode) => {
       const result = calculateSolidaritaetszuschlag(10000, mode)
       expect(result).toBeDefined()
     })

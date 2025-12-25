@@ -103,7 +103,9 @@ describe('useHomePageKeyboardShortcuts', () => {
   it('should call window.scrollTo when scroll to top is triggered', () => {
     const { result } = renderHook(() => useHomePageKeyboardShortcuts())
 
-    const scrollTopShortcut = result.current.shortcuts.find(s => s.description.includes('Seitenanfang'))
+    const scrollTopShortcut = result.current.shortcuts.find(
+      s => s.description.includes('Seitenanfang'),
+    )
 
     act(() => {
       scrollTopShortcut!.action()
@@ -133,7 +135,9 @@ describe('useHomePageKeyboardShortcuts', () => {
     mockOverviewElement.scrollIntoView = vi.fn()
     document.body.appendChild(mockOverviewElement)
 
-    const scrollOverviewShortcut = result.current.shortcuts.find(s => s.description.includes('Übersicht'))
+    const scrollOverviewShortcut = result.current.shortcuts.find(
+      s => s.description.includes('Übersicht'),
+    )
 
     act(() => {
       scrollOverviewShortcut!.action()
@@ -152,7 +156,9 @@ describe('useHomePageKeyboardShortcuts', () => {
 
     const sparenShortcut = result.current.shortcuts.find(s => s.description.includes('Sparen'))
     const entnahmeShortcut = result.current.shortcuts.find(s => s.description.includes('Entnahme'))
-    const sonstigesShortcut = result.current.shortcuts.find(s => s.description.includes('Sonstiges'))
+    const sonstigesShortcut = result.current.shortcuts.find(
+      s => s.description.includes('Sonstiges'),
+    )
 
     expect(sparenShortcut?.key).toBe('1')
     expect(sparenShortcut?.alt).toBe(true)

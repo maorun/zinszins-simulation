@@ -29,14 +29,11 @@ interface UsePensionCalculatorReturn {
 
 function useManualSalaryHandlers(
   manualSalaries: { [year: number]: number },
-  setManualSalaries: (salaries: { [year: number]: number }) => void,
+  setManualSalaries: (salaries: { [year: number]: number }) => void
 ) {
   const handleAddYear = () => {
     const currentYear = new Date().getFullYear()
-    const newYear =
-      Object.keys(manualSalaries).length > 0
-        ? Math.max(...Object.keys(manualSalaries).map(Number)) + 1
-        : currentYear - 10
+    const newYear = Object.keys(manualSalaries).length > 0 ? Math.max(...Object.keys(manualSalaries).map(Number)) + 1 : currentYear - 10
 
     setManualSalaries({ ...manualSalaries, [newYear]: 40000 })
   }
@@ -71,9 +68,7 @@ export function usePensionCalculator(): UsePensionCalculatorReturn {
   const [region, setRegion] = useState<'west' | 'east'>('west')
 
   const calculationResult = useMemo(() => {
-    const salaryHistory = quickMode
-      ? createSalaryHistory(startYear, endYear, startingSalary, annualIncrease)
-      : manualSalaries
+    const salaryHistory = quickMode ? createSalaryHistory(startYear, endYear, startingSalary, annualIncrease) : manualSalaries
 
     if (Object.keys(salaryHistory).length === 0) {
       return null
@@ -83,10 +78,7 @@ export function usePensionCalculator(): UsePensionCalculatorReturn {
     return calculatePensionPoints(config)
   }, [quickMode, startYear, endYear, startingSalary, annualIncrease, manualSalaries, region])
 
-  const { handleAddYear, handleRemoveYear, handleUpdateSalary, handleYearChange } = useManualSalaryHandlers(
-    manualSalaries,
-    setManualSalaries,
-  )
+  const { handleAddYear, handleRemoveYear, handleUpdateSalary, handleYearChange } = useManualSalaryHandlers(manualSalaries, setManualSalaries)
 
   return {
     quickMode,

@@ -41,13 +41,13 @@ describe('simulate with Günstigerprüfung with Progressive Tax', () => {
     const simulationData = result[0].simulation[2024]
     expect(simulationData).toBeDefined()
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult).toBeDefined()
-
+    
     const pruefung = simulationData.vorabpauschaleDetails?.guenstigerPruefungResult
-
+    
     // Progressive tax should be favorable due to lower effective rate
     expect(pruefung?.isFavorable).toBe('personal')
     expect(pruefung?.explanation).toContain('Progressiver Tarif')
-
+    
     // Personal tax amount should be less than Abgeltungssteuer
     expect(pruefung?.personalTaxAmount).toBeLessThan(pruefung?.abgeltungssteuerAmount ?? Infinity)
   })
@@ -64,7 +64,9 @@ describe('simulate with Günstigerprüfung with Progressive Tax', () => {
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult).toBeDefined()
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.isFavorable).toBe('personal')
     // With progressive tax, the explanation should mention "Progressiver Tarif"
-    expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.explanation).toContain('Progressiver Tarif')
+    expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.explanation).toContain(
+      'Progressiver Tarif',
+    )
   })
 
   it('should not perform Günstigerprüfung when disabled', () => {
@@ -91,7 +93,9 @@ describe('simulate with Günstigerprüfung with Progressive Tax', () => {
     expect(simulationData).toBeDefined()
     // Günstigerprüfung should be performed with progressive tax
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult).toBeDefined()
-    expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.explanation).toContain('Progressiver Tarif')
+    expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.explanation).toContain(
+      'Progressiver Tarif',
+    )
   })
 
   it('should calculate different tax amounts and choose the more favorable', () => {
@@ -110,7 +114,7 @@ describe('simulate with Günstigerprüfung with Progressive Tax', () => {
     expect(pruefungResult?.usedTaxRate).toBeGreaterThanOrEqual(0) // Can be 0 if personal tax is 0
     expect(['abgeltungssteuer', 'personal', 'equal']).toContain(pruefungResult?.isFavorable)
     expect(pruefungResult?.explanation).toBeTruthy()
-
+    
     // With progressive tax, personal tax should typically be more favorable for typical returns
     expect(pruefungResult?.isFavorable).toBe('personal')
   })

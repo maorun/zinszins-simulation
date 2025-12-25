@@ -22,7 +22,7 @@ describe('BetriebsrenteConfiguration', () => {
     expect(screen.getByText('Betriebliche Altersvorsorge (bAV)')).toBeInTheDocument()
     expect(screen.getByText('Betriebliche Altersvorsorge aktivieren')).toBeInTheDocument()
     expect(
-      screen.getByText('Aktivieren Sie die betriebliche Altersvorsorge, um Ihre Vorsorge zu planen.'),
+      screen.getByText('Aktivieren Sie die betriebliche Altersvorsorge, um Ihre Vorsorge zu planen.')
     ).toBeInTheDocument()
   })
 
@@ -70,7 +70,9 @@ describe('BetriebsrenteConfiguration', () => {
     const input = screen.getByLabelText('Jährlicher Arbeitnehmerbeitrag (Entgeltumwandlung)')
     fireEvent.change(input, { target: { value: '5000' } })
 
-    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ annualEmployeeContribution: 5000 }))
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ annualEmployeeContribution: 5000 })
+    )
   })
 
   it('should update employer contribution', async () => {
@@ -81,7 +83,9 @@ describe('BetriebsrenteConfiguration', () => {
     const input = screen.getByLabelText('Jährlicher Arbeitgeberzuschuss')
     fireEvent.change(input, { target: { value: '2400' } })
 
-    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ annualEmployerContribution: 2400 }))
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ annualEmployerContribution: 2400 })
+    )
   })
 
   it('should update pension start year', async () => {
@@ -154,7 +158,7 @@ describe('BetriebsrenteConfiguration', () => {
         contributionYear={2024}
         personalTaxRate={0.35}
         pensionTaxRate={0.25}
-      />,
+      />
     )
 
     const toggleButton = screen.getByText('Steuerberechnung anzeigen')
@@ -176,7 +180,13 @@ describe('BetriebsrenteConfiguration', () => {
   it('should display limits info text', () => {
     const onChange = vi.fn()
     const enabledConfig = { ...defaultConfig, enabled: true }
-    render(<BetriebsrenteConfiguration config={enabledConfig} onChange={onChange} contributionYear={2024} />)
+    render(
+      <BetriebsrenteConfiguration
+        config={enabledConfig}
+        onChange={onChange}
+        contributionYear={2024}
+      />
+    )
 
     // Should show BBG-based limits (text appears multiple times for employee and employer fields)
     expect(screen.getAllByText(/sozialversicherungsfrei/).length).toBeGreaterThan(0)
@@ -192,7 +202,7 @@ describe('BetriebsrenteConfiguration', () => {
     // Info icon should be present (rendered as SVG with tooltip trigger)
     const title = screen.getByText('Betriebliche Altersvorsorge (bAV)')
     expect(title).toBeInTheDocument()
-
+    
     // The Info icon is inside the title element
     const svg = title.parentElement?.querySelector('svg')
     expect(svg).toBeInTheDocument()
@@ -221,6 +231,8 @@ describe('BetriebsrenteConfiguration', () => {
     const pensionskasseButton = screen.getByText('Pensionskasse')
     await user.click(pensionskasseButton)
 
-    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ implementationType: 'pensionskasse' }))
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ implementationType: 'pensionskasse' })
+    )
   })
 })

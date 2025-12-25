@@ -198,12 +198,9 @@ export function createDefaultPhaseConfig(
 /**
  * Create default BAföG configuration
  */
-export function createDefaultBafoegConfig(
-  studentBirthYear: number,
-  currentYear: number = new Date().getFullYear(),
-): BafoegConfig {
+export function createDefaultBafoegConfig(studentBirthYear: number, currentYear: number = new Date().getFullYear()): BafoegConfig {
   const studiumStartYear = Math.max(currentYear, studentBirthYear + EDUCATION_AGE_RANGES.studium.start)
-
+  
   return {
     enabled: false,
     monthlyAmount: BAFOEG_CONSTANTS.maxMonthlyAmountAwayFromParents,
@@ -278,7 +275,7 @@ export function calculateEducationCostsForYear(
   taxDeduction: number
 } {
   // Find active phases for this year
-  const activePhases = config.phases.filter(phase => year >= phase.startYear && year <= phase.endYear)
+  const activePhases = config.phases.filter((phase) => year >= phase.startYear && year <= phase.endYear)
 
   // Calculate total costs with inflation
   let totalMonthlyCost = 0
@@ -410,7 +407,10 @@ function accumulateTotals(
 /**
  * Calculate totals for a single year
  */
-function calculateYearTotals(childrenConfigs: ChildrenEducationConfig[], year: number): YearlyEducationBreakdown {
+function calculateYearTotals(
+  childrenConfigs: ChildrenEducationConfig[],
+  year: number,
+): YearlyEducationBreakdown {
   let yearTotalCost = 0
   let yearBafoegSupport = 0
   let yearTaxDeduction = 0
@@ -611,9 +611,7 @@ function validateBafoegAmounts(bafoeg: BafoegConfig, errors: string[]): void {
   }
 
   if (bafoeg.monthlyAmount > BAFOEG_CONSTANTS.maxMonthlyAmountAwayFromParents) {
-    errors.push(
-      `BAföG-Betrag kann nicht höher sein als ${BAFOEG_CONSTANTS.maxMonthlyAmountAwayFromParents}€ (gesetzliches Maximum).`,
-    )
+    errors.push(`BAföG-Betrag kann nicht höher sein als ${BAFOEG_CONSTANTS.maxMonthlyAmountAwayFromParents}€ (gesetzliches Maximum).`)
   }
 }
 

@@ -7,7 +7,7 @@ interface PensionPointsInfoProps {
 
 /**
  * Informational card about German Pension Points (Rentenpunkte) calculation
- *
+ * 
  * Provides users with information about how the German pension system
  * calculates pensions based on pension points.
  */
@@ -31,9 +31,10 @@ export function PensionPointsInfo({ nestingLevel }: PensionPointsInfoProps) {
             <li>Monatliche Rente = Rentenpunkte × aktueller Rentenwert (≈ 37,60 € in 2024)</li>
           </ul>
           <p className="text-xs text-gray-600 mt-3">
-            ℹ️ Sie können Ihre Rentenpunkte anhand Ihrer Gehaltshistorie berechnen und die resultierende monatliche
-            Rente hier eintragen. Die Rentenpunkte-Berechnung berücksichtigt Ihre Beitragsjahre und die Entwicklung
-            Ihres Bruttogehalts im Vergleich zum deutschen Durchschnittsgehalt.
+            ℹ️ Sie können Ihre Rentenpunkte anhand Ihrer Gehaltshistorie berechnen und die resultierende
+            monatliche Rente hier eintragen. Die Rentenpunkte-Berechnung berücksichtigt Ihre
+            Beitragsjahre und die Entwicklung Ihres Bruttogehalts im Vergleich zum deutschen
+            Durchschnittsgehalt.
           </p>
         </div>
       </CardContent>

@@ -677,8 +677,7 @@ function generateOverallRecommendations(
   if (yearsWithHighCarryforward.length >= 3) {
     const avgCarryforward =
       yearsWithHighCarryforward.reduce(
-        (sum, analysis) =>
-          sum + analysis.carryForwardToNextYear.stockLosses + analysis.carryForwardToNextYear.otherLosses,
+        (sum, analysis) => sum + analysis.carryForwardToNextYear.stockLosses + analysis.carryForwardToNextYear.otherLosses,
         0,
       ) / yearsWithHighCarryforward.length
 

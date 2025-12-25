@@ -92,7 +92,10 @@ export function useHomePageKeyboardShortcuts() {
   }, [])
 
   const shortcuts = useMemo(
-    () => [...createNavigationShortcuts(switchTab, scrollToTop, scrollToOverview), ...createHelpShortcuts(openHelp)],
+    () => [
+      ...createNavigationShortcuts(switchTab, scrollToTop, scrollToOverview),
+      ...createHelpShortcuts(openHelp),
+    ],
     [switchTab, scrollToTop, scrollToOverview, openHelp],
   )
 

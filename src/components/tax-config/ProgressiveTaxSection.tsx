@@ -28,8 +28,9 @@ export function ProgressiveTaxInfoSection({ guenstigerPruefungAktiv }: Progressi
 
         <div className="text-sm text-muted-foreground space-y-2">
           <p>
-            Bei aktivierter Günstigerprüfung wird der progressive Einkommensteuertarif berücksichtigt. Das System wählt
-            automatisch zwischen Abgeltungssteuer und progressivem Tarif, je nachdem, welches für Sie günstiger ist.
+            Bei aktivierter Günstigerprüfung wird der progressive Einkommensteuertarif berücksichtigt.
+            Das System wählt automatisch zwischen Abgeltungssteuer und progressivem Tarif, je nachdem,
+            welches für Sie günstiger ist.
           </p>
 
           <div className="p-3 bg-blue-50 rounded space-y-2">

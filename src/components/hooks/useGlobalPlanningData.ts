@@ -49,3 +49,4 @@ export function useGlobalPlanningData() {
 
   return { ...lifeExpectancy, ...planning, ...configs }
 }
+

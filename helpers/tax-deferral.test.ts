@@ -1,11 +1,15 @@
 import { describe, it, expect } from 'vitest'
-import { calculateTaxDeferralComparison, createDefaultTaxDeferralConfig, type TaxDeferralConfig } from './tax-deferral'
+import {
+  calculateTaxDeferralComparison,
+  createDefaultTaxDeferralConfig,
+  type TaxDeferralConfig,
+} from './tax-deferral'
 
 describe('Tax Deferral Calculator (Steuerstundungs-Kalkulator)', () => {
   describe('createDefaultTaxDeferralConfig', () => {
     it('should create a valid default configuration', () => {
       const config = createDefaultTaxDeferralConfig()
-
+      
       expect(config.initialInvestment).toBe(50000)
       expect(config.annualReturn).toBe(0.07)
       expect(config.years).toBe(20)
@@ -34,14 +38,14 @@ describe('Tax Deferral Calculator (Steuerstundungs-Kalkulator)', () => {
       expect(result.config).toEqual(config)
       expect(result.accumulating.yearlyBreakdown).toHaveLength(10)
       expect(result.distributing.yearlyBreakdown).toHaveLength(10)
-
+      
       // Accumulating fund should have higher or equal final value
       // (equal is possible with very low Basiszins resulting in minimal Vorabpauschale)
       expect(result.accumulating.finalValue).toBeGreaterThanOrEqual(result.distributing.finalValue)
-
+      
       // Value difference should be non-negative
       expect(result.comparison.valueDifference).toBeGreaterThanOrEqual(0)
-
+      
       // Tax deferral benefit should equal value difference in this simple case
       expect(result.comparison.taxDeferralBenefit).toBe(result.comparison.valueDifference)
     })
@@ -63,7 +67,7 @@ describe('Tax Deferral Calculator (Steuerstundungs-Kalkulator)', () => {
       expect(result.accumulating.finalValue).toBe(10000)
       expect(result.distributing.finalValue).toBe(10000)
       expect(result.comparison.valueDifference).toBe(0)
-
+      
       // No taxes should be paid
       expect(result.accumulating.totalTaxPaid).toBe(0)
       expect(result.distributing.totalTaxPaid).toBe(0)
@@ -84,15 +88,15 @@ describe('Tax Deferral Calculator (Steuerstundungs-Kalkulator)', () => {
 
       // For accumulating fund, tax is based on Vorabpauschale
       const firstYear = result.accumulating.yearlyBreakdown[0]
-
+      
       expect(firstYear.startValue).toBe(100000)
       expect(firstYear.grossReturn).toBeCloseTo(7000, 1)
       expect(firstYear.endValueBeforeTax).toBeCloseTo(107000, 1)
-
+      
       // Vorabpauschale should be less than gross return
       expect(firstYear.taxableAmount).toBeLessThan(7000)
       expect(firstYear.taxableAmount).toBeGreaterThan(0)
-
+      
       // Tax should be positive but less than full tax on returns
       expect(firstYear.taxPaid).toBeGreaterThan(0)
       expect(firstYear.taxPaid).toBeLessThan(7000 * 0.26375 * (1 - 0.3))
@@ -113,11 +117,11 @@ describe('Tax Deferral Calculator (Steuerstundungs-Kalkulator)', () => {
 
       // For distributing fund, tax is based on full distribution
       const firstYear = result.distributing.yearlyBreakdown[0]
-
+      
       expect(firstYear.startValue).toBe(100000)
       expect(firstYear.grossReturn).toBeCloseTo(7000, 1)
       expect(firstYear.taxableAmount).toBeCloseTo(7000, 1)
-
+      
       // Tax should be on full distribution with Teilfreistellungsquote
       const expectedTax = 7000 * (1 - 0.3) * 0.26375
       expect(firstYear.taxPaid).toBeCloseTo(expectedTax, 2)
@@ -175,10 +179,10 @@ describe('Tax Deferral Calculator (Steuerstundungs-Kalkulator)', () => {
 
       // Accumulating fund should have significantly higher final value
       expect(result.accumulating.finalValue).toBeGreaterThan(result.distributing.finalValue)
-
+      
       // The advantage should be substantial over 20 years
       expect(result.comparison.percentageAdvantage).toBeGreaterThan(1) // At least 1% advantage
-
+      
       // Tax deferral benefit should be positive
       expect(result.comparison.taxDeferralBenefit).toBeGreaterThan(0)
     })
@@ -196,17 +200,17 @@ describe('Tax Deferral Calculator (Steuerstundungs-Kalkulator)', () => {
 
       // Compare equity fund (30% exemption) vs. mixed fund (15% exemption)
       const equityResult = calculateTaxDeferralComparison(baseConfig)
-
+      
       const mixedConfig = { ...baseConfig, teilfreistellungsquote: 0.15 }
       const mixedResult = calculateTaxDeferralComparison(mixedConfig)
 
       // Mixed fund should pay more taxes due to lower exemption
       expect(mixedResult.distributing.totalTaxPaid).toBeGreaterThan(equityResult.distributing.totalTaxPaid)
-
+      
       // Both should have grown
       expect(equityResult.accumulating.finalValue).toBeGreaterThan(baseConfig.initialInvestment)
       expect(mixedResult.accumulating.finalValue).toBeGreaterThan(baseConfig.initialInvestment)
-
+      
       // Equity fund should have higher final value due to tax advantages
       expect(equityResult.accumulating.finalValue).toBeGreaterThan(mixedResult.accumulating.finalValue)
     })
@@ -298,7 +302,7 @@ describe('Tax Deferral Calculator (Steuerstundungs-Kalkulator)', () => {
       // Should complete without errors
       expect(result.accumulating.yearlyBreakdown).toHaveLength(2)
       expect(result.distributing.yearlyBreakdown).toHaveLength(2)
-
+      
       // With larger investment and higher Basiszins, should pay some taxes
       expect(result.accumulating.totalTaxPaid).toBeGreaterThanOrEqual(0)
       expect(result.distributing.totalTaxPaid).toBeGreaterThan(0)
@@ -321,7 +325,7 @@ describe('Tax Deferral Calculator (Steuerstundungs-Kalkulator)', () => {
       for (let i = 1; i < result.accumulating.yearlyBreakdown.length; i++) {
         const previousYear = result.accumulating.yearlyBreakdown[i - 1]
         const currentYear = result.accumulating.yearlyBreakdown[i]
-
+        
         expect(currentYear.startValue).toBeCloseTo(previousYear.endValueAfterTax, 2)
       }
     })
@@ -342,7 +346,7 @@ describe('Tax Deferral Calculator (Steuerstundungs-Kalkulator)', () => {
       // Distributing fund typically pays more taxes (or at least comparable) due to taxing full distributions
       // The comparison should show the tax difference
       expect(result.comparison.taxDifference).toBeDefined()
-
+      
       // If distributing pays more taxes, difference should be positive
       // If accumulating pays more (rare), difference should be negative
       // Both scenarios are valid depending on Basiszins vs. actual returns
@@ -366,10 +370,10 @@ describe('Tax Deferral Calculator (Steuerstundungs-Kalkulator)', () => {
       // Both funds should grow significantly
       expect(result.accumulating.finalValue).toBeGreaterThan(200000)
       expect(result.distributing.finalValue).toBeGreaterThan(200000)
-
+      
       // Accumulating should outperform distributing
       expect(result.accumulating.finalValue).toBeGreaterThan(result.distributing.finalValue)
-
+      
       // The advantage should be meaningful for retirement planning
       expect(result.comparison.valueDifference).toBeGreaterThan(5000) // At least €5,000 advantage
     })

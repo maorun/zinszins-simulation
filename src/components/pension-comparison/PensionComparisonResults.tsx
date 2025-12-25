@@ -26,18 +26,26 @@ function ComparisonTableRow({ comparison }: { comparison: PensionTypeComparison 
     <tr className="border-b hover:bg-gray-50">
       <td className="py-2 px-2">
         <div className="font-medium">{comparison.displayName}</div>
-        <div className="text-xs text-muted-foreground">{getPensionTypeDescription(comparison.type)}</div>
+        <div className="text-xs text-muted-foreground">
+          {getPensionTypeDescription(comparison.type)}
+        </div>
       </td>
       <td className="text-right py-2 px-2">
         <div>{formatCurrency(comparison.annualContribution)}</div>
         {comparison.annualEmployerContribution > 0 && (
-          <div className="text-xs text-green-600">+ {formatCurrency(comparison.annualEmployerContribution)} AG</div>
+          <div className="text-xs text-green-600">
+            + {formatCurrency(comparison.annualEmployerContribution)} AG
+          </div>
         )}
       </td>
-      <td className="text-right py-2 px-2 text-green-600">{formatCurrency(comparison.annualTaxBenefit)}</td>
+      <td className="text-right py-2 px-2 text-green-600">
+        {formatCurrency(comparison.annualTaxBenefit)}
+      </td>
       <td className="text-right py-2 px-2">
         <div>{formatCurrency(comparison.monthlyPensionNet)}</div>
-        <div className="text-xs text-muted-foreground">{formatCurrency(comparison.annualPensionNet)}/Jahr</div>
+        <div className="text-xs text-muted-foreground">
+          {formatCurrency(comparison.annualPensionNet)}/Jahr
+        </div>
       </td>
       <td className="text-right py-2 px-2">
         <span className={getValueColorClass(comparison.roi)}>
@@ -55,8 +63,8 @@ function ComparisonTableRow({ comparison }: { comparison: PensionTypeComparison 
 }
 
 function ComparisonTable({ results }: { results: PensionComparisonResult }) {
-  const enabledComparisons = results.comparisons.filter(c => c.enabled)
-
+  const enabledComparisons = results.comparisons.filter((c) => c.enabled)
+  
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
@@ -71,7 +79,7 @@ function ComparisonTable({ results }: { results: PensionComparisonResult }) {
           </tr>
         </thead>
         <tbody>
-          {enabledComparisons.map(comparison => (
+          {enabledComparisons.map((comparison) => (
             <ComparisonTableRow key={comparison.type} comparison={comparison} />
           ))}
         </tbody>
@@ -86,7 +94,9 @@ function ComparisonTableFooter({ results }: { results: PensionComparisonResult }
     <tfoot className="border-t-2 bg-gray-50">
       <tr className="font-semibold">
         <td className="py-2 px-2">Gesamt</td>
-        <td className="text-right py-2 px-2">{formatCurrency(results.summary.totalAnnualContributions)}</td>
+        <td className="text-right py-2 px-2">
+          {formatCurrency(results.summary.totalAnnualContributions)}
+        </td>
         <td className="text-right py-2 px-2 text-green-600">
           {formatCurrency(results.summary.totalAnnualTaxBenefits)}
         </td>
@@ -113,8 +123,8 @@ function ComparisonTableFooter({ results }: { results: PensionComparisonResult }
 }
 
 function BestOptionsHighlight({ results }: { results: PensionComparisonResult }) {
-  const enabledComparisons = results.comparisons.filter(c => c.enabled)
-
+  const enabledComparisons = results.comparisons.filter((c) => c.enabled)
+  
   if (!results.bestROI || !results.bestNetBenefit || enabledComparisons.length <= 1) {
     return null
   }
@@ -124,12 +134,16 @@ function BestOptionsHighlight({ results }: { results: PensionComparisonResult })
       <div className="bg-green-50 border border-green-200 rounded-lg p-4">
         <div className="text-sm font-semibold text-green-900 mb-1">🏆 Beste Rendite (ROI)</div>
         <div className="text-lg font-bold text-green-700">{results.bestROI.displayName}</div>
-        <div className="text-sm text-green-600 mt-1">ROI: +{(results.bestROI.roi * 100).toFixed(1)}%</div>
+        <div className="text-sm text-green-600 mt-1">
+          ROI: +{(results.bestROI.roi * 100).toFixed(1)}%
+        </div>
       </div>
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="text-sm font-semibold text-blue-900 mb-1">💰 Höchster Lebenszeitgewinn</div>
         <div className="text-lg font-bold text-blue-700">{results.bestNetBenefit.displayName}</div>
-        <div className="text-sm text-blue-600 mt-1">{formatCurrency(results.bestNetBenefit.netLifetimeBenefit)}</div>
+        <div className="text-sm text-blue-600 mt-1">
+          {formatCurrency(results.bestNetBenefit.netLifetimeBenefit)}
+        </div>
       </div>
     </div>
   )
@@ -146,7 +160,9 @@ function DetailedBreakdown({ comparison }: { comparison: PensionTypeComparison }
         </div>
         <div>
           <div className="text-xs text-muted-foreground">Gesamte Steuervorteile</div>
-          <div className="font-semibold text-green-600">{formatCurrency(comparison.totalTaxBenefits)}</div>
+          <div className="font-semibold text-green-600">
+            {formatCurrency(comparison.totalTaxBenefits)}
+          </div>
         </div>
         <div>
           <div className="text-xs text-muted-foreground">Gesamte Nettorente</div>
@@ -189,8 +205,8 @@ function MetricsExplanation() {
           <strong>ROI:</strong> Rendite Ihrer Investition (Gesamtrente + Steuervorteile) / Gesamtbeiträge - 1
         </li>
         <li>
-          <strong>Lebenszeitgewinn:</strong> Gesamte Nettorente - Beiträge + Steuervorteile (Ihr Nettogewinn über die
-          gesamte Lebenszeit)
+          <strong>Lebenszeitgewinn:</strong> Gesamte Nettorente - Beiträge + Steuervorteile (Ihr Nettogewinn über
+          die gesamte Lebenszeit)
         </li>
       </ul>
     </div>
@@ -198,7 +214,7 @@ function MetricsExplanation() {
 }
 
 export function PensionComparisonResults({ results }: PensionComparisonResultsProps) {
-  const enabledComparisons = results.comparisons.filter(c => c.enabled)
+  const enabledComparisons = results.comparisons.filter((c) => c.enabled)
 
   if (enabledComparisons.length === 0) {
     return (
@@ -214,7 +230,7 @@ export function PensionComparisonResults({ results }: PensionComparisonResultsPr
       <BestOptionsHighlight results={results} />
       <div className="space-y-4">
         <h3 className="text-sm font-semibold">Detaillierte Aufschlüsselung</h3>
-        {enabledComparisons.map(comparison => (
+        {enabledComparisons.map((comparison) => (
           <DetailedBreakdown key={comparison.type} comparison={comparison} />
         ))}
       </div>

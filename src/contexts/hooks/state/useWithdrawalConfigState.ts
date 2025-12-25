@@ -73,28 +73,20 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
     () => extendedInitialConfig.alimonyConfig || getDefaultAlimonyConfig(),
   )
 
-  const [emRenteConfig, setEMRenteConfig] = useState<EMRenteConfig | null>(extendedInitialConfig.emRenteConfig || null)
+  const [emRenteConfig, setEMRenteConfig] = useState<EMRenteConfig | null>(
+    extendedInitialConfig.emRenteConfig || null,
+  )
 
   return {
-    withdrawalConfig,
-    setWithdrawalConfig,
-    statutoryPensionConfig,
-    setStatutoryPensionConfig,
-    coupleStatutoryPensionConfig,
-    setCoupleStatutoryPensionConfig,
-    careCostConfiguration,
-    setCareCostConfiguration,
-    financialGoals,
-    setFinancialGoals,
-    emergencyFundConfig,
-    setEmergencyFundConfig,
-    termLifeInsuranceConfig,
-    setTermLifeInsuranceConfig,
-    careInsuranceConfig,
-    setCareInsuranceConfig,
-    alimonyConfig,
-    setAlimonyConfig,
-    emRenteConfig,
-    setEMRenteConfig,
+    withdrawalConfig, setWithdrawalConfig,
+    statutoryPensionConfig, setStatutoryPensionConfig,
+    coupleStatutoryPensionConfig, setCoupleStatutoryPensionConfig,
+    careCostConfiguration, setCareCostConfiguration,
+    financialGoals, setFinancialGoals,
+    emergencyFundConfig, setEmergencyFundConfig,
+    termLifeInsuranceConfig, setTermLifeInsuranceConfig,
+    careInsuranceConfig, setCareInsuranceConfig,
+    alimonyConfig, setAlimonyConfig,
+    emRenteConfig, setEMRenteConfig,
   }
 }

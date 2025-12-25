@@ -12,7 +12,11 @@ import {
   type ExportData,
   type SavingsData,
 } from '../utils/data-export'
-import { exportSavingsDataToExcel, exportWithdrawalDataToExcel, exportCompleteDataToExcel } from '../utils/excel-export'
+import {
+  exportSavingsDataToExcel,
+  exportWithdrawalDataToExcel,
+  exportCompleteDataToExcel,
+} from '../utils/excel-export'
 import {
   exportSavingsDataToPDF,
   exportWithdrawalDataToPDF,
@@ -392,10 +396,7 @@ async function performSavingsExcelExport(context: SimulationContextState, update
 /**
  * Export withdrawal data as Excel
  */
-async function performWithdrawalExcelExport(
-  context: SimulationContextState,
-  updateState: StateUpdater,
-): Promise<boolean> {
+async function performWithdrawalExcelExport(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
   setExportingStateHelper(updateState, 'excel')
 
   try {
@@ -475,10 +476,7 @@ async function performSavingsPDFExport(context: SimulationContextState, updateSt
 /**
  * Export withdrawal data as PDF
  */
-async function performWithdrawalPDFExport(
-  context: SimulationContextState,
-  updateState: StateUpdater,
-): Promise<boolean> {
+async function performWithdrawalPDFExport(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
   setExportingStateHelper(updateState, 'pdf')
 
   try {
@@ -588,10 +586,7 @@ type StateUpdater = (state: Partial<DataExportState>) => void
 /**
  * Helper to set exporting state
  */
-function setExportingStateHelper(
-  setState: StateUpdater,
-  exportType: 'csv' | 'markdown' | 'clipboard' | 'excel' | 'pdf',
-) {
+function setExportingStateHelper(setState: StateUpdater, exportType: 'csv' | 'markdown' | 'clipboard' | 'excel' | 'pdf') {
   setState({
     isExporting: true,
     lastExportResult: null,
@@ -696,11 +691,11 @@ function usePDFExports(context: SimulationContextState, updateState: StateUpdate
 
 /**
  * Custom hook for exporting simulation data in various formats.
- *
+ * 
  * Provides export functions for CSV, Excel, PDF, and Markdown formats, as well as
  * clipboard operations. All export functions are memoized with useCallback to prevent
  * unnecessary re-renders of consuming components.
- *
+ * 
  * @returns Object containing export functions and export state
  */
 export function useDataExport() {
@@ -710,7 +705,7 @@ export function useDataExport() {
     lastExportResult: null,
     exportType: null,
   })
-
+  
   // Performance optimization: useCallback ensures setState doesn't change between renders
   const updateState = useCallback((updates: Partial<DataExportState>) => {
     setState(prev => ({ ...prev, ...updates }))

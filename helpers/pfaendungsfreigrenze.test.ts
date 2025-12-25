@@ -377,7 +377,7 @@ describe('pfaendungsfreigrenze', () => {
       expect(result.ruerupProtected).toBe(340000)
       expect(result.ruerupGarnishable).toBe(1500000 - 340000)
       expect(result.recommendations.length).toBeGreaterThan(0)
-      expect(result.recommendations.some(r => r.includes('dreifache Obergrenze'))).toBe(true)
+      expect(result.recommendations.some((r) => r.includes('dreifache Obergrenze'))).toBe(true)
     })
 
     it('should fully protect Riester capital', () => {
@@ -445,7 +445,7 @@ describe('pfaendungsfreigrenze', () => {
 
       expect(result.recommendations.length).toBeGreaterThan(0)
       // Should recommend restructuring other pension capital
-      expect(result.recommendations.some(r => r.includes('Umschichtung'))).toBe(true)
+      expect(result.recommendations.some((r) => r.includes('Umschichtung'))).toBe(true)
     })
 
     it('should handle zero assets', () => {
@@ -503,7 +503,7 @@ describe('pfaendungsfreigrenze', () => {
       // Should recommend debt restructuring
       expect(recommendations.length).toBeGreaterThan(0)
       // The specific recommendation depends on the garnishment calculation
-      expect(recommendations.some(r => r.includes('Unterhalt') || r.includes('Schuldensanierung'))).toBe(true)
+      expect(recommendations.some((r) => r.includes('Unterhalt') || r.includes('Schuldensanierung'))).toBe(true)
     })
 
     it('should suggest registering dependents', () => {
@@ -522,7 +522,7 @@ describe('pfaendungsfreigrenze', () => {
 
       const recommendations = getOptimizationRecommendations(incomeResult, assetResult)
 
-      expect(recommendations.some(r => r.includes('Unterhaltsberechtigten'))).toBe(true)
+      expect(recommendations.some((r) => r.includes('Unterhaltsberechtigten'))).toBe(true)
     })
 
     it('should recommend asset restructuring for high garnishable assets', () => {
@@ -541,8 +541,8 @@ describe('pfaendungsfreigrenze', () => {
 
       const recommendations = getOptimizationRecommendations(incomeResult, assetResult)
 
-      expect(recommendations.some(r => r.includes('Umschichtung'))).toBe(true)
-      expect(recommendations.some(r => r.includes('pfändungssichere Altersvorsorge'))).toBe(true)
+      expect(recommendations.some((r) => r.includes('Umschichtung'))).toBe(true)
+      expect(recommendations.some((r) => r.includes('pfändungssichere Altersvorsorge'))).toBe(true)
     })
 
     it('should recommend Rürup for high garnishable assets without Rürup', () => {
@@ -561,8 +561,8 @@ describe('pfaendungsfreigrenze', () => {
 
       const recommendations = getOptimizationRecommendations(incomeResult, assetResult)
 
-      expect(recommendations.some(r => r.includes('Rürup-Rente'))).toBe(true)
-      expect(recommendations.some(r => r.includes('340.000'))).toBe(true)
+      expect(recommendations.some((r) => r.includes('Rürup-Rente'))).toBe(true)
+      expect(recommendations.some((r) => r.includes('340.000'))).toBe(true)
     })
 
     it('should recommend Riester for garnishable assets without Riester', () => {
@@ -581,8 +581,8 @@ describe('pfaendungsfreigrenze', () => {
 
       const recommendations = getOptimizationRecommendations(incomeResult, assetResult)
 
-      expect(recommendations.some(r => r.includes('Riester-Renten'))).toBe(true)
-      expect(recommendations.some(r => r.includes('vollständig geschützt'))).toBe(true)
+      expect(recommendations.some((r) => r.includes('Riester-Renten'))).toBe(true)
+      expect(recommendations.some((r) => r.includes('vollständig geschützt'))).toBe(true)
     })
 
     it('should warn about fully garnishable income with low protected assets', () => {
@@ -602,7 +602,7 @@ describe('pfaendungsfreigrenze', () => {
       const recommendations = getOptimizationRecommendations(incomeResult, assetResult)
 
       expect(
-        recommendations.some(r => r.includes('vollständig pfändbarem Einkommen') || r.includes('Altersvorsorge')),
+        recommendations.some((r) => r.includes('vollständig pfändbarem Einkommen') || r.includes('Altersvorsorge')),
       ).toBe(true)
     })
 

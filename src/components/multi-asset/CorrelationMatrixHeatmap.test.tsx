@@ -238,7 +238,9 @@ describe('CorrelationMatrixHeatmap', () => {
       render(<CorrelationMatrixHeatmap config={config} />)
 
       expect(screen.getByText('Korrelationsmatrix')).toBeInTheDocument()
-      expect(screen.getByText(/Zeigt die historischen Korrelationen zwischen den Anlageklassen/)).toBeInTheDocument()
+      expect(
+        screen.getByText(/Zeigt die historischen Korrelationen zwischen den Anlageklassen/),
+      ).toBeInTheDocument()
     })
 
     it('should display info icon', () => {
@@ -312,7 +314,9 @@ describe('CorrelationMatrixHeatmap', () => {
       render(<CorrelationMatrixHeatmap config={config} />)
 
       // Info text provides context
-      expect(screen.getByText(/Zeigt die historischen Korrelationen zwischen den Anlageklassen/)).toBeInTheDocument()
+      expect(
+        screen.getByText(/Zeigt die historischen Korrelationen zwischen den Anlageklassen/),
+      ).toBeInTheDocument()
     })
   })
 

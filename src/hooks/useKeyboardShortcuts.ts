@@ -18,7 +18,7 @@ export interface UseKeyboardShortcutsOptions {
 
 /**
  * Custom hook for managing keyboard shortcuts in the application
- *
+ * 
  * @param options Configuration options including shortcuts array and enabled flag
  * @returns Object with methods to manage shortcuts
  */
@@ -27,7 +27,11 @@ export function useKeyboardShortcuts({ shortcuts, enabled = true }: UseKeyboardS
     (event: KeyboardEvent) => {
       // Don't trigger shortcuts when typing in input fields
       const target = event.target as HTMLElement
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
         // Exception: Allow '?' to show help even in input fields if Shift is pressed
         if (!(event.key === '?' && event.shiftKey)) {
           return
@@ -37,15 +41,19 @@ export function useKeyboardShortcuts({ shortcuts, enabled = true }: UseKeyboardS
       // Find matching shortcut
       const matchingShortcut = shortcuts.find(shortcut => {
         const keyMatches = shortcut.key.toLowerCase() === event.key.toLowerCase()
-
+        
         // For ctrl shortcuts, accept both ctrl and meta keys for cross-platform compatibility
-        const ctrlMatches = shortcut.ctrl ? event.ctrlKey || event.metaKey : true
-
+        const ctrlMatches = shortcut.ctrl
+          ? event.ctrlKey || event.metaKey
+          : true
+        
         const altMatches = !!shortcut.alt === event.altKey
         const shiftMatches = !!shortcut.shift === event.shiftKey
-
+        
         // Meta key is handled by ctrl check for cross-platform compatibility
-        const metaMatches = shortcut.meta ? event.metaKey : true
+        const metaMatches = shortcut.meta
+          ? event.metaKey
+          : true
 
         return keyMatches && ctrlMatches && altMatches && shiftMatches && metaMatches
       })
@@ -78,17 +86,17 @@ export function useKeyboardShortcuts({ shortcuts, enabled = true }: UseKeyboardS
  */
 const SPECIAL_KEY_MAP: Record<string, string> = {
   ' ': 'Leertaste',
-  Enter: 'Enter',
-  Escape: 'Esc',
-  ArrowUp: '↑',
-  ArrowDown: '↓',
-  ArrowLeft: '←',
-  ArrowRight: '→',
+  'Enter': 'Enter',
+  'Escape': 'Esc',
+  'ArrowUp': '↑',
+  'ArrowDown': '↓',
+  'ArrowLeft': '←',
+  'ArrowRight': '→',
 }
 
 /**
  * Format the main key for display
- *
+ * 
  * @param key The key to format
  * @returns Formatted key string
  */
@@ -98,7 +106,7 @@ function formatMainKey(key: string): string {
 
 /**
  * Format shortcut key combination for display
- *
+ * 
  * @param shortcut Keyboard shortcut configuration
  * @returns Formatted string representation of the shortcut
  */

@@ -12,7 +12,11 @@ interface SparplanListProps {
   sparplanFormValues: SparplanFormValue
   singleFormValue: SingleFormValue
   formatDateForInput: (date: Date | string | null, format: string) => string
-  handleDateChange: (e: ChangeEvent<HTMLInputElement>, format: string, callback: (date: Date | null) => void) => void
+  handleDateChange: (
+    e: ChangeEvent<HTMLInputElement>,
+    format: string,
+    callback: (date: Date | null) => void,
+  ) => void
   onEdit: (sparplan: Sparplan) => void
   onDelete: (id: number) => void
   onSaveEdit: () => void

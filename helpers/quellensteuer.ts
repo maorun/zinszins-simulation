@@ -182,7 +182,7 @@ export function calculateQuellensteuerconfigCredit(
  * @returns Country withholding tax information or undefined if not found
  */
 export function getWithholdingTaxRateForCountry(countryCode: string): CountryWithholdingTaxRate | undefined {
-  return COMMON_WITHHOLDING_TAX_RATES.find(c => c.countryCode === countryCode)
+  return COMMON_WITHHOLDING_TAX_RATES.find((c) => c.countryCode === countryCode)
 }
 
 /**
@@ -205,9 +205,9 @@ export function calculateTotalQuellensteuerconfigCredit(
   totalRemainingGermanTax: number
   details: QuellensteuerconfigCalculationResult[]
 } {
-  const enabledIncomes = foreignIncomes.filter(income => income.enabled)
+  const enabledIncomes = foreignIncomes.filter((income) => income.enabled)
 
-  const details = enabledIncomes.map(income =>
+  const details = enabledIncomes.map((income) =>
     calculateQuellensteuerconfigCredit(
       income.foreignIncome,
       income.withholdingTaxRate,

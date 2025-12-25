@@ -99,7 +99,7 @@ export function calculateYearsToGoal(
   if (monthlySavingsRate <= 0) return Infinity
 
   const monthlyReturn = annualReturn / 12
-
+  
   // Use iterative approach to calculate months needed
   let amount = currentAmount
   let months = 0
@@ -153,7 +153,12 @@ export function calculateRequiredMonthlySavings(
 /**
  * Determine if goal is on track based on progress and timeline
  */
-function isGoalOnTrack(currentAmount: number, targetAmount: number, currentYear: number, targetYear?: number): boolean {
+function isGoalOnTrack(
+  currentAmount: number,
+  targetAmount: number,
+  currentYear: number,
+  targetYear?: number,
+): boolean {
   const progress = (currentAmount / targetAmount) * 100
 
   // If no target year specified, use progress threshold
@@ -162,7 +167,7 @@ function isGoalOnTrack(currentAmount: number, targetAmount: number, currentYear:
   }
 
   const yearsRemaining = targetYear - currentYear
-
+  
   // If already past target year, definitely off track
   if (yearsRemaining <= 0) {
     return progress >= 100
@@ -381,7 +386,10 @@ function generateOnTrackAnalysis(
     expectedReturn,
     onTrack: true,
     progressPercentage: (currentAmount / goal.targetAmount) * 100,
-    recommendations: [generateOnTrackConfirmation(), generateReduceCostsRecommendation('low')],
+    recommendations: [
+      generateOnTrackConfirmation(),
+      generateReduceCostsRecommendation('low'),
+    ],
   }
 }
 
@@ -411,7 +419,11 @@ function generateRecommendationsWithTargetYear(
     if (requiredSavings < monthlySavingsRate * 3) {
       recommendations.push(generateIncreaseSavingsRecommendation(monthlySavingsRate, requiredSavings, severity))
     } else {
-      recommendations.push(generateAdjustExpectationsRecommendation(goal.targetAmount, currentAmount * 1.5, severity))
+      recommendations.push(generateAdjustExpectationsRecommendation(
+        goal.targetAmount,
+        currentAmount * 1.5,
+        severity,
+      ))
     }
 
     if (expectedYearsToGoal && expectedYearsToGoal > yearsRemaining) {
@@ -421,7 +433,12 @@ function generateRecommendationsWithTargetYear(
     }
   } else {
     recommendations.push(
-      generateAdjustTimelineRecommendation(expectedYearsToGoal || 5, goal.targetYear!, currentYear, 'critical'),
+      generateAdjustTimelineRecommendation(
+        expectedYearsToGoal || 5,
+        goal.targetYear!,
+        currentYear,
+        'critical',
+      ),
     )
   }
 
@@ -456,7 +473,9 @@ function calculateProgressSeverity(
   targetYear: number | undefined,
 ): AdjustmentSeverity {
   const progressPercentage = (currentAmount / targetAmount) * 100
-  const expectedProgress = targetYear ? ((currentYear - (targetYear - 20)) / 20) * 100 : 50
+  const expectedProgress = targetYear
+    ? ((currentYear - (targetYear - 20)) / 20) * 100
+    : 50
 
   const progressGap = Math.max(0, expectedProgress - progressPercentage)
   return calculateSeverity(progressGap)
@@ -492,17 +511,15 @@ function generateOffTrackRecommendations(
   const hasTargetYearAndSavings = goal.targetYear && monthlySavingsRate > 0
 
   if (hasTargetYearAndSavings) {
-    recommendations.push(
-      ...generateRecommendationsWithTargetYear(
-        goal,
-        currentAmount,
-        monthlySavingsRate,
-        expectedReturn,
-        currentYear,
-        severity,
-        expectedYearsToGoal,
-      ),
-    )
+    recommendations.push(...generateRecommendationsWithTargetYear(
+      goal,
+      currentAmount,
+      monthlySavingsRate,
+      expectedReturn,
+      currentYear,
+      severity,
+      expectedYearsToGoal,
+    ))
   } else {
     recommendations.push(...generateRecommendationsWithoutTargetYear(goal, currentAmount, monthlySavingsRate))
   }
@@ -536,10 +553,9 @@ export function analyzeGoalAdjustments(params: GoalAdjustmentParams): GoalAdjust
   }
 
   // Calculate expected years to reach goal
-  const expectedYearsToGoal =
-    monthlySavingsRate > 0
-      ? calculateYearsToGoal(currentAmount, goal.targetAmount, monthlySavingsRate, expectedReturn)
-      : undefined
+  const expectedYearsToGoal = monthlySavingsRate > 0
+    ? calculateYearsToGoal(currentAmount, goal.targetAmount, monthlySavingsRate, expectedReturn)
+    : undefined
 
   // Generate recommendations for off-track goal
   const recommendations = generateOffTrackRecommendations(

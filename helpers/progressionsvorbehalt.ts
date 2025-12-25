@@ -127,16 +127,16 @@ export function calculateProgressionRate(
   // Tax = Tax(taxable + progression) - Tax(progression)
   // This ensures progression income pushes taxable income into higher brackets
   // without taxing the progression income itself
-
+  
   // Calculate tax on total income (hypothetically, as if all were taxable)
   const taxOnTotalIncome = calculateGermanIncomeTax(totalIncome, grundfreibetrag)
-
+  
   // Calculate tax on just the progression-relevant income (hypothetically)
   const taxOnProgressionIncome = calculateGermanIncomeTax(progressionRelevantIncome, grundfreibetrag)
-
+  
   // The effective tax for the taxable income is the difference
   const effectiveTaxForTaxableIncome = Math.max(0, taxOnTotalIncome - taxOnProgressionIncome)
-
+  
   // Calculate the rate
   const effectiveRate = taxableIncome > 0 ? effectiveTaxForTaxableIncome / taxableIncome : 0
 

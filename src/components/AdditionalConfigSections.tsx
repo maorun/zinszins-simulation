@@ -29,71 +29,24 @@ interface AdditionalConfigSectionsProps {
 }
 
 export function AdditionalConfigSections(props: AdditionalConfigSectionsProps) {
-  const {
-    currentYear,
-    birthYear,
-    spouseBirthYear,
-    planningMode,
-    coupleStatutoryPensionConfig,
-    setCoupleStatutoryPensionConfig,
-    careCostConfiguration,
-    setCareCostConfiguration,
-    termLifeInsuranceConfig,
-    setTermLifeInsuranceConfig,
-    careInsuranceConfig,
-    setCareInsuranceConfig,
-    emRenteConfig,
-    setEMRenteConfig,
-  } = props
+  const { currentYear, birthYear, spouseBirthYear, planningMode, coupleStatutoryPensionConfig, setCoupleStatutoryPensionConfig, careCostConfiguration, setCareCostConfiguration, termLifeInsuranceConfig, setTermLifeInsuranceConfig, careInsuranceConfig, setCareInsuranceConfig, emRenteConfig, setEMRenteConfig } = props
 
   return (
     <>
       <div className="mb-6">
-        <CoupleStatutoryPensionConfiguration
-          config={coupleStatutoryPensionConfig}
-          onChange={setCoupleStatutoryPensionConfig}
-          currentYear={currentYear}
-          birthYear={birthYear}
-          spouseBirthYear={spouseBirthYear}
-          planningMode={planningMode}
-        />
+        <CoupleStatutoryPensionConfiguration config={coupleStatutoryPensionConfig} onChange={setCoupleStatutoryPensionConfig} currentYear={currentYear} birthYear={birthYear} spouseBirthYear={spouseBirthYear} planningMode={planningMode} />
       </div>
       <div className="mb-6">
-        <EMRenteConfiguration
-          config={emRenteConfig}
-          onChange={setEMRenteConfig}
-          currentYear={currentYear}
-          birthYear={birthYear}
-        />
+        <EMRenteConfiguration config={emRenteConfig} onChange={setEMRenteConfig} currentYear={currentYear} birthYear={birthYear} />
       </div>
       <div className="mb-6">
-        <CareCostConfiguration
-          values={careCostConfiguration}
-          onChange={setCareCostConfiguration}
-          currentYear={currentYear}
-          birthYear={birthYear}
-          spouseBirthYear={spouseBirthYear}
-          planningMode={planningMode}
-          nestingLevel={1}
-        />
+        <CareCostConfiguration values={careCostConfiguration} onChange={setCareCostConfiguration} currentYear={currentYear} birthYear={birthYear} spouseBirthYear={spouseBirthYear} planningMode={planningMode} nestingLevel={1} />
       </div>
       <div className="mb-6">
-        <TermLifeInsuranceConfiguration
-          config={termLifeInsuranceConfig}
-          onChange={setTermLifeInsuranceConfig}
-          currentYear={currentYear}
-          birthYear={birthYear}
-          planningMode={planningMode}
-        />
+        <TermLifeInsuranceConfiguration config={termLifeInsuranceConfig} onChange={setTermLifeInsuranceConfig} currentYear={currentYear} birthYear={birthYear} planningMode={planningMode} />
       </div>
       <div className="mb-6">
-        <CareInsuranceConfiguration
-          config={careInsuranceConfig}
-          onChange={setCareInsuranceConfig}
-          currentYear={currentYear}
-          birthYear={birthYear}
-          planningMode={planningMode}
-        />
+        <CareInsuranceConfiguration config={careInsuranceConfig} onChange={setCareInsuranceConfig} currentYear={currentYear} birthYear={birthYear} planningMode={planningMode} />
       </div>
     </>
   )

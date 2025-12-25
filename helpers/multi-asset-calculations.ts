@@ -186,7 +186,11 @@ function createSellTransaction(
 /**
  * Create a rebalancing transaction for a buy order
  */
-function createBuyTransaction(assetClass: AssetClass, change: number, portfolioValue: number): RebalancingTransaction {
+function createBuyTransaction(
+  assetClass: AssetClass,
+  change: number,
+  portfolioValue: number,
+): RebalancingTransaction {
   return {
     assetClass,
     type: 'buy',
@@ -243,7 +247,7 @@ function getAssetValues(
   const beforeValue = holding?.value || 0
   const costBasis = holding?.costBasis || beforeValue
   const afterValue = holdingsAfter.holdings[assetClass]?.value || 0
-
+  
   return { beforeValue, afterValue, costBasis }
 }
 
@@ -313,10 +317,10 @@ function createRebalancingProtocol(
 
   for (const assetClass of getEnabledAssets(config)) {
     const result = processAssetForRebalancing(assetClass, holdingsBefore, holdingsAfter, config)
-
+    
     allocationsBefore[assetClass] = result.allocationBefore
     allocationsAfter[assetClass] = result.allocationAfter
-
+    
     if (result.transaction) {
       transactions.push(result.transaction)
       totalCapitalGains += result.capitalGains
@@ -641,7 +645,7 @@ function performRebalancing(
   const rebalancedHoldings = rebalancePortfolio(holdings, config)
   const reason = config.rebalancing.useThreshold && holdings.needsRebalancing ? 'threshold' : 'scheduled'
   const protocol = createRebalancingProtocol(year, 0, reason, holdings, rebalancedHoldings, config)
-
+  
   return { rebalancedHoldings, protocol }
 }
 

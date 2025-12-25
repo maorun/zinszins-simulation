@@ -230,7 +230,9 @@ function KapitallebensversicherungInfoBox({
       <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
         <li>Vertragslaufzeit: {policyDuration} Jahre</li>
         <li>Alter bei Auszahlung: {ageAtPayout} Jahre</li>
-        <li>Erträge: {investmentGains.toLocaleString('de-DE')} € (Auszahlung - gezahlte Beiträge)</li>
+        <li>
+          Erträge: {investmentGains.toLocaleString('de-DE')} € (Auszahlung - gezahlte Beiträge)
+        </li>
         <li>{taxInfo}</li>
         {taxExemption > 0 && (
           <li>

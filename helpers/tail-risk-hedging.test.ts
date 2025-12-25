@@ -37,7 +37,7 @@ describe('tail-risk-hedging', () => {
         'systematic-rebalancing',
       ]
 
-      strategies.forEach(strategy => {
+      strategies.forEach((strategy) => {
         expect(HEDGING_STRATEGY_NAMES[strategy]).toBeDefined()
         expect(HEDGING_STRATEGY_NAMES[strategy].length).toBeGreaterThan(0)
       })
@@ -54,7 +54,7 @@ describe('tail-risk-hedging', () => {
         'systematic-rebalancing',
       ]
 
-      strategies.forEach(strategy => {
+      strategies.forEach((strategy) => {
         expect(HEDGING_STRATEGY_DESCRIPTIONS[strategy]).toBeDefined()
         expect(HEDGING_STRATEGY_DESCRIPTIONS[strategy].length).toBeGreaterThan(0)
       })
@@ -111,14 +111,9 @@ describe('tail-risk-hedging', () => {
 
     it('should have different costs for different strategies', () => {
       const portfolioValue = 100000
-      const strategies: HedgingStrategy[] = [
-        'protective-put',
-        'dynamic-cppi',
-        'tail-risk-fund',
-        'systematic-rebalancing',
-      ]
+      const strategies: HedgingStrategy[] = ['protective-put', 'dynamic-cppi', 'tail-risk-fund', 'systematic-rebalancing']
 
-      const costs = strategies.map(strategy => {
+      const costs = strategies.map((strategy) => {
         const config = getDefaultTailRiskHedgingConfig()
         config.enabled = true
         config.strategy = strategy
@@ -128,7 +123,7 @@ describe('tail-risk-hedging', () => {
       })
 
       // All costs should be positive
-      costs.forEach(cost => {
+      costs.forEach((cost) => {
         expect(cost).toBeGreaterThan(0)
       })
 
@@ -353,7 +348,7 @@ describe('tail-risk-hedging', () => {
         'systematic-rebalancing',
       ]
 
-      strategies.forEach(strategy => {
+      strategies.forEach((strategy) => {
         const [minCost, maxCost] = getStrategyCostRange(strategy)
 
         expect(minCost).toBeGreaterThanOrEqual(0)

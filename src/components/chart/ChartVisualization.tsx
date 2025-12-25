@@ -162,7 +162,11 @@ function createDatasets(
 /**
  * Create tooltip callbacks
  */
-function createTooltipCallbacks(chartData: ChartDataPoint[], zinsenKey: string, zinsenLabel: string) {
+function createTooltipCallbacks(
+  chartData: ChartDataPoint[],
+  zinsenKey: string,
+  zinsenLabel: string,
+) {
   const zinsenData = chartData.map(d => d[zinsenKey as keyof ChartDataPoint] as number)
 
   return {

@@ -40,7 +40,7 @@ function calculateCapitalCoverage(totalCapital: number, yearlyWithdrawal: number
 function calculateIncomeReplacement(monthlyWithdrawal: number): number {
   const minMonthlyIncome = 2000
   const goodMonthlyIncome = 3000
-
+  
   if (monthlyWithdrawal >= goodMonthlyIncome) {
     return 100
   } else if (monthlyWithdrawal >= minMonthlyIncome) {
@@ -62,7 +62,7 @@ function calculateSustainabilityScore(
   lifeExpectancy: number,
 ): number {
   const sustainabilityRatio = lifeExpectancy > 0 ? planningYears / lifeExpectancy : 1
-
+  
   if (remainingCapital > totalCapital * 0.5) {
     return 100
   } else if (remainingCapital > totalCapital * 0.25) {
@@ -88,12 +88,12 @@ function getScoreLabel(score: number): string {
 
 /**
  * Calculate Retirement-Readiness Score based on German retirement planning standards
- *
+ * 
  * The score evaluates multiple dimensions:
  * 1. Capital Coverage (40% weight): How well savings cover expected retirement expenses
  * 2. Income Replacement (30% weight): Ability to maintain living standards
  * 3. Sustainability (30% weight): How long the capital will last
- *
+ * 
  * @param enhancedSummary - Summary of savings and withdrawal phases
  * @param withdrawalResult - Detailed year-by-year withdrawal data
  * @param planningYears - Number of years in retirement planning
@@ -129,7 +129,9 @@ export function calculateRetirementReadinessScore(
     lifeExpectancy,
   )
 
-  const overallScore = Math.round(capitalCoverage * 0.4 + incomeReplacement * 0.3 + sustainabilityScore * 0.3)
+  const overallScore = Math.round(
+    (capitalCoverage * 0.4) + (incomeReplacement * 0.3) + (sustainabilityScore * 0.3)
+  )
 
   return {
     overallScore,
@@ -178,9 +180,7 @@ export function getScoreRecommendations(metrics: RetirementReadinessMetrics): st
   }
 
   if (metrics.sustainabilityScore < 75) {
-    recommendations.push(
-      '⏱️ Verlängern Sie die Ansparphase oder reduzieren Sie die Entnahmerate für mehr Nachhaltigkeit.',
-    )
+    recommendations.push('⏱️ Verlängern Sie die Ansparphase oder reduzieren Sie die Entnahmerate für mehr Nachhaltigkeit.')
   }
 
   if (metrics.remainingCapital < metrics.totalCapital * 0.25) {
@@ -188,9 +188,7 @@ export function getScoreRecommendations(metrics: RetirementReadinessMetrics): st
   }
 
   if (recommendations.length === 0) {
-    recommendations.push(
-      '✅ Ihre Planung ist solide. Überprüfen Sie regelmäßig Ihre Strategie und passen Sie sie bei Bedarf an.',
-    )
+    recommendations.push('✅ Ihre Planung ist solide. Überprüfen Sie regelmäßig Ihre Strategie und passen Sie sie bei Bedarf an.')
   }
 
   return recommendations

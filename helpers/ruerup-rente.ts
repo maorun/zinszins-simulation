@@ -1,6 +1,6 @@
 /**
  * Types and utilities for Rürup-Rente (Basis-Rente) integration
- *
+ * 
  * Rürup-Rente is a German pension product designed primarily for self-employed
  * individuals and high earners, offering tax-deductible contributions with
  * deferred taxation on benefits.
@@ -89,10 +89,10 @@ export interface RuerupPensionTaxationResult {
 
 /**
  * Get tax deductibility limits for Rürup-Rente for a specific year
- *
+ * 
  * @param year - Tax year
  * @returns Deductibility limits including percentage and maximum amounts
- *
+ * 
  * @remarks
  * - Limits are based on § 10 Abs. 1 Nr. 2 Buchst. b EStG
  * - Maximum amounts are tied to contribution assessment ceiling (Beitragsbemessungsgrenze)
@@ -111,7 +111,7 @@ export function getRuerupDeductibilityLimits(year: number): RuerupDeductibilityL
   // Deductible percentage progression
   // 2012: 74%, increases by 2% each year until 100% in 2025
   let deductiblePercentage: number
-
+  
   if (year <= 2012) {
     deductiblePercentage = 0.74
   } else if (year >= 2025) {
@@ -138,13 +138,13 @@ export function getRuerupDeductibilityLimits(year: number): RuerupDeductibilityL
 
 /**
  * Calculate tax deduction for Rürup-Rente contribution
- *
+ * 
  * @param contribution - Annual contribution amount
  * @param year - Tax year
  * @param civilStatus - Civil status ('single' or 'married')
  * @param personalTaxRate - Personal income tax rate (0-1) for estimating savings
  * @returns Tax deduction calculation result
- *
+ * 
  * @example
  * ```typescript
  * const result = calculateRuerupTaxDeduction(20000, 2024, 'single', 0.42)
@@ -156,7 +156,7 @@ export function calculateRuerupTaxDeduction(
   contribution: number,
   year: number,
   civilStatus: 'single' | 'married',
-  personalTaxRate: number,
+  personalTaxRate: number
 ): RuerupTaxDeductionResult {
   const limits = getRuerupDeductibilityLimits(year)
   const maxDeductible = civilStatus === 'single' ? limits.maxAmountSingle : limits.maxAmountMarried
@@ -179,10 +179,10 @@ export function calculateRuerupTaxDeduction(
 
 /**
  * Get taxable percentage for Rürup-Rente pension based on retirement year
- *
+ * 
  * @param retirementYear - Year when pension payments start
  * @returns Taxable percentage (0-1)
- *
+ * 
  * @remarks
  * - Taxable percentage depends on the year pension payments begin
  * - 2005 and earlier: 50% taxable
@@ -193,12 +193,12 @@ export function calculateRuerupTaxDeduction(
  */
 export function getRuerupPensionTaxablePercentage(retirementYear: number): number {
   if (retirementYear <= 2005) {
-    return 0.5
+    return 0.50
   } else if (retirementYear >= 2040) {
     return 1.0
   } else if (retirementYear <= 2020) {
     // 2006: 52%, increases by 2% per year
-    return 0.5 + 0.02 * (retirementYear - 2005)
+    return 0.50 + 0.02 * (retirementYear - 2005)
   } else {
     // 2021: 81%, increases by 1% per year
     return 0.81 + 0.01 * (retirementYear - 2021)
@@ -207,14 +207,14 @@ export function getRuerupPensionTaxablePercentage(retirementYear: number): numbe
 
 /**
  * Calculate taxation of Rürup-Rente pension payout
- *
+ * 
  * @param grossMonthlyPension - Gross monthly pension amount
  * @param retirementYear - Year when pension started
  * @param currentYear - Current year for calculation
  * @param pensionIncreaseRate - Annual increase rate for pension adjustments
  * @param personalTaxRate - Personal income tax rate (0-1)
  * @returns Pension taxation calculation result
- *
+ * 
  * @example
  * ```typescript
  * const result = calculateRuerupPensionTaxation(2000, 2030, 2031, 0.01, 0.25)
@@ -226,11 +226,13 @@ export function calculateRuerupPensionTaxation(
   retirementYear: number,
   currentYear: number,
   pensionIncreaseRate: number,
-  personalTaxRate: number,
+  personalTaxRate: number
 ): RuerupPensionTaxationResult {
   // Calculate adjusted pension based on years since retirement
   const yearsSinceRetirement = currentYear - retirementYear
-  const adjustmentFactor = yearsSinceRetirement > 0 ? Math.pow(1 + pensionIncreaseRate, yearsSinceRetirement) : 1.0
+  const adjustmentFactor = yearsSinceRetirement > 0 
+    ? Math.pow(1 + pensionIncreaseRate, yearsSinceRetirement)
+    : 1.0
 
   const adjustedMonthlyPension = grossMonthlyPension * adjustmentFactor
   const grossAnnualPension = adjustedMonthlyPension * 12
@@ -256,7 +258,7 @@ export function calculateRuerupPensionTaxation(
 
 /**
  * Create default Rürup-Rente configuration
- *
+ * 
  * @returns Default configuration with disabled state
  */
 export function createDefaultRuerupConfig(): RuerupRenteConfig {

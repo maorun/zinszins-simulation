@@ -236,8 +236,14 @@ describe('Steuer (Tax) Calculations - New', () => {
       const resultWithKirchensteuer = calculateProgressiveTaxOnVorabpauschale(20000, 0.3, 0, 0, true, 9)
 
       // Kirchensteuer should be 9% of the base tax
-      expect(resultWithKirchensteuer.kirchensteuer).toBeCloseTo(resultWithoutKirchensteuer.totalTax * 0.09, 2)
-      expect(resultWithKirchensteuer.totalTax).toBeCloseTo(resultWithoutKirchensteuer.totalTax * 1.09, 2)
+      expect(resultWithKirchensteuer.kirchensteuer).toBeCloseTo(
+        resultWithoutKirchensteuer.totalTax * 0.09,
+        2,
+      )
+      expect(resultWithKirchensteuer.totalTax).toBeCloseTo(
+        resultWithoutKirchensteuer.totalTax * 1.09,
+        2,
+      )
     })
 
     test('should handle different Kirchensteuersatz (8% vs 9%)', () => {

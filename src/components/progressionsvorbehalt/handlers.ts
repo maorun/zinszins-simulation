@@ -4,10 +4,7 @@ import {
 } from '../../../helpers/progressionsvorbehalt'
 import type { ExampleScenario } from './scenarios'
 
-export function createHandlers(
-  config: ProgressionsvorbehaltConfig,
-  onChange: (config: ProgressionsvorbehaltConfig) => void,
-) {
+export function createHandlers(config: ProgressionsvorbehaltConfig, onChange: (config: ProgressionsvorbehaltConfig) => void) {
   return {
     handleAddYear: (year: number, income: number) => {
       onChange({
@@ -30,10 +27,7 @@ export function createHandlers(
       onChange({
         ...config,
         enabled: true,
-        progressionRelevantIncomePerYear: {
-          ...config.progressionRelevantIncomePerYear,
-          [currentYear]: scenario.yearlyIncome,
-        },
+        progressionRelevantIncomePerYear: { ...config.progressionRelevantIncomePerYear, [currentYear]: scenario.yearlyIncome },
       })
     },
     handleReset: () => onChange(DEFAULT_PROGRESSIONSVORBEHALT_CONFIG),

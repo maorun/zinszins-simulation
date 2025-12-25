@@ -54,9 +54,9 @@ function StrategySelection({ config, onConfigChange, strategyId }: StrategySelec
       <RadioGroup
         id={strategyId}
         value={config.strategy}
-        onValueChange={strategy => onConfigChange({ ...config, strategy: strategy as HedgingStrategy })}
+        onValueChange={(strategy) => onConfigChange({ ...config, strategy: strategy as HedgingStrategy })}
       >
-        {strategies.map(strategy => (
+        {strategies.map((strategy) => (
           <div key={strategy} className="flex items-start space-x-2">
             <RadioGroupItem value={strategy} id={`${strategyId}-${strategy}`} className="mt-1" />
             <div className="flex-1">
@@ -93,7 +93,7 @@ function ProtectionConfig({ config, onConfigChange, protectionLevelId, hedgeRati
           max="100"
           step="5"
           value={config.protectionLevel * 100}
-          onChange={e => onConfigChange({ ...config, protectionLevel: Number(e.target.value) / 100 })}
+          onChange={(e) => onConfigChange({ ...config, protectionLevel: Number(e.target.value) / 100 })}
           className="w-full"
         />
         <p className="text-xs text-muted-foreground">
@@ -112,12 +112,10 @@ function ProtectionConfig({ config, onConfigChange, protectionLevelId, hedgeRati
           max="100"
           step="10"
           value={config.hedgeRatio * 100}
-          onChange={e => onConfigChange({ ...config, hedgeRatio: Number(e.target.value) / 100 })}
+          onChange={(e) => onConfigChange({ ...config, hedgeRatio: Number(e.target.value) / 100 })}
           className="w-full"
         />
-        <p className="text-xs text-muted-foreground">
-          {(config.hedgeRatio * 100).toFixed(0)}% des Portfolios wird abgesichert
-        </p>
+        <p className="text-xs text-muted-foreground">{(config.hedgeRatio * 100).toFixed(0)}% des Portfolios wird abgesichert</p>
       </div>
     </>
   )
@@ -147,7 +145,7 @@ function CostConfig({ config, onConfigChange, annualCostId, rebalancingId }: Cos
           max="10"
           step="0.1"
           value={(config.annualCost * 100).toFixed(2)}
-          onChange={e => {
+          onChange={(e) => {
             const value = Number(e.target.value) / 100
             if (!isNaN(value) && value >= 0 && value <= 0.1) {
               onConfigChange({ ...config, annualCost: value })
@@ -165,7 +163,7 @@ function CostConfig({ config, onConfigChange, annualCostId, rebalancingId }: Cos
         <select
           id={rebalancingId}
           value={config.rebalancingMonths}
-          onChange={e => onConfigChange({ ...config, rebalancingMonths: Number(e.target.value) })}
+          onChange={(e) => onConfigChange({ ...config, rebalancingMonths: Number(e.target.value) })}
           className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           <option value="1">Monatlich</option>
@@ -203,12 +201,7 @@ function ConfigInputs({
         protectionLevelId={protectionLevelId}
         hedgeRatioId={hedgeRatioId}
       />
-      <CostConfig
-        config={config}
-        onConfigChange={onConfigChange}
-        annualCostId={annualCostId}
-        rebalancingId={rebalancingId}
-      />
+      <CostConfig config={config} onConfigChange={onConfigChange} annualCostId={annualCostId} rebalancingId={rebalancingId} />
     </>
   )
 }
@@ -232,7 +225,7 @@ function ConfigSection({ config, onConfigChange }: ConfigSectionProps) {
         <Switch
           id={enabledId}
           checked={config.enabled}
-          onCheckedChange={enabled => onConfigChange({ ...config, enabled })}
+          onCheckedChange={(enabled) => onConfigChange({ ...config, enabled })}
         />
       </div>
 
@@ -391,7 +384,7 @@ export function TailRiskHedgingCard() {
       { portfolioValue: 120960, marketReturn: 0.05 }, // Year 3: +5%
       { portfolioValue: 127008, marketReturn: -0.35 }, // Year 4: -35% CRASH
       { portfolioValue: 82555, marketReturn: 0.25 }, // Year 5: +25% recovery
-      { portfolioValue: 103194, marketReturn: 0.1 }, // Year 6: +10%
+      { portfolioValue: 103194, marketReturn: 0.10 }, // Year 6: +10%
       { portfolioValue: 113513, marketReturn: 0.08 }, // Year 7: +8%
       { portfolioValue: 122594, marketReturn: -0.08 }, // Year 8: -8% correction
       { portfolioValue: 112787, marketReturn: 0.15 }, // Year 9: +15%

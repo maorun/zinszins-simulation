@@ -5,7 +5,10 @@ import { Label } from './ui/label'
 import { Button } from './ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { type CareInsuranceConfig, createDefaultCareInsuranceConfig } from '../../helpers/care-insurance'
+import {
+  type CareInsuranceConfig,
+  createDefaultCareInsuranceConfig,
+} from '../../helpers/care-insurance'
 import { generateFormId } from '../utils/unique-id'
 
 interface CareInsuranceConfigurationProps {
@@ -45,7 +48,9 @@ function EnableToggle({
     <div className="flex items-center justify-between">
       <Label htmlFor={enabledSwitchId} className="flex flex-col gap-1">
         <span className="font-medium">Pflegezusatzversicherung aktivieren</span>
-        <span className="text-sm text-muted-foreground">Zusätzliche Absicherung bei Pflegebedürftigkeit</span>
+        <span className="text-sm text-muted-foreground">
+          Zusätzliche Absicherung bei Pflegebedürftigkeit
+        </span>
       </Label>
       <Switch id={enabledSwitchId} checked={isEnabled} onCheckedChange={onEnabledChange} />
     </div>
@@ -57,8 +62,8 @@ function InfoSection() {
     <div className="pt-4 border-t">
       <div className="space-y-3 text-sm text-muted-foreground">
         <p>
-          Die Pflegezusatzversicherung ergänzt die gesetzliche Pflegeversicherung und schließt die Versorgungslücke bei
-          Pflegebedürftigkeit.
+          Die Pflegezusatzversicherung ergänzt die gesetzliche Pflegeversicherung und schließt die Versorgungslücke
+          bei Pflegebedürftigkeit.
         </p>
         <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
           <p className="text-sm text-blue-900">
@@ -72,8 +77,8 @@ function InfoSection() {
             €/Jahr) bei mind. 10 € Monatsbeitrag.
           </p>
           <p>
-            <strong>Leistungen:</strong> Steuerfreie Pflegeleistungen nach § 3 Nr. 1a EStG, gestaffelt nach Pflegegrad
-            1-5.
+            <strong>Leistungen:</strong> Steuerfreie Pflegeleistungen nach § 3 Nr. 1a EStG, gestaffelt nach
+            Pflegegrad 1-5.
           </p>
         </div>
       </div>
@@ -155,11 +160,7 @@ export function CareInsuranceConfiguration({
 
         <CollapsibleContent>
           <CardContent className="space-y-4">
-            <EnableToggle
-              isEnabled={isEnabled}
-              enabledSwitchId={enabledSwitchId}
-              onEnabledChange={handleEnabledChange}
-            />
+            <EnableToggle isEnabled={isEnabled} enabledSwitchId={enabledSwitchId} onEnabledChange={handleEnabledChange} />
             {isEnabled && config && (
               <ConfigurationContent
                 birthYear={birthYear}

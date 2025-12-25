@@ -48,29 +48,15 @@ function ModeSelector({ quickMode, onModeChange }: { quickMode: boolean; onModeC
   )
 }
 
-function RegionSelector({
-  region,
-  onRegionChange,
-}: {
-  region: 'west' | 'east'
-  onRegionChange: (region: 'west' | 'east') => void
-}) {
+function RegionSelector({ region, onRegionChange }: { region: 'west' | 'east'; onRegionChange: (region: 'west' | 'east') => void }) {
   return (
     <div className="space-y-2">
       <Label>Region</Label>
       <div className="flex gap-2">
-        <Button
-          variant={region === 'west' ? 'default' : 'outline'}
-          onClick={() => onRegionChange('west')}
-          className="flex-1"
-        >
+        <Button variant={region === 'west' ? 'default' : 'outline'} onClick={() => onRegionChange('west')} className="flex-1">
           West
         </Button>
-        <Button
-          variant={region === 'east' ? 'default' : 'outline'}
-          onClick={() => onRegionChange('east')}
-          className="flex-1"
-        >
+        <Button variant={region === 'east' ? 'default' : 'outline'} onClick={() => onRegionChange('east')} className="flex-1">
           Ost
         </Button>
       </div>
@@ -78,63 +64,25 @@ function RegionSelector({
   )
 }
 
-function QuickModeConfig({
-  startYear,
-  endYear,
-  startingSalary,
-  annualIncrease,
-  onStartYearChange,
-  onEndYearChange,
-  onStartingSalaryChange,
-  onAnnualIncreaseChange,
-}: QuickModeConfigProps) {
+function QuickModeConfig({ startYear, endYear, startingSalary, annualIncrease, onStartYearChange, onEndYearChange, onStartingSalaryChange, onAnnualIncreaseChange }: QuickModeConfigProps) {
   return (
     <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="start-year">Startjahr</Label>
-          <Input
-            id="start-year"
-            type="number"
-            value={startYear}
-            onChange={e => onStartYearChange(Number(e.target.value))}
-            min={1960}
-            max={2060}
-          />
+          <Input id="start-year" type="number" value={startYear} onChange={e => onStartYearChange(Number(e.target.value))} min={1960} max={2060} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="end-year">Endjahr</Label>
-          <Input
-            id="end-year"
-            type="number"
-            value={endYear}
-            onChange={e => onEndYearChange(Number(e.target.value))}
-            min={startYear}
-            max={2070}
-          />
+          <Input id="end-year" type="number" value={endYear} onChange={e => onEndYearChange(Number(e.target.value))} min={startYear} max={2070} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="starting-salary">Anfangsgehalt (€)</Label>
-          <Input
-            id="starting-salary"
-            type="number"
-            value={startingSalary}
-            onChange={e => onStartingSalaryChange(Number(e.target.value))}
-            min={0}
-            step={1000}
-          />
+          <Input id="starting-salary" type="number" value={startingSalary} onChange={e => onStartingSalaryChange(Number(e.target.value))} min={0} step={1000} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="annual-increase">Jährliche Steigerung (%)</Label>
-          <Input
-            id="annual-increase"
-            type="number"
-            value={annualIncrease}
-            onChange={e => onAnnualIncreaseChange(Number(e.target.value))}
-            min={0}
-            max={20}
-            step={0.1}
-          />
+          <Input id="annual-increase" type="number" value={annualIncrease} onChange={e => onAnnualIncreaseChange(Number(e.target.value))} min={0} max={20} step={0.1} />
         </div>
       </div>
     </div>
@@ -151,13 +99,7 @@ function EmptyState() {
   )
 }
 
-function ManualModeConfig({
-  manualSalaries,
-  onAddYear,
-  onYearChange,
-  onUpdateSalary,
-  onRemoveYear,
-}: ManualModeConfigProps) {
+function ManualModeConfig({ manualSalaries, onAddYear, onYearChange, onUpdateSalary, onRemoveYear }: ManualModeConfigProps) {
   const sortedYears = Object.keys(manualSalaries)
     .map(Number)
     .sort((a, b) => a - b)
@@ -177,14 +119,7 @@ function ManualModeConfig({
           <EmptyState />
         ) : (
           sortedYears.map(year => (
-            <ManualYearEntry
-              key={year}
-              year={year}
-              salary={manualSalaries[year]}
-              onYearChange={onYearChange}
-              onSalaryChange={onUpdateSalary}
-              onRemove={onRemoveYear}
-            />
+            <ManualYearEntry key={year} year={year} salary={manualSalaries[year]} onYearChange={onYearChange} onSalaryChange={onUpdateSalary} onRemove={onRemoveYear} />
           ))
         )}
       </div>
@@ -241,36 +176,11 @@ export function PensionPointsCalculator({ nestingLevel, onCalculatedPensionChang
 
           <RegionSelector region={region} onRegionChange={setRegion} />
 
-          {quickMode && (
-            <QuickModeConfig
-              startYear={startYear}
-              endYear={endYear}
-              startingSalary={startingSalary}
-              annualIncrease={annualIncrease}
-              onStartYearChange={setStartYear}
-              onEndYearChange={setEndYear}
-              onStartingSalaryChange={setStartingSalary}
-              onAnnualIncreaseChange={setAnnualIncrease}
-            />
-          )}
+          {quickMode && <QuickModeConfig startYear={startYear} endYear={endYear} startingSalary={startingSalary} annualIncrease={annualIncrease} onStartYearChange={setStartYear} onEndYearChange={setEndYear} onStartingSalaryChange={setStartingSalary} onAnnualIncreaseChange={setAnnualIncrease} />}
 
-          {!quickMode && (
-            <ManualModeConfig
-              manualSalaries={manualSalaries}
-              onAddYear={handleAddYear}
-              onYearChange={handleYearChange}
-              onRemoveYear={handleRemoveYear}
-              onUpdateSalary={handleUpdateSalary}
-            />
-          )}
+          {!quickMode && <ManualModeConfig manualSalaries={manualSalaries} onAddYear={handleAddYear} onYearChange={handleYearChange} onRemoveYear={handleRemoveYear} onUpdateSalary={handleUpdateSalary} />}
 
-          {calculationResult && (
-            <CalculationResults
-              result={calculationResult}
-              nestingLevel={nestingLevel}
-              onApply={onCalculatedPensionChange ? handleApplyPension : undefined}
-            />
-          )}
+          {calculationResult && <CalculationResults result={calculationResult} nestingLevel={nestingLevel} onApply={onCalculatedPensionChange ? handleApplyPension : undefined} />}
 
           <PensionPointsInformationCard nestingLevel={nestingLevel} />
         </div>

@@ -370,7 +370,9 @@ function StrategyTypeSelector({
 }) {
   return (
     <div>
-      <label className="block text-xs font-bold mb-1.5">Strategie-Typ</label>
+      <label className="block text-xs font-bold mb-1.5">
+        Strategie-Typ
+      </label>
       <select
         value={value}
         onChange={e => {

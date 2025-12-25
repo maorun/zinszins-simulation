@@ -34,13 +34,7 @@ describe('PflegezusatzversicherungConfigSection', () => {
     const mockSource = createMockSource()
     const mockOnUpdate = vi.fn()
 
-    render(
-      <PflegezusatzversicherungConfigSection
-        editingSource={mockSource}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
-    )
+    render(<PflegezusatzversicherungConfigSection editingSource={mockSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByLabelText(/Geburtsjahr des Versicherten/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/Vertragsbeginn/i)).toBeInTheDocument()
@@ -54,13 +48,7 @@ describe('PflegezusatzversicherungConfigSection', () => {
     const mockSource = createMockSource()
     const mockOnUpdate = vi.fn()
 
-    render(
-      <PflegezusatzversicherungConfigSection
-        editingSource={mockSource}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
-    )
+    render(<PflegezusatzversicherungConfigSection editingSource={mockSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByText(/Pflegegrad 3: Schwere Beeinträchtigung der Selbstständigkeit/i)).toBeInTheDocument()
   })
@@ -70,13 +58,7 @@ describe('PflegezusatzversicherungConfigSection', () => {
     const mockOnUpdate = vi.fn()
     const user = userEvent.setup()
 
-    render(
-      <PflegezusatzversicherungConfigSection
-        editingSource={mockSource}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
-    )
+    render(<PflegezusatzversicherungConfigSection editingSource={mockSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     const careStartYearInput = screen.getByLabelText(/Beginn der Pflegebedürftigkeit/i)
     await user.clear(careStartYearInput)
@@ -93,13 +75,7 @@ describe('PflegezusatzversicherungConfigSection', () => {
     const mockOnUpdate = vi.fn()
     const user = userEvent.setup()
 
-    render(
-      <PflegezusatzversicherungConfigSection
-        editingSource={mockSource}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
-    )
+    render(<PflegezusatzversicherungConfigSection editingSource={mockSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     const pflegegradInput = screen.getByLabelText(/Pflegegrad/i)
     await user.clear(pflegegradInput)
@@ -115,13 +91,7 @@ describe('PflegezusatzversicherungConfigSection', () => {
     const mockOnUpdate = vi.fn()
     const user = userEvent.setup()
 
-    render(
-      <PflegezusatzversicherungConfigSection
-        editingSource={mockSource}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
-    )
+    render(<PflegezusatzversicherungConfigSection editingSource={mockSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     const premiumInput = screen.getByLabelText(/Monatlicher Beitrag/i)
     await user.clear(premiumInput)
@@ -138,13 +108,7 @@ describe('PflegezusatzversicherungConfigSection', () => {
     const mockOnUpdate = vi.fn()
     const user = userEvent.setup()
 
-    render(
-      <PflegezusatzversicherungConfigSection
-        editingSource={mockSource}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
-    )
+    render(<PflegezusatzversicherungConfigSection editingSource={mockSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     const taxBenefitsSwitch = screen.getByRole('switch', { name: /Steuerliche Absetzbarkeit/i })
     await user.click(taxBenefitsSwitch)
@@ -159,13 +123,7 @@ describe('PflegezusatzversicherungConfigSection', () => {
     mockSource.pflegezusatzversicherungConfig!.applyTaxBenefits = true
     const mockOnUpdate = vi.fn()
 
-    render(
-      <PflegezusatzversicherungConfigSection
-        editingSource={mockSource}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
-    )
+    render(<PflegezusatzversicherungConfigSection editingSource={mockSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByLabelText(/Maximaler jährlicher Steuerabzug/i)).toBeInTheDocument()
   })
@@ -175,13 +133,7 @@ describe('PflegezusatzversicherungConfigSection', () => {
     mockSource.pflegezusatzversicherungConfig!.applyTaxBenefits = false
     const mockOnUpdate = vi.fn()
 
-    render(
-      <PflegezusatzversicherungConfigSection
-        editingSource={mockSource}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
-    )
+    render(<PflegezusatzversicherungConfigSection editingSource={mockSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.queryByLabelText(/Maximaler jährlicher Steuerabzug/i)).not.toBeInTheDocument()
   })
@@ -190,13 +142,7 @@ describe('PflegezusatzversicherungConfigSection', () => {
     const mockSource = createMockSource()
     const mockOnUpdate = vi.fn()
 
-    render(
-      <PflegezusatzversicherungConfigSection
-        editingSource={mockSource}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
-    )
+    render(<PflegezusatzversicherungConfigSection editingSource={mockSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     expect(screen.getByText(/Pflegezusatzversicherung - Übersicht/i)).toBeInTheDocument()
     expect(screen.getByText(/Monatliche Leistung: 1.500 €/i)).toBeInTheDocument()
@@ -209,11 +155,7 @@ describe('PflegezusatzversicherungConfigSection', () => {
     const mockOnUpdate = vi.fn()
 
     const { container } = render(
-      <PflegezusatzversicherungConfigSection
-        editingSource={mockSource}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
+      <PflegezusatzversicherungConfigSection editingSource={mockSource} currentYear={currentYear} onUpdate={mockOnUpdate} />,
     )
 
     expect(container.firstChild).toBeNull()
@@ -225,13 +167,7 @@ describe('PflegezusatzversicherungConfigSection', () => {
     const mockOnUpdate = vi.fn()
     const user = userEvent.setup()
 
-    render(
-      <PflegezusatzversicherungConfigSection
-        editingSource={mockSource}
-        currentYear={currentYear}
-        onUpdate={mockOnUpdate}
-      />,
-    )
+    render(<PflegezusatzversicherungConfigSection editingSource={mockSource} currentYear={currentYear} onUpdate={mockOnUpdate} />)
 
     const careEndYearInput = screen.getByLabelText(/Ende der Pflegebedürftigkeit/i)
     await user.clear(careEndYearInput)

@@ -30,7 +30,7 @@ describe('simulate with dynamic savings rates', () => {
     expect(element.simulation[2024]).toBeDefined()
     expect(element.simulation[2025]).toBeDefined()
     expect(element.simulation[2026]).toBeDefined()
-
+    
     // All years should use the same base einzahlung (2000€)
     // Year 2024: 2000€ starting capital
     expect(element.simulation[2024].startkapital).toBeCloseTo(2000, 1)
@@ -41,7 +41,7 @@ describe('simulate with dynamic savings rates', () => {
     const dynamicConfig = createDefaultDynamicSavingsConfig(2000, birthYear)
     dynamicConfig.enabled = true
     // Age 34 -> Karrieremitte phase (1.0 multiplier)
-
+    
     const elements: SparplanElement[] = [
       {
         start: new Date(2024, 0, 1),
@@ -64,10 +64,10 @@ describe('simulate with dynamic savings rates', () => {
     simulate(options)
 
     const element = elements[0]
-
+    
     // Year 2024: Age 34, Karrieremitte (1.0x) -> 2000€
     expect(element.simulation[2024].startkapital).toBeCloseTo(2000, 1)
-
+    
     // Year 2025: Age 35, Karrieremitte (1.0x) -> 2000€
     // Should be consistent since no income development is enabled by default
     expect(element.simulation[2025].startkapital).toBeGreaterThan(2000) // Previous year's capital + growth
@@ -78,7 +78,7 @@ describe('simulate with dynamic savings rates', () => {
     const dynamicConfig = createDefaultDynamicSavingsConfig(2000, birthYear)
     dynamicConfig.enabled = true
     // Age 59 -> Pre-retirement phase (1.3 multiplier)
-
+    
     const elements: SparplanElement[] = [
       {
         start: new Date(2024, 0, 1),
@@ -101,7 +101,7 @@ describe('simulate with dynamic savings rates', () => {
     simulate(options)
 
     const element = elements[0]
-
+    
     // Year 2024: Age 59, Pre-retirement (1.3x) -> 2600€
     expect(element.simulation[2024].startkapital).toBeCloseTo(2600, 1)
   })
@@ -111,7 +111,7 @@ describe('simulate with dynamic savings rates', () => {
     const dynamicConfig = createDefaultDynamicSavingsConfig(2000, birthYear)
     dynamicConfig.enabled = true
     dynamicConfig.incomeDevelopment!.enabled = true
-
+    
     const elements: SparplanElement[] = [
       {
         start: new Date(2024, 0, 1),
@@ -134,17 +134,17 @@ describe('simulate with dynamic savings rates', () => {
     simulate(options)
 
     const element = elements[0]
-
+    
     // Year 2024: Base year, no income adjustment yet
     const startCapital2024 = element.simulation[2024].startkapital
     expect(startCapital2024).toBeCloseTo(2000, 1)
-
+    
     // Year 2025: Age 35, should have income adjustment (+40€ from 4% salary increase)
     // startkapital includes previous year's growth, so we can't directly compare
     // But we can check that the simulation ran successfully
     expect(element.simulation[2025]).toBeDefined()
     expect(element.simulation[2025].startkapital).toBeGreaterThan(startCapital2024)
-
+    
     // Year 2026: Age 36, cumulative adjustment
     expect(element.simulation[2026]).toBeDefined()
     expect(element.simulation[2026].startkapital).toBeGreaterThan(element.simulation[2025].startkapital)
@@ -157,7 +157,7 @@ describe('simulate with dynamic savings rates', () => {
     dynamicConfig.lifeEvents = [
       { year: 2025, type: 'geburt', savingsRateChange: -500 }, // Birth of child reduces savings
     ]
-
+    
     const elements: SparplanElement[] = [
       {
         start: new Date(2024, 0, 1),
@@ -180,14 +180,14 @@ describe('simulate with dynamic savings rates', () => {
     simulate(options)
 
     const element = elements[0]
-
+    
     // Year 2024: Before event, base amount
     expect(element.simulation[2024].startkapital).toBeCloseTo(2000, 1)
-
+    
     // Year 2025: Event year, reduced by 500€ (2000 - 500 = 1500€)
     // The startkapital will be previous year + growth, but we can verify simulation exists
     expect(element.simulation[2025]).toBeDefined()
-
+    
     // Year 2026: Event still applies (1500€ contribution)
     expect(element.simulation[2026]).toBeDefined()
   })
@@ -197,8 +197,10 @@ describe('simulate with dynamic savings rates', () => {
     const dynamicConfig = createDefaultDynamicSavingsConfig(1000, birthYear)
     dynamicConfig.enabled = true
     dynamicConfig.incomeDevelopment!.enabled = true
-    dynamicConfig.lifeEvents = [{ year: 2025, type: 'kreditabbezahlung', savingsRateChange: 500 }]
-
+    dynamicConfig.lifeEvents = [
+      { year: 2025, type: 'kreditabbezahlung', savingsRateChange: 500 },
+    ]
+    
     const elements: SparplanElement[] = [
       {
         start: new Date(2024, 0, 1),
@@ -221,10 +223,10 @@ describe('simulate with dynamic savings rates', () => {
     simulate(options)
 
     const element = elements[0]
-
+    
     // Year 2024: Age 59, Pre-retirement (1.3x) -> 1300€
     expect(element.simulation[2024].startkapital).toBeCloseTo(1300, 1)
-
+    
     // All years should have simulation data
     expect(element.simulation[2025]).toBeDefined()
     expect(element.simulation[2026]).toBeDefined()
@@ -234,7 +236,7 @@ describe('simulate with dynamic savings rates', () => {
     const birthYear = 1965
     const dynamicConfig = createDefaultDynamicSavingsConfig(2000, birthYear)
     dynamicConfig.enabled = true
-
+    
     const elements: SparplanElement[] = [
       {
         start: new Date(2024, 0, 1),
@@ -258,7 +260,7 @@ describe('simulate with dynamic savings rates', () => {
     simulate(options)
 
     const element = elements[0]
-
+    
     // Should use original einzahlung (10000€), not dynamic rate
     expect(element.simulation[2024].startkapital).toBeCloseTo(10000, 1)
   })
@@ -267,7 +269,7 @@ describe('simulate with dynamic savings rates', () => {
     const birthYear = 1990
     const dynamicConfig = createDefaultDynamicSavingsConfig(2000, birthYear)
     dynamicConfig.enabled = true
-
+    
     const elements: SparplanElement[] = [
       {
         start: new Date(2024, 0, 1),
@@ -290,7 +292,7 @@ describe('simulate with dynamic savings rates', () => {
     simulate(options)
 
     const element = elements[0]
-
+    
     // Should work with monthly simulation
     expect(element.simulation[2024]).toBeDefined()
     expect(element.simulation[2024].startkapital).toBeGreaterThan(0)
@@ -300,7 +302,7 @@ describe('simulate with dynamic savings rates', () => {
     const birthYear = 1990
     const dynamicConfig = createDefaultDynamicSavingsConfig(2000, birthYear)
     dynamicConfig.enabled = true
-
+    
     const elements: SparplanElement[] = [
       {
         start: new Date(2024, 0, 1),
@@ -326,12 +328,12 @@ describe('simulate with dynamic savings rates', () => {
     simulate(options)
 
     const element = elements[0]
-
+    
     // Both dynamic savings rate and inflation should be applied
     expect(element.simulation[2024]).toBeDefined()
     expect(element.simulation[2025]).toBeDefined()
     expect(element.simulation[2026]).toBeDefined()
-
+    
     // Later years should have inflation-adjusted amounts
     // (dynamic rate is applied first, then inflation adjustment)
     expect(element.simulation[2025].startkapital).toBeGreaterThan(element.simulation[2024].startkapital)

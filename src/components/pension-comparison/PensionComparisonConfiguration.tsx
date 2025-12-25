@@ -7,7 +7,11 @@ import type { RiesterRenteConfig } from '../../../helpers/riester-rente'
 import type { RuerupRenteConfig } from '../../../helpers/ruerup-rente'
 import type { BetriebsrenteConfig } from '../../../helpers/betriebsrente'
 import { formatCurrency } from '../../utils/currency'
-import { RiesterConfiguration, RuerupConfiguration, BetriebsrenteConfiguration } from './PensionTypeConfigurations'
+import {
+  RiesterConfiguration,
+  RuerupConfiguration,
+  BetriebsrenteConfiguration,
+} from './PensionTypeConfigurations'
 
 interface PensionComparisonConfigurationProps {
   config: PensionComparisonConfig
@@ -33,7 +37,7 @@ function YearInputs({
           id={currentYearId}
           type="number"
           value={config.currentYear}
-          onChange={e => onChange('currentYear', parseInt(e.target.value) || 0)}
+          onChange={(e) => onChange('currentYear', parseInt(e.target.value) || 0)}
           min={2020}
           max={2100}
         />
@@ -44,7 +48,7 @@ function YearInputs({
           id={pensionStartYearId}
           type="number"
           value={config.pensionStartYear}
-          onChange={e => onChange('pensionStartYear', parseInt(e.target.value) || 0)}
+          onChange={(e) => onChange('pensionStartYear', parseInt(e.target.value) || 0)}
           min={config.currentYear}
           max={2100}
         />
@@ -55,7 +59,7 @@ function YearInputs({
           id={pensionEndYearId}
           type="number"
           value={config.pensionEndYear}
-          onChange={e => onChange('pensionEndYear', parseInt(e.target.value) || 0)}
+          onChange={(e) => onChange('pensionEndYear', parseInt(e.target.value) || 0)}
           min={config.pensionStartYear}
           max={2150}
         />
@@ -64,10 +68,7 @@ function YearInputs({
   )
 }
 
-function TaxRateInputs({
-  config,
-  onChange,
-}: {
+function TaxRateInputs({ config, onChange }: {
   config: PensionComparisonConfig
   onChange: (field: keyof PensionComparisonConfig, value: number) => void
 }) {
@@ -82,7 +83,7 @@ function TaxRateInputs({
           id={personalTaxRateId}
           type="number"
           value={(config.personalTaxRate * 100).toFixed(1)}
-          onChange={e => onChange('personalTaxRate', parseFloat(e.target.value) || 0 / 100)}
+          onChange={(e) => onChange('personalTaxRate', parseFloat(e.target.value) || 0 / 100)}
           min={0}
           max={50}
           step={0.5}
@@ -94,7 +95,7 @@ function TaxRateInputs({
           id={pensionTaxRateId}
           type="number"
           value={(config.pensionTaxRate * 100).toFixed(1)}
-          onChange={e => onChange('pensionTaxRate', parseFloat(e.target.value) || 0 / 100)}
+          onChange={(e) => onChange('pensionTaxRate', parseFloat(e.target.value) || 0 / 100)}
           min={0}
           max={50}
           step={0.5}
@@ -106,7 +107,7 @@ function TaxRateInputs({
           id={socialSecurityRateId}
           type="number"
           value={(config.socialSecurityRate * 100).toFixed(1)}
-          onChange={e => onChange('socialSecurityRate', parseFloat(e.target.value) || 0 / 100)}
+          onChange={(e) => onChange('socialSecurityRate', parseFloat(e.target.value) || 0 / 100)}
           min={0}
           max={50}
           step={0.5}
@@ -132,7 +133,7 @@ function BooleanSwitches({
         <Switch
           id={healthInsuranceId}
           checked={config.inStatutoryHealthInsurance}
-          onCheckedChange={checked => onChange('inStatutoryHealthInsurance', checked)}
+          onCheckedChange={(checked) => onChange('inStatutoryHealthInsurance', checked)}
         />
         <Label htmlFor={healthInsuranceId}>Gesetzlich krankenversichert</Label>
       </div>
@@ -140,7 +141,7 @@ function BooleanSwitches({
         <Switch
           id={hasChildrenId}
           checked={config.hasChildren}
-          onCheckedChange={checked => onChange('hasChildren', checked)}
+          onCheckedChange={(checked) => onChange('hasChildren', checked)}
         />
         <Label htmlFor={hasChildrenId}>Mit Kindern</Label>
       </div>
@@ -168,11 +169,13 @@ function GeneralConfiguration({
             id={annualGrossIncomeId}
             type="number"
             value={config.annualGrossIncome}
-            onChange={e => onChange('annualGrossIncome', parseInt(e.target.value) || 0)}
+            onChange={(e) => onChange('annualGrossIncome', parseInt(e.target.value) || 0)}
             min={0}
             step={1000}
           />
-          <p className="text-xs text-muted-foreground mt-1">{formatCurrency(config.annualGrossIncome)} pro Jahr</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {formatCurrency(config.annualGrossIncome)} pro Jahr
+          </p>
         </div>
         <TaxRateInputs config={config} onChange={(f, v) => onChange(f, v)} />
         <BooleanSwitches config={config} onChange={(f, v) => onChange(f, v)} />
@@ -218,10 +221,7 @@ function createBetriebsrenteConfig(config: PensionComparisonConfig): Betriebsren
   }
 }
 
-function usePensionTypeToggles(
-  config: PensionComparisonConfig,
-  onConfigChange: (config: PensionComparisonConfig) => void,
-) {
+function usePensionTypeToggles(config: PensionComparisonConfig, onConfigChange: (config: PensionComparisonConfig) => void) {
   const handleRiesterToggle = (enabled: boolean) => {
     if (enabled) {
       onConfigChange({ ...config, riesterRente: createRiesterConfig(config) })
@@ -270,7 +270,10 @@ function usePensionConfigHandlers(
       ruerupRente: { ...config.ruerupRente, [field]: value },
     })
   }
-  const handleBetriebsrenteConfigChange = (field: keyof BetriebsrenteConfig, value: number | boolean | string) => {
+  const handleBetriebsrenteConfigChange = (
+    field: keyof BetriebsrenteConfig,
+    value: number | boolean | string,
+  ) => {
     if (!config.betriebsrente) return
     onConfigChange({
       ...config,
@@ -280,14 +283,14 @@ function usePensionConfigHandlers(
   return { handleRiesterConfigChange, handleRuerupConfigChange, handleBetriebsrenteConfigChange }
 }
 
-export function PensionComparisonConfiguration({ config, onConfigChange }: PensionComparisonConfigurationProps) {
+export function PensionComparisonConfiguration({
+  config,
+  onConfigChange,
+}: PensionComparisonConfigurationProps) {
   const riesterEnabledId = useFormId('pension-comparison', 'riester-enabled')
   const ruerupEnabledId = useFormId('pension-comparison', 'ruerup-enabled')
   const betriebsrenteEnabledId = useFormId('pension-comparison', 'betriebsrente-enabled')
-  const { handleRiesterToggle, handleRuerupToggle, handleBetriebsrenteToggle } = usePensionTypeToggles(
-    config,
-    onConfigChange,
-  )
+  const { handleRiesterToggle, handleRuerupToggle, handleBetriebsrenteToggle } = usePensionTypeToggles(config, onConfigChange)
   const { handleRiesterConfigChange, handleRuerupConfigChange, handleBetriebsrenteConfigChange } =
     usePensionConfigHandlers(config, onConfigChange)
   const handleGeneralConfigChange = (field: keyof PensionComparisonConfig, value: number | boolean) => {
@@ -303,22 +306,14 @@ export function PensionComparisonConfiguration({ config, onConfigChange }: Pensi
             <Switch id={riesterEnabledId} checked={!!config.riesterRente} onCheckedChange={handleRiesterToggle} />
             <Label htmlFor={riesterEnabledId}>Riester-Rente (staatlich gefördert)</Label>
           </div>
-          {config.riesterRente && (
-            <RiesterConfiguration config={config.riesterRente} onChange={handleRiesterConfigChange} />
-          )}
+          {config.riesterRente && <RiesterConfiguration config={config.riesterRente} onChange={handleRiesterConfigChange} />}
           <div className="flex items-center space-x-2">
             <Switch id={ruerupEnabledId} checked={!!config.ruerupRente} onCheckedChange={handleRuerupToggle} />
             <Label htmlFor={ruerupEnabledId}>Rürup-Rente (Basis-Rente)</Label>
           </div>
-          {config.ruerupRente && (
-            <RuerupConfiguration config={config.ruerupRente} onChange={handleRuerupConfigChange} />
-          )}
+          {config.ruerupRente && <RuerupConfiguration config={config.ruerupRente} onChange={handleRuerupConfigChange} />}
           <div className="flex items-center space-x-2">
-            <Switch
-              id={betriebsrenteEnabledId}
-              checked={!!config.betriebsrente}
-              onCheckedChange={handleBetriebsrenteToggle}
-            />
+            <Switch id={betriebsrenteEnabledId} checked={!!config.betriebsrente} onCheckedChange={handleBetriebsrenteToggle} />
             <Label htmlFor={betriebsrenteEnabledId}>Betriebsrente (bAV)</Label>
           </div>
           {config.betriebsrente && (

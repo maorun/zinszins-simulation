@@ -62,9 +62,9 @@ describe('calculateHealthCareInsuranceCost', () => {
       additionalCareInsuranceForChildless: false,
       additionalCareInsuranceAge: 23,
     }
-
+    
     const result = calculateHealthCareInsuranceCost(config, 2024)
-
+    
     expect(result).not.toBeNull()
     expect(result?.category).toBe('health')
     expect(result?.name).toBe('Private Krankenversicherung')
@@ -90,9 +90,9 @@ describe('calculateHealthCareInsuranceCost', () => {
       additionalCareInsuranceForChildless: false,
       additionalCareInsuranceAge: 23,
     }
-
+    
     const result = calculateHealthCareInsuranceCost(config, 2024)
-
+    
     expect(result).not.toBeNull()
     expect(result?.category).toBe('health')
     expect(result?.name).toBe('Gesetzliche Krankenversicherung')
@@ -141,7 +141,7 @@ describe('calculateTermLifeInsuranceCost', () => {
 
   it('should calculate cost for level coverage correctly', () => {
     const result = calculateTermLifeInsuranceCost(baseConfig, 2024)
-
+    
     expect(result).not.toBeNull()
     expect(result?.category).toBe('life')
     expect(result?.name).toBe('Meine RLV')
@@ -156,10 +156,10 @@ describe('calculateTermLifeInsuranceCost', () => {
   it('should calculate cost for decreasing coverage correctly', () => {
     const config = { ...baseConfig, coverageType: 'decreasing' as const, annualDecreasePercent: 10 }
     const result = calculateTermLifeInsuranceCost(config, 2024) // Year 0
-
+    
     expect(result).not.toBeNull()
     expect(result?.coverageAmount).toBe(200000) // No decrease in first year
-
+    
     // Second year
     const result2 = calculateTermLifeInsuranceCost(config, 2025)
     expect(result2?.coverageAmount).toBeCloseTo(180000, 0) // 200000 * 0.9
@@ -169,15 +169,15 @@ describe('calculateTermLifeInsuranceCost', () => {
     // Young person (age 25)
     const youngConfig = { ...baseConfig, birthYear: 1999 }
     const youngResult = calculateTermLifeInsuranceCost(youngConfig, 2024)
-
+    
     // Middle-aged person (age 45)
     const middleConfig = { ...baseConfig, birthYear: 1979 }
     const middleResult = calculateTermLifeInsuranceCost(middleConfig, 2024)
-
+    
     // Older person (age 55)
     const olderConfig = { ...baseConfig, birthYear: 1969 }
     const olderResult = calculateTermLifeInsuranceCost(olderConfig, 2024)
-
+    
     expect(youngResult?.annualCost).toBeLessThan(middleResult?.annualCost || 0)
     expect(middleResult?.annualCost).toBeLessThan(olderResult?.annualCost || 0)
   })
@@ -185,10 +185,10 @@ describe('calculateTermLifeInsuranceCost', () => {
   it('should apply gender-based premium adjustments', () => {
     const maleConfig = { ...baseConfig, gender: 'male' as const }
     const femaleConfig = { ...baseConfig, gender: 'female' as const }
-
+    
     const maleResult = calculateTermLifeInsuranceCost(maleConfig, 2024)
     const femaleResult = calculateTermLifeInsuranceCost(femaleConfig, 2024)
-
+    
     // Females typically pay less
     expect(femaleResult?.annualCost).toBeLessThan(maleResult?.annualCost || 0)
   })
@@ -196,20 +196,20 @@ describe('calculateTermLifeInsuranceCost', () => {
   it('should apply health status adjustments', () => {
     const excellentConfig = { ...baseConfig, healthStatus: 'excellent' as const }
     const poorConfig = { ...baseConfig, healthStatus: 'poor' as const }
-
+    
     const excellentResult = calculateTermLifeInsuranceCost(excellentConfig, 2024)
     const poorResult = calculateTermLifeInsuranceCost(poorConfig, 2024)
-
+    
     expect(excellentResult?.annualCost).toBeLessThan(poorResult?.annualCost || 0)
   })
 
   it('should apply smoking status adjustments', () => {
     const nonSmokerConfig = { ...baseConfig, smokingStatus: 'non-smoker' as const }
     const smokerConfig = { ...baseConfig, smokingStatus: 'smoker' as const }
-
+    
     const nonSmokerResult = calculateTermLifeInsuranceCost(nonSmokerConfig, 2024)
     const smokerResult = calculateTermLifeInsuranceCost(smokerConfig, 2024)
-
+    
     expect(nonSmokerResult?.annualCost).toBeLessThan(smokerResult?.annualCost || 0)
   })
 })
@@ -251,7 +251,7 @@ describe('calculateCareInsuranceCost', () => {
 
   it('should calculate care insurance cost correctly', () => {
     const result = calculateCareInsuranceCost(baseConfig, 2024)
-
+    
     expect(result).not.toBeNull()
     expect(result?.category).toBe('care')
     expect(result?.name).toBe('Test Pflege')
@@ -267,9 +267,9 @@ describe('calculateCareInsuranceCost', () => {
       isPflegeBahr: true,
       monthlyPremium: 60, // Must be at least 10 EUR
     }
-
+    
     const result = calculateCareInsuranceCost(pflegeBahrConfig, 2024)
-
+    
     expect(result).not.toBeNull()
     expect(result?.annualCost).toBe(660) // 720 - 60 subsidy
   })
@@ -280,9 +280,9 @@ describe('calculateCareInsuranceCost', () => {
       isPflegeBahr: true,
       monthlyPremium: 8, // Below 10 EUR minimum
     }
-
+    
     const result = calculateCareInsuranceCost(lowPremiumConfig, 2024)
-
+    
     expect(result).not.toBeNull()
     expect(result?.annualCost).toBe(96) // 8 * 12, no subsidy
   })
@@ -292,9 +292,9 @@ describe('calculateCareInsuranceCost', () => {
       ...baseConfig,
       dailyBenefitPflegegrad5: 75,
     }
-
+    
     const result = calculateCareInsuranceCost(config, 2024)
-
+    
     expect(result).not.toBeNull()
     expect(result?.coverageAmount).toBeCloseTo(2281.5, 1) // 75 * 30.42
   })
@@ -348,7 +348,7 @@ describe('calculateYearlyInsuranceCosts', () => {
 
   it('should aggregate all insurance costs', () => {
     const result = calculateYearlyInsuranceCosts(2024, healthConfig, termLifeConfig, undefined, undefined)
-
+    
     expect(result.year).toBe(2024)
     expect(result.entries).toHaveLength(2)
     expect(result.activeInsuranceCount).toBe(2)
@@ -359,7 +359,7 @@ describe('calculateYearlyInsuranceCosts', () => {
 
   it('should handle no insurances', () => {
     const result = calculateYearlyInsuranceCosts(2024, undefined, undefined, undefined, undefined)
-
+    
     expect(result.year).toBe(2024)
     expect(result.entries).toHaveLength(0)
     expect(result.activeInsuranceCount).toBe(0)
@@ -368,7 +368,7 @@ describe('calculateYearlyInsuranceCosts', () => {
 
   it('should correctly categorize costs', () => {
     const result = calculateYearlyInsuranceCosts(2024, healthConfig, termLifeConfig, undefined, undefined)
-
+    
     expect(result.costByCategory.health).toBeGreaterThan(0)
     expect(result.costByCategory.life).toBeGreaterThan(0)
     expect(result.costByCategory.care).toBe(0)
@@ -389,7 +389,7 @@ describe('calculateYearlyInsuranceCosts', () => {
     }
 
     const result = calculateYearlyInsuranceCosts(2024, healthConfig, termLifeConfig, careConfig, undefined)
-
+    
     expect(result.entries).toHaveLength(3)
     expect(result.activeInsuranceCount).toBe(3)
     expect(result.costByCategory.health).toBeGreaterThan(0)
@@ -432,7 +432,7 @@ describe('calculateInsuranceCostSummary', () => {
 
   it('should calculate summary across multiple years', () => {
     const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined, undefined)
-
+    
     expect(summary.yearlyResults).toHaveLength(17) // 2024-2040
     expect(summary.totalCost).toBeGreaterThan(0)
     expect(summary.averageAnnualCost).toBeGreaterThan(0)
@@ -443,7 +443,7 @@ describe('calculateInsuranceCostSummary', () => {
 
   it('should identify peak cost year correctly', () => {
     const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined, undefined)
-
+    
     // Find the year with highest cost manually
     let maxCost = 0
     let maxYear = 2024
@@ -453,14 +453,14 @@ describe('calculateInsuranceCostSummary', () => {
         maxYear = yr.year
       }
     }
-
+    
     expect(summary.peakCostYear).toBe(maxYear)
     expect(summary.peakAnnualCost).toBe(maxCost)
   })
 
   it('should calculate average costs by category', () => {
     const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined, undefined)
-
+    
     expect(summary.averageCostByCategory.health).toBeGreaterThan(0)
     // Life insurance only exists 2024-2030, so average will be lower
     expect(summary.averageCostByCategory.life).toBeGreaterThan(0)
@@ -469,14 +469,14 @@ describe('calculateInsuranceCostSummary', () => {
 
   it('should list all insurance types', () => {
     const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined, undefined)
-
+    
     expect(summary.insuranceTypes).toContain('Private Krankenversicherung')
     expect(summary.insuranceTypes).toContain('RLV')
   })
 
   it('should handle empty configuration', () => {
     const summary = calculateInsuranceCostSummary(2024, 2040, undefined, undefined, undefined, undefined)
-
+    
     expect(summary.yearlyResults).toHaveLength(17)
     expect(summary.totalCost).toBe(0)
     expect(summary.averageAnnualCost).toBe(0)
@@ -501,9 +501,9 @@ describe('generateOptimizationRecommendations', () => {
       },
       insuranceTypes: ['PKV', 'RLV'],
     }
-
+    
     const recommendations = generateOptimizationRecommendations(summary, 40000)
-
+    
     const highCostWarning = recommendations.find(r => r.title === 'Hohe Versicherungskosten')
     expect(highCostWarning).toBeDefined()
     expect(highCostWarning?.level).toBe('warning')
@@ -525,9 +525,9 @@ describe('generateOptimizationRecommendations', () => {
       },
       insuranceTypes: ['PKV'],
     }
-
+    
     const recommendations = generateOptimizationRecommendations(summary)
-
+    
     const pkvRecommendation = recommendations.find(r => r.category === 'health')
     expect(pkvRecommendation).toBeDefined()
     expect(pkvRecommendation?.title).toBe('PKV-Kostenprüfung')
@@ -563,9 +563,9 @@ describe('generateOptimizationRecommendations', () => {
       },
       insuranceTypes: ['PKV', 'RLV'],
     }
-
+    
     const recommendations = generateOptimizationRecommendations(summary)
-
+    
     const retirementWarning = recommendations.find(r => r.category === 'life')
     expect(retirementWarning).toBeDefined()
     expect(retirementWarning?.title).toBe('Risikolebensversicherung im Ruhestand')
@@ -587,9 +587,9 @@ describe('generateOptimizationRecommendations', () => {
       },
       insuranceTypes: [],
     }
-
+    
     const recommendations = generateOptimizationRecommendations(summary)
-
+    
     const noInsuranceInfo = recommendations.find(r => r.title === 'Keine Versicherungen konfiguriert')
     expect(noInsuranceInfo).toBeDefined()
     expect(noInsuranceInfo?.level).toBe('info')
@@ -611,9 +611,9 @@ describe('generateOptimizationRecommendations', () => {
       },
       insuranceTypes: ['GKV', 'RLV'],
     }
-
+    
     const recommendations = generateOptimizationRecommendations(summary, 50000)
-
+    
     // Should have no warnings, only potentially the retirement check if applicable
     const warnings = recommendations.filter(r => r.level === 'warning')
     expect(warnings).toHaveLength(0)
@@ -673,7 +673,9 @@ describe('generateOptimizationRecommendations', () => {
 
     const recommendations = generateOptimizationRecommendations(summary)
 
-    const careRecommendation = recommendations.find(r => r.category === 'care' && r.title.includes('Hohe'))
+    const careRecommendation = recommendations.find(r => 
+      r.category === 'care' && r.title.includes('Hohe')
+    )
     expect(careRecommendation).toBeDefined()
     expect(careRecommendation?.message).toContain('1500')
   })

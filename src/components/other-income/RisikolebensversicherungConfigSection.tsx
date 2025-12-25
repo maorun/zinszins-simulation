@@ -1,7 +1,10 @@
 import { useMemo } from 'react'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import type { OtherIncomeSource, RisikolebensversicherungConfig } from '../../../helpers/other-income'
+import type {
+  OtherIncomeSource,
+  RisikolebensversicherungConfig,
+} from '../../../helpers/other-income'
 import { generateFormId } from '../../utils/unique-id'
 
 interface RisikolebensversicherungConfigSectionProps {
@@ -11,7 +14,10 @@ interface RisikolebensversicherungConfigSectionProps {
 }
 
 // Helper to update config
-function createConfigUpdater(editingSource: OtherIncomeSource, onUpdate: (source: OtherIncomeSource) => void) {
+function createConfigUpdater(
+  editingSource: OtherIncomeSource,
+  onUpdate: (source: OtherIncomeSource) => void,
+) {
   return (updates: Partial<RisikolebensversicherungConfig>) => {
     onUpdate({
       ...editingSource,
@@ -38,11 +44,13 @@ function CoverageAmountField({ coverageAmount, onChange }: CoverageAmountFieldPr
         id={id}
         type="number"
         value={coverageAmount}
-        onChange={e => onChange(Number(e.target.value) || 0)}
+        onChange={(e) => onChange(Number(e.target.value) || 0)}
         min={0}
         step={10000}
       />
-      <p className="text-xs text-gray-600">Todesfallleistung für Hinterbliebene (steuerfrei)</p>
+      <p className="text-xs text-gray-600">
+        Todesfallleistung für Hinterbliebene (steuerfrei)
+      </p>
     </div>
   )
 }
@@ -61,7 +69,7 @@ function CoverageTypeField({ coverageType, onChange }: CoverageTypeFieldProps) {
       <select
         id={id}
         value={coverageType}
-        onChange={e => onChange(e.target.value as 'level' | 'decreasing')}
+        onChange={(e) => onChange(e.target.value as 'level' | 'decreasing')}
         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <option value="level">Konstante Deckung</option>
@@ -82,7 +90,11 @@ interface DecreaseRateFieldProps {
   isVisible: boolean
 }
 
-function DecreaseRateField({ annualDecreasePercent, onChange, isVisible }: DecreaseRateFieldProps) {
+function DecreaseRateField({
+  annualDecreasePercent,
+  onChange,
+  isVisible,
+}: DecreaseRateFieldProps) {
   const id = useMemo(() => generateFormId('rlv', 'decrease-rate'), [])
 
   if (!isVisible) return null
@@ -94,12 +106,14 @@ function DecreaseRateField({ annualDecreasePercent, onChange, isVisible }: Decre
         id={id}
         type="number"
         value={annualDecreasePercent}
-        onChange={e => onChange(Number(e.target.value) || 0)}
+        onChange={(e) => onChange(Number(e.target.value) || 0)}
         min={0}
         max={20}
         step={0.5}
       />
-      <p className="text-xs text-gray-600">Prozentsatz der jährlichen Verringerung der Versicherungssumme</p>
+      <p className="text-xs text-gray-600">
+        Prozentsatz der jährlichen Verringerung der Versicherungssumme
+      </p>
     </div>
   )
 }
@@ -119,7 +133,7 @@ function BirthYearField({ birthYear, onChange }: BirthYearFieldProps) {
         id={id}
         type="number"
         value={birthYear}
-        onChange={e => onChange(Number(e.target.value) || new Date().getFullYear() - 35)}
+        onChange={(e) => onChange(Number(e.target.value) || new Date().getFullYear() - 35)}
         min={1920}
         max={new Date().getFullYear()}
         step={1}
@@ -143,7 +157,7 @@ function GenderField({ gender, onChange }: GenderFieldProps) {
       <select
         id={id}
         value={gender}
-        onChange={e => onChange(e.target.value as 'male' | 'female')}
+        onChange={(e) => onChange(e.target.value as 'male' | 'female')}
         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <option value="male">Männlich</option>
@@ -170,7 +184,9 @@ function HealthStatusField({ healthStatus, onChange }: HealthStatusFieldProps) {
       <select
         id={id}
         value={healthStatus}
-        onChange={e => onChange(e.target.value as 'excellent' | 'good' | 'average' | 'fair' | 'poor')}
+        onChange={(e) =>
+          onChange(e.target.value as 'excellent' | 'good' | 'average' | 'fair' | 'poor')
+        }
         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <option value="excellent">Ausgezeichnet (-15%)</option>
@@ -179,7 +195,9 @@ function HealthStatusField({ healthStatus, onChange }: HealthStatusFieldProps) {
         <option value="fair">Mäßig (+35%)</option>
         <option value="poor">Schlecht (+70%)</option>
       </select>
-      <p className="text-xs text-gray-600">Gesundheitszustand beeinflusst die Prämie erheblich</p>
+      <p className="text-xs text-gray-600">
+        Gesundheitszustand beeinflusst die Prämie erheblich
+      </p>
     </div>
   )
 }
@@ -198,7 +216,7 @@ function SmokingStatusField({ smokingStatus, onChange }: SmokingStatusFieldProps
       <select
         id={id}
         value={smokingStatus}
-        onChange={e => onChange(e.target.value as 'non-smoker' | 'smoker' | 'former-smoker')}
+        onChange={(e) => onChange(e.target.value as 'non-smoker' | 'smoker' | 'former-smoker')}
         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <option value="non-smoker">Nichtraucher (Standard)</option>
@@ -232,13 +250,20 @@ function RisikolebensversicherungInfoBox({
       </p>
       <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
         <li>Aktuelles Alter: {age} Jahre</li>
-        <li>Deckungsart: {config.coverageType === 'level' ? 'Konstante Deckung' : 'Fallende Deckung'}</li>
-        {config.coverageType === 'decreasing' && <li>Jährliche Reduktion: {config.annualDecreasePercent}%</li>}
-        <li>Versicherungssumme: {config.coverageAmount.toLocaleString('de-DE')} € (steuerfrei bei Tod)</li>
+        <li>
+          Deckungsart: {config.coverageType === 'level' ? 'Konstante Deckung' : 'Fallende Deckung'}
+        </li>
+        {config.coverageType === 'decreasing' && (
+          <li>Jährliche Reduktion: {config.annualDecreasePercent}%</li>
+        )}
+        <li>
+          Versicherungssumme: {config.coverageAmount.toLocaleString('de-DE')} € (steuerfrei bei Tod)
+        </li>
         <li>Gesundheit: {getHealthStatusLabel(config.healthStatus)}</li>
         <li>Raucherstatus: {getSmokingStatusLabel(config.smokingStatus)}</li>
         <li className="font-semibold">
-          💡 Reine Risikoabsicherung - keine Kapitalbildung, daher günstiger als Kapitallebensversicherung
+          💡 Reine Risikoabsicherung - keine Kapitalbildung, daher günstiger als
+          Kapitallebensversicherung
         </li>
       </ul>
     </div>
@@ -285,29 +310,35 @@ export function RisikolebensversicherungConfigSection({
 
       <CoverageAmountField
         coverageAmount={config.coverageAmount}
-        onChange={amount => updateConfig({ coverageAmount: amount })}
+        onChange={(amount) => updateConfig({ coverageAmount: amount })}
       />
 
-      <CoverageTypeField coverageType={config.coverageType} onChange={type => updateConfig({ coverageType: type })} />
+      <CoverageTypeField
+        coverageType={config.coverageType}
+        onChange={(type) => updateConfig({ coverageType: type })}
+      />
 
       <DecreaseRateField
         annualDecreasePercent={config.annualDecreasePercent}
-        onChange={percent => updateConfig({ annualDecreasePercent: percent })}
+        onChange={(percent) => updateConfig({ annualDecreasePercent: percent })}
         isVisible={config.coverageType === 'decreasing'}
       />
 
-      <BirthYearField birthYear={config.birthYear} onChange={year => updateConfig({ birthYear: year })} />
+      <BirthYearField
+        birthYear={config.birthYear}
+        onChange={(year) => updateConfig({ birthYear: year })}
+      />
 
-      <GenderField gender={config.gender} onChange={gender => updateConfig({ gender })} />
+      <GenderField gender={config.gender} onChange={(gender) => updateConfig({ gender })} />
 
       <HealthStatusField
         healthStatus={config.healthStatus}
-        onChange={status => updateConfig({ healthStatus: status })}
+        onChange={(status) => updateConfig({ healthStatus: status })}
       />
 
       <SmokingStatusField
         smokingStatus={config.smokingStatus}
-        onChange={status => updateConfig({ smokingStatus: status })}
+        onChange={(status) => updateConfig({ smokingStatus: status })}
       />
 
       <RisikolebensversicherungInfoBox config={config} currentYear={currentYear} />

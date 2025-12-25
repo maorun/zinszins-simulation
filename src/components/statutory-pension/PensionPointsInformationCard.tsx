@@ -20,10 +20,7 @@ export function PensionPointsInformationCard({ nestingLevel }: { nestingLevel: n
             <li>Bei durchschnittlichem Gehalt: 1,0 Rentenpunkt pro Jahr</li>
             <li>Monatliche Rente = Rentenpunkte × Rentenwert (≈ 37,60 € in 2024)</li>
           </ul>
-          <p className="text-xs text-muted-foreground mt-3">
-            ℹ️ Diese Berechnung gibt eine Schätzung basierend auf Ihrer Gehaltshistorie. Die tatsächliche Rente kann
-            durch weitere Faktoren beeinflusst werden.
-          </p>
+          <p className="text-xs text-muted-foreground mt-3">ℹ️ Diese Berechnung gibt eine Schätzung basierend auf Ihrer Gehaltshistorie. Die tatsächliche Rente kann durch weitere Faktoren beeinflusst werden.</p>
         </div>
       </CardContent>
     </Card>

@@ -29,8 +29,9 @@ function RiskAssessment({ phase, config }: RiskAssessmentProps) {
   if (!simulationData) return null
 
   // Get the latest portfolio value for stress testing
-  const latestPortfolioValue =
-    portfolioData.values.length > 0 ? portfolioData.values[portfolioData.values.length - 1] : 0
+  const latestPortfolioValue = portfolioData.values.length > 0 
+    ? portfolioData.values[portfolioData.values.length - 1] 
+    : 0
 
   return (
     <CollapsibleCard>

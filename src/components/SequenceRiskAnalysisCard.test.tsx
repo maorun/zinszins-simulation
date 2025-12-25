@@ -78,7 +78,7 @@ describe('SequenceRiskAnalysisCard', () => {
     expect(screen.getByText('Risikobewertung')).toBeInTheDocument()
     // Should have one of the risk level badges
     const riskLevels = ['Niedriges Risiko', 'Mittleres Risiko', 'Hohes Risiko', 'Kritisches Risiko']
-    const hasRiskLevel = riskLevels.some(level => screen.queryByText(level) !== null)
+    const hasRiskLevel = riskLevels.some((level) => screen.queryByText(level) !== null)
     expect(hasRiskLevel).toBe(true)
   })
 

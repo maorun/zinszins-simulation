@@ -1,6 +1,6 @@
 /**
  * DynamicSavingsRateConfiguration Component
- *
+ * 
  * Simple UI component for enabling/configuring dynamic savings rate adjustments.
  * Full feature implementation would require more extensive UI work.
  */
@@ -10,7 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Label } from './ui/label'
 import { Switch } from './ui/switch'
 import { Input } from './ui/input'
-import { validateDynamicSavingsConfig, type DynamicSavingsRateConfig } from '../../helpers/dynamic-savings-rate'
+import {
+  validateDynamicSavingsConfig,
+  type DynamicSavingsRateConfig,
+} from '../../helpers/dynamic-savings-rate'
 import { generateFormId } from '../utils/unique-id'
 import { TrendingUp, AlertCircle } from 'lucide-react'
 
@@ -24,7 +27,7 @@ function ValidationErrors({ errors }: { errors: Array<{ field: string; message: 
   if (errors.length === 0) {
     return null
   }
-
+  
   return (
     <div className="rounded-md bg-red-50 p-4">
       <div className="flex items-start gap-2">
@@ -42,10 +45,16 @@ function ValidationErrors({ errors }: { errors: Array<{ field: string; message: 
   )
 }
 
-function BirthYearInput({ birthYear, onChange }: { birthYear: number; onChange: (year: number) => void }) {
+function BirthYearInput({
+  birthYear,
+  onChange,
+}: {
+  birthYear: number
+  onChange: (year: number) => void
+}) {
   const birthYearId = useMemo(() => generateFormId('dynamic-savings', 'birth-year'), [])
   const currentYear = new Date().getFullYear()
-
+  
   return (
     <div className="space-y-2">
       <Label htmlFor={birthYearId}>Geburtsjahr</Label>
@@ -53,7 +62,7 @@ function BirthYearInput({ birthYear, onChange }: { birthYear: number; onChange: 
         id={birthYearId}
         type="number"
         value={birthYear}
-        onChange={e => onChange(Number(e.target.value))}
+        onChange={(e) => onChange(Number(e.target.value))}
         min={1900}
         max={currentYear}
       />
@@ -64,7 +73,10 @@ function BirthYearInput({ birthYear, onChange }: { birthYear: number; onChange: 
   )
 }
 
-export function DynamicSavingsRateConfiguration({ config, onChange }: DynamicSavingsRateConfigurationProps) {
+export function DynamicSavingsRateConfiguration({
+  config,
+  onChange,
+}: DynamicSavingsRateConfigurationProps) {
   const enabledId = useMemo(() => generateFormId('dynamic-savings', 'enabled'), [])
   const errors = validateDynamicSavingsConfig(config)
 
@@ -79,25 +91,29 @@ export function DynamicSavingsRateConfiguration({ config, onChange }: DynamicSav
           <Switch
             id={enabledId}
             checked={config.enabled}
-            onCheckedChange={enabled => onChange({ ...config, enabled })}
+            onCheckedChange={(enabled) => onChange({ ...config, enabled })}
           />
         </div>
         <CardDescription>
-          Automatische Anpassung der Sparrate basierend auf Lebensphase, Einkommensentwicklung und Lebensereignissen
+          Automatische Anpassung der Sparrate basierend auf Lebensphase, Einkommensentwicklung und
+          Lebensereignissen
         </CardDescription>
       </CardHeader>
 
       {config.enabled && (
         <CardContent className="space-y-4">
           <ValidationErrors errors={errors} />
-          <BirthYearInput birthYear={config.birthYear} onChange={birthYear => onChange({ ...config, birthYear })} />
+          <BirthYearInput
+            birthYear={config.birthYear}
+            onChange={(birthYear) => onChange({ ...config, birthYear })}
+          />
 
           <div className="rounded-lg bg-muted p-4 text-sm">
             <p className="font-medium">ℹ️ Feature implementiert</p>
             <p className="mt-2 text-muted-foreground">
-              Die Kernfunktionalität für dynamische Sparraten ist vollständig implementiert. Erweiterte
-              UI-Konfigurationen für Lebensphasen, Einkommensentwicklung und Lebensereignisse können bei Bedarf
-              hinzugefügt werden.
+              Die Kernfunktionalität für dynamische Sparraten ist vollständig implementiert.
+              Erweiterte UI-Konfigurationen für Lebensphasen, Einkommensentwicklung und
+              Lebensereignisse können bei Bedarf hinzugefügt werden.
             </p>
           </div>
         </CardContent>

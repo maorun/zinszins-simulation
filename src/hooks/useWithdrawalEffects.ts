@@ -44,7 +44,7 @@ export function useWithdrawalEffects({
   const lastNotifiedResultHashRef = useRef<string | null>(null)
   // Store the callback in a ref to avoid it being a dependency
   const callbackRef = useRef(onWithdrawalResultsChange)
-
+  
   // Update callback ref when it changes
   useEffect(() => {
     callbackRef.current = onWithdrawalResultsChange

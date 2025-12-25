@@ -73,7 +73,7 @@ export function GiftTaxConfigForm({
             id={targetAmountId}
             type="number"
             value={targetAmount}
-            onChange={e => onTargetAmountChange(Number(e.target.value))}
+            onChange={(e) => onTargetAmountChange(Number(e.target.value))}
             min={0}
             step={10000}
           />
@@ -91,7 +91,7 @@ export function GiftTaxConfigForm({
             id={yearsId}
             type="number"
             value={yearsAvailable}
-            onChange={e => onYearsAvailableChange(Number(e.target.value))}
+            onChange={(e) => onYearsAvailableChange(Number(e.target.value))}
             min={1}
             max={50}
           />

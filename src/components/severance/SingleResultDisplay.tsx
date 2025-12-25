@@ -42,7 +42,11 @@ export function SingleResultDisplay({ result, showComparison = true }: SingleRes
         </div>
 
         {showComparison && result.standardIncomeTax > 0 && (
-          <ComparisonSection result={result} savingsPercentage={savingsPercentage} isBeneficial={isBeneficial} />
+          <ComparisonSection
+            result={result}
+            savingsPercentage={savingsPercentage}
+            isBeneficial={isBeneficial}
+          />
         )}
 
         {result.capitalGainsTax > 0 && <CapitalGainsSection result={result} />}

@@ -161,7 +161,12 @@ describe('portfolio-teilfreistellung', () => {
       const scenarioA: PortfolioHolding[] = [{ assetClass: 'bond-fund', allocation: 1.0 }]
       const scenarioB: PortfolioHolding[] = [{ assetClass: 'equity-fund', allocation: 1.0 }]
 
-      const comparison = compareTaxScenarios(scenarioA, scenarioB, 'Nur Anleihen', 'Nur Aktien')
+      const comparison = compareTaxScenarios(
+        scenarioA,
+        scenarioB,
+        'Nur Anleihen',
+        'Nur Aktien',
+      )
 
       expect(comparison.scenarioA.weightedQuote).toBe(0)
       expect(comparison.scenarioB.weightedQuote).toBe(0.3)
@@ -206,7 +211,12 @@ describe('portfolio-teilfreistellung', () => {
       const scenarioA: PortfolioHolding[] = [{ assetClass: 'bond-fund', allocation: 1.0 }]
       const scenarioB: PortfolioHolding[] = [{ assetClass: 'equity-fund', allocation: 1.0 }]
 
-      const comparison = compareTaxScenarios(scenarioA, scenarioB, 'Konservativ', 'Wachstum')
+      const comparison = compareTaxScenarios(
+        scenarioA,
+        scenarioB,
+        'Konservativ',
+        'Wachstum',
+      )
 
       expect(comparison.scenarioA.name).toBe('Konservativ')
       expect(comparison.scenarioB.name).toBe('Wachstum')

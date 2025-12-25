@@ -33,10 +33,7 @@ describe('GoalAdjustmentRecommendations', () => {
     severity: 'high',
     title: 'Zeithorizont anpassen',
     description: 'Mit Ihrer aktuellen Strategie benötigen Sie mehr Zeit.',
-    actionItems: [
-      'Überdenken Sie, ob das ursprüngliche Zieljahr realistisch war',
-      'Passen Sie Ihre Lebensplanung entsprechend an',
-    ],
+    actionItems: ['Überdenken Sie, ob das ursprüngliche Zieljahr realistisch war', 'Passen Sie Ihre Lebensplanung entsprechend an'],
     impact: 'Macht Ihr Ziel mit der aktuellen Sparrate erreichbar',
     priority: 2,
   }
@@ -160,7 +157,11 @@ describe('GoalAdjustmentRecommendations', () => {
 
     it('should not display severity label for on-track recommendations', () => {
       render(
-        <GoalAdjustmentRecommendations recommendations={[onTrackRecommendation]} goalName="Test Goal" onTrack={true} />,
+        <GoalAdjustmentRecommendations
+          recommendations={[onTrackRecommendation]}
+          goalName="Test Goal"
+          onTrack={true}
+        />,
       )
 
       expect(screen.queryByText('Niedrig')).not.toBeInTheDocument()
@@ -170,7 +171,11 @@ describe('GoalAdjustmentRecommendations', () => {
   describe('Visual Indicators', () => {
     it('should show success alert for on-track status', () => {
       render(
-        <GoalAdjustmentRecommendations recommendations={[onTrackRecommendation]} goalName="Test Goal" onTrack={true} />,
+        <GoalAdjustmentRecommendations
+          recommendations={[onTrackRecommendation]}
+          goalName="Test Goal"
+          onTrack={true}
+        />,
       )
 
       expect(screen.getByRole('alert')).toBeInTheDocument()
@@ -233,7 +238,11 @@ describe('GoalAdjustmentRecommendations', () => {
       }
 
       render(
-        <GoalAdjustmentRecommendations recommendations={[noActionItemsRec]} goalName="Test Goal" onTrack={false} />,
+        <GoalAdjustmentRecommendations
+          recommendations={[noActionItemsRec]}
+          goalName="Test Goal"
+          onTrack={false}
+        />,
       )
 
       expect(screen.queryByText('Handlungsschritte:')).not.toBeInTheDocument()
@@ -262,7 +271,9 @@ describe('GoalAdjustmentRecommendations', () => {
         { ...increaseSavingsRecommendation, severity: 'critical' },
       ]
 
-      render(<GoalAdjustmentRecommendations recommendations={allSeverities} goalName="Test Goal" onTrack={false} />)
+      render(
+        <GoalAdjustmentRecommendations recommendations={allSeverities} goalName="Test Goal" onTrack={false} />,
+      )
 
       expect(screen.getByText('Niedrig')).toBeInTheDocument()
       expect(screen.getByText('Mittel')).toBeInTheDocument()

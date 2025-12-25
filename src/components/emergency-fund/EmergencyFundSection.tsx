@@ -36,9 +36,9 @@ function UnderfundedWarning() {
         <div className="flex-1 text-sm text-gray-700">
           <p className="font-semibold mb-1">Empfehlung</p>
           <p>
-            Bauen Sie zunächst Ihren Notgroschen auf, bevor Sie in risikobehaftete Anlagen investieren. Dies schützt Sie
-            vor unerwarteten Ausgaben und verhindert, dass Sie Ihre Investitionen in ungünstigen Marktphasen verkaufen
-            müssen.
+            Bauen Sie zunächst Ihren Notgroschen auf, bevor Sie in risikobehaftete Anlagen investieren. Dies schützt
+            Sie vor unerwarteten Ausgaben und verhindert, dass Sie Ihre Investitionen in ungünstigen Marktphasen
+            verkaufen müssen.
           </p>
         </div>
       </div>
@@ -157,10 +157,7 @@ export function EmergencyFundSection() {
             handleExcludeFromInvestmentChange={handleExcludeFromInvestmentChange}
           />
           {fundStatus.isFunded && (
-            <MultiTierLiquidityDisplay
-              targetAmount={fundStatus.targetAmount}
-              reserveStrategy={config.reserveStrategy}
-            />
+            <MultiTierLiquidityDisplay targetAmount={fundStatus.targetAmount} reserveStrategy={config.reserveStrategy} />
           )}
         </CardContent>
       )}

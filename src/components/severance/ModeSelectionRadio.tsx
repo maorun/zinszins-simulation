@@ -14,10 +14,7 @@ export function ModeSelectionRadio({ comparisonMode, onComparisonModeChange }: M
   return (
     <div className="space-y-2">
       <Label className="text-sm font-medium">Berechnungsmodus</Label>
-      <RadioGroup
-        value={comparisonMode}
-        onValueChange={mode => onComparisonModeChange(mode as 'single' | 'comparison')}
-      >
+      <RadioGroup value={comparisonMode} onValueChange={mode => onComparisonModeChange(mode as 'single' | 'comparison')}>
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="single" id={`${modeRadioId}-single`} />
           <Label htmlFor={`${modeRadioId}-single`} className="text-sm cursor-pointer">

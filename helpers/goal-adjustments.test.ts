@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { type FinancialGoal } from './financial-goals'
-import { calculateYearsToGoal, calculateRequiredMonthlySavings, analyzeGoalAdjustments } from './goal-adjustments'
+import {
+  calculateYearsToGoal,
+  calculateRequiredMonthlySavings,
+  analyzeGoalAdjustments,
+} from './goal-adjustments'
 
 describe('goal-adjustments', () => {
   const basicGoal: FinancialGoal = {
@@ -31,7 +35,7 @@ describe('goal-adjustments', () => {
     it('should calculate years correctly with monthly savings and returns', () => {
       // Starting with 100k, saving 1000/month at 5% annually
       const years = calculateYearsToGoal(100000, 200000, 1000, 0.05)
-
+      
       // Should take roughly 5-6 years
       expect(years).toBeGreaterThan(5)
       expect(years).toBeLessThan(7)
@@ -40,7 +44,7 @@ describe('goal-adjustments', () => {
     it('should calculate years with zero return correctly', () => {
       // Starting with 100k, need 200k, saving 1000/month with 0% return
       const years = calculateYearsToGoal(100000, 200000, 1000, 0)
-
+      
       // Pure savings: (200k - 100k) / 1000 = 100 months ≈ 8.33 years
       expect(years).toBeGreaterThan(8)
       expect(years).toBeLessThan(9)
@@ -49,14 +53,14 @@ describe('goal-adjustments', () => {
     it('should calculate faster with higher returns', () => {
       const yearsLowReturn = calculateYearsToGoal(100000, 300000, 1000, 0.03)
       const yearsHighReturn = calculateYearsToGoal(100000, 300000, 1000, 0.08)
-
+      
       expect(yearsHighReturn).toBeLessThan(yearsLowReturn)
     })
 
     it('should calculate faster with higher savings', () => {
       const yearsLowSavings = calculateYearsToGoal(100000, 300000, 500, 0.05)
       const yearsHighSavings = calculateYearsToGoal(100000, 300000, 2000, 0.05)
-
+      
       expect(yearsHighSavings).toBeLessThan(yearsLowSavings)
     })
   })
@@ -85,7 +89,7 @@ describe('goal-adjustments', () => {
     it('should calculate required savings correctly', () => {
       // Need to go from 100k to 200k in 5 years at 5% return
       const required = calculateRequiredMonthlySavings(100000, 200000, 5, 0.05)
-
+      
       // Should be roughly 1000-1500 per month
       expect(required).toBeGreaterThan(500)
       expect(required).toBeLessThan(2000)
@@ -94,21 +98,21 @@ describe('goal-adjustments', () => {
     it('should require less savings with higher returns', () => {
       const requiredLowReturn = calculateRequiredMonthlySavings(100000, 300000, 10, 0.03)
       const requiredHighReturn = calculateRequiredMonthlySavings(100000, 300000, 10, 0.08)
-
+      
       expect(requiredHighReturn).toBeLessThan(requiredLowReturn)
     })
 
     it('should require less savings with more time', () => {
       const requiredShortTime = calculateRequiredMonthlySavings(100000, 300000, 5, 0.05)
       const requiredLongTime = calculateRequiredMonthlySavings(100000, 300000, 15, 0.05)
-
+      
       expect(requiredLongTime).toBeLessThan(requiredShortTime)
     })
 
     it('should calculate correctly with zero return', () => {
       // From 100k to 200k in 10 years = 100k / 120 months
       const required = calculateRequiredMonthlySavings(100000, 200000, 10, 0)
-
+      
       expect(required).toBeGreaterThan(830) // 100k / 120 = 833.33
       expect(required).toBeLessThan(840)
     })
@@ -186,9 +190,9 @@ describe('goal-adjustments', () => {
 
         expect(analysis.onTrack).toBe(false)
         // With only 5 years left and low savings, should recommend adjusting expectations
-        expect(
-          analysis.recommendations.some(r => r.type === 'adjust-expectations' || r.type === 'adjust-timeline'),
-        ).toBe(true)
+        expect(analysis.recommendations.some(r => 
+          r.type === 'adjust-expectations' || r.type === 'adjust-timeline'
+        )).toBe(true)
       })
 
       it('should recommend increasing savings when moderately off track', () => {
@@ -303,7 +307,9 @@ describe('goal-adjustments', () => {
 
         expect(analysis.onTrack).toBe(false)
         expect(analysis.yearsRemaining).toBe(-1)
-        expect(analysis.recommendations.some(r => r.type === 'adjust-timeline' && r.severity === 'critical')).toBe(true)
+        expect(analysis.recommendations.some(r => 
+          r.type === 'adjust-timeline' && r.severity === 'critical'
+        )).toBe(true)
       })
     })
 
@@ -319,7 +325,9 @@ describe('goal-adjustments', () => {
 
         // Check that recommendations are sorted (lower priority number = higher priority)
         for (let i = 0; i < analysis.recommendations.length - 1; i++) {
-          expect(analysis.recommendations[i].priority).toBeLessThanOrEqual(analysis.recommendations[i + 1].priority)
+          expect(analysis.recommendations[i].priority).toBeLessThanOrEqual(
+            analysis.recommendations[i + 1].priority
+          )
         }
       })
     })
@@ -369,12 +377,12 @@ describe('goal-adjustments', () => {
 
         // First should have mostly low/medium
         expect(
-          analyses[0].recommendations.filter(r => r.severity === 'low' || r.severity === 'medium').length,
+          analyses[0].recommendations.filter(r => r.severity === 'low' || r.severity === 'medium').length
         ).toBeGreaterThan(0)
 
         // Second should have at least some high/critical
         expect(
-          analyses[1].recommendations.filter(r => r.severity === 'high' || r.severity === 'critical').length,
+          analyses[1].recommendations.filter(r => r.severity === 'high' || r.severity === 'critical').length
         ).toBeGreaterThan(0)
       })
 
@@ -391,7 +399,7 @@ describe('goal-adjustments', () => {
         const increaseSavingsRec = analysis.recommendations.find(r => r.type === 'increase-savings')
         expect(increaseSavingsRec).toBeDefined()
         expect(increaseSavingsRec!.actionItems.length).toBeGreaterThan(2)
-
+        
         // Action items should be specific and actionable
         increaseSavingsRec!.actionItems.forEach(item => {
           expect(item).toMatch(/[A-ZÄÖÜ]/) // Starts with capital letter

@@ -39,7 +39,9 @@ export default function EmergencyFundConfiguration() {
       <EmergencyFundHeader />
       <CollapsibleCardContent>
         <div className="space-y-6">
-          <CardDescription>Planen Sie Ihre finanzielle Notfallreserve nach deutschen Standards</CardDescription>
+          <CardDescription>
+            Planen Sie Ihre finanzielle Notfallreserve nach deutschen Standards
+          </CardDescription>
 
           <div className="flex items-center space-x-2">
             <Switch id="emergency-fund-enabled" checked={config.enabled} onCheckedChange={handleToggleEnabled} />

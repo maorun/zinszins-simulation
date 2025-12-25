@@ -252,7 +252,8 @@ export const tutorials: Tutorial[] = [
       {
         id: 'withdrawal-tab',
         title: 'Entnehmen-Tab',
-        description: 'Wechseln Sie zum "Entnehmen"-Tab, um Entnahmestrategien zu konfigurieren und zu simulieren.',
+        description:
+          'Wechseln Sie zum "Entnehmen"-Tab, um Entnahmestrategien zu konfigurieren und zu simulieren.',
         targetSelector: '[data-tutorial="entnahme-tab"]',
         position: 'bottom',
         action: 'Klicken Sie auf den "Entnehmen"-Tab',
@@ -382,10 +383,10 @@ export function getAllTutorialCategories(): Array<Tutorial['category']> {
 export function getCategoryName(category: Tutorial['category']): string {
   const names: Record<Tutorial['category'], string> = {
     'getting-started': 'Erste Schritte',
-    savings: 'Sparpläne',
-    withdrawal: 'Entnahme',
-    tax: 'Steuern',
-    advanced: 'Erweitert',
+    'savings': 'Sparpläne',
+    'withdrawal': 'Entnahme',
+    'tax': 'Steuern',
+    'advanced': 'Erweitert',
   }
   return names[category]
 }
@@ -397,7 +398,7 @@ export function canStartTutorial(tutorialId: string, completedTutorialIds: strin
   const tutorial = getTutorialById(tutorialId)
   if (!tutorial) return false
   if (!tutorial.prerequisites || tutorial.prerequisites.length === 0) return true
-
+  
   return tutorial.prerequisites.every(prereqId => completedTutorialIds.includes(prereqId))
 }
 
@@ -409,13 +410,16 @@ export function getRecommendedTutorial(completedTutorialIds: string[]): Tutorial
   if (!completedTutorialIds.includes('welcome')) {
     return getTutorialById('welcome')
   }
-
+  
   // Find next uncompleted tutorial with satisfied prerequisites
   for (const tutorial of tutorials) {
-    if (!completedTutorialIds.includes(tutorial.id) && canStartTutorial(tutorial.id, completedTutorialIds)) {
+    if (
+      !completedTutorialIds.includes(tutorial.id) &&
+      canStartTutorial(tutorial.id, completedTutorialIds)
+    ) {
       return tutorial
     }
   }
-
+  
   return undefined
 }

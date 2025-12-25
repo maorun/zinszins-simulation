@@ -40,3 +40,4 @@ export function createTaxHandlers(simulation: SimulationContext) {
     handleFreibetragPerYearUpdate: makeHandler(simulation.setFreibetragPerYear),
   }
 }
+

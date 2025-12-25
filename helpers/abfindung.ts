@@ -163,7 +163,11 @@ function calculateSolidaritaetszuschlag(incomeTax: number): number {
 /**
  * Calculate capital gains tax
  */
-function calculateCapitalGainsTax(capitalGains: number, taxAllowance: number, taxRate: number): number {
+function calculateCapitalGainsTax(
+  capitalGains: number,
+  taxAllowance: number,
+  taxRate: number,
+): number {
   const taxableAmount = Math.max(0, capitalGains - taxAllowance)
   return taxableAmount * (taxRate / 100)
 }
@@ -171,7 +175,10 @@ function calculateCapitalGainsTax(capitalGains: number, taxAllowance: number, ta
 /**
  * Calculate severance tax using standard taxation (no Fünftelregelung)
  */
-function calculateStandardSeveranceTax(regularIncome: number, severanceAmount: number): number {
+function calculateStandardSeveranceTax(
+  regularIncome: number,
+  severanceAmount: number,
+): number {
   // Calculate tax on combined income
   const totalIncomeTax = calculateGermanIncomeTax(regularIncome + severanceAmount)
 
@@ -190,7 +197,10 @@ function calculateStandardSeveranceTax(regularIncome: number, severanceAmount: n
  * Special case: If there is no regular income (income = 0), the severance/5 might still
  * be within Grundfreibetrag, resulting in zero tax. This is correct behavior.
  */
-function calculateFuenftelregelungTax(regularIncome: number, severanceAmount: number): number {
+function calculateFuenftelregelungTax(
+  regularIncome: number,
+  severanceAmount: number,
+): number {
   // Calculate tax on regular income
   const regularIncomeTax = calculateGermanIncomeTax(regularIncome)
 
@@ -243,7 +253,11 @@ export function calculateSeveranceTax(config: SeveranceConfig): SeveranceTaxResu
   const capitalGainsTaxRate = config.capitalGainsTaxRate || 26.375
   const capitalGainsTaxAllowance = config.capitalGainsTaxAllowance || 1000
 
-  const capitalGainsTax = calculateCapitalGainsTax(capitalGains, capitalGainsTaxAllowance, capitalGainsTaxRate)
+  const capitalGainsTax = calculateCapitalGainsTax(
+    capitalGains,
+    capitalGainsTaxAllowance,
+    capitalGainsTaxRate,
+  )
 
   // Calculate net amount after taxes
   const netAmount = severanceAmount - fuenftelregelungIncomeTax

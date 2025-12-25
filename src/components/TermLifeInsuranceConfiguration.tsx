@@ -5,7 +5,10 @@ import { Label } from './ui/label'
 import { Button } from './ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { type TermLifeInsuranceConfig, createDefaultTermLifeInsuranceConfig } from '../../helpers/term-life-insurance'
+import {
+  type TermLifeInsuranceConfig,
+  createDefaultTermLifeInsuranceConfig,
+} from '../../helpers/term-life-insurance'
 import { generateFormId } from '../utils/unique-id'
 
 interface TermLifeInsuranceConfigurationProps {
@@ -131,11 +134,7 @@ export function TermLifeInsuranceConfiguration({
 
         <CollapsibleContent>
           <CardContent className="space-y-4">
-            <EnableToggle
-              isEnabled={isEnabled}
-              enabledSwitchId={enabledSwitchId}
-              onEnabledChange={handleEnabledChange}
-            />
+            <EnableToggle isEnabled={isEnabled} enabledSwitchId={enabledSwitchId} onEnabledChange={handleEnabledChange} />
             {isEnabled && config && (
               <ConfigurationContent
                 birthYear={birthYear}
@@ -150,3 +149,4 @@ export function TermLifeInsuranceConfiguration({
     </Card>
   )
 }
+

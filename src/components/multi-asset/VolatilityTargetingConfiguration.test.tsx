@@ -79,7 +79,9 @@ describe('VolatilityTargetingConfiguration', () => {
 
     render(<VolatilityTargetingConfiguration config={config} onChange={onChange} />)
 
-    expect(screen.getByText(/Skaliert riskante Assets basierend auf realisierter Volatilität/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Skaliert riskante Assets basierend auf realisierter Volatilität/),
+    ).toBeInTheDocument()
   })
 
   it('renders all configuration fields when enabled and strategy is not none', () => {

@@ -27,7 +27,9 @@ function TaxSavingsSummary({ result }: GiftTaxResultsDisplayProps) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <p className="text-sm text-gray-600">Steuerersparnis</p>
-            <p className="text-xl sm:text-2xl font-bold text-green-600">{formatCurrency(result.savings)}</p>
+            <p className="text-xl sm:text-2xl font-bold text-green-600">
+              {formatCurrency(result.savings)}
+            </p>
           </div>
           <div>
             <p className="text-sm text-gray-600">Steuer bei Optimierung</p>
@@ -56,7 +58,10 @@ function GiftSchedule({ result }: GiftTaxResultsDisplayProps) {
       <CardContent>
         <div className="space-y-3">
           {result.suggestedGifts.map((gift, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div
+              key={index}
+              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+            >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold">
                   {index + 1}

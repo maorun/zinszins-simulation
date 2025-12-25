@@ -142,7 +142,10 @@ export function createDefaultRebalancingTaxConfig(): RebalancingTaxConfig {
 /**
  * Calculate transaction cost for a single trade
  */
-export function calculateTransactionCost(tradeAmount: number, costConfig: TransactionCostConfig): number {
+export function calculateTransactionCost(
+  tradeAmount: number,
+  costConfig: TransactionCostConfig
+): number {
   const percentageCost = tradeAmount * costConfig.percentageCost
   const totalCost = percentageCost + costConfig.fixedCost
   return totalCost
@@ -154,7 +157,7 @@ export function calculateTransactionCost(tradeAmount: number, costConfig: Transa
 export function calculateTaxableGains(
   capitalGains: number,
   taxCategory: 'equity' | 'bond' | 'reit' | 'commodity' | 'cash',
-  taxConfig: RebalancingTaxConfig,
+  taxConfig: RebalancingTaxConfig
 ): number {
   const teilfreistellung = taxConfig.teilfreistellungsquoten[taxCategory]
   const taxableGains = capitalGains * (1 - teilfreistellung)
@@ -167,7 +170,7 @@ export function calculateTaxableGains(
 export function calculateCapitalGainsTax(
   taxableGains: number,
   freibetragAvailable: number,
-  taxConfig: RebalancingTaxConfig,
+  taxConfig: RebalancingTaxConfig
 ): { tax: number; freibetragUsed: number; freibetragRemaining: number } {
   if (taxableGains <= 0) {
     return { tax: 0, freibetragUsed: 0, freibetragRemaining: freibetragAvailable }
@@ -199,7 +202,7 @@ export function calculateRebalancingCostBenefit(
   totalTaxCosts: number,
   currentDrift: number,
   portfolioValue: number,
-  costThreshold = 0.001, // Default: rebalance if costs < 0.1% of portfolio
+  costThreshold = 0.001 // Default: rebalance if costs < 0.1% of portfolio
 ): RebalancingCostBenefitAnalysis {
   const totalCosts = totalTransactionCosts + totalTaxCosts
   const costsAsPercentage = totalCosts / portfolioValue
@@ -248,7 +251,7 @@ function processSellTrades(
   }>,
   costConfig: TransactionCostConfig,
   taxConfig: RebalancingTaxConfig,
-  initialFreibetragRemaining: number,
+  initialFreibetragRemaining: number
 ): {
   trades: RebalancingTrade[]
   totalTransactionCosts: number
@@ -301,7 +304,7 @@ function processBuyTrades(
     assetClass: AssetClass
     amount: number
   }>,
-  costConfig: TransactionCostConfig,
+  costConfig: TransactionCostConfig
 ): {
   trades: RebalancingTrade[]
   totalTransactionCosts: number
@@ -331,7 +334,7 @@ function processBuyTrades(
  */
 function generateOptimizationExplanation(
   lossesUtilized: number,
-  freibetragUtilized: number,
+  freibetragUtilized: number
 ): { optimizationSuccessful: boolean; optimizationExplanation: string } {
   const optimizationSuccessful = lossesUtilized > 0 || freibetragUtilized > 0
 
@@ -368,11 +371,11 @@ export function optimizeRebalancingTrades(
     taxCategory: 'equity' | 'bond' | 'reit' | 'commodity' | 'cash'
   }>,
   costConfig: TransactionCostConfig,
-  taxConfig: RebalancingTaxConfig,
+  taxConfig: RebalancingTaxConfig
 ): TaxOptimizedRebalancingResult {
   // Separate trades into sells and buys
-  const sells = requiredTrades.filter(t => t.type === 'sell')
-  const buys = requiredTrades.filter(t => t.type === 'buy')
+  const sells = requiredTrades.filter((t) => t.type === 'sell')
+  const buys = requiredTrades.filter((t) => t.type === 'buy')
 
   // Sort sells: prioritize losses first (tax loss harvesting), then smallest gains
   sells.sort((a, b) => {
@@ -396,7 +399,7 @@ export function optimizeRebalancingTrades(
   // Generate explanation
   const { optimizationSuccessful, optimizationExplanation } = generateOptimizationExplanation(
     sellResult.lossesUtilized,
-    freibetragUtilized,
+    freibetragUtilized
   )
 
   return {
@@ -418,13 +421,16 @@ export function optimizeRebalancingTrades(
  * Small transactions may not be worth executing due to fixed costs and
  * the hassle of many small trades.
  */
-export function shouldSkipSmallTransactions(trades: RebalancingTrade[], costConfig: TransactionCostConfig): boolean {
+export function shouldSkipSmallTransactions(
+  trades: RebalancingTrade[],
+  costConfig: TransactionCostConfig
+): boolean {
   if (trades.length === 0) {
     return true
   }
 
   // Skip if all trades are below minimum size
-  const allTradesSmall = trades.every(trade => trade.amount < costConfig.minTransactionSize)
+  const allTradesSmall = trades.every((trade) => trade.amount < costConfig.minTransactionSize)
 
   // If all trades are small, definitely skip
   if (allTradesSmall) {

@@ -16,10 +16,7 @@ import { ReverseCalculatorCard } from './ReverseCalculatorCard'
 import { SequenceRiskAnalysisCard } from './SequenceRiskAnalysisCard'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 import { ProgressionsvorbehaltConfiguration } from './ProgressionsvorbehaltConfiguration'
-import {
-  DEFAULT_PROGRESSIONSVORBEHALT_CONFIG,
-  type ProgressionsvorbehaltConfig,
-} from '../../helpers/progressionsvorbehalt'
+import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG, type ProgressionsvorbehaltConfig } from '../../helpers/progressionsvorbehalt'
 import { TaxProgressionVisualization } from './TaxProgressionVisualization'
 import { InsuranceCostOverview } from './InsuranceCostOverview'
 import { PensionComparisonTool } from './PensionComparisonTool'
@@ -56,9 +53,8 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
   const simulation = useSimulation()
   const { currentConfig, updateFormValue } = useWithdrawalConfig()
   const recommendedGrundfreibetrag = getGrundfreibetragForPlanningMode(planningMode)
-  const [progressionsvorbehaltConfig, setProgressionsvorbehaltConfig] = useState<ProgressionsvorbehaltConfig>(
-    DEFAULT_PROGRESSIONSVORBEHALT_CONFIG,
-  )
+  const [progressionsvorbehaltConfig, setProgressionsvorbehaltConfig] =
+    useState<ProgressionsvorbehaltConfig>(DEFAULT_PROGRESSIONSVORBEHALT_CONFIG)
 
   useAutoUpdateGrundfreibetrag(planningMode, recommendedGrundfreibetrag, simulation)
 
@@ -118,9 +114,7 @@ function FreistellungsauftragSection({
 }) {
   const totalFreibetrag = planningMode === 'couple' ? 2000 : 1000
 
-  const handleAccountsChange = (
-    accounts: Array<import('../../helpers/freistellungsauftrag-optimization').BankAccount>,
-  ) => {
+  const handleAccountsChange = (accounts: Array<import('../../helpers/freistellungsauftrag-optimization').BankAccount>) => {
     if (simulation.setFreistellungsauftragAccounts) {
       simulation.setFreistellungsauftragAccounts(accounts)
     }

@@ -13,7 +13,7 @@ export function CountrySelection({ countryCode, countrySelectId, onCountryChange
     <div className="space-y-2">
       <Label htmlFor={countrySelectId}>Land der ausländischen Kapitalerträge</Label>
       <RadioGroup value={countryCode} onValueChange={onCountryChange} className="space-y-2">
-        {COMMON_WITHHOLDING_TAX_RATES.map(country => (
+        {COMMON_WITHHOLDING_TAX_RATES.map((country) => (
           <div key={country.countryCode} className="flex items-center space-x-2">
             <RadioGroupItem value={country.countryCode} id={`country-${country.countryCode}`} />
             <Label htmlFor={`country-${country.countryCode}`} className="font-normal cursor-pointer">
@@ -23,8 +23,8 @@ export function CountrySelection({ countryCode, countrySelectId, onCountryChange
         ))}
       </RadioGroup>
       <p className="text-xs text-muted-foreground">
-        Wählen Sie das Land aus, aus dem Sie ausländische Kapitalerträge beziehen. Die Quellensteuersätze basieren auf
-        deutschen Doppelbesteuerungsabkommen (DBA).
+        Wählen Sie das Land aus, aus dem Sie ausländische Kapitalerträge beziehen. Die Quellensteuersätze basieren
+        auf deutschen Doppelbesteuerungsabkommen (DBA).
       </p>
     </div>
   )

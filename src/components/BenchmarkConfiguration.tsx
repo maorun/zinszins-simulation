@@ -44,8 +44,8 @@ function HistoricalDataInfo() {
   return (
     <div className="p-3 bg-green-50 rounded border border-green-200">
       <p className="text-xs text-green-800">
-        <strong>📈 Historische Daten:</strong> Für Jahre 2000-2023 werden historische Renditen verwendet. Für zukünftige
-        Jahre wird der langfristige Durchschnitt verwendet.
+        <strong>📈 Historische Daten:</strong> Für Jahre 2000-2023 werden historische Renditen verwendet. Für
+        zukünftige Jahre wird der langfristige Durchschnitt verwendet.
       </p>
     </div>
   )
@@ -184,10 +184,7 @@ function BenchmarkEnabledContent({
   return (
     <>
       <BenchmarkInfoBox />
-      <BenchmarkTypeSelector
-        benchmarkType={benchmarkConfig.benchmarkType}
-        onBenchmarkTypeChange={onBenchmarkTypeChange}
-      />
+      <BenchmarkTypeSelector benchmarkType={benchmarkConfig.benchmarkType} onBenchmarkTypeChange={onBenchmarkTypeChange} />
 
       {benchmarkConfig.benchmarkType === 'custom' && (
         <CustomBenchmarkConfig

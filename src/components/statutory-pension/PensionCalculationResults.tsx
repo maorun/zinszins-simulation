@@ -48,9 +48,7 @@ function ResultsGrid({ result }: { result: PensionPointsResult }) {
         </div>
       </div>
 
-      <div className="text-xs text-muted-foreground pt-2 border-t">
-        Rentenwert: {result.pensionValue.toFixed(2)} € pro Rentenpunkt
-      </div>
+      <div className="text-xs text-muted-foreground pt-2 border-t">Rentenwert: {result.pensionValue.toFixed(2)} € pro Rentenpunkt</div>
     </>
   )
 }

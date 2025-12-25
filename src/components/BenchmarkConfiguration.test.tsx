@@ -42,7 +42,9 @@ describe('BenchmarkConfiguration', () => {
       enabled: true,
     }
 
-    render(<BenchmarkConfiguration benchmarkConfig={enabledConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />)
+    render(
+      <BenchmarkConfiguration benchmarkConfig={enabledConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />,
+    )
 
     expect(screen.getByText(/MSCI World/)).toBeInTheDocument()
   })
@@ -70,7 +72,9 @@ describe('BenchmarkConfiguration', () => {
       enabled: true,
     }
 
-    render(<BenchmarkConfiguration benchmarkConfig={enabledConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />)
+    render(
+      <BenchmarkConfiguration benchmarkConfig={enabledConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />,
+    )
 
     // Expand the section
     const trigger = screen.getByText('📊 Benchmark-Vergleich')
@@ -91,7 +95,9 @@ describe('BenchmarkConfiguration', () => {
       enabled: true,
     }
 
-    render(<BenchmarkConfiguration benchmarkConfig={enabledConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />)
+    render(
+      <BenchmarkConfiguration benchmarkConfig={enabledConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />,
+    )
 
     // Expand the section
     const trigger = screen.getByText('📊 Benchmark-Vergleich')
@@ -115,7 +121,9 @@ describe('BenchmarkConfiguration', () => {
       customName: 'My Custom Benchmark',
     }
 
-    render(<BenchmarkConfiguration benchmarkConfig={customConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />)
+    render(
+      <BenchmarkConfiguration benchmarkConfig={customConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />,
+    )
 
     // Expand the section
     const trigger = screen.getByText('📊 Benchmark-Vergleich')
@@ -133,7 +141,9 @@ describe('BenchmarkConfiguration', () => {
       customName: 'My Custom Benchmark',
     }
 
-    render(<BenchmarkConfiguration benchmarkConfig={customConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />)
+    render(
+      <BenchmarkConfiguration benchmarkConfig={customConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />,
+    )
 
     // Expand the section
     const trigger = screen.getByText('📊 Benchmark-Vergleich')
@@ -156,7 +166,9 @@ describe('BenchmarkConfiguration', () => {
       customName: 'My Custom Benchmark',
     }
 
-    render(<BenchmarkConfiguration benchmarkConfig={customConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />)
+    render(
+      <BenchmarkConfiguration benchmarkConfig={customConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />,
+    )
 
     // Expand the section
     const trigger = screen.getByText('📊 Benchmark-Vergleich')
@@ -178,7 +190,9 @@ describe('BenchmarkConfiguration', () => {
       // Missing customAnnualReturn
     }
 
-    render(<BenchmarkConfiguration benchmarkConfig={invalidConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />)
+    render(
+      <BenchmarkConfiguration benchmarkConfig={invalidConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />,
+    )
 
     // Expand the section
     const trigger = screen.getByText('📊 Benchmark-Vergleich')
@@ -194,7 +208,9 @@ describe('BenchmarkConfiguration', () => {
       benchmarkType: 'dax',
     }
 
-    render(<BenchmarkConfiguration benchmarkConfig={enabledConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />)
+    render(
+      <BenchmarkConfiguration benchmarkConfig={enabledConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />,
+    )
 
     // Expand the section
     const trigger = screen.getByText('📊 Benchmark-Vergleich')
@@ -212,7 +228,9 @@ describe('BenchmarkConfiguration', () => {
       customName: 'Custom',
     }
 
-    render(<BenchmarkConfiguration benchmarkConfig={customConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />)
+    render(
+      <BenchmarkConfiguration benchmarkConfig={customConfig} onBenchmarkConfigChange={onBenchmarkConfigChange} />,
+    )
 
     // Expand the section
     const trigger = screen.getByText('📊 Benchmark-Vergleich')

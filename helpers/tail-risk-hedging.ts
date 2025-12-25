@@ -120,7 +120,8 @@ export const HEDGING_STRATEGY_DESCRIPTIONS: Record<HedgingStrategy, string> = {
     'Dynamische Portfolioabsicherung durch Anpassung der Aktienquote basierend auf Marktbewegungen. Schützt Kapital durch automatisches Umschichten.',
   'tail-risk-fund':
     'Investition in spezialisierte Tail-Risk Fonds, die von extremen Marktbewegungen profitieren (z.B. durch Volatilitätsstrategien).',
-  'systematic-rebalancing': 'Regelmäßiges Rebalancing mit Stop-Loss-Mechanismen zum Schutz vor größeren Verlusten.',
+  'systematic-rebalancing':
+    'Regelmäßiges Rebalancing mit Stop-Loss-Mechanismen zum Schutz vor größeren Verlusten.',
 } as const
 
 /**
@@ -313,8 +314,7 @@ export function calculateHedgingSummary(
   }
 
   const netBenefit = totalLossesPrevented - totalCosts
-  const averageAnnualCostPercent =
-    yearlyData.length > 0 ? (totalCosts / yearlyData.length / valueWithoutHedging) * 100 : 0
+  const averageAnnualCostPercent = yearlyData.length > 0 ? (totalCosts / yearlyData.length / valueWithoutHedging) * 100 : 0
 
   return {
     totalCosts,
