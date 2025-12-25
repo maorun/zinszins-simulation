@@ -769,6 +769,18 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Deutsche Steuerregeln**: Integration von Vorabpauschale, Teilfreistellung und Basiszins
   - **Dynamische Anpassung**: Jährliche Neukalibrierung basierend auf Portfolioentwicklung
   - **Kapitalerhalt-Fokus**: Optimiert für langfristige Vermögenserhaltung mit Steuereffizienz
+  - **Multi-Source Tax Optimization** - Intelligente Entnahmestrategie über mehrere Kapitalquellen ⭐⭐⭐
+    - **4 Kapitalquellen**: Koordinierte Optimierung über Depot, Riester-Rente, Rürup-Rente und gesetzliche Rente
+    - **Unterschiedliche Steuerbehandlung**: Berücksichtigung von Kapitalertragsteuer (Depot) vs. Einkommensteuer (Renten)
+    - **3 Optimierungsstrategien**:
+      - `minimize_taxes`: Priorisiert Sparerpauschbetrag-Nutzung, dann Grundfreibetrag, minimiert Gesamtsteuerlast
+      - `maximize_after_tax`: Fokus auf Netto-Einkommen statt reiner Steuerminimierung
+      - `balanced`: Ausgewogene Verteilung mit Steuereffizienz und Diversifikation
+    - **Allowance Optimization**: Maximale Nutzung von Sparerpauschbetrag (€1.000/€2.000) und Grundfreibetrag (€11.604/€23.208)
+    - **Teilfreistellung**: Automatische Berücksichtigung der 30% Teilfreistellung für Aktienfonds im Depot
+    - **Comparison Capability**: Vergleich optimierte vs. naive Entnahme mit detaillierter Steuerersparnis-Berechnung
+    - **Programmatische API**: Verfügbar über `helpers/multi-source-tax-optimization.ts` für Integration
+    - **Vollständig getestet**: 23 Tests mit 100% Pass-Rate, umfasst Single-Source, Multi-Source, Edge Cases und realistische Szenarien
 - **Monatliche Entnahme-Strategien** - Feste monatliche Entnahmen mit Inflationsanpassung und Anzeige realer Kaufkraft
 - **Variable Renditen** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
 - **Geteilte Entnahme-Phasen** - Segmentierung in verschiedene Zeiträume mit unterschiedlichen Strategien

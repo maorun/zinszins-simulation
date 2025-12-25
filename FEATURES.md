@@ -8,17 +8,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Erweiterte Finanzplanung
 
-#### Steueroptimierung
-
-- **Entnahmestrategien zur Steueroptimierung im Ruhestand** ⭐⭐⭐
-  - Intelligente Entnahmestrategie über mehrere Kapitalquellen (Depot, Riester, Rürup, gesetzliche Rente)
-  - Berücksichtigung unterschiedlicher steuerlicher Behandlungen je Quelle
-  - Optimale Reihenfolge der Entnahmen zur Minimierung der Steuerlast
-  - Integration des Grundfreibetrags und Progressionsvorbehalt
-  - Jahr-für-Jahr Optimierung unter Berücksichtigung von Steuerzonen
-  - Visualisierung der Steuerersparnisse gegenüber naiver Entnahme
-  - Praktischer Nutzen: Maximierung des verfügbaren Nettoeinkommens im Ruhestand
-
 #### Asset Allocation & Portfolio-Management
 
 - **Geografische Diversifikation** - Aufteilung zwischen Regionen mit entsprechenden Steuern
