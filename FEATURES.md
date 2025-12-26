@@ -14,10 +14,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **ESG-Integration** - Nachhaltigkeitsfilter und ESG-Score-basierte Portfolios
 - **Alternative Investments** - Private Equity, Hedge Funds, Kryptowährungen
 
-#### Risikomanagement
-
-- **Währungsrisiko** - Multi-Währungs-Portfolios mit Wechselkursrisiken
-
 ### Lebenssituationen & Planung
 
 #### Familienplanung
