@@ -103,6 +103,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Auswirkung auf Rendite** - Automatische Berücksichtigung von Absicherungskosten und Variance Drag
   - **Deutsche Steuerkonformität** - Korrekte steuerliche Behandlung von Währungsgewinnen/-verlusten nach deutschem Recht
   - **Bildungsfunktion** - Detaillierte Erklärungen zu Absicherungsstrategien und deren Vor-/Nachteilen
+- **ESG-Integration** - Nachhaltigkeitsfilter und ESG-Scoring für ethisch ausgerichtete Portfolios
+  - **3 ESG-Pfeiler** - Environmental (Umwelt), Social (Soziales), Governance (Unternehmensführung)
+  - **Asset-Class-Level Scoring** - ESG-Scores (1-10 Skala) für alle Anlageklassen basierend auf EU-Standards
+  - **Flexible Filterkriterien** - Konfigurierbare Mindest-Scores für Gesamt-ESG und einzelne Pfeiler
+  - **Anpassbare Gewichtungen** - Individuelle Priorisierung der ESG-Aspekte nach persönlichen Werten
+  - **EU-Taxonomie-konform** - Berücksichtigung von SFDR (Sustainable Finance Disclosure Regulation)
+  - **Trade-off-Transparenz** - Klare Darstellung der Auswirkungen von ESG-Filtern auf Diversifikation und Rendite
+  - **Deutsche ESG-Standards** - Fokus auf EU-regulierte und deutsche Nachhaltigkeitskriterien
+  - **Portfolio-ESG-Score** - Gewichteter Gesamt-ESG-Score des konfigurierten Portfolios
+  - **Ausschluss-Management** - Automatische Filterung von Anlageklassen, die ESG-Kriterien nicht erfüllen
 - **Inflation** - Berücksichtigung während der Ansparphase mit automatischer Anpassung
   - **Inflationsbereinigte Werte** - Zusätzliche Anzeige der realen Kaufkraft (inflationsbereinigt) neben Nominalwerten
   - **Sparphase**: Alle Kapitalwerte werden sowohl nominal als auch real angezeigt (z.B. "793.512,75 € / 589.591,66 € real")
