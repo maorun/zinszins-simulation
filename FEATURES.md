@@ -11,7 +11,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Asset Allocation & Portfolio-Management
 
 - **Geografische Diversifikation** - Aufteilung zwischen Regionen mit entsprechenden Steuern
-- **ESG-Integration** - Nachhaltigkeitsfilter und ESG-Score-basierte Portfolios
 - **Alternative Investments** - Private Equity, Hedge Funds, Kryptowährungen
 
 ### Lebenssituationen & Planung
