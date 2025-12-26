@@ -17,8 +17,8 @@ describe('ESGFilterConfiguration', () => {
   it('should render component with title', () => {
     renderESGFilterConfiguration()
 
-    expect(screen.getByText(/ESG-Filter/)).toBeInTheDocument()
-    expect(screen.getByText(/Nachhaltigkeits-Filter/)).toBeInTheDocument()
+    expect(screen.getByText(/ESG-Filter \(Nachhaltigkeits-Filter\)/)).toBeInTheDocument()
+    expect(screen.getByText(/Nachhaltigkeitskriterien nach EU-Standards/)).toBeInTheDocument()
   })
 
   it('should render enable/disable switch', () => {

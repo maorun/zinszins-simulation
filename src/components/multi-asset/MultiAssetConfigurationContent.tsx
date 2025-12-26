@@ -2,6 +2,7 @@ import type { MultiAssetPortfolioConfig, AssetClass } from '../../../helpers/mul
 import type { VolatilityTargetingConfig } from '../../../helpers/volatility-targeting'
 import type { FactorPortfolioConfig } from '../../../helpers/factor-investing'
 import type { Currency, CurrencyHedgingConfig } from '../../../helpers/currency-risk'
+import type { ESGFilterConfig } from '../../../helpers/esg-scoring'
 import { AssetAllocationSummary } from './AssetAllocationSummary'
 import { AssetClassesConfiguration } from './AssetClassesConfiguration'
 import { RebalancingConfiguration } from './RebalancingConfiguration'
@@ -11,6 +12,7 @@ import { CorrelationMatrixHeatmap } from './CorrelationMatrixHeatmap'
 import { PortfolioOptimizer } from './PortfolioOptimizer'
 import { FactorInvestingConfiguration } from './FactorInvestingConfiguration'
 import { CurrencyRiskConfiguration } from '../CurrencyRiskConfiguration'
+import { ESGFilterConfiguration } from '../ESGFilterConfiguration'
 import { Info } from 'lucide-react'
 
 /** Information section component for multi-asset portfolio hints */
@@ -56,6 +58,7 @@ interface MultiAssetConfigurationContentProps {
   }) => void
   factorConfig?: FactorPortfolioConfig
   onFactorConfigChange?: (updates: Partial<FactorPortfolioConfig>) => void
+  onESGFilterChange?: (updates: Partial<ESGFilterConfig>) => void
 }
 
 /**
@@ -117,55 +120,46 @@ function CurrencyRiskSection({
 /**
  * Main configuration content when multi-asset portfolio is enabled
  */
-export function MultiAssetConfigurationContent({
-  config,
-  expectedPortfolioReturn,
-  expectedPortfolioRisk,
-  enabledAssetsCount,
-  validationErrors,
-  onAssetClassChange,
-  onNormalizeAllocations,
-  onResetToDefaults,
-  onRebalancingChange,
-  onSimulationChange,
-  onVolatilityTargetingChange,
-  onApplyOptimizedAllocations,
-  onCurrencyRiskChange,
-  factorConfig,
-  onFactorConfigChange,
-}: MultiAssetConfigurationContentProps) {
+export function MultiAssetConfigurationContent(props: MultiAssetConfigurationContentProps) {
   return (
     <div className="space-y-6">
       <AssetAllocationSummary
-        expectedReturn={expectedPortfolioReturn}
-        expectedRisk={expectedPortfolioRisk}
-        enabledAssetsCount={enabledAssetsCount}
-        validationErrors={validationErrors}
+        expectedReturn={props.expectedPortfolioReturn}
+        expectedRisk={props.expectedPortfolioRisk}
+        enabledAssetsCount={props.enabledAssetsCount}
+        validationErrors={props.validationErrors}
       />
 
-      <PortfolioOptimizer config={config} onApplyAllocations={onApplyOptimizedAllocations} />
+      <PortfolioOptimizer config={props.config} onApplyAllocations={props.onApplyOptimizedAllocations} />
 
-      {factorConfig && onFactorConfigChange && (
-        <FactorInvestingConfiguration config={factorConfig} onChange={onFactorConfigChange} />
+      {props.factorConfig && props.onFactorConfigChange && (
+        <FactorInvestingConfiguration config={props.factorConfig} onChange={props.onFactorConfigChange} />
+      )}
+
+      {props.config.esgFilter && props.onESGFilterChange && (
+        <ESGFilterConfiguration config={props.config.esgFilter} onConfigChange={props.onESGFilterChange} />
       )}
 
       <AssetClassesConfiguration
-        config={config}
-        enabledAssetsCount={enabledAssetsCount}
-        onAssetClassChange={onAssetClassChange}
-        onNormalizeAllocations={onNormalizeAllocations}
-        onResetToDefaults={onResetToDefaults}
+        config={props.config}
+        enabledAssetsCount={props.enabledAssetsCount}
+        onAssetClassChange={props.onAssetClassChange}
+        onNormalizeAllocations={props.onNormalizeAllocations}
+        onResetToDefaults={props.onResetToDefaults}
       />
 
-      <CurrencyRiskSection config={config} onCurrencyRiskChange={onCurrencyRiskChange} />
+      <CurrencyRiskSection config={props.config} onCurrencyRiskChange={props.onCurrencyRiskChange} />
 
-      <RebalancingConfiguration config={config.rebalancing} onChange={onRebalancingChange} />
+      <RebalancingConfiguration config={props.config.rebalancing} onChange={props.onRebalancingChange} />
 
-      <VolatilityTargetingConfiguration config={config.volatilityTargeting} onChange={onVolatilityTargetingChange} />
+      <VolatilityTargetingConfiguration
+        config={props.config.volatilityTargeting}
+        onChange={props.onVolatilityTargetingChange}
+      />
 
-      <AdvancedSimulationSettings config={config.simulation} onChange={onSimulationChange} />
+      <AdvancedSimulationSettings config={props.config.simulation} onChange={props.onSimulationChange} />
 
-      {config.simulation.useCorrelation && <CorrelationMatrixHeatmap config={config} />}
+      {props.config.simulation.useCorrelation && <CorrelationMatrixHeatmap config={props.config} />}
 
       <MultiAssetInfoSection />
     </div>

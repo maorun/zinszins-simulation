@@ -6,6 +6,7 @@ import {
 } from '../../helpers/multi-asset-portfolio'
 import type { VolatilityTargetingConfig } from '../../helpers/volatility-targeting'
 import type { Currency, CurrencyHedgingConfig } from '../../helpers/currency-risk'
+import type { ESGFilterConfig } from '../../helpers/esg-scoring'
 
 interface UseMultiAssetHandlersProps {
   config: MultiAssetPortfolioConfig
@@ -90,6 +91,29 @@ function useCurrencyRiskHandler({ config, onChange }: UseMultiAssetHandlersProps
   )
 }
 
+function useESGFilterHandler({ config, onChange }: UseMultiAssetHandlersProps) {
+  return useCallback(
+    (updates: Partial<ESGFilterConfig>) => {
+      const currentESGFilter = config.esgFilter || {
+        enabled: false,
+        minimumOverallScore: 6,
+        environmentalWeight: 1 / 3,
+        socialWeight: 1 / 3,
+        governanceWeight: 1 / 3,
+      }
+
+      onChange({
+        ...config,
+        esgFilter: {
+          ...currentESGFilter,
+          ...updates,
+        },
+      })
+    },
+    [config, onChange],
+  )
+}
+
 function useBasicConfigHandlers({ config, onChange }: UseMultiAssetHandlersProps) {
   const handleConfigChange = useCallback(
     (updates: Partial<MultiAssetPortfolioConfig>) => {
@@ -137,6 +161,7 @@ function useBasicConfigHandlers({ config, onChange }: UseMultiAssetHandlersProps
     handleSimulationChange,
     handleVolatilityTargetingChange,
     handleCurrencyRiskChange: useCurrencyRiskHandler({ config, onChange }),
+    handleESGFilterChange: useESGFilterHandler({ config, onChange }),
   }
 }
 
