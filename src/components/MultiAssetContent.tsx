@@ -3,6 +3,7 @@ import { MultiAssetConfigurationContent } from './multi-asset/MultiAssetConfigur
 import type { MultiAssetPortfolioConfig, AssetClass } from '../../helpers/multi-asset-portfolio'
 import type { VolatilityTargetingConfig } from '../../helpers/volatility-targeting'
 import type { Currency, CurrencyHedgingConfig } from '../../helpers/currency-risk'
+import type { ESGFilterConfig } from '../../helpers/esg-scoring'
 
 interface MultiAssetContentProps {
   enabled: boolean
@@ -27,6 +28,7 @@ interface MultiAssetContentProps {
     currencyAllocations?: Array<{ currency: Currency; allocation: number }>
     hedging?: Partial<CurrencyHedgingConfig>
   }) => void
+  onESGFilterChange?: (updates: Partial<ESGFilterConfig>) => void
 }
 
 /**
@@ -48,6 +50,7 @@ export function MultiAssetContent({
   onVolatilityTargetingChange,
   onApplyOptimizedAllocations,
   onCurrencyRiskChange,
+  onESGFilterChange,
 }: MultiAssetContentProps) {
   if (!enabled) return null
 
@@ -67,6 +70,7 @@ export function MultiAssetContent({
         onVolatilityTargetingChange={onVolatilityTargetingChange}
         onApplyOptimizedAllocations={onApplyOptimizedAllocations}
         onCurrencyRiskChange={onCurrencyRiskChange}
+        onESGFilterChange={onESGFilterChange}
       />
     </CardContent>
   )

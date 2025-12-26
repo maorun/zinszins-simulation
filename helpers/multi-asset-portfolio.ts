@@ -15,6 +15,7 @@ import {
   type CurrencyHedgingConfig,
   DEFAULT_HEDGING_CONFIG,
 } from './currency-risk'
+import type { ESGFilterConfig } from './esg-scoring'
 
 /**
  * Supported asset classes for multi-asset portfolios
@@ -241,6 +242,9 @@ export interface MultiAssetPortfolioConfig {
     /** Hedging configuration */
     hedging: CurrencyHedgingConfig
   }
+
+  /** ESG (Environmental, Social, Governance) filtering configuration */
+  esgFilter?: ESGFilterConfig
 }
 
 /**
@@ -274,6 +278,13 @@ export function createDefaultMultiAssetConfig(): MultiAssetPortfolioConfig {
         { currency: 'GBP', allocation: 0.1 },
       ],
       hedging: DEFAULT_HEDGING_CONFIG,
+    },
+    esgFilter: {
+      enabled: false,
+      minimumOverallScore: 6,
+      environmentalWeight: 1 / 3,
+      socialWeight: 1 / 3,
+      governanceWeight: 1 / 3,
     },
   }
 }

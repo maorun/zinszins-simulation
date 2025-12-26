@@ -65,6 +65,11 @@ vi.mock('./ui/card', () => ({
       {children}
     </h3>
   ),
+  CardDescription: ({ children, ...props }: CardProps) => (
+    <p data-testid="card-description" {...props}>
+      {children}
+    </p>
+  ),
 }))
 
 vi.mock('./ui/switch', () => ({
@@ -111,6 +116,21 @@ vi.mock('./ui/radio-tile', () => ({
       {label || children}
     </label>
   ),
+}))
+
+vi.mock('./ui/label', () => ({
+  Label: ({ children, ...props }: CardProps) => (
+    <label data-testid="label" {...props}>
+      {children}
+    </label>
+  ),
+}))
+
+vi.mock('./ui/tooltip', () => ({
+  Tooltip: ({ children, ...props }: CardProps) => <div data-testid="tooltip" {...props}>{children}</div>,
+  TooltipTrigger: ({ children, ...props }: CardProps) => <div data-testid="tooltip-trigger" {...props}>{children}</div>,
+  TooltipContent: ({ children, ...props }: CardProps) => <div data-testid="tooltip-content" {...props}>{children}</div>,
+  TooltipProvider: ({ children, ...props }: CardProps) => <div data-testid="tooltip-provider" {...props}>{children}</div>,
 }))
 
 describe('MultiAssetPortfolioConfiguration', () => {
