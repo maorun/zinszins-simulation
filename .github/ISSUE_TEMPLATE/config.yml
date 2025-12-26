@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Dokumentation
+    url: https://github.com/maorun/zinszins-simulation/blob/main/README.md
+    about: Lies die vollständige Dokumentation und Funktionsbeschreibung
+  - name: 💬 Diskussion
+    url: https://github.com/maorun/zinszins-simulation/discussions
+    about: Stelle Fragen oder diskutiere Feature-Ideen mit der Community
