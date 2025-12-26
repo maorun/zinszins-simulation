@@ -790,6 +790,22 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Intelligente Eingabeerkennung** - Shortcuts werden in Eingabefeldern automatisch deaktiviert
   - **Barrierefreiheit** - Verbesserte Zugänglichkeit für Power-User und Menschen mit motorischen Einschränkungen
 
+### Dashboard-Anpassung (Dashboard Customization)
+
+- **🎨 Dashboard-Anpassung** - Personalisierbare Dashboard-Ansicht für individualisierte Benutzererfahrung
+  - **Sichtbarkeitskontrolle** - Beliebige Dashboard-Bereiche ein-/ausblenden für fokussierte Arbeit
+  - **Drag & Drop Sortierung** - Intuitive Neuanordnung von Bereichen per Drag & Drop
+  - **Auf-/Ab-Buttons** - Alternative manuelle Sortierung für präzise Positionierung
+  - **13 Konfigurierbare Bereiche** - Einführung, Zeitspanne, Sparplan-Eingabe, Rendite-Konfiguration, Steuer-Konfiguration, Simulationsergebnisse, Entnahmeplanung, Monte Carlo Analyse, Besondere Ereignisse, Risikoanalyse, Verhaltensfinanzierung, Globale Planung, Datenexport
+  - **Persistente Einstellungen** - Automatische Speicherung der Präferenzen im localStorage
+  - **Schneller Zugriff** - Anpassungs-Button im Hauptheader neben "Neu berechnen"
+  - **Validierung** - Verhindert das Ausblenden des letzten sichtbaren Bereichs
+  - **Zurücksetzen-Funktion** - Ein-Klick-Reset zu Standard-Einstellungen
+  - **Responsive Dialog** - Modern gestaltete shadcn/ui Dialog-Oberfläche
+  - **Live-Vorschau** - Sofortiges visuelles Feedback bei Änderungen
+  - **Deutsche Beschriftungen** - Vollständig deutsche Beschreibungen aller Bereiche
+  - **Barrierefreiheit** - Tastaturnavigation und Screen-Reader-Unterstützung
+
 ### Auszahlungsphase
 
 - **Standard-Strategien**: 4% Regel, 3% Regel, variable Entnahme-Strategien

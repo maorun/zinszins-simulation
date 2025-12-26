@@ -51,7 +51,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Reporting & Visualisierung
 
-- **Dashboard-Customization** - Personalisierbare Ansichten
 - **Automated Reporting** - Regelmäßige lokale Reports
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
 
