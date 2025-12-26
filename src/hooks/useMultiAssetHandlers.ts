@@ -5,6 +5,7 @@ import {
   createDefaultMultiAssetConfig,
 } from '../../helpers/multi-asset-portfolio'
 import type { VolatilityTargetingConfig } from '../../helpers/volatility-targeting'
+import type { Currency, CurrencyHedgingConfig } from '../../helpers/currency-risk'
 
 interface UseMultiAssetHandlersProps {
   config: MultiAssetPortfolioConfig
@@ -61,9 +62,34 @@ function applyAllocationsToConfig(
   }
 }
 
-/**
- * Hook for basic config change handlers
- */
+function useCurrencyRiskHandler({ config, onChange }: UseMultiAssetHandlersProps) {
+  return useCallback(
+    (updates: {
+      enabled?: boolean
+      currencyAllocations?: Array<{ currency: Currency; allocation: number }>
+      hedging?: Partial<CurrencyHedgingConfig>
+    }) => {
+      const currentCurrencyRisk = config.currencyRisk || {
+        enabled: false,
+        currencyAllocations: [],
+        hedging: { strategy: 'unhedged' as const, hedgingRatio: 0.5, hedgingCostPercent: 0.01 },
+      }
+
+      onChange({
+        ...config,
+        currencyRisk: {
+          ...currentCurrencyRisk,
+          ...updates,
+          hedging: updates.hedging
+            ? { ...currentCurrencyRisk.hedging, ...updates.hedging }
+            : currentCurrencyRisk.hedging,
+        },
+      })
+    },
+    [config, onChange],
+  )
+}
+
 function useBasicConfigHandlers({ config, onChange }: UseMultiAssetHandlersProps) {
   const handleConfigChange = useCallback(
     (updates: Partial<MultiAssetPortfolioConfig>) => {
@@ -100,13 +126,7 @@ function useBasicConfigHandlers({ config, onChange }: UseMultiAssetHandlersProps
 
   const handleVolatilityTargetingChange = useCallback(
     (updates: Partial<VolatilityTargetingConfig>) => {
-      onChange({
-        ...config,
-        volatilityTargeting: {
-          ...config.volatilityTargeting,
-          ...updates,
-        },
-      })
+      onChange({ ...config, volatilityTargeting: { ...config.volatilityTargeting, ...updates } })
     },
     [config, onChange],
   )
@@ -116,6 +136,7 @@ function useBasicConfigHandlers({ config, onChange }: UseMultiAssetHandlersProps
     handleRebalancingChange,
     handleSimulationChange,
     handleVolatilityTargetingChange,
+    handleCurrencyRiskChange: useCurrencyRiskHandler({ config, onChange }),
   }
 }
 

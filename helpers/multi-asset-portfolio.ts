@@ -10,6 +10,11 @@ import {
   type VolatilityTargetingConfig,
   createDefaultVolatilityTargetingConfig,
 } from './volatility-targeting'
+import {
+  type Currency,
+  type CurrencyHedgingConfig,
+  DEFAULT_HEDGING_CONFIG,
+} from './currency-risk'
 
 /**
  * Supported asset classes for multi-asset portfolios
@@ -223,6 +228,19 @@ export interface MultiAssetPortfolioConfig {
 
   /** Volatility targeting configuration for dynamic allocation */
   volatilityTargeting: VolatilityTargetingConfig
+
+  /** Currency risk configuration for international investments */
+  currencyRisk?: {
+    /** Whether currency risk management is enabled */
+    enabled: boolean
+    /** Currency allocations (sum should be 1.0) */
+    currencyAllocations: Array<{
+      currency: Currency
+      allocation: number
+    }>
+    /** Hedging configuration */
+    hedging: CurrencyHedgingConfig
+  }
 }
 
 /**
@@ -248,6 +266,15 @@ export function createDefaultMultiAssetConfig(): MultiAssetPortfolioConfig {
       seed: undefined,
     },
     volatilityTargeting: createDefaultVolatilityTargetingConfig(),
+    currencyRisk: {
+      enabled: false,
+      currencyAllocations: [
+        { currency: 'EUR', allocation: 0.6 },
+        { currency: 'USD', allocation: 0.3 },
+        { currency: 'GBP', allocation: 0.1 },
+      ],
+      hedging: DEFAULT_HEDGING_CONFIG,
+    },
   }
 }
 

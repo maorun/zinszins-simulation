@@ -79,6 +79,30 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Validierung** - Automatische Prüfung auf konfliktäre Faktor-Kombinationen (z.B. Value vs. Growth)
     - **Akademische Grundlage** - Fama-French Three-Factor Model, Carhart Four-Factor Model
     - **Langfristiger Ansatz** - Faktoren funktionieren am besten über Anlagehorizonte von 10+ Jahren
+- **Währungsrisiko-Management** - Analyse und Verwaltung von Währungsrisiken bei internationalen Investments
+  - **8 Unterstützte Währungen** - EUR, USD, GBP, CHF, JPY, CNY, AUD, CAD
+  - **Währungsallokation** - Flexible Konfiguration der Portfolio-Aufteilung nach Währungen
+  - **Historische Volatilitäten** - Basierend auf langfristigen Wechselkursdaten gegen EUR
+    - USD: ~10% jährliche Volatilität
+    - GBP: ~8% jährliche Volatilität
+    - CHF: ~6% jährliche Volatilität (historisch stabil)
+    - JPY: ~12% jährliche Volatilität
+    - CNY: ~5% jährliche Volatilität (managed float)
+    - AUD: ~14% jährliche Volatilität (Rohstoffwährung)
+    - CAD: ~11% jährliche Volatilität (Rohstoffwährung)
+  - **3 Absicherungsstrategien**:
+    - **Ungesichert** - Volles Währungsrisiko, langfristig kann sich das Risiko ausgleichen
+    - **Teilweise gesichert** - Ausgewogenes Verhältnis zwischen Risiko und Kosten (z.B. 50% Absicherung)
+    - **Vollständig gesichert** - Maximale Sicherheit, aber mit laufenden Absicherungskosten
+  - **Kostenberechnung** - Transparente Darstellung der jährlichen Absicherungskosten (typisch 1-2% p.a.)
+  - **Risikokennzahlen**:
+    - Gesamtes Währungsexposure nach Währung
+    - Portfolio-Währungsrisiko (gewichtete Volatilität)
+    - Währungsrisiko nach Absicherung
+    - Effektiver Absicherungsgrad
+  - **Auswirkung auf Rendite** - Automatische Berücksichtigung von Absicherungskosten und Variance Drag
+  - **Deutsche Steuerkonformität** - Korrekte steuerliche Behandlung von Währungsgewinnen/-verlusten nach deutschem Recht
+  - **Bildungsfunktion** - Detaillierte Erklärungen zu Absicherungsstrategien und deren Vor-/Nachteilen
 - **Inflation** - Berücksichtigung während der Ansparphase mit automatischer Anpassung
   - **Inflationsbereinigte Werte** - Zusätzliche Anzeige der realen Kaufkraft (inflationsbereinigt) neben Nominalwerten
   - **Sparphase**: Alle Kapitalwerte werden sowohl nominal als auch real angezeigt (z.B. "793.512,75 € / 589.591,66 € real")

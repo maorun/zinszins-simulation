@@ -99,6 +99,7 @@ export function MultiAssetPortfolioConfiguration({
         onSimulationChange={setup.handleSimulationChange}
         onVolatilityTargetingChange={setup.handleVolatilityTargetingChange}
         onApplyOptimizedAllocations={setup.applyOptimizedAllocations}
+        onCurrencyRiskChange={setup.handleCurrencyRiskChange}
       />
     </Card>
   )
