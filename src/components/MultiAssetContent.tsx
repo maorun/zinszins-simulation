@@ -2,6 +2,7 @@ import { CardContent } from './ui/card'
 import { MultiAssetConfigurationContent } from './multi-asset/MultiAssetConfigurationContent'
 import type { MultiAssetPortfolioConfig, AssetClass } from '../../helpers/multi-asset-portfolio'
 import type { VolatilityTargetingConfig } from '../../helpers/volatility-targeting'
+import type { Currency, CurrencyHedgingConfig } from '../../helpers/currency-risk'
 
 interface MultiAssetContentProps {
   enabled: boolean
@@ -21,6 +22,11 @@ interface MultiAssetContentProps {
   onSimulationChange: (updates: Partial<MultiAssetPortfolioConfig['simulation']>) => void
   onVolatilityTargetingChange: (updates: Partial<VolatilityTargetingConfig>) => void
   onApplyOptimizedAllocations: (allocations: Record<AssetClass, number>) => void
+  onCurrencyRiskChange?: (updates: {
+    enabled?: boolean
+    currencyAllocations?: Array<{ currency: Currency; allocation: number }>
+    hedging?: Partial<CurrencyHedgingConfig>
+  }) => void
 }
 
 /**
@@ -41,6 +47,7 @@ export function MultiAssetContent({
   onSimulationChange,
   onVolatilityTargetingChange,
   onApplyOptimizedAllocations,
+  onCurrencyRiskChange,
 }: MultiAssetContentProps) {
   if (!enabled) return null
 
@@ -59,6 +66,7 @@ export function MultiAssetContent({
         onSimulationChange={onSimulationChange}
         onVolatilityTargetingChange={onVolatilityTargetingChange}
         onApplyOptimizedAllocations={onApplyOptimizedAllocations}
+        onCurrencyRiskChange={onCurrencyRiskChange}
       />
     </CardContent>
   )
