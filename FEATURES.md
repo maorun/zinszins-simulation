@@ -15,10 +15,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Lebenssituationen & Planung
 
-#### Immobilienintegration
-
-- **Immobilien-Leverage** - Optimale Finanzierungsstrukturen
-
 #### Selbstständigkeit & Unternehmertum
 
 - **Betriebsrente-Alternativen** - Rürup-Rente, Basis-Rente für Selbstständige

@@ -784,6 +784,52 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Interaktive Konfiguration** - Echtzeit-Update der Ergebnisse bei Parameteränderungen
     - **Responsive Design** - Optimiert für Desktop und mobile Geräte
 
+### Immobilien-Leverage-Analyse
+
+- **Finanzierungsoptimierung für Kapitalanlage-Immobilien** - Vergleich unterschiedlicher Finanzierungsstrukturen für Mietimmobilien
+  - **4 Standard-Szenarien** - Vorkonfigurierte Finanzierungsoptionen zum sofortigen Vergleich
+    - **Konservativ (40% Eigenkapital)** - Niedrigster Beleihungsauslauf mit minimiertem Risiko
+    - **Ausgewogen (30% Eigenkapital)** - Empfohlene Balance aus Rendite und Risiko
+    - **Moderat gehebelt (20% Eigenkapital)** - Höherer Hebel für gesteigerte Eigenkapitalrendite
+    - **Stark gehebelt (10% Eigenkapital)** - Maximaler Leverage-Effekt bei erhöhtem Risiko
+  - **Umfassende Immobilien-Parameter** - Detaillierte Konfiguration aller relevanten Faktoren
+    - **Kaufpreis und Aufteilung** - Trennung in Gebäude- und Grundstückswert für AfA-Berechnung
+    - **Mieteinnahmen** - Konfiguration der jährlichen Bruttomieteinnahmen mit automatischer Renditeberechnung
+    - **Bewirtschaftungskosten** - Prozentuale Nebenkosten (Hausverwaltung, Instandhaltungsrücklage, Versicherung)
+    - **Wertsteigerung** - Erwartete jährliche Immobilienwertsteigerung
+  - **Deutsche Steuerbetrachtung** - Vollständige Integration steuerlicher Vorteile
+    - **AfA (Absetzung für Abnutzung)** - Automatische Berechnung nach Baujahr (2%, 2,5% oder 3%)
+    - **Werbungskosten** - Darlehenszinsen steuerlich absetzbar (§9 EStG)
+    - **Grenzsteuersatz** - Konfigurierbar für präzise Steuervorteils-Berechnung
+    - **Kapitalertragsteuer** - Berücksichtigung bei Verkaufsszenarien
+  - **Leverage-Metriken** - Umfassende Rentabilitätsanalyse
+    - **Cash-on-Cash Return** - Jährlicher Cashflow im Verhältnis zum eingesetzten Eigenkapital
+    - **Eigenkapitalrendite mit Hebeleffekt** - Vergleich gehebelte vs. ungehebelte Rendite
+    - **Hebeleffekt** - Quantifizierung der Renditesteigerung durch Fremdkapitalnutzung
+    - **Gesamtzinskosten** - Transparente Darstellung der Finanzierungskosten über Laufzeit
+  - **Risiko-Bewertung** - Automatische Risikoanalyse mit deutschen Bankrichtlinien
+    - **Loan-to-Value (Beleihungsauslauf)** - Verhältnis Darlehen zu Immobilienwert
+    - **Zinsdeckung** - Verhältnis Mieteinnahmen zu Darlehenszinsen
+    - **Schuldendienstdeckung** - Nettoertrag im Verhältnis zur Gesamtrate
+    - **Belastungsquote** - Monatliche Rate im Verhältnis zu Mieteinnahmen
+    - **Risikolevel** - Automatische Einstufung (niedrig/mittel/hoch/sehr hoch)
+    - **Warnhinweise** - Spezifische Risikofaktoren mit deutschen Schwellenwerten
+  - **Intelligente Empfehlung** - Datenbasierte Strategiewahl
+    - **Empfohlenes Szenario** - Optimale Balance aus Rendite und Risiko
+    - **Höchste Rendite** - Szenario mit maximalem Cash-on-Cash Return
+    - **Geringstes Risiko** - Szenario mit niedrigstem Beleihungsauslauf
+  - **Vergleichstabelle** - Übersichtliche Gegenüberstellung aller Szenarien
+    - **Finanzierungsstruktur** - Eigenkapital, Darlehen, LTV, Zinssatz
+    - **Renditekennzahlen** - Cash-on-Cash Return, Hebeleffekt
+    - **Risikoindikatoren** - Farbcodiertes Risikolevel je Szenario
+  - **Detaillierte Szenarien-Analyse** - Einzeldarstellung jedes Finanzierungsszenarios
+    - **Cashflow-Rechnung** - Jährlicher Netto-Cashflow inkl. Steuervorteile
+    - **Steuereffekt** - Separate Darstellung von Zins- und AfA-Steuervorteilen
+    - **Risikokennzahlen** - Vollständige Übersicht aller Risikometriken
+    - **Warnmeldungen** - Szenario-spezifische Risikohinweise
+  - **Echtzeit-Berechnung** - Sofortige Aktualisierung bei Parameteränderung
+  - **Responsive Darstellung** - Optimiert für Desktop und mobile Nutzung
+
 ### Globale Planung (Einzelperson/Ehepaar)
 
 - **Planungsmodus** - Zentrale Auswahl zwischen Individual- und Paarplanung
