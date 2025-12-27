@@ -196,33 +196,41 @@ function generateGiftSchedule(
 
   for (let period = 0; period < availablePeriods && remainingAmount > 0; period++) {
     const giftYear = Math.min(currentYear + period * 10, endYear)
-
-    // Distribute remaining amount across remaining periods
     const remainingPeriods = availablePeriods - period
-    const optimalGiftAmount = Math.min(exemption, remainingAmount / remainingPeriods)
+
+    // Calculate gift amount
+    let giftAmount: number
+    if (remainingPeriods === 1) {
+      // Last period: gift everything remaining
+      giftAmount = remainingAmount
+    } else {
+      // Try to stay within exemption, but if remaining amount is large,
+      // distribute evenly to ensure it all gets gifted
+      const evenDistribution = remainingAmount / remainingPeriods
+      giftAmount = Math.min(Math.max(exemption, evenDistribution), remainingAmount)
+    }
 
     gifts.push({
       year: giftYear,
-      amount: optimalGiftAmount,
+      amount: giftAmount,
       beneficiaryId: beneficiary.id,
       relationshipType: beneficiary.relationshipType,
       description: `Generationenübergreifende Schenkung Periode ${period + 1}`,
     })
 
-    remainingAmount -= optimalGiftAmount
+    remainingAmount -= giftAmount
   }
 
   return gifts
 }
 
 /**
- * Calculate gift schedule and tax results for all beneficiaries
+ * Generate all gift schedules for beneficiaries
  */
-function calculateAllGiftResults(
+function generateAllGiftSchedules(
   config: GenerationalTransferConfig,
   distribution: Record<string, number>,
-): GenerationalGiftResult[] {
-  // Generate gift schedules for each beneficiary
+): Gift[] {
   const allGifts: Gift[] = []
 
   for (const member of config.familyMembers) {
@@ -240,32 +248,62 @@ function calculateAllGiftResults(
 
   // Sort gifts by year
   allGifts.sort((a, b) => a.year - b.year)
+  return allGifts
+}
 
-  // Calculate tax for each gift
+/**
+ * Calculate tax results for gifts to a single beneficiary
+ */
+function calculateBeneficiaryGiftTax(
+  beneficiaryId: string,
+  gifts: Gift[],
+  familyMembers: FamilyMember[],
+): GenerationalGiftResult[] {
+  const beneficiary = familyMembers.find((m) => m.id === beneficiaryId)
+  if (!beneficiary) return []
+
+  const results: GenerationalGiftResult[] = []
+
+  for (let i = 0; i < gifts.length; i++) {
+    const currentGift = gifts[i]
+    const priorGifts = gifts.slice(0, i).filter((g) => g.year > currentGift.year - 10)
+
+    const taxResult = calculateGiftTax(currentGift, priorGifts)
+    results.push({
+      ...taxResult,
+      beneficiaryName: beneficiary.name,
+      beneficiaryGeneration: beneficiary.generation,
+    })
+  }
+
+  return results
+}
+
+/**
+ * Calculate gift schedule and tax results for all beneficiaries
+ */
+function calculateAllGiftResults(
+  config: GenerationalTransferConfig,
+  distribution: Record<string, number>,
+): GenerationalGiftResult[] {
+  const allGifts = generateAllGiftSchedules(config, distribution)
+
+  // Group gifts by beneficiary
   const giftsByBeneficiary = new Map<string, Gift[]>()
   for (const gift of allGifts) {
     const existing = giftsByBeneficiary.get(gift.beneficiaryId) || []
     giftsByBeneficiary.set(gift.beneficiaryId, [...existing, gift])
   }
 
+  // Calculate tax for each beneficiary
   const results: GenerationalGiftResult[] = []
-
   for (const [beneficiaryId, gifts] of giftsByBeneficiary) {
-    const beneficiary = config.familyMembers.find((m) => m.id === beneficiaryId)
-    if (!beneficiary) continue
-
-    // Calculate tax for each gift considering prior gifts to same beneficiary
-    for (let i = 0; i < gifts.length; i++) {
-      const currentGift = gifts[i]
-      const priorGifts = gifts.slice(0, i).filter((g) => g.year > currentGift.year - 10)
-
-      const taxResult = calculateGiftTax(currentGift, priorGifts)
-      results.push({
-        ...taxResult,
-        beneficiaryName: beneficiary.name,
-        beneficiaryGeneration: beneficiary.generation,
-      })
-    }
+    const beneficiaryResults = calculateBeneficiaryGiftTax(
+      beneficiaryId,
+      gifts,
+      config.familyMembers,
+    )
+    results.push(...beneficiaryResults)
   }
 
   return results

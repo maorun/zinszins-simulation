@@ -227,9 +227,9 @@ describe('generational-wealth-transfer', () => {
 
       const plan = createGenerationalTransferPlan(config)
 
-      expect(plan.totalGifted).toBe(10000000)
+      expect(plan.totalGifted).toBeCloseTo(10000000, 0) // Allow for floating point rounding
       expect(plan.totalTax).toBeGreaterThan(0)
-      expect(plan.totalNet).toBe(plan.totalGifted - plan.totalTax)
+      expect(plan.totalNet).toBeCloseTo(plan.totalGifted - plan.totalTax, 0)
 
       // All family members should receive something
       expect(Object.keys(plan.byBeneficiary).length).toBeGreaterThan(0)
