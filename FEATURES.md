@@ -22,7 +22,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Immobilienintegration
 
 - **Immobilien-Leverage** - Optimale Finanzierungsstrukturen
-- **Immobilien-Steueroptimierung** - AfA, Werbungskosten, etc.
 
 #### Selbstständigkeit & Unternehmertum
 
