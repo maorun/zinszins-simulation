@@ -1,7 +1,15 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import React from 'react'
 import GenerationalWealthTransferConfiguration from './GenerationalWealthTransferConfiguration'
+
+// Mock CollapsibleCard components to always render content (open state)
+vi.mock('./ui/collapsible-card', () => ({
+  CollapsibleCard: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CollapsibleCardHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CollapsibleCardContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}))
 
 describe('GenerationalWealthTransferConfiguration', () => {
   it('should render with switch disabled by default', () => {

@@ -45,6 +45,64 @@ function WealthInput({
   )
 }
 
+function TimeHorizonInput({
+  timeHorizonYears,
+  onTimeHorizonYearsChange,
+  timeHorizonId,
+}: {
+  timeHorizonYears: number
+  onTimeHorizonYearsChange: (value: number) => void
+  timeHorizonId: string
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={timeHorizonId}>Planungshorizont (Jahre)</Label>
+      <Input
+        id={timeHorizonId}
+        type="number"
+        value={timeHorizonYears}
+        onChange={(e) => onTimeHorizonYearsChange(Number(e.target.value))}
+        min={10}
+        max={50}
+        step={5}
+      />
+      <p className="text-sm text-muted-foreground">
+        Der Zeitraum, über den die Schenkungen verteilt werden können
+      </p>
+    </div>
+  )
+}
+
+function OptimizationGoalSelector({
+  optimizationGoal,
+  onOptimizationGoalChange,
+  optimizationGoalId,
+}: {
+  optimizationGoal: string
+  onOptimizationGoalChange: (value: 'minimize_tax' | 'equal_distribution' | 'custom') => void
+  optimizationGoalId: string
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={optimizationGoalId}>Optimierungsziel</Label>
+      <RadioTileGroup
+        value={optimizationGoal}
+        onValueChange={(value: string) =>
+          onOptimizationGoalChange(value as 'minimize_tax' | 'equal_distribution' | 'custom')
+        }
+        name={optimizationGoalId}
+      >
+        <RadioTile value="minimize_tax" label="Steueroptimiert">
+          Minimiert die Gesamtsteuerbelastung durch intelligente Nutzung der Freibeträge
+        </RadioTile>
+        <RadioTile value="equal_distribution" label="Gleichmäßige Verteilung">
+          Verteilt das Vermögen gleichmäßig auf alle Familienmitglieder
+        </RadioTile>
+      </RadioTileGroup>
+    </div>
+  )
+}
+
 export function WealthTransferConfiguration({
   totalWealth,
   timeHorizonYears,
@@ -68,41 +126,18 @@ export function WealthTransferConfiguration({
           onTotalWealthChange={onTotalWealthChange}
           totalWealthId={totalWealthId}
         />
-
-        <div className="space-y-2">
-          <Label htmlFor={timeHorizonId}>Planungshorizont (Jahre)</Label>
-          <Input
-            id={timeHorizonId}
-            type="number"
-            value={timeHorizonYears}
-            onChange={(e) => onTimeHorizonYearsChange(Number(e.target.value))}
-            min={10}
-            max={50}
-            step={5}
-          />
-          <p className="text-sm text-muted-foreground">
-            Der Zeitraum, über den die Schenkungen verteilt werden können
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor={optimizationGoalId}>Optimierungsziel</Label>
-          <RadioTileGroup
-            value={optimizationGoal}
-            onValueChange={(value: string) =>
-              onOptimizationGoalChange(value as 'minimize_tax' | 'equal_distribution' | 'custom')
-            }
-            name={optimizationGoalId}
-          >
-            <RadioTile value="minimize_tax" label="Steueroptimiert">
-              Minimiert die Gesamtsteuerbelastung durch intelligente Nutzung der Freibeträge
-            </RadioTile>
-            <RadioTile value="equal_distribution" label="Gleichmäßige Verteilung">
-              Verteilt das Vermögen gleichmäßig auf alle Familienmitglieder
-            </RadioTile>
-          </RadioTileGroup>
-        </div>
+        <TimeHorizonInput
+          timeHorizonYears={timeHorizonYears}
+          onTimeHorizonYearsChange={onTimeHorizonYearsChange}
+          timeHorizonId={timeHorizonId}
+        />
+        <OptimizationGoalSelector
+          optimizationGoal={optimizationGoal}
+          onOptimizationGoalChange={onOptimizationGoalChange}
+          optimizationGoalId={optimizationGoalId}
+        />
       </CardContent>
     </Card>
   )
 }
+

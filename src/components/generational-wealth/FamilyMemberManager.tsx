@@ -14,6 +14,33 @@ interface FamilyMemberManagerProps {
   onFamilyMembersChange: (members: FamilyMember[]) => void
 }
 
+function getGenerationLabel(gen: number): string {
+  const labels: Record<number, string> = {
+    1: 'Kinder',
+    2: 'Enkelkinder',
+    3: 'Urenkelkinder',
+  }
+  return labels[gen] || `Generation ${gen}`
+}
+
+function FamilyMemberItem({ member, onRemove }: { member: FamilyMember; onRemove: () => void }) {
+  return (
+    <div className="flex items-center justify-between p-3 border rounded-lg">
+      <div className="flex-1">
+        <div className="font-medium">{member.name}</div>
+        <div className="text-sm text-muted-foreground">
+          {getRelationshipTypeLabel(member.relationshipType)} • {getGenerationLabel(member.generation)}
+          {member.birthYear && ` • Geb. ${member.birthYear}`} • Freibetrag:{' '}
+          {formatCurrency(INHERITANCE_TAX_EXEMPTIONS[member.relationshipType])}
+        </div>
+      </div>
+      <Button variant="ghost" size="icon" onClick={onRemove} className="ml-2">
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  )
+}
+
 function FamilyMemberList({
   familyMembers,
   onRemove,
@@ -21,19 +48,6 @@ function FamilyMemberList({
   familyMembers: FamilyMember[]
   onRemove: (id: string) => void
 }) {
-  const getGenerationLabel = (gen: number) => {
-    switch (gen) {
-      case 1:
-        return 'Kinder'
-      case 2:
-        return 'Enkelkinder'
-      case 3:
-        return 'Urenkelkinder'
-      default:
-        return `Generation ${gen}`
-    }
-  }
-
   if (familyMembers.length === 0) {
     return (
       <Alert>
@@ -47,28 +61,7 @@ function FamilyMemberList({
   return (
     <div className="space-y-2">
       {familyMembers.map((member) => (
-        <div
-          key={member.id}
-          className="flex items-center justify-between p-3 border rounded-lg"
-        >
-          <div className="flex-1">
-            <div className="font-medium">{member.name}</div>
-            <div className="text-sm text-muted-foreground">
-              {getRelationshipTypeLabel(member.relationshipType)} •{' '}
-              {getGenerationLabel(member.generation)}
-              {member.birthYear && ` • Geb. ${member.birthYear}`} • Freibetrag:{' '}
-              {formatCurrency(INHERITANCE_TAX_EXEMPTIONS[member.relationshipType])}
-            </div>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onRemove(member.id)}
-            className="ml-2"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
+        <FamilyMemberItem key={member.id} member={member} onRemove={() => onRemove(member.id)} />
       ))}
     </div>
   )

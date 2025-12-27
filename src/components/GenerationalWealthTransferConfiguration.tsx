@@ -98,15 +98,15 @@ export default function GenerationalWealthTransferConfiguration() {
     })
   }, [enabled, totalWealth, familyMembers, timeHorizonYears, optimizationGoal, currentYear])
 
+  const description =
+    'Planen Sie die Vermögensübertragung über mehrere Generationen hinweg und optimieren Sie Schenkungssteuer und Erbschaftssteuer für Ihre gesamte Familie'
+
   return (
     <CollapsibleCard>
       <GenerationalWealthTransferHeader />
       <CollapsibleCardContent>
         <div className="space-y-6">
-          <CardDescription>
-            Planen Sie die Vermögensübertragung über mehrere Generationen hinweg und optimieren Sie
-            Schenkungssteuer und Erbschaftssteuer für Ihre gesamte Familie
-          </CardDescription>
+          <CardDescription>{description}</CardDescription>
 
           <div className="flex items-center space-x-2">
             <Switch id={enabledSwitchId} checked={enabled} onCheckedChange={setEnabled} />

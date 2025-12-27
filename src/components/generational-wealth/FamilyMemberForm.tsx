@@ -21,6 +21,114 @@ interface FamilyMemberFormProps {
   onAdd: () => void
 }
 
+function GenerationSelector({
+  generation,
+  onGenerationChange,
+  generationId,
+}: {
+  generation: number
+  onGenerationChange: (value: number) => void
+  generationId: string
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={generationId}>Generation</Label>
+      <RadioTileGroup
+        value={generation.toString()}
+        onValueChange={(value: string) => onGenerationChange(Number(value))}
+        name={generationId}
+      >
+        <RadioTile value="1" label="1. Generation">
+          Kinder
+        </RadioTile>
+        <RadioTile value="2" label="2. Generation">
+          Enkelkinder
+        </RadioTile>
+        <RadioTile value="3" label="3. Generation">
+          Urenkelkinder
+        </RadioTile>
+      </RadioTileGroup>
+    </div>
+  )
+}
+
+function RelationshipSelector({
+  relationshipType,
+  onRelationshipTypeChange,
+  relationshipId,
+}: {
+  relationshipType: RelationshipType
+  onRelationshipTypeChange: (value: RelationshipType) => void
+  relationshipId: string
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={relationshipId}>Verwandtschaftsverhältnis</Label>
+      <RadioTileGroup
+        value={relationshipType}
+        onValueChange={(value: string) => onRelationshipTypeChange(value as RelationshipType)}
+        name={relationshipId}
+      >
+        <RadioTile value="spouse" label={getRelationshipTypeLabel('spouse')}>
+          Freibetrag: {formatCurrency(INHERITANCE_TAX_EXEMPTIONS.spouse)}
+        </RadioTile>
+        <RadioTile value="child" label={getRelationshipTypeLabel('child')}>
+          Freibetrag: {formatCurrency(INHERITANCE_TAX_EXEMPTIONS.child)}
+        </RadioTile>
+        <RadioTile value="grandchild" label={getRelationshipTypeLabel('grandchild')}>
+          Freibetrag: {formatCurrency(INHERITANCE_TAX_EXEMPTIONS.grandchild)}
+        </RadioTile>
+        <RadioTile value="sibling" label={getRelationshipTypeLabel('sibling')}>
+          Freibetrag: {formatCurrency(INHERITANCE_TAX_EXEMPTIONS.sibling)}
+        </RadioTile>
+      </RadioTileGroup>
+    </div>
+  )
+}
+
+function NameAndBirthYearInputs({
+  name,
+  birthYear,
+  onNameChange,
+  onBirthYearChange,
+  nameId,
+  birthYearId,
+}: {
+  name: string
+  birthYear: number | undefined
+  onNameChange: (value: string) => void
+  onBirthYearChange: (value: number | undefined) => void
+  nameId: string
+  birthYearId: string
+}) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label htmlFor={nameId}>Name</Label>
+        <Input
+          id={nameId}
+          value={name}
+          onChange={(e) => onNameChange(e.target.value)}
+          placeholder="z.B. Anna"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={birthYearId}>Geburtsjahr (optional)</Label>
+        <Input
+          id={birthYearId}
+          type="number"
+          value={birthYear || ''}
+          onChange={(e) => onBirthYearChange(e.target.value ? Number(e.target.value) : undefined)}
+          placeholder="z.B. 1990"
+          min={1920}
+          max={2024}
+        />
+      </div>
+    </div>
+  )
+}
+
 export function FamilyMemberForm({
   name,
   generation,
@@ -41,71 +149,26 @@ export function FamilyMemberForm({
     <div className="pt-4 border-t space-y-4">
       <h4 className="font-medium">Neues Familienmitglied hinzufügen</h4>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor={nameId}>Name</Label>
-          <Input
-            id={nameId}
-            value={name}
-            onChange={(e) => onNameChange(e.target.value)}
-            placeholder="z.B. Anna"
-          />
-        </div>
+      <NameAndBirthYearInputs
+        name={name}
+        birthYear={birthYear}
+        onNameChange={onNameChange}
+        onBirthYearChange={onBirthYearChange}
+        nameId={nameId}
+        birthYearId={birthYearId}
+      />
 
-        <div className="space-y-2">
-          <Label htmlFor={birthYearId}>Geburtsjahr (optional)</Label>
-          <Input
-            id={birthYearId}
-            type="number"
-            value={birthYear || ''}
-            onChange={(e) => onBirthYearChange(e.target.value ? Number(e.target.value) : undefined)}
-            placeholder="z.B. 1990"
-            min={1920}
-            max={2024}
-          />
-        </div>
-      </div>
+      <GenerationSelector
+        generation={generation}
+        onGenerationChange={onGenerationChange}
+        generationId={generationId}
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor={generationId}>Generation</Label>
-        <RadioTileGroup
-          value={generation.toString()}
-          onValueChange={(value: string) => onGenerationChange(Number(value))}
-          name={generationId}
-        >
-          <RadioTile value="1" label="1. Generation">
-            Kinder
-          </RadioTile>
-          <RadioTile value="2" label="2. Generation">
-            Enkelkinder
-          </RadioTile>
-          <RadioTile value="3" label="3. Generation">
-            Urenkelkinder
-          </RadioTile>
-        </RadioTileGroup>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor={relationshipId}>Verwandtschaftsverhältnis</Label>
-        <RadioTileGroup
-          value={relationshipType}
-          onValueChange={(value: string) => onRelationshipTypeChange(value as RelationshipType)}
-          name={relationshipId}
-        >
-          <RadioTile value="spouse" label={getRelationshipTypeLabel('spouse')}>
-            Freibetrag: {formatCurrency(INHERITANCE_TAX_EXEMPTIONS.spouse)}
-          </RadioTile>
-          <RadioTile value="child" label={getRelationshipTypeLabel('child')}>
-            Freibetrag: {formatCurrency(INHERITANCE_TAX_EXEMPTIONS.child)}
-          </RadioTile>
-          <RadioTile value="grandchild" label={getRelationshipTypeLabel('grandchild')}>
-            Freibetrag: {formatCurrency(INHERITANCE_TAX_EXEMPTIONS.grandchild)}
-          </RadioTile>
-          <RadioTile value="sibling" label={getRelationshipTypeLabel('sibling')}>
-            Freibetrag: {formatCurrency(INHERITANCE_TAX_EXEMPTIONS.sibling)}
-          </RadioTile>
-        </RadioTileGroup>
-      </div>
+      <RelationshipSelector
+        relationshipType={relationshipType}
+        onRelationshipTypeChange={onRelationshipTypeChange}
+        relationshipId={relationshipId}
+      />
 
       <Button onClick={onAdd} disabled={!name.trim()} className="w-full">
         <Plus className="h-4 w-4 mr-2" />
