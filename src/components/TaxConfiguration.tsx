@@ -26,6 +26,7 @@ import { PortfolioTeilfreistellungCard } from './tax-config/PortfolioTeilfreiste
 
 import { TaxDeferralCalculatorCard } from './TaxDeferralCalculatorCard'
 import { MultiYearLossTrackingDashboard } from './MultiYearLossTrackingDashboard'
+import { ImmobilienSteueroptimierungCard } from './ImmobilienSteueroptimierungCard'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -136,6 +137,7 @@ function TaxOptimizationCards({ simulation }: { simulation: ReturnType<typeof us
     <>
       <PortfolioTeilfreistellungCard />
       <TaxDeferralCalculatorCard />
+      <ImmobilienSteueroptimierungCard />
       <QuellensteuerconfigCard />
       <ReverseCalculatorCard />
       <SequenceRiskAnalysisCard />

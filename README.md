@@ -279,6 +279,33 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Tipps zur Registrierung von Unterhaltsberechtigten für erhöhten Schutz
   - **Realistische Szenarien**: Hilft bei der Bewertung des Schutzes in Schuldensituationen
   - **Aktuelle Rechtslage**: Basierend auf Pfändungsfreigrenzen gültig ab Juli 2024
+- **Immobilien-Steueroptimierung (AfA & Werbungskosten)** - Berechnung der steuerlichen Behandlung von Mietimmobilien
+  - **AfA-Berechnung (Absetzung für Abnutzung)**: Lineare Abschreibung nach § 7 Abs. 4 EStG
+    - Gebäude vor 1925: 2,5% jährliche Abschreibung
+    - Gebäude 1925-2022: 2% jährliche Abschreibung
+    - Gebäude ab 2023: 3% jährliche Abschreibung
+  - **Werbungskosten**: Vollständige Berücksichtigung aller steuerlich absetzbaren Ausgaben nach § 9 EStG
+    - Instandhaltungskosten, Verwaltungskosten, Darlehenszinsen
+    - Grundsteuer, Gebäudeversicherung, sonstige Ausgaben
+  - **Automatische Kostenschätzung**: Realistische Schätzung basierend auf deutschen Marktdaten
+    - Instandhaltung: ~10% der Jahresmiete
+    - Verwaltung: ~15% der Jahresmiete
+    - Grundsteuer: ~20% der Jahresmiete
+    - Versicherung: ~8% der Jahresmiete
+  - **Steuerersparnis-Berechnung**: Verrechnung mit persönlichem Einkommensteuersatz
+    - Berücksichtigung der Günstigerprüfung
+    - Darstellung des steuermindernden Effekts bei Verlusten
+  - **Renditekennzahlen**:
+    - Brutto-Mietrendite
+    - Cash-on-Cash Return (vor und nach Steuern)
+    - Effektive Rendite nach allen Kosten und Steuern
+  - **Detaillierte Aufschlüsselung**: Transparente Darstellung aller Berechnungen
+    - Übersicht: Gesamtinvestition, Mieteinnahmen, Brutto-Rendite
+    - Werbungskosten: Itemisierte Auflistung aller Posten
+    - Steuerergebnis: Zu versteuerndes Einkommen oder steuerlicher Verlust
+    - Renditekennzahlen: Netto-Cashflow und effektive Rendite
+  - **Validierung**: Eingabeprüfung mit deutschen Fehlermeldungen
+  - **Realistische Szenarien**: Hilft bei der Bewertung von Mietimmobilien-Investments
 - **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
 - **Steuerprogression-Visualisierung** - Interaktive Visualisierung des deutschen progressiven Steuersystems
   - **Interaktives Diagramm**: Zeigt Durchschnittssteuersatz und Grenzsteuersatz über verschiedene Einkommensniveaus
