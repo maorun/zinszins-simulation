@@ -198,14 +198,8 @@ function ResultsDisplay({ result, config }: ResultsDisplayProps) {
   )
 }
 
-/**
- * Immobilien-Steueroptimierung Card - Calculator for real estate tax optimization
- * Calculates AfA (depreciation) and Werbungskosten (deductible expenses) for rental properties
- */
-export function ImmobilienSteueroptimierungCard() {
-  const { guenstigerPruefungAktiv } = useSimulation()
+function useRentalPropertyCalculation() {
   const currentYear = new Date().getFullYear()
-
   const [config, setConfig] = useState<RentalPropertyConfig>({
     buildingValue: 300000,
     landValue: 100000,
@@ -222,10 +216,8 @@ export function ImmobilienSteueroptimierungCard() {
   const [personalTaxRate, setPersonalTaxRate] = useState<number>(0.42)
   const [useAutomaticExpenses, setUseAutomaticExpenses] = useState<boolean>(false)
 
-  // Calculate automatic expense estimates
   const automaticExpenses = useMemo(() => estimateTypicalExpenses(config.annualRent), [config.annualRent])
 
-  // Apply automatic expenses if enabled
   const effectiveConfig = useMemo(() => {
     if (!useAutomaticExpenses) return config
     return {
@@ -237,10 +229,8 @@ export function ImmobilienSteueroptimierungCard() {
     }
   }, [config, useAutomaticExpenses, automaticExpenses])
 
-  // Validate config
   const validationErrors = useMemo(() => validateRentalPropertyConfig(effectiveConfig), [effectiveConfig])
 
-  // Calculate results
   const result = useMemo(() => {
     if (validationErrors.length > 0) return null
     return calculateRentalPropertyTax(effectiveConfig, personalTaxRate)
@@ -249,6 +239,38 @@ export function ImmobilienSteueroptimierungCard() {
   const handleConfigChange = (updates: Partial<RentalPropertyConfig>) => {
     setConfig((prev) => ({ ...prev, ...updates }))
   }
+
+  return {
+    config,
+    effectiveConfig,
+    personalTaxRate,
+    useAutomaticExpenses,
+    automaticExpenses,
+    validationErrors,
+    result,
+    handleConfigChange,
+    setPersonalTaxRate,
+    setUseAutomaticExpenses,
+  }
+}
+
+/**
+ * Immobilien-Steueroptimierung Card - Calculator for real estate tax optimization
+ */
+export function ImmobilienSteueroptimierungCard() {
+  const { guenstigerPruefungAktiv } = useSimulation()
+  const {
+    config,
+    effectiveConfig,
+    personalTaxRate,
+    useAutomaticExpenses,
+    automaticExpenses,
+    validationErrors,
+    result,
+    handleConfigChange,
+    setPersonalTaxRate,
+    setUseAutomaticExpenses,
+  } = useRentalPropertyCalculation()
 
   return (
     <Card nestingLevel={1}>
@@ -260,7 +282,6 @@ export function ImmobilienSteueroptimierungCard() {
           <CardContent nestingLevel={1}>
             <div className="space-y-4">
               <InfoMessage />
-
               <ImmobilienSteueroptimierungForm
                 config={config}
                 personalTaxRate={personalTaxRate}
@@ -272,7 +293,6 @@ export function ImmobilienSteueroptimierungCard() {
                 onPersonalTaxRateChange={setPersonalTaxRate}
                 onUseAutomaticExpensesChange={setUseAutomaticExpenses}
               />
-
               {result && <ResultsDisplay result={result} config={effectiveConfig} />}
             </div>
           </CardContent>

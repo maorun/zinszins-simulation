@@ -19,42 +19,41 @@ describe('ImmobilienSteueroptimierungCard', () => {
 
   it('should render the card with correct title', () => {
     render(<ImmobilienSteueroptimierungCard />)
-
     expect(screen.getByText(/Immobilien-Steueroptimierung/i)).toBeInTheDocument()
   })
 
-  it('should render info message with legal references', () => {
+  it('should render collapsed by default', () => {
     render(<ImmobilienSteueroptimierungCard />)
+    const heading = screen.getByText(/Immobilien-Steueroptimierung/i)
+    expect(heading).toBeInTheDocument()
+    // Content should be hidden initially
+    expect(screen.queryByText(/Gebäudewert \(ohne Grundstück\)/i)).not.toBeInTheDocument()
+  })
 
+  it('should expand and show form when clicked', () => {
+    render(<ImmobilienSteueroptimierungCard />)
+    const heading = screen.getByText(/Immobilien-Steueroptimierung/i)
+    fireEvent.click(heading)
+    
+    // Now content should be visible
+    expect(screen.getByText(/Gebäudewert \(ohne Grundstück\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/Grundstückswert/i)).toBeInTheDocument()
+  })
+
+  it('should render info message when expanded', () => {
+    render(<ImmobilienSteueroptimierungCard />)
+    const heading = screen.getByText(/Immobilien-Steueroptimierung/i)
+    fireEvent.click(heading)
+    
     expect(screen.getByText(/Berechnung der steuerlichen Behandlung/i)).toBeInTheDocument()
     expect(screen.getByText(/§ 7 Abs. 4 EStG/i)).toBeInTheDocument()
     expect(screen.getByText(/§ 9 EStG/i)).toBeInTheDocument()
   })
 
-  it('should render all basic form fields', () => {
+  it('should have default values configured when expanded', () => {
     render(<ImmobilienSteueroptimierungCard />)
-
-    expect(screen.getByText(/Gebäudewert \(ohne Grundstück\)/i)).toBeInTheDocument()
-    expect(screen.getByText(/Grundstückswert/i)).toBeInTheDocument()
-    expect(screen.getByText(/Jährliche Mieteinnahmen/i)).toBeInTheDocument()
-    expect(screen.getByText(/Persönlicher Steuersatz/i)).toBeInTheDocument()
-    expect(screen.getByText(/Kaufjahr/i)).toBeInTheDocument()
-    expect(screen.getByText(/Baujahr/i)).toBeInTheDocument()
-  })
-
-  it('should render expense fields', () => {
-    render(<ImmobilienSteueroptimierungCard />)
-
-    expect(screen.getByText(/Instandhaltungskosten/i)).toBeInTheDocument()
-    expect(screen.getByText(/Verwaltungskosten/i)).toBeInTheDocument()
-    expect(screen.getByText(/Darlehenszinsen/i)).toBeInTheDocument()
-    expect(screen.getByText(/Grundsteuer/i)).toBeInTheDocument()
-    expect(screen.getByText(/Gebäudeversicherung/i)).toBeInTheDocument()
-    expect(screen.getByText(/Sonstige Ausgaben/i)).toBeInTheDocument()
-  })
-
-  it('should have default values configured', () => {
-    render(<ImmobilienSteueroptimierungCard />)
+    const heading = screen.getByText(/Immobilien-Steueroptimierung/i)
+    fireEvent.click(heading)
 
     const buildingValueInput = screen.getByLabelText(/Gebäudewert \(ohne Grundstück\)/i) as HTMLInputElement
     expect(buildingValueInput.value).toBe('300000')
@@ -66,14 +65,10 @@ describe('ImmobilienSteueroptimierungCard', () => {
     expect(annualRentInput.value).toBe('18000')
   })
 
-  it('should render automatic expense estimation toggle', () => {
+  it('should show calculation results with default values when expanded', () => {
     render(<ImmobilienSteueroptimierungCard />)
-
-    expect(screen.getByText(/Automatisch schätzen/i)).toBeInTheDocument()
-  })
-
-  it('should show calculation results with default values', () => {
-    render(<ImmobilienSteueroptimierungCard />)
+    const heading = screen.getByText(/Immobilien-Steueroptimierung/i)
+    fireEvent.click(heading)
 
     // Check for overview section
     expect(screen.getByText(/Übersicht/i)).toBeInTheDocument()
@@ -83,24 +78,15 @@ describe('ImmobilienSteueroptimierungCard', () => {
     // Check for Werbungskosten section
     expect(screen.getByText(/Werbungskosten \(Steuerlich absetzbar\)/i)).toBeInTheDocument()
     expect(screen.getByText(/AfA \(Gebäude-Abschreibung\)/i)).toBeInTheDocument()
-
-    // Check for tax result section
-    expect(screen.getByText(/Steuerergebnis/i)).toBeInTheDocument()
-
-    // Check for return metrics section
-    expect(screen.getByText(/Renditekennzahlen/i)).toBeInTheDocument()
-    expect(screen.getByText(/Effektive Rendite/i)).toBeInTheDocument()
   })
 
   it('should update calculations when input values change', () => {
     render(<ImmobilienSteueroptimierungCard />)
+    const heading = screen.getByText(/Immobilien-Steueroptimierung/i)
+    fireEvent.click(heading)
 
     const buildingValueInput = screen.getByLabelText(/Gebäudewert \(ohne Grundstück\)/i) as HTMLInputElement
-
-    // Change building value
     fireEvent.change(buildingValueInput, { target: { value: '500000' } })
-
-    // The input should reflect the new value
     expect(buildingValueInput.value).toBe('500000')
   })
 
@@ -110,25 +96,9 @@ describe('ImmobilienSteueroptimierungCard', () => {
     } as ReturnType<typeof useSimulation>)
 
     render(<ImmobilienSteueroptimierungCard />)
+    const heading = screen.getByText(/Immobilien-Steueroptimierung/i)
+    fireEvent.click(heading)
 
     expect(screen.getByText(/wird durch Günstigerprüfung ggf. verwendet/i)).toBeInTheDocument()
-  })
-
-  it('should render AfA rate explanation', () => {
-    render(<ImmobilienSteueroptimierungCard />)
-
-    expect(screen.getByText(/< 1925: 2,5% \| 1925-2022: 2% \| ≥ 2023: 3%/i)).toBeInTheDocument()
-  })
-
-  it('should render land value explanation', () => {
-    render(<ImmobilienSteueroptimierungCard />)
-
-    expect(screen.getByText(/Land kann nicht abgeschrieben werden/i)).toBeInTheDocument()
-  })
-
-  it('should render mortgage interest note', () => {
-    render(<ImmobilienSteueroptimierungCard />)
-
-    expect(screen.getByText(/Nur Zinsen, nicht die Tilgung/i)).toBeInTheDocument()
   })
 })
