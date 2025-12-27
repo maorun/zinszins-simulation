@@ -15,10 +15,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Lebenssituationen & Planung
 
-#### Familienplanung
-
-- **Generationenübergreifende Planung** - Vermögensübertragung zwischen Generationen
-
 #### Immobilienintegration
 
 - **Immobilien-Leverage** - Optimale Finanzierungsstrukturen

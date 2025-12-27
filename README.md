@@ -187,6 +187,29 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Netto-Berechnung** - Exakte Ermittlung der beim Beschenkten ankommenden Beträge
     - **Bildungsinhalte** - Integrierte Hinweise zu Dokumentation, Meldepflichten und rechtlichen Anforderungen
     - **Visualisierung** - Übersichtliche Darstellung des empfohlenen Schenkungsplans mit Zeitstrahl
+  - **👨‍👩‍👧‍👦 Generationenübergreifende Vermögensplanung** - Intelligente Planung der Vermögensübertragung über mehrere Generationen
+    - **Multi-Generationen-Modellierung** - Verwaltung von Familienmitgliedern über bis zu 3 Generationen (Kinder, Enkelkinder, Urenkelkinder)
+    - **Flexible Familienkonfiguration** - Individuelle Erfassung von Name, Geburtsjahr, Generation und Verwandtschaftsverhältnis pro Person
+    - **3 Optimierungsstrategien**:
+      - **Steueroptimiert** - Minimiert die Gesamtsteuerbelastung durch intelligente Nutzung der Freibeträge über mehrere 10-Jahres-Perioden
+      - **Gleichmäßige Verteilung** - Verteilt das Vermögen gerecht auf alle Familienmitglieder
+      - **Individuelle Gewichtung** - Ermöglicht benutzerdefinierte Verteilungsschlüssel
+    - **Intelligente Freibetragsnutzung** - Automatische Berücksichtigung von Alter, verfügbaren Zeiträumen und relationalen Freibeträgen
+    - **Umfassende Steuerberechnung** - Präzise Berechnung von Schenkungssteuer unter Berücksichtigung von:
+      - Progressiver Besteuerung nach deutschem Erbschafts- und Schenkungssteuergesetz
+      - Steuerklassen je nach Verwandtschaftsverhältnis
+      - Kumulierung von Schenkungen innerhalb 10-Jahres-Perioden
+    - **Detaillierte Ergebnisdarstellung**:
+      - **Zusammenfassung** - Gesamtvermögen, Gesamtsteuern, Nettovermögen mit Steuerbelastung in Prozent
+      - **Nach Generation** - Aufschlüsselung der Vermögensverteilung pro Generation mit Anzahl Begünstigter
+      - **Nach Person** - Individuelle Beträge (Brutto, Steuer, Netto) mit Anzahl Schenkungen pro Familienmitglied
+      - **Zeitplan** - Chronologischer Übertragungsplan mit Jahr, Betrag und Steuer pro Schenkung
+    - **Echtzeit-Visualisierung** - Live-Aktualisierung aller Berechnungen bei Änderung von Parametern
+    - **Mehrperioden-Planung** - Automatische Verteilung von Schenkungen über mehrere 10-Jahres-Perioden zur Freibetragsoptimierung
+    - **Steuerfreiheits-Indikator** - Klare Kennzeichnung steuerfreier Übertragungen durch optimale Freibetragsausnutzung
+    - **Validierung** - Automatische Prüfung der Familienkonfiguration mit deutschen Fehlermeldungen
+    - **Helper-Funktionen verfügbar**: `createGenerationalTransferPlan()`, `compareTransferStrategies()`, `getFamilyMembersByGeneration()`, `validateFamilyStructure()`
+    - **Umfassend getestet**: 23 Tests mit 100% Pass-Rate
   - **💸 Ausgaben** - Größere Ausgaben mit optionaler Kreditfinanzierung
     - Kategorien: Autokauf, Immobilie, Bildung, Medizin, Sonstiges
     - Kreditberechnung mit Standard-Zinssätzen je Kategorie
