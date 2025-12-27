@@ -9,6 +9,7 @@ const FinancialGoalsConfiguration = lazy(() => import('../FinancialGoalsConfigur
 const EmergencyFundConfiguration = lazy(() => import('../EmergencyFundConfiguration'))
 const AlimonyConfiguration = lazy(() => import('../AlimonyConfiguration'))
 const GiftTaxPlanningConfiguration = lazy(() => import('../GiftTaxPlanningConfiguration'))
+const GenerationalWealthTransferConfiguration = lazy(() => import('../GenerationalWealthTransferConfiguration'))
 
 interface PlanningConfigurationsProps {
   startOfIndependence: number
@@ -38,6 +39,9 @@ export function PlanningConfigurations({ startOfIndependence }: PlanningConfigur
 
       {/* Gift Tax Planning Configuration */}
       <ConfigurationSection Component={GiftTaxPlanningConfiguration} />
+
+      {/* Generational Wealth Transfer Planning Configuration */}
+      <ConfigurationSection Component={GenerationalWealthTransferConfiguration} />
     </>
   )
 }
