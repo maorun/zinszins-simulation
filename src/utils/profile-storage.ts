@@ -41,7 +41,7 @@ const DEFAULT_PROFILE_NAME = 'Standard Profil'
  * Generate a unique profile ID
  */
 function generateProfileId(): string {
-  return `profile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  return `profile_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
 }
 
 /**

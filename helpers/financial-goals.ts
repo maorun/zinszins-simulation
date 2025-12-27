@@ -123,7 +123,7 @@ export function calculateAmountRemaining(currentAmount: number, goal: FinancialG
  * Generate a unique ID for a new goal
  */
 export function generateGoalId(): string {
-  return `goal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  return `goal-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
 }
 
 /**
