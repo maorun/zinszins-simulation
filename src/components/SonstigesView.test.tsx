@@ -54,11 +54,12 @@ describe('SonstigesView', () => {
     expect(screen.getByText(/Sonderereignisse verwalten/i)).toBeInTheDocument()
   })
 
-  it('renders simulation parameters section', () => {
+  it('renders configuration categories', () => {
     renderWithProviders(<SonstigesView {...defaultProps} />)
 
-    // Use getAllByText since "Konfiguration" appears multiple times (once in title, multiple times in loading states)
-    expect(screen.getAllByText(/Konfiguration/i).length).toBeGreaterThan(0)
+    // Check for both category cards
+    expect(screen.getByText(/Grundeinstellungen/i)).toBeInTheDocument()
+    expect(screen.getByText(/Steuer-Konfiguration/i)).toBeInTheDocument()
   })
 
   it('renders behavioral finance section', () => {

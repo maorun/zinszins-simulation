@@ -5,10 +5,12 @@ import type { FinancialScenario } from '../data/scenarios'
 import { TutorialManager } from './TutorialManager'
 import { HomePageSpecialEvents } from './HomePageSpecialEvents'
 import { BehavioralFinanceInsights } from './BehavioralFinanceInsights'
-import SimulationParameters from './SimulationParameters'
 import { ConfigurationSection } from './sonstiges-sections/ConfigurationSection'
 import { PlanningConfigurations } from './sonstiges-sections/PlanningConfigurations'
 import { RealEstateConfigurations } from './sonstiges-sections/RealEstateConfigurations'
+import { GrundeinstellungenCategory } from './configuration-categories/GrundeinstellungenCategory'
+import { SteuerKonfigurationCategory } from './configuration-categories/SteuerKonfigurationCategory'
+import { useSimulation } from '../contexts/useSimulation'
 
 // Lazy load remaining configuration components
 const ScenarioSelector = lazy(() => import('./ScenarioSelector'))
@@ -35,11 +37,16 @@ export function SonstigesView({
   handleApplyScenario,
   startOfIndependence,
 }: SonstigesViewProps) {
+  const { planningMode } = useSimulation()
+
   return (
     <div className="space-y-4">
       <TutorialManager />
       <HomePageSpecialEvents />
-      <SimulationParameters />
+
+      {/* Configuration Categories */}
+      <GrundeinstellungenCategory />
+      <SteuerKonfigurationCategory planningMode={planningMode} />
 
       <PlanningConfigurations startOfIndependence={startOfIndependence} />
 
