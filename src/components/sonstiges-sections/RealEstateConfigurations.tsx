@@ -5,19 +5,25 @@ import { ConfigurationSection } from './ConfigurationSection'
 const EigenheimVsMieteComparison = lazy(() =>
   import('../EigenheimVsMieteComparison').then(m => ({ default: m.EigenheimVsMieteComparison })),
 )
+const ImmobilienLeverageComparison = lazy(() =>
+  import('../ImmobilienLeverageComparison').then(m => ({ default: m.ImmobilienLeverageComparison })),
+)
 const ImmobilienTeilverkauf = lazy(() =>
   import('../teilverkauf/ImmobilienTeilverkauf').then(m => ({ default: m.ImmobilienTeilverkauf })),
 )
 
 /**
  * Real Estate Configuration Sections
- * Groups together home ownership vs. renting comparison and partial sale with lifelong residence rights
+ * Groups together home ownership vs. renting comparison, leverage analysis, and partial sale with lifelong residence rights
  */
 export function RealEstateConfigurations() {
   return (
     <>
       {/* Eigenheim vs. Miete Comparison */}
       <ConfigurationSection Component={EigenheimVsMieteComparison} />
+
+      {/* Immobilien Leverage Analysis */}
+      <ConfigurationSection Component={ImmobilienLeverageComparison} />
 
       {/* Real Estate Partial Sale with Lifelong Residence Rights */}
       <ConfigurationSection Component={ImmobilienTeilverkauf} />
