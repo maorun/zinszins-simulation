@@ -4,13 +4,11 @@ import { ChevronDown } from 'lucide-react'
 import { NestingProvider } from '../lib/nesting-context'
 import { useSimulation } from '../contexts/useSimulation'
 import { useNavigationItem } from '../hooks/useNavigationItem'
-import TimeRangeConfiguration from './TimeRangeConfiguration'
-import TaxConfiguration from './TaxConfiguration'
-import SimulationConfiguration from './SimulationConfiguration'
-import { BenchmarkConfiguration } from './BenchmarkConfiguration'
+import { GrundeinstellungenCategory } from './configuration-categories/GrundeinstellungenCategory'
+import { SteuerKonfigurationCategory } from './configuration-categories/SteuerKonfigurationCategory'
 
 const SimulationParameters = () => {
-  const { planningMode, benchmarkConfig, setBenchmarkConfig } = useSimulation()
+  const { planningMode } = useSimulation()
   const navigationRef = useNavigationItem({
     id: 'configuration',
     title: 'Konfiguration',
@@ -34,15 +32,9 @@ const SimulationParameters = () => {
         <CollapsibleContent>
           <CardContent nestingLevel={0}>
             <NestingProvider level={0}>
-              <div className="form-grid">
-                <SimulationConfiguration />
-                <TimeRangeConfiguration />
-                <TaxConfiguration planningMode={planningMode} />
-                <BenchmarkConfiguration
-                  benchmarkConfig={benchmarkConfig}
-                  onBenchmarkConfigChange={setBenchmarkConfig}
-                  nestingLevel={1}
-                />
+              <div className="space-y-4">
+                <GrundeinstellungenCategory />
+                <SteuerKonfigurationCategory planningMode={planningMode} />
               </div>
             </NestingProvider>
           </CardContent>
