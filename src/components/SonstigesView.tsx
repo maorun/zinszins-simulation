@@ -6,17 +6,15 @@ import { TutorialManager } from './TutorialManager'
 import { HomePageSpecialEvents } from './HomePageSpecialEvents'
 import { BehavioralFinanceInsights } from './BehavioralFinanceInsights'
 import { ConfigurationSection } from './sonstiges-sections/ConfigurationSection'
-import { PlanningConfigurations } from './sonstiges-sections/PlanningConfigurations'
-import { RealEstateConfigurations } from './sonstiges-sections/RealEstateConfigurations'
 import { GrundeinstellungenCategory } from './configuration-categories/GrundeinstellungenCategory'
 import { SteuerKonfigurationCategory } from './configuration-categories/SteuerKonfigurationCategory'
+import { FinancialPlanningCategory } from './sonstiges-sections/FinancialPlanningCategory'
+import { RealEstateCategory } from './sonstiges-sections/RealEstateCategory'
+import { AnalysisToolsCategory } from './sonstiges-sections/AnalysisToolsCategory'
 import { useSimulation } from '../contexts/useSimulation'
 
 // Lazy load remaining configuration components
 const ScenarioSelector = lazy(() => import('./ScenarioSelector'))
-const DataExport = lazy(() => import('./DataExport'))
-const SensitivityAnalysisDisplay = lazy(() => import('./SensitivityAnalysisDisplay'))
-const ProfileManagement = lazy(() => import('./ProfileManagement'))
 
 interface SonstigesViewProps {
   sensitivityConfig: SensitivityAnalysisConfig
@@ -28,7 +26,15 @@ interface SonstigesViewProps {
 
 /**
  * Sonstiges View - Extended features and advanced configuration
- * Includes all configuration tools, tutorials, special events, planning tools, Monte Carlo, tax modules, exports, and behavioral finance
+ * Organized into logical categories for better navigation:
+ * - Tutorials & Learning
+ * - Events & Scenarios
+ * - Basic Settings
+ * - Tax Configuration
+ * - Financial Planning & Life Situations
+ * - Behavioral Finance
+ * - Real Estate Analysis
+ * - Analysis & Tools
  */
 export function SonstigesView({
   sensitivityConfig,
@@ -41,31 +47,37 @@ export function SonstigesView({
 
   return (
     <div className="space-y-4">
+      {/* Tutorials & Learning */}
       <TutorialManager />
+
+      {/* Events & Scenarios */}
       <HomePageSpecialEvents />
-
-      {/* Configuration Categories */}
-      <GrundeinstellungenCategory />
-      <SteuerKonfigurationCategory planningMode={planningMode} />
-
-      <PlanningConfigurations startOfIndependence={startOfIndependence} />
-
       <ConfigurationSection
         Component={ScenarioSelector}
         componentProps={{ onApplyScenario: handleApplyScenario }}
       />
 
+      {/* Basic Settings */}
+      <GrundeinstellungenCategory />
+
+      {/* Tax Configuration */}
+      <SteuerKonfigurationCategory planningMode={planningMode} />
+
+      {/* Financial Planning & Life Situations */}
+      <FinancialPlanningCategory startOfIndependence={startOfIndependence} />
+
+      {/* Behavioral Finance */}
       <BehavioralFinanceInsights />
-      <ConfigurationSection Component={DataExport} />
 
-      <ConfigurationSection
-        Component={SensitivityAnalysisDisplay}
-        componentProps={{ config: sensitivityConfig, returnConfig }}
-        condition={hasSimulationData}
+      {/* Real Estate Analysis */}
+      <RealEstateCategory />
+
+      {/* Analysis & Tools */}
+      <AnalysisToolsCategory
+        sensitivityConfig={sensitivityConfig}
+        returnConfig={returnConfig}
+        hasSimulationData={hasSimulationData}
       />
-
-      <RealEstateConfigurations />
-      <ConfigurationSection Component={ProfileManagement} />
     </div>
   )
 }
