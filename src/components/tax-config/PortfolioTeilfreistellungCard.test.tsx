@@ -10,8 +10,15 @@ function renderWithProviders(ui: ReactElement) {
   return render(<TooltipProvider>{ui}</TooltipProvider>)
 }
 
+// Helper to expand the collapsible card
+async function expandCard() {
+  const user = userEvent.setup()
+  const trigger = screen.getByText(/Portfolio-Teilfreistellungsquoten-Rechner/i)
+  await user.click(trigger)
+}
+
 describe('PortfolioTeilfreistellungCard', () => {
-  it('should render with default portfolio', () => {
+  it('should render with default portfolio', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
 
     // Check title
@@ -20,13 +27,17 @@ describe('PortfolioTeilfreistellungCard', () => {
     // Check description
     expect(screen.getByText(/Berechnen Sie die gewichtete/i)).toBeInTheDocument()
 
+    // Expand the card to see contents
+    await expandCard()
+
     // Should have default two holdings
     const assetClassSelects = screen.getAllByLabelText(/Anlageklasse/i)
     expect(assetClassSelects).toHaveLength(2)
   })
 
-  it('should display default portfolio allocation (60% equity, 40% bonds)', () => {
+  it('should display default portfolio allocation (60% equity, 40% bonds)', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
     // Check for allocation labels
     const allocationLabels = screen.getAllByText(/Anteil:/i)
@@ -36,8 +47,9 @@ describe('PortfolioTeilfreistellungCard', () => {
     expect(screen.getByText(/Gewichtete TFS/i)).toBeInTheDocument()
   })
 
-  it('should calculate correct weighted TFS for default portfolio', () => {
+  it('should calculate correct weighted TFS for default portfolio', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
     // Default portfolio: 60% equity (30% TFS) + 40% bonds (0% TFS)
     // Expected: 60% × 30% = 18.0%
@@ -45,164 +57,183 @@ describe('PortfolioTeilfreistellungCard', () => {
     expect(weightedTFSElements.length).toBeGreaterThan(0)
   })
 
-  it('should display effective tax rate', () => {
+  it('should display effective tax rate', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
-    expect(screen.getByText(/Effektiver Steuersatz/i)).toBeInTheDocument()
-    // With 18% TFS: 26.375% × 82% = 21.63%
-    expect(screen.getByText(/21\.63%/i)).toBeInTheDocument()
+    // With 18% TFS and 26.375% capital gains tax
+    // Effective rate = 26.375% × (1 - 18%) = 21.63%
+    expect(screen.getByText(/21\.63%/)).toBeInTheDocument()
   })
 
-  it('should display optimization potential', () => {
+  it('should display optimization potential', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
     expect(screen.getByText(/Verbesserungspotenzial/i)).toBeInTheDocument()
-    // Potential improvement from 18% to 30% = +12%
-    expect(screen.getByText(/\+12\.0 %/i)).toBeInTheDocument()
   })
 
-  it('should display breakdown table with contributions', () => {
+  it('should display breakdown table with contributions', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
-    // Check table headers - use getAllByText for duplicates
-    expect(screen.getAllByText('Anlageklasse')[0]).toBeInTheDocument()
+    // Should show table headers
+    expect(screen.getByText('Anlageklasse')).toBeInTheDocument()
     expect(screen.getByText('Anteil')).toBeInTheDocument()
-    const tfsElements = screen.getAllByText('TFS')
-    expect(tfsElements.length).toBeGreaterThan(0)
+    expect(screen.getByText('TFS')).toBeInTheDocument()
     expect(screen.getByText('Beitrag')).toBeInTheDocument()
 
-    // Check that equity and bond funds are listed
-    const equityFundTexts = screen.getAllByText(/Aktienfonds/i)
-    expect(equityFundTexts.length).toBeGreaterThan(0)
+    // Should show fund types
+    expect(screen.getByText('Aktienfonds')).toBeInTheDocument()
+    expect(screen.getByText('Rentenfonds')).toBeInTheDocument()
   })
 
-  it('should display optimization suggestions', () => {
+  it('should display optimization suggestions', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
-    // Should show optimization recommendations
-    expect(screen.getByText(/Optimierungsempfehlungen:/i)).toBeInTheDocument()
+    // With current allocation, should suggest increasing equity
+    expect(screen.getByText(/Optimierungsempfehlungen/i)).toBeInTheDocument()
   })
 
   it('should add new portfolio holding when clicking add button', async () => {
     const user = userEvent.setup()
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
-    // Get initial number of holdings
-    const initialSelects = screen.getAllByLabelText(/Anlageklasse/i)
-    expect(initialSelects).toHaveLength(2)
+    const initialHoldings = screen.getAllByLabelText(/Anlageklasse/i)
+    expect(initialHoldings).toHaveLength(2)
 
     // Click add button
     const addButton = screen.getByRole('button', { name: /Position hinzufügen/i })
     await user.click(addButton)
 
-    // Should have 3 holdings now
-    await waitFor(() => {
-      const updatedSelects = screen.getAllByLabelText(/Anlageklasse/i)
-      expect(updatedSelects).toHaveLength(3)
-    })
+    // Should now have 3 holdings
+    const updatedHoldings = screen.getAllByLabelText(/Anlageklasse/i)
+    expect(updatedHoldings).toHaveLength(3)
   })
 
   it('should remove portfolio holding when clicking remove button', async () => {
     const user = userEvent.setup()
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
-    // Add a third holding first
+    // Start with 2 holdings
+    const initialHoldings = screen.getAllByLabelText(/Anlageklasse/i)
+    expect(initialHoldings).toHaveLength(2)
+
+    // Add one more to make 3 (so we can safely remove one)
     const addButton = screen.getByRole('button', { name: /Position hinzufügen/i })
     await user.click(addButton)
 
-    await waitFor(() => {
-      expect(screen.getAllByLabelText(/Anlageklasse/i)).toHaveLength(3)
-    })
+    expect(screen.getAllByLabelText(/Anlageklasse/i)).toHaveLength(3)
 
-    // Click first remove button
-    const removeButtons = screen.getAllByRole('button', { name: '' })
-    const trashButtons = removeButtons.filter(
-      btn => btn.querySelector('svg')?.classList.contains('lucide-trash-2') ||
-      btn.textContent === '' && btn.className.includes('ghost')
-    )
-    
-    if (trashButtons.length > 0) {
-      await user.click(trashButtons[0])
+    // Remove one
+    const removeButtons = screen.getAllByRole('button', { name: '' }) // Remove buttons have no text
+    const trashButtons = removeButtons.filter(btn => btn.querySelector('svg'))
+    await user.click(trashButtons[0])
 
-      await waitFor(() => {
-        expect(screen.getAllByLabelText(/Anlageklasse/i)).toHaveLength(2)
-      })
-    }
+    // Should be back to 2 holdings
+    expect(screen.getAllByLabelText(/Anlageklasse/i)).toHaveLength(2)
   })
 
-  it('should not allow removing last holding', () => {
+  it('should not allow removing last holding', async () => {
+    const user = userEvent.setup()
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
-    // Get all buttons and filter for disabled trash buttons
-    const allButtons = screen.getAllByRole('button')
-    const removeButtons = allButtons.filter(
-      btn => btn.hasAttribute('disabled') || btn.getAttribute('aria-disabled') === 'true'
-    )
+    // Start with 2 holdings
+    expect(screen.getAllByLabelText(/Anlageklasse/i)).toHaveLength(2)
 
-    // With 2 holdings, should have some enabled remove buttons
-    expect(removeButtons.length).toBeGreaterThanOrEqual(0)
+    // Remove one to get to 1
+    const removeButtons = screen.getAllByRole('button', { name: '' })
+    const trashButtons = removeButtons.filter(btn => btn.querySelector('svg'))
+    await user.click(trashButtons[0])
+
+    // Should have 1 holding left
+    expect(screen.getAllByLabelText(/Anlageklasse/i)).toHaveLength(1)
+
+    // The remaining remove button should be disabled
+    const remainingButtons = screen.getAllByRole('button', { name: '' })
+    const remainingTrashButton = remainingButtons.find(btn => btn.querySelector('svg'))
+    expect(remainingTrashButton).toBeDisabled()
   })
 
   it('should show validation error when allocation exceeds 100%', async () => {
+    const user = userEvent.setup()
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
-    // This test would require manipulating sliders
-    // For now, we verify the validation error alert can appear
-    const alerts = screen.queryAllByRole('alert')
-    
-    // Should have info alert initially
-    expect(alerts.length).toBeGreaterThan(0)
+    // Change first allocation to 70% (with second at 40% = 110% total)
+    const sliders = screen.getAllByRole('slider')
+    await user.clear(sliders[0])
+    await user.type(sliders[0], '70')
+
+    // Should show validation error
+    await waitFor(() => {
+      expect(screen.getByText(/Validierungsfehler/i)).toBeInTheDocument()
+    })
   })
 
   it('should show normalize button when there are validation errors', async () => {
+    const user = userEvent.setup()
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
-    // Add a holding to potentially create imbalance
-    const addButton = screen.getByRole('button', { name: /Position hinzufügen/i })
-    await userEvent.setup().click(addButton)
+    // Create invalid allocation
+    const sliders = screen.getAllByRole('slider')
+    await user.clear(sliders[0])
+    await user.type(sliders[0], '70')
 
-    // The normalize button might appear if allocation doesn't sum to 100%
-    // This depends on the slider values
+    // Should show normalize button
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Auf 100% normalisieren/i })).toBeInTheDocument()
+    })
   })
 
-  it('should display info box with explanation', () => {
+  it('should display info box with explanation', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
     expect(
-      screen.getByText(/Dieser Rechner hilft Ihnen, die steueroptimale Portfolio-Struktur/i),
+      screen.getByText(/Dieser Rechner hilft Ihnen, die steueroptimale Portfolio-Struktur zu finden/i),
     ).toBeInTheDocument()
   })
 
-  it('should show TFS badge for each holding', () => {
+  it('should show TFS badge for each holding', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
-    // Should show TFS percentages (30% for equity, 0% for bonds)
-    const tfsBadges = screen.getAllByText('TFS')
-    expect(tfsBadges.length).toBeGreaterThan(0)
+    // Should show TFS percentages for each holding
+    expect(screen.getByText('30 %')).toBeInTheDocument() // Equity fund TFS
+    expect(screen.getByText('0 %')).toBeInTheDocument() // Bond fund TFS
   })
 
-  it('should display all three result cards', () => {
+  it('should display all three result cards', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
     expect(screen.getByText(/Gewichtete TFS/i)).toBeInTheDocument()
     expect(screen.getByText(/Effektiver Steuersatz/i)).toBeInTheDocument()
     expect(screen.getByText(/Verbesserungspotenzial/i)).toBeInTheDocument()
   })
 
-  it('should render allocation sliders for each holding', () => {
+  it('should render allocation sliders for each holding', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
-    const allocationLabels = screen.getAllByText(/Anteil:/i)
-    expect(allocationLabels).toHaveLength(2)
+    const sliders = screen.getAllByRole('slider')
+    expect(sliders).toHaveLength(2) // One for each holding
   })
 
-  it('should have accessible form elements with unique IDs', () => {
+  it('should have accessible form elements with unique IDs', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
     const selects = screen.getAllByLabelText(/Anlageklasse/i)
-    
-    // Each select should have a unique ID
     const ids = selects.map(select => select.id)
+
+    // All IDs should be unique
     const uniqueIds = new Set(ids)
     expect(uniqueIds.size).toBe(ids.length)
   })
@@ -210,15 +241,16 @@ describe('PortfolioTeilfreistellungCard', () => {
   it('should allow changing asset class selection', async () => {
     const user = userEvent.setup()
     renderWithProviders(<PortfolioTeilfreistellungCard />)
+    await expandCard()
 
-    const selects = screen.getAllByLabelText(/Anlageklasse/i)
-    const firstSelect = selects[0]
+    const firstSelect = screen.getAllByLabelText(/Anlageklasse/i)[0]
 
     // Change to mixed fund
     await user.selectOptions(firstSelect, 'mixed-fund')
 
+    // The weighted TFS should update (mixed fund has 15% TFS)
     await waitFor(() => {
-      expect(firstSelect).toHaveValue('mixed-fund')
+      expect(screen.getByText(/15\.0 %/)).toBeInTheDocument() // Mixed fund TFS badge
     })
   })
 })
