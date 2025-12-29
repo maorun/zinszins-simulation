@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
 import { Label } from '../ui/label'
 import { Slider } from '../ui/slider'
 import { Button } from '../ui/button'
-import { Plus, Trash2, TrendingUp, AlertCircle, Info } from 'lucide-react'
+import { Plus, Trash2, TrendingUp, AlertCircle, Info, ChevronDown, ChevronUp } from 'lucide-react'
 import { GlossaryTerm } from '../GlossaryTerm'
 import { generateFormId } from '../../utils/unique-id'
 import {
@@ -397,25 +398,6 @@ function PortfolioHoldingsEditor({
 }
 
 /**
- * Card header content
- */
-function CardHeaderContent() {
-  return (
-    <>
-      <CardTitle className="flex items-center gap-2">
-        <TrendingUp className="h-5 w-5" />
-        Portfolio-Teilfreistellungsquoten-Rechner
-      </CardTitle>
-      <CardDescription>
-        Berechnen Sie die gewichtete{' '}
-        <GlossaryTerm term="teilfreistellung">Teilfreistellungsquote</GlossaryTerm> für komplexe
-        Fonds-Portfolios nach § 20 InvStG
-      </CardDescription>
-    </>
-  )
-}
-
-/**
  * Info alert component
  */
 function InfoAlert() {
@@ -500,16 +482,11 @@ function CardContentSection({
   )
 }
 
-/**
- * Portfolio-based Teilfreistellungsquote Calculator Card
- */
-export function PortfolioTeilfreistellungCard() {
+function usePortfolioHoldingsState() {
   const [holdings, setHoldings] = useState<PortfolioHolding[]>([
     { assetClass: 'equity-fund', allocation: 0.6 },
     { assetClass: 'bond-fund', allocation: 0.4 },
   ])
-
-  const validationErrors = validatePortfolioHoldings(holdings)
 
   const handleAddHolding = () => {
     setHoldings([...holdings, { assetClass: 'mixed-fund', allocation: 0.1 }])
@@ -540,22 +517,75 @@ export function PortfolioTeilfreistellungCard() {
     }
   }
 
+  return {
+    holdings,
+    handleAddHolding,
+    handleRemoveHolding,
+    handleAllocationChange,
+    handleAssetClassChange,
+    handleNormalizeAllocations,
+  }
+}
+
+function PortfolioTeilfreistellungHeader({ isOpen }: { isOpen: boolean }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardHeaderContent />
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <CardContentSection
-          holdings={holdings}
-          validationErrors={validationErrors}
-          onAddHolding={handleAddHolding}
-          onRemoveHolding={handleRemoveHolding}
-          onAllocationChange={handleAllocationChange}
-          onAssetClassChange={handleAssetClassChange}
-          onNormalizeAllocations={handleNormalizeAllocations}
-        />
-      </CardContent>
-    </Card>
+    <CollapsibleTrigger asChild>
+      <div className="flex items-center justify-between cursor-pointer">
+        <div className="flex-1">
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Portfolio-Teilfreistellungsquoten-Rechner
+          </CardTitle>
+          <CardDescription>
+            Berechnen Sie die gewichtete{' '}
+            <GlossaryTerm term="teilfreistellung">Teilfreistellungsquote</GlossaryTerm> für komplexe
+            Fonds-Portfolios nach § 20 InvStG
+          </CardDescription>
+        </div>
+        <div className="ml-2">
+          {isOpen ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
+        </div>
+      </div>
+    </CollapsibleTrigger>
+  )
+}
+
+/**
+ * Portfolio-based Teilfreistellungsquote Calculator Card
+ */
+export function PortfolioTeilfreistellungCard() {
+  const [isOpen, setIsOpen] = useState(false)
+  const {
+    holdings,
+    handleAddHolding,
+    handleRemoveHolding,
+    handleAllocationChange,
+    handleAssetClassChange,
+    handleNormalizeAllocations,
+  } = usePortfolioHoldingsState()
+
+  const validationErrors = validatePortfolioHoldings(holdings)
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card>
+        <CardHeader>
+          <PortfolioTeilfreistellungHeader isOpen={isOpen} />
+        </CardHeader>
+        <CollapsibleContent>
+          <CardContent className="space-y-6">
+            <CardContentSection
+              holdings={holdings}
+              validationErrors={validationErrors}
+              onAddHolding={handleAddHolding}
+              onRemoveHolding={handleRemoveHolding}
+              onAllocationChange={handleAllocationChange}
+              onAssetClassChange={handleAssetClassChange}
+              onNormalizeAllocations={handleNormalizeAllocations}
+            />
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   )
 }

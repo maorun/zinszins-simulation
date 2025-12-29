@@ -7,6 +7,7 @@ import {
   createDefaultPropertyFinancingConfig,
   createStandardLeverageScenarios,
   compareLeverageScenarios,
+  type LeverageComparisonResults,
 } from '../../helpers/immobilien-leverage'
 import { PropertyConfiguration } from './immobilien-leverage/PropertyConfiguration'
 import { SummaryCards } from './immobilien-leverage/SummaryCards'
@@ -14,6 +15,50 @@ import { ScenarioComparisonTable } from './immobilien-leverage/ScenarioCompariso
 import { ScenarioDetailCard } from './immobilien-leverage/ScenarioDetailCard'
 import { LeverageInfoBox } from './immobilien-leverage/LeverageInfoBox'
 import { useLeverageFormIds } from './immobilien-leverage/useLeverageFormIds'
+
+function LeverageAnalysisContent({
+  comparisonResults,
+  propertyConfig,
+  baseInterestRate,
+  ids,
+  onConfigChange,
+  onBaseInterestChange,
+}: {
+  comparisonResults: LeverageComparisonResults
+  propertyConfig: PropertyFinancingConfig
+  baseInterestRate: number
+  ids: ReturnType<typeof useLeverageFormIds>
+  onConfigChange: (key: keyof PropertyFinancingConfig, value: number) => void
+  onBaseInterestChange: (value: number) => void
+}) {
+  return (
+    <>
+      <LeverageInfoBox />
+      <PropertyConfiguration
+        config={propertyConfig}
+        baseInterestRate={baseInterestRate}
+        ids={ids}
+        onConfigChange={onConfigChange}
+        onBaseInterestChange={onBaseInterestChange}
+      />
+      {comparisonResults && (
+        <div className="space-y-4">
+          <SummaryCards
+            recommendedScenario={comparisonResults.recommendedScenario}
+            bestByReturn={comparisonResults.bestByReturn}
+            bestByRisk={comparisonResults.bestByRisk}
+          />
+          <ScenarioComparisonTable results={comparisonResults} />
+          <div className="space-y-4">
+            {comparisonResults.scenarios.map((result, index: number) => (
+              <ScenarioDetailCard key={index} result={result} />
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
 
 export function ImmobilienLeverageComparison() {
   const [isOpen, setIsOpen] = useState(false)
@@ -47,29 +92,14 @@ export function ImmobilienLeverageComparison() {
 
         <CollapsibleContent>
           <CardContent className="space-y-6">
-            <LeverageInfoBox />
-            <PropertyConfiguration
-              config={propertyConfig}
+            <LeverageAnalysisContent
+              comparisonResults={comparisonResults}
+              propertyConfig={propertyConfig}
               baseInterestRate={baseInterestRate}
               ids={ids}
               onConfigChange={(key, value) => setPropertyConfig(prev => ({ ...prev, [key]: value }))}
               onBaseInterestChange={setBaseInterestRate}
             />
-            {comparisonResults && (
-              <div className="space-y-4">
-                <SummaryCards
-                  recommendedScenario={comparisonResults.recommendedScenario}
-                  bestByReturn={comparisonResults.bestByReturn}
-                  bestByRisk={comparisonResults.bestByRisk}
-                />
-                <ScenarioComparisonTable results={comparisonResults} />
-                <div className="space-y-4">
-                  {comparisonResults.scenarios.map((result, index) => (
-                    <ScenarioDetailCard key={index} result={result} />
-                  ))}
-                </div>
-              </div>
-            )}
           </CardContent>
         </CollapsibleContent>
       </Card>

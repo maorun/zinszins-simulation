@@ -1,6 +1,7 @@
-import { useMemo, type ChangeEvent } from 'react'
-import { Plus, Trash2, Calculator } from 'lucide-react'
+import { useMemo, useState, type ChangeEvent } from 'react'
+import { Plus, Trash2, Calculator, ChevronDown, ChevronUp } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
@@ -501,7 +502,65 @@ function useFreistellungsauftragOptimizer(props: FreistellungsauftragOptimizerPr
   }
 }
 
+function FreistellungsauftragHeader({ isOpen }: { isOpen: boolean }) {
+  return (
+    <CollapsibleTrigger asChild>
+      <div className="flex items-center justify-between cursor-pointer">
+        <div className="flex-1">
+          <CardTitle className="flex items-center gap-2">
+            <Calculator className="h-5 w-5" />
+            Freistellungsaufträge-Optimierung
+          </CardTitle>
+          <CardDescription>
+            Optimale Verteilung der Freistellungsaufträge auf mehrere Bankkonten zur Minimierung der Steuerlast
+          </CardDescription>
+        </div>
+        <div className="ml-2">
+          {isOpen ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
+        </div>
+      </div>
+    </CollapsibleTrigger>
+  )
+}
+
+function FreistellungsauftragContent(props: {
+  totalFreibetrag: number
+  accounts: BankAccount[]
+  validationErrors: string[]
+  optimizationResult: OptimizationResult | null
+  effectiveTaxRates: Array<{
+    accountId: string
+    accountName: string
+    effectiveTaxRate: number
+    taxAmount: number
+  }>
+  handleAddAccount: () => void
+  handleRemoveAccount: (id: string) => void
+  handleAccountChange: (id: string, field: keyof BankAccount, value: string | number) => void
+  handleApplyOptimization: () => void
+}) {
+  return (
+    <>
+      <TotalFreibetragDisplay totalFreibetrag={props.totalFreibetrag} />
+      <AccountList
+        accounts={props.accounts}
+        onAddAccount={props.handleAddAccount}
+        onRemoveAccount={props.handleRemoveAccount}
+        onAccountChange={props.handleAccountChange}
+        optimizationResult={props.optimizationResult}
+        effectiveTaxRates={props.effectiveTaxRates}
+      />
+      <ValidationErrors errors={props.validationErrors} />
+      {props.optimizationResult && props.accounts.length > 0 && (
+        <OptimizationResults result={props.optimizationResult} onApply={props.handleApplyOptimization} />
+      )}
+      <HelpText />
+    </>
+  )
+}
+
 export function FreistellungsauftragOptimizer(props: FreistellungsauftragOptimizerProps) {
+  const [isOpen, setIsOpen] = useState(false)
   const {
     validationErrors,
     optimizationResult,
@@ -513,32 +572,27 @@ export function FreistellungsauftragOptimizer(props: FreistellungsauftragOptimiz
   } = useFreistellungsauftragOptimizer(props)
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calculator className="h-5 w-5" />
-          Freistellungsaufträge-Optimierung
-        </CardTitle>
-        <CardDescription>
-          Optimale Verteilung der Freistellungsaufträge auf mehrere Bankkonten zur Minimierung der Steuerlast
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <TotalFreibetragDisplay totalFreibetrag={props.totalFreibetrag} />
-        <AccountList
-          accounts={props.accounts}
-          onAddAccount={handleAddAccount}
-          onRemoveAccount={handleRemoveAccount}
-          onAccountChange={handleAccountChange}
-          optimizationResult={optimizationResult}
-          effectiveTaxRates={effectiveTaxRates}
-        />
-        <ValidationErrors errors={validationErrors} />
-        {optimizationResult && props.accounts.length > 0 && (
-          <OptimizationResults result={optimizationResult} onApply={handleApplyOptimization} />
-        )}
-        <HelpText />
-      </CardContent>
-    </Card>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card>
+        <CardHeader>
+          <FreistellungsauftragHeader isOpen={isOpen} />
+        </CardHeader>
+        <CollapsibleContent>
+          <CardContent className="space-y-6">
+            <FreistellungsauftragContent
+              totalFreibetrag={props.totalFreibetrag}
+              accounts={props.accounts}
+              validationErrors={validationErrors}
+              optimizationResult={optimizationResult}
+              effectiveTaxRates={effectiveTaxRates}
+              handleAddAccount={handleAddAccount}
+              handleRemoveAccount={handleRemoveAccount}
+              handleAccountChange={handleAccountChange}
+              handleApplyOptimization={handleApplyOptimization}
+            />
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   )
 }

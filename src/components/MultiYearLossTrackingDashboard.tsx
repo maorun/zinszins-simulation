@@ -448,6 +448,27 @@ function DashboardContent({
   )
 }
 
+function MultiYearLossTrackingHeader({ isOpen }: { isOpen: boolean }) {
+  return (
+    <CollapsibleTrigger asChild>
+      <div className="flex items-center justify-between cursor-pointer">
+        <div className="flex-1">
+          <CardTitle className="flex items-center gap-2">
+            <Info className="h-5 w-5" />
+            Multi-Jahr Verlustplanung & Optimierung
+          </CardTitle>
+          <CardDescription>
+            Analyse und Optimierung der Verlustverrechnung über mehrere Jahre gemäß deutscher Steuergesetzgebung
+          </CardDescription>
+        </div>
+        <div className="ml-2">
+          {isOpen ? <AlertCircle className="h-5 w-5 text-muted-foreground" /> : <Info className="h-5 w-5 text-muted-foreground" />}
+        </div>
+      </div>
+    </CollapsibleTrigger>
+  )
+}
+
 /**
  * Multi-Year Loss Tracking Dashboard Main Component
  */
@@ -458,6 +479,7 @@ export function MultiYearLossTrackingDashboard({
   initialStockLosses = 0,
   initialOtherLosses = 0,
 }: MultiYearLossTrackingDashboardProps) {
+  const [isOpen, setIsOpen] = useState(false)
   const stockLossesInputId = useMemo(() => generateFormId('multi-year-loss-tracking', 'initial-stock-losses'), [])
   const otherLossesInputId = useMemo(() => generateFormId('multi-year-loss-tracking', 'initial-other-losses'), [])
 
@@ -482,27 +504,25 @@ export function MultiYearLossTrackingDashboard({
   }, [tracking, taxRate, startYear, endYear])
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Info className="h-5 w-5" />
-          Multi-Jahr Verlustplanung & Optimierung
-        </CardTitle>
-        <CardDescription>
-          Analyse und Optimierung der Verlustverrechnung über mehrere Jahre gemäß deutscher Steuergesetzgebung
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <DashboardContent
-          startYear={startYear}
-          endYear={endYear}
-          initialStockLosses={initialStockLosses}
-          initialOtherLosses={initialOtherLosses}
-          analysis={analysis}
-          stockLossesInputId={stockLossesInputId}
-          otherLossesInputId={otherLossesInputId}
-        />
-      </CardContent>
-    </Card>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card className="w-full">
+        <CardHeader>
+          <MultiYearLossTrackingHeader isOpen={isOpen} />
+        </CardHeader>
+        <CollapsibleContent>
+          <CardContent className="space-y-6">
+            <DashboardContent
+              startYear={startYear}
+              endYear={endYear}
+              initialStockLosses={initialStockLosses}
+              initialOtherLosses={initialOtherLosses}
+              analysis={analysis}
+              stockLossesInputId={stockLossesInputId}
+              otherLossesInputId={otherLossesInputId}
+            />
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   )
 }
