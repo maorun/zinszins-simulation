@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import { Home } from 'lucide-react'
+import { Home, ChevronDown, ChevronUp } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
-import { Switch } from './ui/switch'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import {
   createDefaultEigenheimVsMieteConfig,
   compareEigenheimVsMiete,
@@ -19,6 +19,7 @@ import { RentalConfiguration } from './eigenheim-vs-miete/RentalConfiguration'
  * Comprehensive comparison tool for homeownership vs. renting decision
  */
 export function EigenheimVsMieteComparison() {
+  const [isOpen, setIsOpen] = useState(false)
   const [config, setConfig] = useState<EigenheimVsMieteConfig>(() =>
     createDefaultEigenheimVsMieteConfig(new Date().getFullYear()),
   )
@@ -42,30 +43,30 @@ export function EigenheimVsMieteComparison() {
   )
 
   return (
-    <Card className="mb-3 sm:mb-4">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Home className="h-5 w-5 text-blue-600" />
-            <CardTitle>Eigenheim vs. Miete Vergleich</CardTitle>
-          </div>
-          <Switch
-            id={ids.enabled}
-            checked={config.comparison.enabled}
-            onCheckedChange={(enabled) => setConfig({ ...config, comparison: { ...config.comparison, enabled } })}
-          />
-        </div>
-        <CardDescription>Detaillierter Vergleich: Kaufen oder mieten Sie Ihr Zuhause?</CardDescription>
-      </CardHeader>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card className="mb-3 sm:mb-4">
+        <CardHeader>
+          <CollapsibleTrigger asChild>
+            <div className="flex items-center justify-between cursor-pointer">
+              <div className="flex items-center gap-2">
+                <Home className="h-5 w-5 text-blue-600" />
+                <CardTitle>Eigenheim vs. Miete Vergleich</CardTitle>
+              </div>
+              {isOpen ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
+            </div>
+          </CollapsibleTrigger>
+          <CardDescription>Detaillierter Vergleich: Kaufen oder mieten Sie Ihr Zuhause?</CardDescription>
+        </CardHeader>
 
-      {config.comparison.enabled && (
-        <CardContent className="space-y-6">
-          <ComparisonSettings config={config} setConfig={setConfig} ids={ids} />
-          <OwnershipConfiguration config={config} setConfig={setConfig} ids={ids} />
-          <RentalConfiguration config={config} setConfig={setConfig} ids={ids} />
-          {results && <ComparisonResultsDisplay summary={results.summary} comparisonYears={config.comparison.comparisonYears} formatCurrency={formatCurrencyWhole} />}
-        </CardContent>
-      )}
-    </Card>
+        <CollapsibleContent>
+          <CardContent className="space-y-6">
+            <ComparisonSettings config={config} setConfig={setConfig} ids={ids} />
+            <OwnershipConfiguration config={config} setConfig={setConfig} ids={ids} />
+            <RentalConfiguration config={config} setConfig={setConfig} ids={ids} />
+            {results && <ComparisonResultsDisplay summary={results.summary} comparisonYears={config.comparison.comparisonYears} formatCurrency={formatCurrencyWhole} />}
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   )
 }
