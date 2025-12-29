@@ -16,12 +16,13 @@ describe('ImmobilienLeverageComparison', () => {
     expect(screen.queryByText('Immobilien-Parameter')).not.toBeInTheDocument()
   })
 
-  it('should expand when switch is toggled', async () => {
+  it('should expand when trigger is clicked', async () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Should show configuration sections
     expect(screen.getByText('Immobilien-Parameter')).toBeInTheDocument()
@@ -32,8 +33,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Check default values are displayed
     const totalPriceInput = screen.getByLabelText(/Kaufpreis gesamt/) as HTMLInputElement
@@ -47,8 +49,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     const totalPriceInput = screen.getByLabelText(/Kaufpreis gesamt/)
     await user.clear(totalPriceInput)
@@ -61,8 +64,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Should show summary cards
     expect(screen.getByText('Empfohlenes Szenario')).toBeInTheDocument()
@@ -74,8 +78,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Check table headers
     expect(screen.getByText('Szenario')).toBeInTheDocument()
@@ -89,8 +94,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Should show 4 standard scenarios - use getAllByText since they appear multiple times
     expect(screen.getAllByText(/Konservativ.*40%.*Eigenkapital/).length).toBeGreaterThan(0)
@@ -103,8 +109,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Default: 24000 / 400000 = 6%
     expect(screen.getByText(/Bruttomietrendite:.*6\.00%/)).toBeInTheDocument()
@@ -114,8 +121,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Change annual rent
     const annualRentInput = screen.getByLabelText(/Jahresmiete brutto/)
@@ -130,8 +138,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Default year 2020 should have 2% AfA
     expect(screen.getByText(/AfA-Satz:.*2%/)).toBeInTheDocument()
@@ -145,8 +154,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Should show detailed cards for all scenarios
     const allScenarioNames = screen.getAllByText(/Konservativ|Ausgewogen|Moderat gehebelt|Stark gehebelt/)
@@ -157,8 +167,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Check for risk metric labels
     expect(screen.getAllByText(/Zinsdeckung/)).toBeTruthy()
@@ -170,8 +181,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     expect(screen.getByText('Hinweise zur Leverage-Analyse:')).toBeInTheDocument()
     expect(screen.getByText(/Hebeleffekt:/)).toBeInTheDocument()
@@ -182,8 +194,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // At least one scenario should have the star
     const tableRows = screen.getByRole('table').querySelectorAll('tbody tr')
@@ -195,8 +208,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // At least one scenario should have the chart emoji
     const tableRows = screen.getByRole('table').querySelectorAll('tbody tr')
@@ -208,8 +222,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // At least one scenario should have the shield emoji
     const tableRows = screen.getByRole('table').querySelectorAll('tbody tr')
@@ -221,8 +236,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Default: 24000 * 25% = 6000
     expect(screen.getByText(/6\.000,00 €\/Jahr/)).toBeInTheDocument()
@@ -232,8 +248,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     const baseInterestInput = screen.getByLabelText(/Basis-Zinssatz/) as HTMLInputElement
     
@@ -244,21 +261,19 @@ describe('ImmobilienLeverageComparison', () => {
     expect(baseInterestInput.value).toBe('4.5')
   })
 
-  it('should collapse when switch is toggled again', async () => {
+  it('should collapse when trigger is clicked again', async () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
 
     // Expand
-    await user.click(toggleSwitch)
+    await user.click(trigger)
     expect(screen.getByText('Immobilien-Parameter')).toBeInTheDocument()
 
-    // Get a fresh reference to the switch after component re-renders
-    const toggleSwitchAgain = screen.getByRole('switch')
-    
     // Collapse
-    await user.click(toggleSwitchAgain)
+    await user.click(trigger)
     
     expect(screen.queryByText('Immobilien-Parameter')).not.toBeInTheDocument()
   })
@@ -267,8 +282,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // All inputs should have associated labels
     expect(screen.getByLabelText(/Kaufpreis gesamt/)).toBeInTheDocument()
@@ -286,8 +302,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Should show recommended, best return, and best risk scenarios
     const summaryCards = screen.getAllByRole('heading', { level: 3 })
@@ -302,8 +319,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Set operating costs to 0
     const operatingCostsInput = screen.getByLabelText(/Bewirtschaftungskosten/)
@@ -318,8 +336,9 @@ describe('ImmobilienLeverageComparison', () => {
     const user = userEvent.setup()
     render(<ImmobilienLeverageComparison />)
 
-    const toggleSwitch = screen.getByRole('switch')
-    await user.click(toggleSwitch)
+    // Click on the card header to expand
+    const trigger = screen.getByText('Immobilien-Leverage-Analyse')
+    await user.click(trigger)
 
     // Should show tax benefit labels
     expect(screen.getAllByText(/Steuervorteil/)).toBeTruthy()
