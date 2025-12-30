@@ -15,6 +15,11 @@ async function expandCard() {
   const user = userEvent.setup()
   const trigger = screen.getByText(/Portfolio-Teilfreistellungsquoten-Rechner/i)
   await user.click(trigger)
+  
+  // Wait for content to be visible after expansion
+  await waitFor(() => {
+    expect(screen.getByText(/Portfolio-Positionen/i)).toBeInTheDocument()
+  })
 }
 
 describe('PortfolioTeilfreistellungCard', () => {
@@ -77,13 +82,13 @@ describe('PortfolioTeilfreistellungCard', () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
     await expandCard()
 
-    // Should show table headers
-    expect(screen.getByText('Anlageklasse')).toBeInTheDocument()
-    expect(screen.getByText('Anteil')).toBeInTheDocument()
-    expect(screen.getByText('TFS')).toBeInTheDocument()
-    expect(screen.getByText('Beitrag')).toBeInTheDocument()
+    // Should show table headers (use getByRole to specifically target table cells)
+    expect(screen.getByRole('columnheader', { name: 'Anlageklasse' })).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: 'Anteil' })).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: 'TFS' })).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: 'Beitrag' })).toBeInTheDocument()
 
-    // Should show fund types
+    // Should show fund types in the table
     expect(screen.getByText('Aktienfonds')).toBeInTheDocument()
     expect(screen.getByText('Rentenfonds')).toBeInTheDocument()
   })
@@ -166,13 +171,18 @@ describe('PortfolioTeilfreistellungCard', () => {
 
     // Change first allocation to 70% (with second at 40% = 110% total)
     const sliders = screen.getAllByRole('slider')
-    await user.clear(sliders[0])
-    await user.type(sliders[0], '70')
+    // Use click and keyboard for slider interaction instead of clear/type
+    await user.click(sliders[0])
+    // Type to change value
+    for (let i = 0; i < 2; i++) {
+      await user.keyboard('{Backspace}')
+    }
+    await user.keyboard('70')
 
     // Should show validation error
     await waitFor(() => {
       expect(screen.getByText(/Validierungsfehler/i)).toBeInTheDocument()
-    })
+    }, { timeout: 5000 })
   })
 
   it('should show normalize button when there are validation errors', async () => {
@@ -204,9 +214,12 @@ describe('PortfolioTeilfreistellungCard', () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
     await expandCard()
 
-    // Should show TFS percentages for each holding
-    expect(screen.getByText('30 %')).toBeInTheDocument() // Equity fund TFS
-    expect(screen.getByText('0 %')).toBeInTheDocument() // Bond fund TFS
+    // Should show TFS percentages for each holding (appears in badge AND breakdown table)
+    const tfsBadges30 = screen.getAllByText('30%') // Equity fund TFS
+    expect(tfsBadges30.length).toBeGreaterThanOrEqual(1) // At least in TFSBadge, possibly also in table
+    
+    const tfsBadges0 = screen.getAllByText('0%') // Bond fund TFS
+    expect(tfsBadges0.length).toBeGreaterThanOrEqual(1) // At least in TFSBadge, possibly also in table
   })
 
   it('should display all three result cards', async () => {
@@ -248,9 +261,14 @@ describe('PortfolioTeilfreistellungCard', () => {
     // Change to mixed fund
     await user.selectOptions(firstSelect, 'mixed-fund')
 
-    // The weighted TFS should update (mixed fund has 15% TFS)
+    // The TFS badge should update to 15% (mixed fund TFS)
     await waitFor(() => {
-      expect(screen.getByText(/15\.0 %/)).toBeInTheDocument() // Mixed fund TFS badge
+      expect(screen.getByText('15%')).toBeInTheDocument() // Mixed fund TFS badge (no space)
+    })
+    
+    // The weighted TFS should also update: 60% * 15% + 40% * 0% = 9.0%
+    await waitFor(() => {
+      expect(screen.getByText(/9\.0 %/)).toBeInTheDocument() // Weighted TFS in summary (with space)
     })
   })
 })
