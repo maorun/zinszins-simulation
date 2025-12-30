@@ -3,6 +3,13 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { FreistellungsauftragOptimizer } from './FreistellungsauftragOptimizer'
 import type { BankAccount } from '../../helpers/freistellungsauftrag-optimization'
 
+// Helper to expand the collapsible card
+async function expandCard() {
+  const user = userEvent.setup()
+  const trigger = screen.getByText('Freistellungsaufträge-Optimierung')
+  await user.click(trigger)
+}
+
 describe('FreistellungsauftragOptimizer', () => {
   const defaultProps = {
     totalFreibetrag: 1000,
@@ -12,35 +19,47 @@ describe('FreistellungsauftragOptimizer', () => {
     teilfreistellungsquote: 30,
   }
 
-  it('should render the optimizer with title', () => {
+  it('should render the optimizer with title', async () => {
     render(<FreistellungsauftragOptimizer {...defaultProps} />)
 
     expect(screen.getByText('Freistellungsaufträge-Optimierung')).toBeInTheDocument()
     expect(screen.getByText(/Optimale Verteilung der Freistellungsaufträge/)).toBeInTheDocument()
   })
 
-  it('should display total Freibetrag for individual', () => {
+  it('should display total Freibetrag for individual', async () => {
     render(<FreistellungsauftragOptimizer {...defaultProps} />)
+
+    // Expand the card
+    await expandCard()
 
     expect(screen.getByText('Einzelperson: 1.000 € pro Jahr')).toBeInTheDocument()
   })
 
-  it('should display total Freibetrag for couple', () => {
+  it('should display total Freibetrag for couple', async () => {
     render(<FreistellungsauftragOptimizer {...defaultProps} totalFreibetrag={2000} />)
+
+    // Expand the card
+    await expandCard()
 
     expect(screen.getByText('Ehepaar: 2.000 € pro Jahr')).toBeInTheDocument()
   })
 
-  it('should show empty state when no accounts exist', () => {
+  it('should show empty state when no accounts exist', async () => {
     render(<FreistellungsauftragOptimizer {...defaultProps} />)
+
+    // Expand the card
+    await expandCard()
 
     expect(screen.getByText('Noch keine Konten angelegt.')).toBeInTheDocument()
     expect(screen.getByText(/Fügen Sie Konten hinzu/)).toBeInTheDocument()
   })
 
-  it('should call onAccountsChange when adding account', () => {
+  it('should call onAccountsChange when adding account', async () => {
     const onAccountsChange = vi.fn()
     render(<FreistellungsauftragOptimizer {...defaultProps} onAccountsChange={onAccountsChange} />)
+
+    // Expand the card
+    await expandCard()
 
     const addButton = screen.getByText('Konto hinzufügen')
     fireEvent.click(addButton)
@@ -55,7 +74,7 @@ describe('FreistellungsauftragOptimizer', () => {
     })
   })
 
-  it('should render existing accounts', () => {
+  it('should render existing accounts', async () => {
     const accounts: BankAccount[] = [
       { id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 700 },
       { id: '2', name: 'Trade Republic', expectedCapitalGains: 1500, assignedFreibetrag: 300 },
@@ -63,13 +82,16 @@ describe('FreistellungsauftragOptimizer', () => {
 
     render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} />)
 
+    // Expand the card
+    await expandCard()
+
     expect(screen.getByDisplayValue('DKB')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Trade Republic')).toBeInTheDocument()
     expect(screen.getByDisplayValue('2000')).toBeInTheDocument()
     expect(screen.getByDisplayValue('1500')).toBeInTheDocument()
   })
 
-  it('should call onAccountsChange when removing account', () => {
+  it('should call onAccountsChange when removing account', async () => {
     const accounts: BankAccount[] = [
       { id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 700 },
       { id: '2', name: 'Trade Republic', expectedCapitalGains: 1500, assignedFreibetrag: 300 },
@@ -77,6 +99,9 @@ describe('FreistellungsauftragOptimizer', () => {
     const onAccountsChange = vi.fn()
 
     render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} onAccountsChange={onAccountsChange} />)
+
+    // Expand the card
+    await expandCard()
 
     const deleteButtons = screen.getAllByRole('button', { name: '' }) // Trash icon buttons
     fireEvent.click(deleteButtons[0])
@@ -87,11 +112,14 @@ describe('FreistellungsauftragOptimizer', () => {
     expect(updatedAccounts[0].id).toBe('2')
   })
 
-  it('should update account name when input changes', () => {
+  it('should update account name when input changes', async () => {
     const accounts: BankAccount[] = [{ id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 700 }]
     const onAccountsChange = vi.fn()
 
     render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} onAccountsChange={onAccountsChange} />)
+
+    // Expand the card
+    await expandCard()
 
     const nameInput = screen.getByDisplayValue('DKB')
     fireEvent.change(nameInput, { target: { value: 'Neue Bank' } })
@@ -101,11 +129,14 @@ describe('FreistellungsauftragOptimizer', () => {
     expect(updatedAccounts[0].name).toBe('Neue Bank')
   })
 
-  it('should update expected capital gains when input changes', () => {
+  it('should update expected capital gains when input changes', async () => {
     const accounts: BankAccount[] = [{ id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 700 }]
     const onAccountsChange = vi.fn()
 
     render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} onAccountsChange={onAccountsChange} />)
+
+    // Expand the card
+    await expandCard()
 
     const gainsInput = screen.getByDisplayValue('2000')
     fireEvent.change(gainsInput, { target: { value: '3000' } })
@@ -115,13 +146,16 @@ describe('FreistellungsauftragOptimizer', () => {
     expect(updatedAccounts[0].expectedCapitalGains).toBe(3000)
   })
 
-  it('should display optimization results', () => {
+  it('should display optimization results', async () => {
     const accounts: BankAccount[] = [
       { id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 0 },
       { id: '2', name: 'Trade Republic', expectedCapitalGains: 1500, assignedFreibetrag: 0 },
     ]
 
     render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} />)
+
+    // Expand the card
+    await expandCard()
 
     // Should show optimization results section
     expect(screen.getByText('Optimierungsergebnis')).toBeInTheDocument()
@@ -129,18 +163,21 @@ describe('FreistellungsauftragOptimizer', () => {
     expect(screen.getByText('Eingesparte Steuern:')).toBeInTheDocument()
   })
 
-  it('should show validation errors for invalid configuration', () => {
+  it('should show validation errors for invalid configuration', async () => {
     const accounts: BankAccount[] = [
       { id: '1', name: 'DKB', expectedCapitalGains: -100, assignedFreibetrag: 0 }, // Negative gains
     ]
 
     render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} />)
 
+    // Expand the card
+    await expandCard()
+
     expect(screen.getByText('Validierungsfehler:')).toBeInTheDocument()
     expect(screen.getByText(/Erwartete Kapitalerträge müssen positiv sein/)).toBeInTheDocument()
   })
 
-  it('should show optimal distribution suggestion', () => {
+  it('should show optimal distribution suggestion', async () => {
     const accounts: BankAccount[] = [
       { id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 500 },
       { id: '2', name: 'Trade Republic', expectedCapitalGains: 1500, assignedFreibetrag: 500 },
@@ -148,12 +185,15 @@ describe('FreistellungsauftragOptimizer', () => {
 
     render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} />)
 
+    // Expand the card
+    await expandCard()
+
     // Should show "Optimal:" labels with suggested values
     const optimalLabels = screen.getAllByText(/Optimal:/)
     expect(optimalLabels.length).toBeGreaterThan(0)
   })
 
-  it('should apply optimal distribution when button clicked', () => {
+  it('should apply optimal distribution when button clicked', async () => {
     const accounts: BankAccount[] = [
       { id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 0 },
       { id: '2', name: 'Trade Republic', expectedCapitalGains: 1500, assignedFreibetrag: 0 },
@@ -161,6 +201,9 @@ describe('FreistellungsauftragOptimizer', () => {
     const onAccountsChange = vi.fn()
 
     render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} onAccountsChange={onAccountsChange} />)
+
+    // Expand the card
+    await expandCard()
 
     const applyButton = screen.getByText('Optimale Verteilung übernehmen')
     fireEvent.click(applyButton)
@@ -172,28 +215,37 @@ describe('FreistellungsauftragOptimizer', () => {
     expect(optimizedAccounts[1].assignedFreibetrag).toBe(0)
   })
 
-  it('should display effective tax rate and tax amount for accounts', () => {
+  it('should display effective tax rate and tax amount for accounts', async () => {
     const accounts: BankAccount[] = [{ id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 700 }]
 
     render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} />)
+
+    // Expand the card
+    await expandCard()
 
     expect(screen.getByText('Steuer:')).toBeInTheDocument()
     expect(screen.getByText('Effektiver Steuersatz:')).toBeInTheDocument()
   })
 
-  it('should show recommendations when present', () => {
+  it('should show recommendations when present', async () => {
     const accounts: BankAccount[] = [
       { id: '1', name: 'DKB', expectedCapitalGains: 500, assignedFreibetrag: 0 }, // Low gains, will have unused Freibetrag
     ]
 
     render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} />)
 
+    // Expand the card
+    await expandCard()
+
     expect(screen.getByText('Empfehlungen:')).toBeInTheDocument()
     expect(screen.getByText(/Freibetrag nicht genutzt/)).toBeInTheDocument()
   })
 
-  it('should show help text', () => {
+  it('should show help text', async () => {
     render(<FreistellungsauftragOptimizer {...defaultProps} />)
+
+    // Expand the card
+    await expandCard()
 
     expect(screen.getByText(/Die Optimierung verteilt Ihren Sparerpauschbetrag/)).toBeInTheDocument()
     expect(screen.getByText(/berücksichtigt automatisch die Teilfreistellung/)).toBeInTheDocument()
