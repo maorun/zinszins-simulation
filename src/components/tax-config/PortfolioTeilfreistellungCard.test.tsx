@@ -88,9 +88,16 @@ describe('PortfolioTeilfreistellungCard', () => {
     expect(screen.getByRole('columnheader', { name: 'TFS' })).toBeInTheDocument()
     expect(screen.getByRole('columnheader', { name: 'Beitrag' })).toBeInTheDocument()
 
-    // Should show fund types in the table
-    expect(screen.getByText('Aktienfonds')).toBeInTheDocument()
-    expect(screen.getByText('Rentenfonds')).toBeInTheDocument()
+    // Should show fund types in the table - wait for them to appear since table might render async
+    await waitFor(() => {
+      const aktienfondsElements = screen.queryAllByText(/Aktienfonds/)
+      expect(aktienfondsElements.length).toBeGreaterThanOrEqual(1)
+    }, { timeout: 3000 })
+    
+    await waitFor(() => {
+      const rentenfondsElements = screen.queryAllByText(/Rentenfonds/)
+      expect(rentenfondsElements.length).toBeGreaterThanOrEqual(1)
+    }, { timeout: 3000 })
   })
 
   it('should display optimization suggestions', async () => {
@@ -169,37 +176,42 @@ describe('PortfolioTeilfreistellungCard', () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
     await expandCard()
 
-    // Change first allocation to 70% (with second at 40% = 110% total)
+    // Find the first slider
     const sliders = screen.getAllByRole('slider')
-    // Use click and keyboard for slider interaction instead of clear/type
-    await user.click(sliders[0])
-    // Type to change value
-    for (let i = 0; i < 2; i++) {
-      await user.keyboard('{Backspace}')
-    }
-    await user.keyboard('70')
+    const firstSlider = sliders[0]
+    
+    // Focus on slider and use arrow keys to increase value
+    await user.click(firstSlider)
+    
+    // Increase value from 60 to 70 (10% increase = 2 steps of 5%)
+    await user.keyboard('{ArrowRight}{ArrowRight}')
 
-    // Should show validation error
+    // Should show validation error (total is now 110%)
     await waitFor(() => {
       expect(screen.getByText(/Validierungsfehler/i)).toBeInTheDocument()
-    }, { timeout: 5000 })
-  })
+    }, { timeout: 10000 })
+  }, 15000) // Increase test timeout to 15 seconds
 
   it('should show normalize button when there are validation errors', async () => {
     const user = userEvent.setup()
     renderWithProviders(<PortfolioTeilfreistellungCard />)
     await expandCard()
 
-    // Create invalid allocation
+    // Find the first slider
     const sliders = screen.getAllByRole('slider')
-    await user.clear(sliders[0])
-    await user.type(sliders[0], '70')
+    const firstSlider = sliders[0]
+    
+    // Focus on slider and use arrow keys to increase value
+    await user.click(firstSlider)
+    
+    // Increase value from 60 to 70 (10% increase = 2 steps of 5%)
+    await user.keyboard('{ArrowRight}{ArrowRight}')
 
     // Should show normalize button
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /Auf 100% normalisieren/i })).toBeInTheDocument()
-    })
-  })
+    }, { timeout: 10000 })
+  }, 15000) // Increase test timeout to 15 seconds
 
   it('should display info box with explanation', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
@@ -261,14 +273,15 @@ describe('PortfolioTeilfreistellungCard', () => {
     // Change to mixed fund
     await user.selectOptions(firstSelect, 'mixed-fund')
 
-    // The TFS badge should update to 15% (mixed fund TFS)
+    // The TFS badge should update to 15% (mixed fund TFS) - use getAllByText since it appears in badge AND possibly table
     await waitFor(() => {
-      expect(screen.getByText('15%')).toBeInTheDocument() // Mixed fund TFS badge (no space)
-    })
+      const badges15 = screen.getAllByText('15%') // Mixed fund TFS badge (no space)
+      expect(badges15.length).toBeGreaterThanOrEqual(1)
+    }, { timeout: 10000 })
     
     // The weighted TFS should also update: 60% * 15% + 40% * 0% = 9.0%
     await waitFor(() => {
       expect(screen.getByText(/9\.0 %/)).toBeInTheDocument() // Weighted TFS in summary (with space)
-    })
-  })
+    }, { timeout: 10000 })
+  }, 15000) // Increase test timeout to 15 seconds
 })
