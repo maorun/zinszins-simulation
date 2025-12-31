@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactElement } from 'react'
 import { PortfolioTeilfreistellungCard } from './PortfolioTeilfreistellungCard'
@@ -172,8 +172,7 @@ describe('PortfolioTeilfreistellungCard', () => {
   })
 
   // Skip this test - slider keyboard interaction doesn't work as expected in tests
-  it.skip('should show validation error when allocation exceeds 100%', async () => {
-    const user = userEvent.setup()
+  it('should show validation error when allocation exceeds 100%', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
     await expandCard()
 
@@ -181,21 +180,16 @@ describe('PortfolioTeilfreistellungCard', () => {
     const sliders = screen.getAllByRole('slider')
     const firstSlider = sliders[0]
     
-    // Focus on slider and use arrow keys to increase value
-    await user.click(firstSlider)
-    
-    // Increase value from 60 to 70 (10% increase = 2 steps of 5%)
-    await user.keyboard('{ArrowRight}{ArrowRight}')
+    // Use fireEvent.input to directly set slider value from 60 to 70
+    fireEvent.input(firstSlider, { target: { value: '70' } })
 
     // Should show validation error (total is now 110%)
     await waitFor(() => {
       expect(screen.getByText(/Validierungsfehler/i)).toBeInTheDocument()
-    }, { timeout: 10000 })
-  }, 15000) // Increase test timeout to 15 seconds
+    })
+  })
 
-  // Skip this test - slider keyboard interaction doesn't work as expected in tests
-  it.skip('should show normalize button when there are validation errors', async () => {
-    const user = userEvent.setup()
+  it('should show normalize button when there are validation errors', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
     await expandCard()
 
@@ -203,17 +197,14 @@ describe('PortfolioTeilfreistellungCard', () => {
     const sliders = screen.getAllByRole('slider')
     const firstSlider = sliders[0]
     
-    // Focus on slider and use arrow keys to increase value
-    await user.click(firstSlider)
-    
-    // Increase value from 60 to 70 (10% increase = 2 steps of 5%)
-    await user.keyboard('{ArrowRight}{ArrowRight}')
+    // Use fireEvent.input to directly set slider value from 60 to 70
+    fireEvent.input(firstSlider, { target: { value: '70' } })
 
     // Should show normalize button
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /Auf 100% normalisieren/i })).toBeInTheDocument()
-    }, { timeout: 10000 })
-  }, 15000) // Increase test timeout to 15 seconds
+    })
+  })
 
   it('should display info box with explanation', async () => {
     renderWithProviders(<PortfolioTeilfreistellungCard />)
@@ -265,8 +256,9 @@ describe('PortfolioTeilfreistellungCard', () => {
     expect(uniqueIds.size).toBe(ids.length)
   })
 
-  // Skip this test - asset class selection works but slider update times out
   it.skip('should allow changing asset class selection', async () => {
+    // This test times out due to complex state update interactions
+    // The functionality works correctly in the UI - this is a test limitation
     const user = userEvent.setup()
     renderWithProviders(<PortfolioTeilfreistellungCard />)
     await expandCard()
@@ -280,11 +272,11 @@ describe('PortfolioTeilfreistellungCard', () => {
     await waitFor(() => {
       const badges15 = screen.getAllByText('15%') // Mixed fund TFS badge (no space)
       expect(badges15.length).toBeGreaterThanOrEqual(1)
-    }, { timeout: 10000 })
+    })
     
     // The weighted TFS should also update: 60% * 15% + 40% * 0% = 9.0%
     await waitFor(() => {
       expect(screen.getByText(/9\.0 %/)).toBeInTheDocument() // Weighted TFS in summary (with space)
-    }, { timeout: 10000 })
-  }, 15000) // Increase test timeout to 15 seconds
+    })
+  })
 })
