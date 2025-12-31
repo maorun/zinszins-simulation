@@ -263,12 +263,12 @@ export function createDefaultRentalConfig(): RentalConfig {
  * Create default comparison configuration
  */
 export function createDefaultComparisonConfig(startYear: number): ComparisonConfig {
-  return {
+    return {
     startYear,
     comparisonYears: 30,
     investmentReturnRate: 5.0,
     inflationRate: 2.0,
-    enabled: false,
+    enabled: true,
   }
 }
 
