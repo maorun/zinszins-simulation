@@ -1,4 +1,5 @@
 import { lazy } from 'react'
+import { CollapsibleCategory } from './CollapsibleCategory'
 import { ConfigurationSection } from './ConfigurationSection'
 
 // Lazy load real estate configuration components
@@ -18,7 +19,7 @@ const ImmobilienTeilverkauf = lazy(() =>
  */
 export function RealEstateConfigurations() {
   return (
-    <>
+    <CollapsibleCategory title="Immobilien-Analysen" icon="🏠" defaultOpen={false} nestingLevel={0}>
       {/* Eigenheim vs. Miete Comparison */}
       <ConfigurationSection Component={EigenheimVsMieteComparison} />
 
@@ -27,6 +28,6 @@ export function RealEstateConfigurations() {
 
       {/* Real Estate Partial Sale with Lifelong Residence Rights */}
       <ConfigurationSection Component={ImmobilienTeilverkauf} />
-    </>
+    </CollapsibleCategory>
   )
 }

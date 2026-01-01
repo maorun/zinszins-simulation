@@ -1,4 +1,5 @@
 import { lazy } from 'react'
+import { CollapsibleCategory } from './CollapsibleCategory'
 import { ConfigurationSection } from './ConfigurationSection'
 
 // Lazy load planning and lifestyle configuration components
@@ -21,7 +22,12 @@ interface PlanningConfigurationsProps {
  */
 export function PlanningConfigurations({ startOfIndependence }: PlanningConfigurationsProps) {
   return (
-    <>
+    <CollapsibleCategory
+      title="Finanzplanung & Lebenssituationen"
+      icon="💼"
+      defaultOpen={false}
+      nestingLevel={0}
+    >
       {/* Global Planning Configuration */}
       <ConfigurationSection
         Component={GlobalPlanningConfiguration}
@@ -42,6 +48,6 @@ export function PlanningConfigurations({ startOfIndependence }: PlanningConfigur
 
       {/* Generational Wealth Transfer Planning Configuration */}
       <ConfigurationSection Component={GenerationalWealthTransferConfiguration} />
-    </>
+    </CollapsibleCategory>
   )
 }
