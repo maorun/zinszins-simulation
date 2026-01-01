@@ -120,21 +120,21 @@ describe('HomePage Integration Tests - Optimized', () => {
   it('shows collapsible configuration section', async () => {
     render(<HomePage />)
 
-    // The configuration section should always be present
+    // The Grundeinstellungen category should always be present in the Sonstiges tab
     await waitFor(
       () => {
-        const configHeading = screen.getByText(/⚙️ Konfiguration/)
+        const configHeading = screen.getByText(/📊 Grundeinstellungen/)
         expect(configHeading).toBeInTheDocument()
       },
       { timeout: 1000 },
     )
 
     // Simply verify that the collapsible mechanism works by checking it has data-state
-    const configSection = screen.getByText(/⚙️ Konfiguration/).closest('[data-state]')
+    const configSection = screen.getByText(/📊 Grundeinstellungen/).closest('[data-state]')
     expect(configSection).toBeInTheDocument()
 
     // The configuration should be collapsible (has a clickable parent element)
-    const clickableParent = screen.getByText(/⚙️ Konfiguration/).closest('button, [role="button"], [aria-expanded]')
+    const clickableParent = screen.getByText(/📊 Grundeinstellungen/).closest('button, [role="button"], [aria-expanded]')
     expect(clickableParent).toBeInTheDocument()
   })
 
