@@ -40,7 +40,7 @@ describe('RelationshipTypeField', () => {
   })
 
   it('calls onFormChange when relationship type changes', () => {
-    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
     const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
@@ -54,7 +54,7 @@ describe('RelationshipTypeField', () => {
   })
 
   it('preserves other form values when relationship type changes', () => {
-    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
     const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }

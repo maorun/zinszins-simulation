@@ -54,7 +54,7 @@ describe('ExpenseFields', () => {
   })
 
   it('calls onFormChange when expense type changes', () => {
-    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
     const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
@@ -68,7 +68,7 @@ describe('ExpenseFields', () => {
   })
 
   it('calls onFormChange when expense amount changes', () => {
-    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
     const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
@@ -82,7 +82,7 @@ describe('ExpenseFields', () => {
   })
 
   it('calls onFormChange when credit checkbox is toggled', () => {
-    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
     const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }

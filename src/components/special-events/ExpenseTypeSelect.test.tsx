@@ -34,7 +34,7 @@ describe('ExpenseTypeSelect', () => {
   })
 
   it('calls onFormChange when expense type changes', () => {
-    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
     const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }

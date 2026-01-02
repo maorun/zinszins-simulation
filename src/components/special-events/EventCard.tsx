@@ -107,6 +107,23 @@ function CreditTermsField({ creditTerms }: { creditTerms?: { interestRate: numbe
 }
 
 /**
+ * Helper: Format monthly costs display
+ */
+function formatMonthlyCosts(customMonthlyCosts: number | undefined, typicalCost: number): string {
+  if (customMonthlyCosts) {
+    return `${customMonthlyCosts.toLocaleString('de-DE')} €`
+  }
+  return `${typicalCost.toLocaleString('de-DE')} € (typisch)`
+}
+
+/**
+ * Helper: Format duration display
+ */
+function formatDuration(careDurationYears: number | undefined): string {
+  return careDurationYears && careDurationYears > 0 ? `${careDurationYears} Jahre` : 'Bis Lebensende'
+}
+
+/**
  * Render care cost-specific fields
  */
 function CareCostFields({ sparplan }: { sparplan: Sparplan }) {
@@ -125,27 +142,15 @@ function CareCostFields({ sparplan }: { sparplan: Sparplan }) {
         <span className="text-sm font-medium text-gray-600">🏥 Pflegegrad:</span>
         <span className="text-sm font-semibold text-orange-600">{getCareLevelDisplayName(careLevel as 1 | 2 | 3 | 4 | 5)}</span>
       </div>
-      {customMonthlyCosts && (
-        <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-gray-600">💰 Monatl. Kosten:</span>
-          <span className="text-sm font-semibold text-orange-600">
-            {customMonthlyCosts.toLocaleString('de-DE')} €
-          </span>
-        </div>
-      )}
-      {!customMonthlyCosts && (
-        <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-gray-600">💰 Monatl. Kosten:</span>
-          <span className="text-sm font-semibold text-orange-600">
-            {careLevelInfo.typicalMonthlyCost.toLocaleString('de-DE')} € (typisch)
-          </span>
-        </div>
-      )}
+      <div className="flex justify-between items-center">
+        <span className="text-sm font-medium text-gray-600">💰 Monatl. Kosten:</span>
+        <span className="text-sm font-semibold text-orange-600">
+          {formatMonthlyCosts(customMonthlyCosts, careLevelInfo.typicalMonthlyCost)}
+        </span>
+      </div>
       <div className="flex justify-between items-center">
         <span className="text-sm font-medium text-gray-600">⏱️ Dauer:</span>
-        <span className="text-sm font-semibold text-orange-600">
-          {careDurationYears && careDurationYears > 0 ? `${careDurationYears} Jahre` : 'Bis Lebensende'}
-        </span>
+        <span className="text-sm font-semibold text-orange-600">{formatDuration(careDurationYears)}</span>
       </div>
       {careInflationRate !== undefined && (
         <div className="flex justify-between items-center">

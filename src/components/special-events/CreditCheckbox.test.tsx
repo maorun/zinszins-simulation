@@ -28,7 +28,7 @@ describe('CreditCheckbox', () => {
   })
 
   it('calls onFormChange when checkbox is toggled', () => {
-    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
     const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }

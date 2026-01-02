@@ -45,7 +45,7 @@ describe('InheritanceFields', () => {
   })
 
   it('calls onFormChange when relationship type changes', () => {
-    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
     const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
@@ -59,7 +59,7 @@ describe('InheritanceFields', () => {
   })
 
   it('calls onFormChange when gross amount changes', () => {
-    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
     const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
