@@ -21,12 +21,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Geschäftsrisiko-Integration** - Ausfallrisiko des Haupteinkommens
 - **Unternehmensverkauf-Simulation** - Exit-Strategien und Steueroptimierung
 
-### Versicherung & Absicherung
-
-#### Pflegevorsorge
-
-- **Generationenvertrag** - Finanzielle Belastung durch Pflege von Angehörigen
-
 ### Technische Verbesserungen
 
 #### Datenintegration
