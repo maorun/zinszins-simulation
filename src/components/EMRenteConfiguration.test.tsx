@@ -89,10 +89,14 @@ describe('EMRenteConfiguration', () => {
     const user = userEvent.setup()
     render(<EMRenteConfiguration config={defaultConfig} onChange={mockOnChange} />)
 
-    const input = screen.getByLabelText(/Beginn der Erwerbsminderung/)
-    await user.clear(input)
-    await user.type(input, '2025')
+    const input = screen.getByLabelText(/Beginn der Erwerbsminderung/) as HTMLInputElement
+    
+    // Select all and replace with new value
+    await user.click(input)
+    await user.keyboard('{Control>}a{/Control}')
+    await user.keyboard('2025')
 
+    // Check that onChange was eventually called with 2025
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
         disabilityStartYear: 2025,
