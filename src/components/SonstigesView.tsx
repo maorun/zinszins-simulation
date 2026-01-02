@@ -5,16 +5,16 @@ import type { FinancialScenario } from '../data/scenarios'
 import { TutorialManager } from './TutorialManager'
 import { HomePageSpecialEvents } from './HomePageSpecialEvents'
 import { BehavioralFinanceInsights } from './BehavioralFinanceInsights'
-import SimulationParameters from './SimulationParameters'
 import { ConfigurationSection } from './sonstiges-sections/ConfigurationSection'
+import { GrundeinstellungenSection } from './sonstiges-sections/GrundeinstellungenSection'
+import { SteuerKonfigurationSection } from './sonstiges-sections/SteuerKonfigurationSection'
 import { PlanningConfigurations } from './sonstiges-sections/PlanningConfigurations'
 import { RealEstateConfigurations } from './sonstiges-sections/RealEstateConfigurations'
+import { AnalysenWerkzeugeSection } from './sonstiges-sections/AnalysenWerkzeugeSection'
+import { useSimulation } from '../contexts/useSimulation'
 
-// Lazy load remaining configuration components
+// Lazy load scenario selector
 const ScenarioSelector = lazy(() => import('./ScenarioSelector'))
-const DataExport = lazy(() => import('./DataExport'))
-const SensitivityAnalysisDisplay = lazy(() => import('./SensitivityAnalysisDisplay'))
-const ProfileManagement = lazy(() => import('./ProfileManagement'))
 
 interface SonstigesViewProps {
   sensitivityConfig: SensitivityAnalysisConfig
@@ -26,7 +26,16 @@ interface SonstigesViewProps {
 
 /**
  * Sonstiges View - Extended features and advanced configuration
- * Includes all configuration tools, tutorials, special events, planning tools, Monte Carlo, tax modules, exports, and behavioral finance
+ * Organized into logical categories:
+ * - Interactive Tutorials
+ * - Special Events (Sonderereignisse)
+ * - What-If Scenarios
+ * - Basic Settings (Simulation, Time Range, Benchmark)
+ * - Tax Configuration (all tax-related tools)
+ * - Financial Planning & Life Situations
+ * - Behavioral Finance Insights
+ * - Real Estate Analyses
+ * - Analysis & Tools (Export, Sensitivity Analysis, Profiles)
  */
 export function SonstigesView({
   sensitivityConfig,
@@ -35,30 +44,43 @@ export function SonstigesView({
   handleApplyScenario,
   startOfIndependence,
 }: SonstigesViewProps) {
+  const { planningMode } = useSimulation()
+
   return (
     <div className="space-y-4">
+      {/* 📚 Interaktive Tutorials */}
       <TutorialManager />
+
+      {/* 🎯 Sonderereignisse verwalten */}
       <HomePageSpecialEvents />
-      <SimulationParameters />
 
-      <PlanningConfigurations startOfIndependence={startOfIndependence} />
-
+      {/* 💡 Was-wäre-wenn Szenario */}
       <ConfigurationSection
         Component={ScenarioSelector}
         componentProps={{ onApplyScenario: handleApplyScenario }}
       />
 
+      {/* 📊 Grundeinstellungen (category) */}
+      <GrundeinstellungenSection />
+
+      {/* 💰 Steuer-Konfiguration (category) */}
+      <SteuerKonfigurationSection planningMode={planningMode} />
+
+      {/* 💼 Finanzplanung & Lebenssituationen (category) */}
+      <PlanningConfigurations startOfIndependence={startOfIndependence} />
+
+      {/* Behavioral Finance - Häufige Anlegerfehler */}
       <BehavioralFinanceInsights />
-      <ConfigurationSection Component={DataExport} />
 
-      <ConfigurationSection
-        Component={SensitivityAnalysisDisplay}
-        componentProps={{ config: sensitivityConfig, returnConfig }}
-        condition={hasSimulationData}
-      />
-
+      {/* 🏠 Immobilien-Analysen (category) */}
       <RealEstateConfigurations />
-      <ConfigurationSection Component={ProfileManagement} />
+
+      {/* 📊 Analysen & Werkzeuge (category) */}
+      <AnalysenWerkzeugeSection
+        sensitivityConfig={sensitivityConfig}
+        returnConfig={returnConfig}
+        hasSimulationData={hasSimulationData}
+      />
     </div>
   )
 }

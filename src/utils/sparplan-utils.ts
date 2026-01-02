@@ -259,15 +259,13 @@ function processRegularSavingsPlan(
   simulationAnnual: SimulationAnnualType,
 ): SparplanElement[] {
   const elements: SparplanElement[] = []
-  const currentYear = new Date().getFullYear()
+  const startYear = new Date(el.start).getFullYear()
+  const endYear = el.end ? new Date(el.end).getFullYear() : Infinity
 
-  for (let year = currentYear; year <= startEnd[0]; year++) {
-    const startYear = new Date(el.start).getFullYear()
-    const endYear = el.end ? new Date(el.end).getFullYear() : Infinity
-
+  for (let year = startYear; year <= startEnd[0]; year++) {
     // Skip years outside the savings plan range
-    if (year < startYear || year > endYear) {
-      continue
+    if (year > endYear) {
+      break
     }
 
     if (simulationAnnual === SimulationAnnual.yearly) {
@@ -285,9 +283,8 @@ function processRegularSavingsPlan(
 
 function processOneTimePayment(el: Sparplan, startEnd: [number, number]): SparplanElement[] {
   const paymentYear = new Date(el.start).getFullYear()
-  const currentYear = new Date().getFullYear()
 
-  if (paymentYear < currentYear || paymentYear > startEnd[0]) {
+  if (paymentYear > startEnd[0]) {
     return []
   }
 
