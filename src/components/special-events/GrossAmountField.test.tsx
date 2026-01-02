@@ -1,22 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { GrossAmountField } from './GrossAmountField'
-import type { EventFormValues } from './EventFormFields'
+import { createMockEventFormValues } from './test-utils'
 
 describe('GrossAmountField', () => {
-  const mockFormValues: EventFormValues = {
-    date: new Date('2024-01-01'),
+  const mockFormValues = createMockEventFormValues({
     eventType: 'inheritance',
-    phase: 'sparphase',
-    relationshipType: 'child',
     grossAmount: '100000',
-    expenseType: 'car',
-    expenseAmount: '',
-    useCredit: false,
-    interestRate: '',
-    termYears: '',
-    description: '',
-  }
+  })
 
   it('renders gross amount label and input', () => {
     const onFormChange = () => {}
@@ -42,8 +33,8 @@ describe('GrossAmountField', () => {
   })
 
   it('calls onFormChange when gross amount changes', () => {
-    const updatedValues: EventFormValues[] = []
-    const onFormChange = (values: EventFormValues) => {
+    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
     render(<GrossAmountField formValues={mockFormValues} onFormChange={onFormChange} />)
@@ -56,8 +47,8 @@ describe('GrossAmountField', () => {
   })
 
   it('preserves other form values when gross amount changes', () => {
-    const updatedValues: EventFormValues[] = []
-    const onFormChange = (values: EventFormValues) => {
+    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
     render(<GrossAmountField formValues={mockFormValues} onFormChange={onFormChange} />)

@@ -1,5 +1,6 @@
 import type { Sparplan } from '../../utils/sparplan-utils'
 import { getRelationshipTypeLabel, getExpenseTypeLabel } from '../../../helpers/inheritance-tax'
+import { getCareLevelDisplayName, DEFAULT_CARE_LEVELS } from '../../../helpers/care-cost-simulation'
 import { Button } from '../ui/button'
 import { Card } from '../ui/card'
 
@@ -15,7 +16,7 @@ interface EventStyle {
   amountColor: string
 }
 
-function getEventStyle(isInheritance: boolean, isExpense: boolean): EventStyle {
+function getEventStyle(isInheritance: boolean, isExpense: boolean, isCareCost: boolean): EventStyle {
   if (isInheritance) {
     return {
       cardClasses: 'bg-green-50 border-green-200',
@@ -31,6 +32,15 @@ function getEventStyle(isInheritance: boolean, isExpense: boolean): EventStyle {
       title: '🎯 Ausgabe',
       amountLabel: '💸 Ausgabe:',
       amountColor: 'text-red-600',
+    }
+  }
+
+  if (isCareCost) {
+    return {
+      cardClasses: 'bg-orange-50 border-orange-200',
+      title: '🏥 Pflegekosten',
+      amountLabel: '💸 Jährliche Nettokosten:',
+      amountColor: 'text-orange-600',
     }
   }
 
@@ -97,6 +107,57 @@ function CreditTermsField({ creditTerms }: { creditTerms?: { interestRate: numbe
 }
 
 /**
+ * Render care cost-specific fields
+ */
+function CareCostFields({ sparplan }: { sparplan: Sparplan }) {
+  const careLevel = sparplan.specialEventData?.careLevel
+  const customMonthlyCosts = sparplan.specialEventData?.customMonthlyCosts
+  const careDurationYears = sparplan.specialEventData?.careDurationYears
+  const careInflationRate = sparplan.specialEventData?.careInflationRate
+
+  if (!careLevel) return null
+
+  const careLevelInfo = DEFAULT_CARE_LEVELS[careLevel as 1 | 2 | 3 | 4 | 5]
+
+  return (
+    <>
+      <div className="flex justify-between items-center">
+        <span className="text-sm font-medium text-gray-600">🏥 Pflegegrad:</span>
+        <span className="text-sm font-semibold text-orange-600">{getCareLevelDisplayName(careLevel as 1 | 2 | 3 | 4 | 5)}</span>
+      </div>
+      {customMonthlyCosts && (
+        <div className="flex justify-between items-center">
+          <span className="text-sm font-medium text-gray-600">💰 Monatl. Kosten:</span>
+          <span className="text-sm font-semibold text-orange-600">
+            {customMonthlyCosts.toLocaleString('de-DE')} €
+          </span>
+        </div>
+      )}
+      {!customMonthlyCosts && (
+        <div className="flex justify-between items-center">
+          <span className="text-sm font-medium text-gray-600">💰 Monatl. Kosten:</span>
+          <span className="text-sm font-semibold text-orange-600">
+            {careLevelInfo.typicalMonthlyCost.toLocaleString('de-DE')} € (typisch)
+          </span>
+        </div>
+      )}
+      <div className="flex justify-between items-center">
+        <span className="text-sm font-medium text-gray-600">⏱️ Dauer:</span>
+        <span className="text-sm font-semibold text-orange-600">
+          {careDurationYears && careDurationYears > 0 ? `${careDurationYears} Jahre` : 'Bis Lebensende'}
+        </span>
+      </div>
+      {careInflationRate !== undefined && (
+        <div className="flex justify-between items-center">
+          <span className="text-sm font-medium text-gray-600">📈 Inflation:</span>
+          <span className="text-sm font-semibold text-orange-600">{careInflationRate}%</span>
+        </div>
+      )}
+    </>
+  )
+}
+
+/**
  * Render description field
  */
 function DescriptionField({ description }: { description?: string }) {
@@ -116,6 +177,7 @@ function DescriptionField({ description }: { description?: string }) {
 function EventDetails({
   isInheritance,
   isExpense,
+  isCareCost,
   style,
   formattedDate,
   formattedAmount,
@@ -123,6 +185,7 @@ function EventDetails({
 }: {
   isInheritance: boolean
   isExpense: boolean
+  isCareCost: boolean
   style: ReturnType<typeof getEventStyle>
   formattedDate: string
   formattedAmount: string
@@ -143,6 +206,8 @@ function EventDetails({
       {isInheritance && <InheritanceFields sparplan={sparplan} />}
 
       {isExpense && <ExpenseTypeField sparplan={sparplan} />}
+
+      {isCareCost && <CareCostFields sparplan={sparplan} />}
 
       <DescriptionField description={sparplan.specialEventData?.description} />
 
@@ -180,9 +245,10 @@ function EventHeader({
 export function EventCard({ sparplan, onDelete }: EventCardProps) {
   const isInheritance = sparplan.eventType === 'inheritance'
   const isExpense = sparplan.eventType === 'expense'
+  const isCareCost = sparplan.eventType === 'care_costs'
   const eventPhase = sparplan.specialEventData?.phase || 'sparphase'
 
-  const style = getEventStyle(isInheritance, isExpense)
+  const style = getEventStyle(isInheritance, isExpense, isCareCost)
   const phase = getPhaseInfo(eventPhase)
   const formattedDate = new Date(sparplan.start).toLocaleDateString('de-DE')
   const formattedAmount = Math.abs(sparplan.einzahlung).toLocaleString('de-DE', {
@@ -199,6 +265,7 @@ export function EventCard({ sparplan, onDelete }: EventCardProps) {
           <EventDetails
             isInheritance={isInheritance}
             isExpense={isExpense}
+            isCareCost={isCareCost}
             style={style}
             formattedDate={formattedDate}
             formattedAmount={formattedAmount}

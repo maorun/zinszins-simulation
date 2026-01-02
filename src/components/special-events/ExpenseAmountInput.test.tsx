@@ -1,22 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ExpenseAmountInput } from './ExpenseAmountInput'
-import type { EventFormValues } from './EventFormFields'
+import { createMockEventFormValues } from './test-utils'
 
 describe('ExpenseAmountInput', () => {
-  const mockFormValues: EventFormValues = {
-    date: new Date('2024-01-01'),
+  const mockFormValues = createMockEventFormValues({
     eventType: 'expense',
-    phase: 'sparphase',
-    relationshipType: 'child',
-    grossAmount: '',
-    expenseType: 'car',
     expenseAmount: '25000',
-    useCredit: false,
-    interestRate: '',
-    termYears: '',
-    description: '',
-  }
+  })
 
   it('renders expense amount input with label', () => {
     const onFormChange = () => {}
@@ -28,8 +19,8 @@ describe('ExpenseAmountInput', () => {
   })
 
   it('calls onFormChange when amount changes', () => {
-    const updatedValues: EventFormValues[] = []
-    const onFormChange = (values: EventFormValues) => {
+    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
     render(<ExpenseAmountInput formValues={mockFormValues} onFormChange={onFormChange} />)

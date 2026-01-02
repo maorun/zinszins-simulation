@@ -25,8 +25,21 @@ export function SpecialEventForm({
 }: SpecialEventFormProps) {
   const isSubmitDisabled =
     (formValues.eventType === 'inheritance' && !formValues.grossAmount) ||
-    (formValues.eventType === 'expense' && !formValues.expenseAmount)
-  const submitButtonText = formValues.eventType === 'inheritance' ? '💰 Erbschaft hinzufügen' : '💸 Ausgabe hinzufügen'
+    (formValues.eventType === 'expense' && !formValues.expenseAmount) ||
+    (formValues.eventType === 'care_costs' && !formValues.careLevel)
+  
+  const getSubmitButtonText = () => {
+    switch (formValues.eventType) {
+      case 'inheritance':
+        return '💰 Erbschaft hinzufügen'
+      case 'expense':
+        return '💸 Ausgabe hinzufügen'
+      case 'care_costs':
+        return '🏥 Pflegekosten hinzufügen'
+      default:
+        return 'Hinzufügen'
+    }
+  }
 
   return (
     <Card nestingLevel={1} className="mb-4">
@@ -56,7 +69,7 @@ export function SpecialEventForm({
                 withdrawalEndYear={withdrawalEndYear}
               />
               <Button variant="default" type="submit" size="lg" disabled={isSubmitDisabled}>
-                {submitButtonText}
+                {getSubmitButtonText()}
               </Button>
             </form>
           </CardContent>

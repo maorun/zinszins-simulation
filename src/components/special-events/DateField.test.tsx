@@ -2,26 +2,11 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DateField } from './DateField'
-import type { EventFormValues } from './EventFormFields'
-
-const createMockFormValues = (overrides?: Partial<EventFormValues>): EventFormValues => ({
-  date: new Date('2025-01-15'),
-  eventType: 'inheritance',
-  phase: 'sparphase',
-  relationshipType: 'child',
-  grossAmount: '',
-  expenseType: 'car',
-  expenseAmount: '',
-  useCredit: false,
-  interestRate: '',
-  termYears: '',
-  description: '',
-  ...overrides,
-})
+import { createMockEventFormValues } from './test-utils'
 
 describe('DateField', () => {
   it('renders date field with correct label', () => {
-    const formValues = createMockFormValues()
+    const formValues = createMockEventFormValues({ date: new Date('2025-01-15') })
     const onFormChange = vi.fn()
 
     render(
@@ -39,7 +24,7 @@ describe('DateField', () => {
   })
 
   it('displays current date value', () => {
-    const formValues = createMockFormValues({ date: new Date('2025-06-15') })
+    const formValues = createMockEventFormValues({ date: new Date('2025-06-15') })
     const onFormChange = vi.fn()
 
     render(
@@ -58,7 +43,7 @@ describe('DateField', () => {
   })
 
   it('displays correct year range for sparphase', () => {
-    const formValues = createMockFormValues({ phase: 'sparphase' })
+    const formValues = createMockEventFormValues({ phase: 'sparphase' })
     const onFormChange = vi.fn()
 
     render(
@@ -76,7 +61,7 @@ describe('DateField', () => {
   })
 
   it('displays correct year range for entsparphase', () => {
-    const formValues = createMockFormValues({ phase: 'entsparphase' })
+    const formValues = createMockEventFormValues({ phase: 'entsparphase' })
     const onFormChange = vi.fn()
 
     render(
@@ -94,7 +79,7 @@ describe('DateField', () => {
   })
 
   it('sets correct min and max attributes for sparphase', () => {
-    const formValues = createMockFormValues({ phase: 'sparphase' })
+    const formValues = createMockEventFormValues({ phase: 'sparphase' })
     const onFormChange = vi.fn()
 
     render(
@@ -115,7 +100,7 @@ describe('DateField', () => {
 
   it('calls onFormChange when date is changed', async () => {
     const user = userEvent.setup()
-    const formValues = createMockFormValues({ date: new Date('2025-01-15') })
+    const formValues = createMockEventFormValues({ date: new Date('2025-01-15') })
     const onFormChange = vi.fn()
 
     render(

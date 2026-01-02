@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import type { Sparplan } from '../utils/sparplan-utils'
 import { calculateInheritanceTax } from '../../helpers/inheritance-tax'
 import { getDefaultCreditTerms } from '../../helpers/credit-calculation'
+import { calculateCareCostsForYear } from '../../helpers/care-cost-simulation'
 import type { EventFormValues } from '../components/special-events/EventFormFields'
 
 const INITIAL_FORM_VALUES: EventFormValues = {
@@ -16,6 +17,11 @@ const INITIAL_FORM_VALUES: EventFormValues = {
   useCredit: false,
   interestRate: '',
   termYears: '',
+  // Care cost default values
+  careLevel: 2,
+  customMonthlyCosts: '',
+  careDurationYears: '',
+  careInflationRate: '3',
   description: '',
 }
 
@@ -73,6 +79,47 @@ function createExpenseSparplan(formValues: EventFormValues, nextId: number): Spa
   }
 }
 
+function createCareCostSparplan(formValues: EventFormValues, nextId: number): Sparplan {
+  const careLevel = formValues.careLevel
+  const customMonthlyCosts = formValues.customMonthlyCosts ? Number(formValues.customMonthlyCosts) : undefined
+  const careDurationYears = formValues.careDurationYears ? Number(formValues.careDurationYears) : 0
+  const careInflationRate = formValues.careInflationRate ? Number(formValues.careInflationRate) : 3
+
+  // Calculate first year costs to use as the initial deduction
+  const firstYearResult = calculateCareCostsForYear(
+    {
+      enabled: true,
+      startYear: formValues.date.getFullYear(),
+      careLevel,
+      customMonthlyCosts,
+      careInflationRate,
+      includeStatutoryBenefits: true,
+      privateCareInsuranceMonthlyBenefit: 0,
+      careDurationYears,
+      planningMode: 'individual',
+      taxDeductible: true,
+      maxAnnualTaxDeduction: 20000,
+    },
+    formValues.date.getFullYear(),
+  )
+
+  return {
+    id: nextId,
+    start: formValues.date,
+    end: formValues.date,
+    einzahlung: -firstYearResult.annualCostsNet, // Negative amount represents costs
+    eventType: 'care_costs',
+    specialEventData: {
+      careLevel,
+      customMonthlyCosts,
+      careDurationYears,
+      careInflationRate,
+      description: formValues.description,
+      phase: formValues.phase,
+    },
+  }
+}
+
 export function useSpecialEvents(currentSparplans: Sparplan[], dispatch: (val: Sparplan[]) => void) {
   const [specialEventFormValues, setSpecialEventFormValues] = useState<EventFormValues>(INITIAL_FORM_VALUES)
 
@@ -88,6 +135,9 @@ export function useSpecialEvents(currentSparplans: Sparplan[], dispatch: (val: S
     } else if (specialEventFormValues.eventType === 'expense' && specialEventFormValues.expenseAmount) {
       newSparplan = createExpenseSparplan(specialEventFormValues, nextId)
       toast.success('Ausgabe erfolgreich hinzugefügt!')
+    } else if (specialEventFormValues.eventType === 'care_costs') {
+      newSparplan = createCareCostSparplan(specialEventFormValues, nextId)
+      toast.success('Pflegekosten erfolgreich hinzugefügt!')
     }
 
     if (newSparplan) {

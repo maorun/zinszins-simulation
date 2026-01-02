@@ -1,22 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ExpenseFields } from './ExpenseFields'
-import type { EventFormValues } from './EventFormFields'
+import { createMockEventFormValues } from './test-utils'
 
 describe('ExpenseFields', () => {
-  const mockFormValues: EventFormValues = {
-    date: new Date('2024-01-01'),
+  const mockFormValues = createMockEventFormValues({
     eventType: 'expense',
-    phase: 'sparphase',
-    relationshipType: 'child',
-    grossAmount: '',
-    expenseType: 'car',
     expenseAmount: '25000',
-    useCredit: false,
-    interestRate: '',
-    termYears: '',
-    description: '',
-  }
+  })
 
   it('renders expense type select', () => {
     const onFormChange = () => {}
@@ -63,8 +54,8 @@ describe('ExpenseFields', () => {
   })
 
   it('calls onFormChange when expense type changes', () => {
-    const updatedValues: EventFormValues[] = []
-    const onFormChange = (values: EventFormValues) => {
+    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
     render(<ExpenseFields formValues={mockFormValues} onFormChange={onFormChange} />)
@@ -77,8 +68,8 @@ describe('ExpenseFields', () => {
   })
 
   it('calls onFormChange when expense amount changes', () => {
-    const updatedValues: EventFormValues[] = []
-    const onFormChange = (values: EventFormValues) => {
+    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
     render(<ExpenseFields formValues={mockFormValues} onFormChange={onFormChange} />)
@@ -91,8 +82,8 @@ describe('ExpenseFields', () => {
   })
 
   it('calls onFormChange when credit checkbox is toggled', () => {
-    const updatedValues: EventFormValues[] = []
-    const onFormChange = (values: EventFormValues) => {
+    const updatedValues: ReturnType<typeof createMockEventFormValues>[] = []
+    const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
     render(<ExpenseFields formValues={mockFormValues} onFormChange={onFormChange} />)
