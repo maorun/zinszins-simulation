@@ -101,6 +101,7 @@ export function MultiAssetPortfolioConfiguration({
         onApplyOptimizedAllocations={setup.applyOptimizedAllocations}
         onCurrencyRiskChange={setup.handleCurrencyRiskChange}
         onESGFilterChange={setup.handleESGFilterChange}
+        onGeographicDiversificationChange={setup.handleGeographicDiversificationChange}
       />
     </Card>
   )

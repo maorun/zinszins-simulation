@@ -4,6 +4,7 @@ import type { MultiAssetPortfolioConfig, AssetClass } from '../../helpers/multi-
 import type { VolatilityTargetingConfig } from '../../helpers/volatility-targeting'
 import type { Currency, CurrencyHedgingConfig } from '../../helpers/currency-risk'
 import type { ESGFilterConfig } from '../../helpers/esg-scoring'
+import type { GeographicDiversificationConfig } from '../../helpers/geographic-diversification'
 
 interface MultiAssetContentProps {
   enabled: boolean
@@ -29,6 +30,7 @@ interface MultiAssetContentProps {
     hedging?: Partial<CurrencyHedgingConfig>
   }) => void
   onESGFilterChange?: (updates: Partial<ESGFilterConfig>) => void
+  onGeographicDiversificationChange?: (updates: Partial<GeographicDiversificationConfig>) => void
 }
 
 /**
@@ -51,6 +53,7 @@ export function MultiAssetContent({
   onApplyOptimizedAllocations,
   onCurrencyRiskChange,
   onESGFilterChange,
+  onGeographicDiversificationChange,
 }: MultiAssetContentProps) {
   if (!enabled) return null
 
@@ -71,6 +74,7 @@ export function MultiAssetContent({
         onApplyOptimizedAllocations={onApplyOptimizedAllocations}
         onCurrencyRiskChange={onCurrencyRiskChange}
         onESGFilterChange={onESGFilterChange}
+        onGeographicDiversificationChange={onGeographicDiversificationChange}
       />
     </CardContent>
   )

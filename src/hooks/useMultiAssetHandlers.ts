@@ -7,6 +7,10 @@ import {
 import type { VolatilityTargetingConfig } from '../../helpers/volatility-targeting'
 import type { Currency, CurrencyHedgingConfig } from '../../helpers/currency-risk'
 import type { ESGFilterConfig } from '../../helpers/esg-scoring'
+import {
+  type GeographicDiversificationConfig,
+  createDefaultGeographicDiversificationConfig,
+} from '../../helpers/geographic-diversification'
 
 interface UseMultiAssetHandlersProps {
   config: MultiAssetPortfolioConfig
@@ -114,6 +118,27 @@ function useESGFilterHandler({ config, onChange }: UseMultiAssetHandlersProps) {
   )
 }
 
+function useGeographicDiversificationHandler({ config, onChange }: UseMultiAssetHandlersProps) {
+  return useCallback(
+    (updates: Partial<GeographicDiversificationConfig>) => {
+      const currentGeoDiversification =
+        config.geographicDiversification || createDefaultGeographicDiversificationConfig()
+
+      onChange({
+        ...config,
+        geographicDiversification: {
+          ...currentGeoDiversification,
+          ...updates,
+          regions: updates.regions
+            ? { ...currentGeoDiversification.regions, ...updates.regions }
+            : currentGeoDiversification.regions,
+        },
+      })
+    },
+    [config, onChange],
+  )
+}
+
 function useBasicConfigHandlers({ config, onChange }: UseMultiAssetHandlersProps) {
   const handleConfigChange = useCallback(
     (updates: Partial<MultiAssetPortfolioConfig>) => {
@@ -162,6 +187,7 @@ function useBasicConfigHandlers({ config, onChange }: UseMultiAssetHandlersProps
     handleVolatilityTargetingChange,
     handleCurrencyRiskChange: useCurrencyRiskHandler({ config, onChange }),
     handleESGFilterChange: useESGFilterHandler({ config, onChange }),
+    handleGeographicDiversificationChange: useGeographicDiversificationHandler({ config, onChange }),
   }
 }
 

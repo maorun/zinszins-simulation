@@ -3,6 +3,7 @@ import type { VolatilityTargetingConfig } from '../../../helpers/volatility-targ
 import type { FactorPortfolioConfig } from '../../../helpers/factor-investing'
 import type { Currency, CurrencyHedgingConfig } from '../../../helpers/currency-risk'
 import type { ESGFilterConfig } from '../../../helpers/esg-scoring'
+import type { GeographicDiversificationConfig } from '../../../helpers/geographic-diversification'
 import { AssetAllocationSummary } from './AssetAllocationSummary'
 import { AssetClassesConfiguration } from './AssetClassesConfiguration'
 import { RebalancingConfiguration } from './RebalancingConfiguration'
@@ -13,6 +14,7 @@ import { PortfolioOptimizer } from './PortfolioOptimizer'
 import { FactorInvestingConfiguration } from './FactorInvestingConfiguration'
 import { CurrencyRiskConfiguration } from '../CurrencyRiskConfiguration'
 import { ESGFilterConfiguration } from '../ESGFilterConfiguration'
+import { GeographicDiversificationConfiguration } from './GeographicDiversificationConfiguration'
 import { Info } from 'lucide-react'
 
 /** Information section component for multi-asset portfolio hints */
@@ -59,6 +61,7 @@ interface MultiAssetConfigurationContentProps {
   factorConfig?: FactorPortfolioConfig
   onFactorConfigChange?: (updates: Partial<FactorPortfolioConfig>) => void
   onESGFilterChange?: (updates: Partial<ESGFilterConfig>) => void
+  onGeographicDiversificationChange?: (updates: Partial<GeographicDiversificationConfig>) => void
 }
 
 /**
@@ -118,6 +121,28 @@ function CurrencyRiskSection({
 }
 
 /**
+ * Geographic diversification configuration section
+ */
+function GeographicDiversificationSection({
+  config,
+  onGeographicDiversificationChange,
+}: {
+  config: MultiAssetPortfolioConfig
+  onGeographicDiversificationChange?: (updates: Partial<GeographicDiversificationConfig>) => void
+}) {
+  if (!onGeographicDiversificationChange || !config.geographicDiversification) return null
+
+  return (
+    <div className="p-4 bg-white border border-gray-200 rounded-lg">
+      <GeographicDiversificationConfiguration
+        config={config.geographicDiversification}
+        onChange={onGeographicDiversificationChange}
+      />
+    </div>
+  )
+}
+
+/**
  * Main configuration content when multi-asset portfolio is enabled
  */
 export function MultiAssetConfigurationContent(props: MultiAssetConfigurationContentProps) {
@@ -149,6 +174,11 @@ export function MultiAssetConfigurationContent(props: MultiAssetConfigurationCon
       />
 
       <CurrencyRiskSection config={props.config} onCurrencyRiskChange={props.onCurrencyRiskChange} />
+
+      <GeographicDiversificationSection
+        config={props.config}
+        onGeographicDiversificationChange={props.onGeographicDiversificationChange}
+      />
 
       <RebalancingConfiguration config={props.config.rebalancing} onChange={props.onRebalancingChange} />
 
