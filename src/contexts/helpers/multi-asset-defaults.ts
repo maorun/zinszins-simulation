@@ -1,5 +1,6 @@
 import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-portfolio'
 import { createDefaultVolatilityTargetingConfig } from '../../../helpers/volatility-targeting'
+import { createDefaultGeographicDiversificationConfig } from '../../../helpers/geographic-diversification'
 
 /**
  * Create stocks asset classes for savings phase
@@ -136,6 +137,7 @@ export function createFallbackMultiAssetConfig(): MultiAssetPortfolioConfig {
     rebalancing: createDefaultRebalancing(),
     simulation: createDefaultSimulation(),
     volatilityTargeting: createDefaultVolatilityTargetingConfig(),
+    geographicDiversification: createDefaultGeographicDiversificationConfig(),
   }
 }
 
