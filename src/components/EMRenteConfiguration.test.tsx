@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { EMRenteConfiguration } from './EMRenteConfiguration'
 import type { EMRenteConfig } from '../../helpers/em-rente'
@@ -86,17 +86,14 @@ describe('EMRenteConfiguration', () => {
   })
 
   it('should update disability start year', async () => {
-    const user = userEvent.setup()
     render(<EMRenteConfiguration config={defaultConfig} onChange={mockOnChange} />)
 
     const input = screen.getByLabelText(/Beginn der Erwerbsminderung/) as HTMLInputElement
     
-    // Select all and replace with new value
-    await user.click(input)
-    await user.keyboard('{Control>}a{/Control}')
-    await user.keyboard('2025')
+    // Simulate user changing the input value
+    fireEvent.change(input, { target: { value: '2025' } })
 
-    // Check that onChange was eventually called with 2025
+    // Check that onChange was called with 2025
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
         disabilityStartYear: 2025,
