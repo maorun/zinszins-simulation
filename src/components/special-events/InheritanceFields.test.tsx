@@ -1,22 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { InheritanceFields } from './InheritanceFields'
-import type { EventFormValues } from './EventFormFields'
+import { createMockEventFormValues } from './test-utils'
 
 describe('InheritanceFields', () => {
-  const mockFormValues: EventFormValues = {
-    date: new Date('2024-01-01'),
+  const mockFormValues = createMockEventFormValues({
     eventType: 'inheritance',
-    phase: 'sparphase',
-    relationshipType: 'child',
     grossAmount: '100000',
-    expenseType: 'car',
-    expenseAmount: '',
-    useCredit: false,
-    interestRate: '',
-    termYears: '',
-    description: '',
-  }
+  })
 
   it('renders relationship type select', () => {
     const onFormChange = () => {}
@@ -54,8 +45,8 @@ describe('InheritanceFields', () => {
   })
 
   it('calls onFormChange when relationship type changes', () => {
-    const updatedValues: EventFormValues[] = []
-    const onFormChange = (values: EventFormValues) => {
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
+    const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
     render(<InheritanceFields formValues={mockFormValues} onFormChange={onFormChange} />)
@@ -68,8 +59,8 @@ describe('InheritanceFields', () => {
   })
 
   it('calls onFormChange when gross amount changes', () => {
-    const updatedValues: EventFormValues[] = []
-    const onFormChange = (values: EventFormValues) => {
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
+    const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
     render(<InheritanceFields formValues={mockFormValues} onFormChange={onFormChange} />)

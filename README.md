@@ -214,6 +214,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Kategorien: Autokauf, Immobilie, Bildung, Medizin, Sonstiges
     - Kreditberechnung mit Standard-Zinssätzen je Kategorie
     - Monatliche Ratenzahlung und Gesamtkosten-Aufstellung
+  - **🏥 Pflegekosten-Planung** - Umfassende Pflegekostenplanung basierend auf deutschem Pflegesystem
+    - **5 Pflegegrade** - Pflegegrad 1-5 nach deutschem Pflegeversicherungsgesetz
+    - **Typische Kosten** - Realistische Standardkosten je Pflegegrad (200-3.500 €/Monat)
+    - **Individuelle Anpassung** - Optionale Eingabe individueller monatlicher Pflegekosten
+    - **Gesetzliche Leistungen** - Automatische Berücksichtigung von Pflegegeld (0-947 €/Monat je nach Pflegegrad)
+    - **Pflegedauer** - Konfigurierbare Dauer (fest oder bis Lebensende)
+    - **Pflegeinflation** - Separate Inflationsrate für Pflegekosten (typisch 3-5% p.a.)
+    - **Steuerliche Absetzbarkeit** - Berücksichtigung als außergewöhnliche Belastung (bis 20.000 € p.a.)
+    - **Transparente Berechnung** - Detaillierte Aufschlüsselung von Brutto-Kosten, Leistungen und Netto-Belastung
+    - **Integration in Finanzplanung** - Automatische Berücksichtigung in Spar- und Entnahmephasen
 
 ### Kostenfaktoren
 

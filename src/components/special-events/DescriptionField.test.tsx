@@ -2,26 +2,11 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DescriptionField } from './DescriptionField'
-import type { EventFormValues } from './EventFormFields'
-
-const createMockFormValues = (overrides?: Partial<EventFormValues>): EventFormValues => ({
-  date: new Date('2025-01-01'),
-  eventType: 'inheritance',
-  phase: 'sparphase',
-  relationshipType: 'child',
-  grossAmount: '',
-  expenseType: 'car',
-  expenseAmount: '',
-  useCredit: false,
-  interestRate: '',
-  termYears: '',
-  description: '',
-  ...overrides,
-})
+import { createMockEventFormValues } from './test-utils'
 
 describe('DescriptionField', () => {
   it('renders description field with correct label', () => {
-    const formValues = createMockFormValues()
+    const formValues = createMockEventFormValues()
     const onFormChange = vi.fn()
 
     render(<DescriptionField formValues={formValues} onFormChange={onFormChange} />)
@@ -30,7 +15,7 @@ describe('DescriptionField', () => {
   })
 
   it('displays placeholder text', () => {
-    const formValues = createMockFormValues()
+    const formValues = createMockEventFormValues()
     const onFormChange = vi.fn()
 
     render(<DescriptionField formValues={formValues} onFormChange={onFormChange} />)
@@ -39,7 +24,7 @@ describe('DescriptionField', () => {
   })
 
   it('displays current description value', () => {
-    const formValues = createMockFormValues({ description: 'Test description' })
+    const formValues = createMockEventFormValues({ description: 'Test description' })
     const onFormChange = vi.fn()
 
     render(<DescriptionField formValues={formValues} onFormChange={onFormChange} />)
@@ -49,7 +34,7 @@ describe('DescriptionField', () => {
   })
 
   it('displays empty value when description is empty', () => {
-    const formValues = createMockFormValues({ description: '' })
+    const formValues = createMockEventFormValues({ description: '' })
     const onFormChange = vi.fn()
 
     render(<DescriptionField formValues={formValues} onFormChange={onFormChange} />)
@@ -60,7 +45,7 @@ describe('DescriptionField', () => {
 
   it('calls onFormChange when description is changed', async () => {
     const user = userEvent.setup()
-    const formValues = createMockFormValues({ description: '' })
+    const formValues = createMockEventFormValues({ description: '' })
     const onFormChange = vi.fn()
 
     render(<DescriptionField formValues={formValues} onFormChange={onFormChange} />)
@@ -75,7 +60,7 @@ describe('DescriptionField', () => {
 
   it('calls onFormChange when description is cleared', async () => {
     const user = userEvent.setup()
-    const formValues = createMockFormValues({ description: 'Old description' })
+    const formValues = createMockEventFormValues({ description: 'Old description' })
     const onFormChange = vi.fn()
 
     render(<DescriptionField formValues={formValues} onFormChange={onFormChange} />)

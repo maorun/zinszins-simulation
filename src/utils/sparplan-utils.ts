@@ -47,6 +47,12 @@ export type SpecialEventData = {
   expenseType?: ExpenseType
   creditTerms?: CreditTerms
 
+  // Care cost-specific fields
+  careLevel?: 1 | 2 | 3 | 4 | 5 // German care level (Pflegegrad)
+  customMonthlyCosts?: number // Custom monthly care costs
+  careDurationYears?: number // Duration of care in years (0 = until end of life)
+  careInflationRate?: number // Annual inflation rate for care costs
+
   // General event fields
   description?: string
   taxRelevant?: boolean // Whether this event affects tax calculations
@@ -63,7 +69,7 @@ export type Sparplan = {
   transactionCostPercent?: number // Transaction cost as percentage (e.g., 0.25 for 0.25%)
   transactionCostAbsolute?: number // Transaction cost as absolute amount (e.g., 1.5 for 1.50€)
   // Special events data
-  eventType?: 'normal' | 'inheritance' | 'expense' // Event type classification
+  eventType?: 'normal' | 'inheritance' | 'expense' | 'care_costs' // Event type classification
   specialEventData?: SpecialEventData // Additional data for special events
   // Fluctuating income pattern for self-employed
   incomePattern?: IncomePattern // Optional income pattern for irregular contributions
@@ -82,7 +88,7 @@ export type SparplanElement =
       transactionCostPercent?: number
       transactionCostAbsolute?: number
       // Special events data
-      eventType?: 'normal' | 'inheritance' | 'expense'
+      eventType?: 'normal' | 'inheritance' | 'expense' | 'care_costs'
       specialEventData?: SpecialEventData
       // Dynamic savings rate configuration
       dynamicSavingsConfig?: DynamicSavingsRateConfig
@@ -98,7 +104,7 @@ export type SparplanElement =
       transactionCostPercent?: number
       transactionCostAbsolute?: number
       // Special events data
-      eventType?: 'normal' | 'inheritance' | 'expense'
+      eventType?: 'normal' | 'inheritance' | 'expense' | 'care_costs'
       specialEventData?: SpecialEventData
       // Dynamic savings rate configuration (not applicable for one-time payments)
       dynamicSavingsConfig?: DynamicSavingsRateConfig

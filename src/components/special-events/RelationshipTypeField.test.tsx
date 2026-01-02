@@ -1,22 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { RelationshipTypeField } from './RelationshipTypeField'
-import type { EventFormValues } from './EventFormFields'
+import { createMockEventFormValues } from './test-utils'
 
 describe('RelationshipTypeField', () => {
-  const mockFormValues: EventFormValues = {
-    date: new Date('2024-01-01'),
+  const mockFormValues = createMockEventFormValues({
     eventType: 'inheritance',
-    phase: 'sparphase',
-    relationshipType: 'child',
     grossAmount: '100000',
-    expenseType: 'car',
-    expenseAmount: '',
-    useCredit: false,
-    interestRate: '',
-    termYears: '',
-    description: '',
-  }
+  })
 
   it('renders relationship type label and select', () => {
     const onFormChange = () => {}
@@ -49,8 +40,8 @@ describe('RelationshipTypeField', () => {
   })
 
   it('calls onFormChange when relationship type changes', () => {
-    const updatedValues: EventFormValues[] = []
-    const onFormChange = (values: EventFormValues) => {
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
+    const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
     render(<RelationshipTypeField formValues={mockFormValues} onFormChange={onFormChange} />)
@@ -63,8 +54,8 @@ describe('RelationshipTypeField', () => {
   })
 
   it('preserves other form values when relationship type changes', () => {
-    const updatedValues: EventFormValues[] = []
-    const onFormChange = (values: EventFormValues) => {
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
+    const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
     render(<RelationshipTypeField formValues={mockFormValues} onFormChange={onFormChange} />)

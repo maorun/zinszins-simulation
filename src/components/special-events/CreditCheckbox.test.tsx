@@ -1,22 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { CreditCheckbox } from './CreditCheckbox'
-import type { EventFormValues } from './EventFormFields'
+import { createMockEventFormValues } from './test-utils'
 
 describe('CreditCheckbox', () => {
-  const mockFormValues: EventFormValues = {
-    date: new Date('2024-01-01'),
+  const mockFormValues = createMockEventFormValues({
     eventType: 'expense',
-    phase: 'sparphase',
-    relationshipType: 'child',
-    grossAmount: '',
-    expenseType: 'car',
     expenseAmount: '25000',
-    useCredit: false,
-    interestRate: '',
-    termYears: '',
-    description: '',
-  }
+  })
 
   it('renders credit checkbox with label', () => {
     const onFormChange = () => {}
@@ -37,8 +28,8 @@ describe('CreditCheckbox', () => {
   })
 
   it('calls onFormChange when checkbox is toggled', () => {
-    const updatedValues: EventFormValues[] = []
-    const onFormChange = (values: EventFormValues) => {
+    const updatedValues: Array<ReturnType<typeof createMockEventFormValues>> = []
+    const onFormChange = (values: ReturnType<typeof createMockEventFormValues>) => {
       updatedValues.push(values)
     }
     render(<CreditCheckbox formValues={mockFormValues} onFormChange={onFormChange} />)

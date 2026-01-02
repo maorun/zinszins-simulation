@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
 import { ChevronDown } from 'lucide-react'
 import { EventFormFields, type EventFormValues } from './EventFormFields'
+import { isSubmitDisabled, getSubmitButtonText } from './event-form-utils'
 
 interface SpecialEventFormProps {
   formValues: EventFormValues
@@ -23,10 +24,8 @@ export function SpecialEventForm({
   withdrawalStartYear,
   withdrawalEndYear,
 }: SpecialEventFormProps) {
-  const isSubmitDisabled =
-    (formValues.eventType === 'inheritance' && !formValues.grossAmount) ||
-    (formValues.eventType === 'expense' && !formValues.expenseAmount)
-  const submitButtonText = formValues.eventType === 'inheritance' ? '💰 Erbschaft hinzufügen' : '💸 Ausgabe hinzufügen'
+  const submitDisabled = isSubmitDisabled(formValues)
+  const submitButtonText = getSubmitButtonText(formValues.eventType)
 
   return (
     <Card nestingLevel={1} className="mb-4">
@@ -55,7 +54,7 @@ export function SpecialEventForm({
                 withdrawalStartYear={withdrawalStartYear}
                 withdrawalEndYear={withdrawalEndYear}
               />
-              <Button variant="default" type="submit" size="lg" disabled={isSubmitDisabled}>
+              <Button variant="default" type="submit" size="lg" disabled={submitDisabled}>
                 {submitButtonText}
               </Button>
             </form>

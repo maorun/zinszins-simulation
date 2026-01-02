@@ -2,26 +2,11 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { PhaseSelectionField } from './PhaseSelectionField'
-import type { EventFormValues } from './EventFormFields'
-
-const createMockFormValues = (overrides?: Partial<EventFormValues>): EventFormValues => ({
-  date: new Date('2025-01-01'),
-  eventType: 'inheritance',
-  phase: 'sparphase',
-  relationshipType: 'child',
-  grossAmount: '',
-  expenseType: 'car',
-  expenseAmount: '',
-  useCredit: false,
-  interestRate: '',
-  termYears: '',
-  description: '',
-  ...overrides,
-})
+import { createMockEventFormValues } from './test-utils'
 
 describe('PhaseSelectionField', () => {
   it('renders phase selection with correct label', () => {
-    const formValues = createMockFormValues()
+    const formValues = createMockEventFormValues()
     const onFormChange = vi.fn()
 
     render(
@@ -39,7 +24,7 @@ describe('PhaseSelectionField', () => {
   })
 
   it('displays correct options with year ranges', () => {
-    const formValues = createMockFormValues()
+    const formValues = createMockEventFormValues()
     const onFormChange = vi.fn()
 
     render(
@@ -58,7 +43,7 @@ describe('PhaseSelectionField', () => {
   })
 
   it('shows current phase value', () => {
-    const formValues = createMockFormValues({ phase: 'entsparphase' })
+    const formValues = createMockEventFormValues({ phase: 'entsparphase' })
     const onFormChange = vi.fn()
 
     render(
@@ -78,7 +63,7 @@ describe('PhaseSelectionField', () => {
 
   it('calls onFormChange when phase is changed', async () => {
     const user = userEvent.setup()
-    const formValues = createMockFormValues({ phase: 'sparphase' })
+    const formValues = createMockEventFormValues({ phase: 'sparphase' })
     const onFormChange = vi.fn()
 
     render(
@@ -102,7 +87,7 @@ describe('PhaseSelectionField', () => {
   })
 
   it('displays helper text', () => {
-    const formValues = createMockFormValues()
+    const formValues = createMockEventFormValues()
     const onFormChange = vi.fn()
 
     render(
