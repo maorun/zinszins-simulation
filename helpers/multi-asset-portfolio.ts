@@ -16,6 +16,10 @@ import {
   DEFAULT_HEDGING_CONFIG,
 } from './currency-risk'
 import type { ESGFilterConfig } from './esg-scoring'
+import {
+  type GeographicDiversificationConfig,
+  createDefaultGeographicDiversificationConfig,
+} from './geographic-diversification'
 
 /**
  * Supported asset classes for multi-asset portfolios
@@ -245,6 +249,9 @@ export interface MultiAssetPortfolioConfig {
 
   /** ESG (Environmental, Social, Governance) filtering configuration */
   esgFilter?: ESGFilterConfig
+
+  /** Geographic diversification configuration for international stocks */
+  geographicDiversification?: GeographicDiversificationConfig
 }
 
 /**
@@ -286,6 +293,7 @@ export function createDefaultMultiAssetConfig(): MultiAssetPortfolioConfig {
       socialWeight: 1 / 3,
       governanceWeight: 1 / 3,
     },
+    geographicDiversification: createDefaultGeographicDiversificationConfig(),
   }
 }
 

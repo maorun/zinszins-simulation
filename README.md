@@ -103,6 +103,23 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Auswirkung auf Rendite** - Automatische Berücksichtigung von Absicherungskosten und Variance Drag
   - **Deutsche Steuerkonformität** - Korrekte steuerliche Behandlung von Währungsgewinnen/-verlusten nach deutschem Recht
   - **Bildungsfunktion** - Detaillierte Erklärungen zu Absicherungsstrategien und deren Vor-/Nachteilen
+- **Geografische Diversifikation** - Regionale Aufteilung internationaler Aktieninvestments mit automatischer Quellensteuerberechnung
+  - **4 Geografische Regionen**:
+    - **Nordamerika** - USA, Kanada (55% Standard-Allokation) - 15% Quellensteuer, 1,7% Dividendenrendite
+    - **Europa (ex-Deutschland)** - UK, Frankreich, Schweiz (28% Standard-Allokation) - 12% gewichtete Quellensteuer, 2,8% Dividendenrendite
+    - **Asien-Pazifik** - Japan, Australien, Südkorea, Hongkong (17% Standard-Allokation) - 15% Quellensteuer, 2,3% Dividendenrendite
+    - **Schwellenländer** - China, Indien, Brasilien, Südafrika (0% Standard-Allokation) - 10% Quellensteuer, 2,6% Dividendenrendite
+  - **Individuelle Regionskonfiguration** - Separate Einstellung von Allokation, erwarteter Rendite, Volatilität und Quellensteuer für jede Region
+  - **Portfolio-Statistiken** - Echtzeit-Berechnung der gewichteten Portfolio-Rendite und des Portfolio-Risikos
+  - **Automatische Quellensteuer-Anrechnung** - Berechnung nach deutschem Steuerrecht (§ 32d EStG)
+    - Berücksichtigung von Teilfreistellung (30% für Aktienfonds)
+    - Anrechnung ausländischer Quellensteuer auf deutsche Kapitalertragsteuer
+    - Begrenzung der Anrechnung auf die deutsche Steuerlast
+  - **Regionale Steuerbesonderheiten** - Quellensteuer basierend auf Doppelbesteuerungsabkommen (DBA)
+  - **Dividendenerträge-Simulation** - Automatische Berechnung der Dividenden und Steuerlast pro Region
+  - **Normalisierungsfunktion** - Ein-Klick Normalisierung der regionalen Allokationen auf 100%
+  - **Validierung** - Automatische Prüfung dass Summe der regionalen Allokationen 100% ergibt
+  - **Quellensteuer-Vorschau** - Transparente Darstellung der geschätzten Steuerauswirkung basierend auf dem internationalen Kapital
 - **ESG-Integration** - Nachhaltigkeitsfilter und ESG-Scoring für ethisch ausgerichtete Portfolios
   - **3 ESG-Pfeiler** - Environmental (Umwelt), Social (Soziales), Governance (Unternehmensführung)
   - **Asset-Class-Level Scoring** - ESG-Scores (1-10 Skala) für alle Anlageklassen basierend auf EU-Standards

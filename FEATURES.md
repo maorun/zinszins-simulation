@@ -10,7 +10,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Asset Allocation & Portfolio-Management
 
-- **Geografische Diversifikation** - Aufteilung zwischen Regionen mit entsprechenden Steuern
 - **Alternative Investments** - Private Equity, Hedge Funds, Kryptowährungen
 
 ### Lebenssituationen & Planung
