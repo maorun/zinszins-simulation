@@ -5,6 +5,7 @@ import type { FinancialScenario } from '../data/scenarios'
 import { TutorialManager } from './TutorialManager'
 import { HomePageSpecialEvents } from './HomePageSpecialEvents'
 import { BehavioralFinanceInsights } from './BehavioralFinanceInsights'
+import { MarketPsychologyIndicators } from './MarketPsychologyIndicators'
 import { ConfigurationSection } from './sonstiges-sections/ConfigurationSection'
 import { GrundeinstellungenSection } from './sonstiges-sections/GrundeinstellungenSection'
 import { SteuerKonfigurationSection } from './sonstiges-sections/SteuerKonfigurationSection'
@@ -34,6 +35,7 @@ interface SonstigesViewProps {
  * - Tax Configuration (all tax-related tools)
  * - Financial Planning & Life Situations
  * - Behavioral Finance Insights
+ * - Market Psychology Indicators
  * - Real Estate Analyses
  * - Analysis & Tools (Export, Sensitivity Analysis, Profiles)
  */
@@ -69,8 +71,11 @@ export function SonstigesView({
       {/* 💼 Finanzplanung & Lebenssituationen (category) */}
       <PlanningConfigurations startOfIndependence={startOfIndependence} />
 
-      {/* Behavioral Finance - Häufige Anlegerfehler */}
+      {/* 🧠 Behavioral Finance - Häufige Anlegerfehler */}
       <BehavioralFinanceInsights />
+
+      {/* 📈 Marktpsychologie-Indikatoren */}
+      <MarketPsychologyIndicators />
 
       {/* 🏠 Immobilien-Analysen (category) */}
       <RealEstateConfigurations />

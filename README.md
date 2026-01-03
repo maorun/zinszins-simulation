@@ -707,6 +707,43 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Verwandte Biases** - Verknüpfungen zwischen zusammenhängenden psychologischen Effekten
   - **Detaillierte Erklärungen** - Jeder Bias mit Definition, deutschem Beispiel und Vermeidungsstrategie
 
+### Marktpsychologie-Indikatoren
+
+- **Fear & Greed Index und Sentiment-Indikatoren** - Bildungswerkzeug zur Einschätzung der Marktstimmung
+  - **Gesamtsentiment-Score** - Aggregierter Index von 0-100 (Extreme Angst bis Extreme Gier)
+  - **7 Einzelindikatoren** - Umfassende Sentiment-Analyse aus verschiedenen Perspektiven:
+    - **Volatilitätsindex (VIX)** - "Angstindex" des Marktes basierend auf S&P 500 Optionspreisen
+    - **Put/Call Ratio** - Verhältnis von Absicherung zu Spekulation
+    - **Marktdynamik** - Anzahl der Aktien mit 52-Wochen-Hochs vs. Tiefs
+    - **Hochzinsanleihen-Nachfrage** - Risikobereitschaft anhand von Junk-Bond-Spreads
+    - **Nachfrage nach sicheren Häfen** - Kapitalfluss in Gold, Staatsanleihen und sichere Währungen
+    - **Marktbreite** - Prozentsatz der Aktien über 50-Tage-Linie
+    - **Stimmungsumfragen** - Aggregierte Investor-Sentiment-Umfragen (AAII, etc.)
+  - **Farbcodierte Sentiment-Gauge** - Visuelle Darstellung der aktuellen Marktstimmung
+    - 5 Sentiment-Level: Extreme Angst, Angst, Neutral, Gier, Extreme Gier
+    - Dynamischer Indikator zeigt aktuelle Position auf der Skala
+  - **Kontextualisierte Interpretation** - Detaillierte Erklärung der aktuellen Marktsituation
+    - Bedeutung des aktuellen Sentiment-Scores
+    - Typische Marktverhalten bei diesem Sentiment-Level
+    - Historische Parallelen und Beispiele
+  - **Investmentempfehlungen** - Konkrete Handlungshinweise basierend auf Sentiment
+    - Antizyklische Investment-Strategien für extreme Phasen
+    - Risikomanagement-Empfehlungen
+    - Sparplan-Anpassungsvorschläge
+  - **Historischer Kontext** - Einordnung in vergangene Marktphasen
+    - Referenzen zu bekannten Ereignissen (Corona-Crash 2020, Finanzkrise 2008, Dotcom-Blase 2000)
+    - Langfristige Perspektive auf Sentiment-Zyklen
+  - **Suchfunktion** - Schnelles Finden spezifischer Indikatoren
+  - **Bildungszwecke** - Klare Kennzeichnung als pädagogisches Werkzeug
+    - Verwendung von Beispielwerten für Demonstrationszwecke
+    - Keine Anlageberatung oder Trading-Signale
+    - Fokus auf langfristige Perspektive und Verhaltenspsychologie
+  - **Nutzungsanleitung** - Umfassende Hinweise zur richtigen Verwendung
+    - Langfristige Perspektive bevorzugen
+    - Nicht isoliert betrachten (Fundamentaldaten bleiben wichtig)
+    - Konträrer Ansatz (Warren Buffett-Prinzip)
+    - Market-Timing-Schwierigkeiten verstehen
+
 ### Finanzziele & Fortschrittsverfolgung
 
 - **SMART-Goals Integration** - Setzen und verfolgen Sie messbare Finanzziele

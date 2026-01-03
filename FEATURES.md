@@ -42,8 +42,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Finanzbildung
 
-- **Marktpsychologie-Indikatoren** - Fear & Greed Index, etc.
-
 ---
 
 ## ❌ Explizit NICHT zu entwickelnde Features
