@@ -29,6 +29,27 @@ const mockUseDataAvailability = {
   hasAnyData: true,
 }
 
+const mockUseReportGeneration = {
+  isGenerating: false as boolean,
+  lastResult: null as { success: boolean; format: string; filename?: string; error?: string } | null,
+  config: {
+    enabled: false,
+    frequency: 'quarterly' as const,
+    format: 'markdown' as const,
+    content: {
+      portfolioSummary: true,
+      performanceMetrics: true,
+      taxOverview: true,
+      savingsBreakdown: true,
+      withdrawalProjections: false,
+      riskAnalysis: true,
+    },
+  },
+  generateReport: vi.fn(),
+  updateConfig: vi.fn(),
+  resetConfig: vi.fn(),
+}
+
 vi.mock('../hooks/useParameterExport', () => ({
   useParameterExport: () => mockUseParameterExport,
 }))
@@ -39,6 +60,10 @@ vi.mock('../hooks/useDataExport', () => ({
 
 vi.mock('../hooks/useDataAvailability', () => ({
   useDataAvailability: () => mockUseDataAvailability,
+}))
+
+vi.mock('../hooks/useReportGeneration', () => ({
+  useReportGeneration: () => mockUseReportGeneration,
 }))
 
 describe('DataExport', () => {
@@ -52,6 +77,8 @@ describe('DataExport', () => {
     mockUseDataAvailability.hasSavingsData = true
     mockUseDataAvailability.hasWithdrawalCapability = true
     mockUseDataAvailability.hasAnyData = true
+    mockUseReportGeneration.isGenerating = false
+    mockUseReportGeneration.lastResult = null
   })
 
   it('should render the export panel collapsed by default', () => {
@@ -383,6 +410,104 @@ describe('DataExport', () => {
       dataExportButtons.forEach(button => {
         expect(button).toBeDisabled()
       })
+    })
+  })
+
+  it('should show automated report section when expanded', async () => {
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      expect(screen.getByText('Automatisierter Bericht')).toBeInTheDocument()
+      expect(screen.getByText(/Portfolio-Bericht generieren/)).toBeInTheDocument()
+    })
+  })
+
+  it('should show report generation button when data is available', async () => {
+    mockUseDataAvailability.hasAnyData = true
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      const reportButton = screen.getByText(/Portfolio-Bericht generieren/)
+      expect(reportButton).toBeInTheDocument()
+      expect(reportButton).not.toBeDisabled()
+    })
+  })
+
+  it('should show warning when no data available for report', async () => {
+    mockUseDataAvailability.hasAnyData = false
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Simulationsdaten erforderlich/)).toBeInTheDocument()
+    })
+  })
+
+  it('should call generateReport when report button is clicked', async () => {
+    mockUseDataAvailability.hasAnyData = true
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      const reportButton = screen.getByText(/Portfolio-Bericht generieren/)
+      fireEvent.click(reportButton)
+    })
+
+    expect(mockUseReportGeneration.generateReport).toHaveBeenCalledTimes(1)
+  })
+
+  it('should show loading state when report is generating', async () => {
+    mockUseReportGeneration.isGenerating = true
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      expect(screen.getByText('Generiere Bericht...')).toBeInTheDocument()
+    })
+  })
+
+  it('should show success state after report generation', async () => {
+    mockUseReportGeneration.lastResult = {
+      success: true,
+      format: 'markdown',
+      filename: 'Portfolio-Bericht-03-01-2026.md',
+    }
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Portfolio-Bericht-03-01-2026.md/)).toBeInTheDocument()
+    })
+  })
+
+  it('should show error state when report generation fails', async () => {
+    mockUseReportGeneration.lastResult = {
+      success: false,
+      format: 'markdown',
+      error: 'Test error message',
+    }
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      expect(screen.getByText('✗ Fehler')).toBeInTheDocument()
+      expect(screen.getByText('Fehler: Test error message')).toBeInTheDocument()
     })
   })
 })

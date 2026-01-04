@@ -35,7 +35,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Reporting & Visualisierung
 
-- **Automated Reporting** - Regelmäßige lokale Reports
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
 
 ### Beratungs- & Bildungsfeatures
