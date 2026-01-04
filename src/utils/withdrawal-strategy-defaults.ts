@@ -158,6 +158,8 @@ const strategyDefaultGetters: Record<WithdrawalStrategy, StrategyDefaultGetter> 
   kapitalerhalt: () => ({}),
   /** Tax-optimized withdrawal (minimize tax burden through strategic withdrawals) */
   steueroptimiert: () => ({}),
+  /** Capital depletion strategy (planned complete capital usage by target age) */
+  kapitalverzehr: () => ({}),
 }
 
 /**
