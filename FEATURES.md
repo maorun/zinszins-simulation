@@ -31,14 +31,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Entnahmestrategien & Kapitalplanung
 
-- **Kapitalverzehrsplan (Capital Depletion Strategy)** - Geplante vollständige Kapitalnutzung bis zu einem Zielalter
-  - Berechnung der maximalen jährlichen/monatlichen Entnahme bei vollständigem Kapitalverzehr
-  - Berücksichtigung von Lebenserwartung und Wunsch-Zielalter
-  - Integration deutscher Lebenserwartungstabellen (Statistisches Bundesamt)
-  - Sicherheitspuffer-Konfiguration für Langlebigkeitsrisiko
-  - Flexible Anpassung der Entnahmerate über die Zeit
-  - Kombination mit klassischen 4%-Regel und anderen Strategien als Vergleich
-
 ### Lebenssituationen & Planung
 
 #### Selbstständigkeit & Unternehmertum

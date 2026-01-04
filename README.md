@@ -972,6 +972,15 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Dynamische Entnahmestrategie** - Renditebasierte Anpassung der Entnahme
 - **Drei-Eimer-Strategie** - Cash-Polster für negative Rendite-Phasen
 - **RMD-ähnliche Entnahme** - Geschlechtsspezifische Entnahme basierend auf Lebenserwartung
+- **Kapitalverzehr (Capital Depletion)** - Geplanter vollständiger Kapitalverbrauch bis zum Zielalter
+  - **Altersbasierte Planung**: Zielalter für vollständigen Kapitalverzehr konfigurierbar (65-120 Jahre)
+  - **Sicherheitspuffer**: Zusätzliche Jahre (0-15) für Langlebigkeitsrisiko einplanbar
+  - **Mathematisch fundiert**: Verwendet Rentenbarwertformel für gleichmäßige Kapitalverteilung
+  - **Renditeanpassung**: Berücksichtigt erwartete Rendite für realistische Entnahmebeträge
+  - **Flexible Constraints**: Optionale Min/Max-Entnahmeraten zur Vermeidung extremer Werte
+  - **Dynamische Anpassung**: Jährliche Neuberechnung basierend auf aktuellem Kapital und verbleibenden Jahren
+  - **Realistische Planung**: Ideal für Ruheständler ohne Vererbungsabsicht oder mit definiertem Ausgabenhorizont
+  - **Deutsche Bedarfsdeckung**: Orientiert am Bedarfsdeckungsprinzip der deutschen Altersvorsorge
 - **Kapitalerhalt / Ewige Rente** - Strategie zum dauerhaften Erhalt des realen Kapitalwerts
 - **Steueroptimierte Entnahme** - Automatische Optimierung zur Minimierung der Steuerlast
   - **Drei Optimierungsmodi**: Steuerminimierung, Netto-Maximierung oder ausgewogener Ansatz
