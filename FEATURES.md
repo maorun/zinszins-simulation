@@ -11,6 +11,33 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Asset Allocation & Portfolio-Management
 
 - **Alternative Investments** - Private Equity, Hedge Funds, Kryptowährungen
+- **Dynamische Asset Allocation (Gleitpfad-Strategie)** - Automatische altersbasierte Risikoanpassung der Portfolio-Allokation
+  - Gleitpfad-Konfiguration mit Start- und Ziel-Aktienquote
+  - Lineare oder konvexe/konkave Anpassungskurven
+  - Berücksichtigung der deutschen "Lebensalter-Faustformel": Aktienquote = 100 - Lebensalter
+  - Automatische Umschichtung zwischen Aktien und sicheren Anlagen
+  - Integration mit bestehenden Multi-Asset Portfolio Features
+  - Anpassung an Lebensabschnitte (z.B. aggressive Sparphase → konservative Entnahmephase)
+
+#### Szenario-Vergleiche & Optimierung
+
+- **Szenario-Vergleichsansicht** - Paralleler Vergleich mehrerer Finanzplanungs-Szenarien
+  - Side-by-Side Darstellung von 2-4 Szenarien gleichzeitig
+  - Schnelle Parametervariationen (z.B. verschiedene Sparraten, Renditen, Entnahmestrategien)
+  - Visuelle Hervorhebung der Unterschiede zwischen Szenarien
+  - Best/Worst/Base-Case Analyse für Entscheidungsfindung
+  - Export und Speicherung von Vergleichsergebnissen
+  - Deutsche Finanz-Szenarien (konservativ, moderat, optimistisch)
+
+#### Entnahmestrategien & Kapitalplanung
+
+- **Kapitalverzehrsplan (Capital Depletion Strategy)** - Geplante vollständige Kapitalnutzung bis zu einem Zielalter
+  - Berechnung der maximalen jährlichen/monatlichen Entnahme bei vollständigem Kapitalverzehr
+  - Berücksichtigung von Lebenserwartung und Wunsch-Zielalter
+  - Integration deutscher Lebenserwartungstabellen (Statistisches Bundesamt)
+  - Sicherheitspuffer-Konfiguration für Langlebigkeitsrisiko
+  - Flexible Anpassung der Entnahmerate über die Zeit
+  - Kombination mit klassischen 4%-Regel und anderen Strategien als Vergleich
 
 ### Lebenssituationen & Planung
 
@@ -36,6 +63,24 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Reporting & Visualisierung
 
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
+- **Interaktives Finanz-Dashboard** - Zentrale Übersicht aller wichtigen Finanzkennzahlen
+  - Anpassbare Widget-basierte Ansicht mit Drag-&-Drop Funktion
+  - Key Performance Indicators (KPIs): Sparquote, Vermögensaufbau-Rate, erwartete Rentenlücke
+  - Grafische Darstellung von Vermögensverteilung (Asset Allocation Pie Chart)
+  - Timeline-Visualisierung wichtiger finanzieller Meilensteine
+  - Fortschrittsanzeigen für Sparziele und Entnahmepläne
+  - Mobile-optimierte Dashboard-Ansicht
+  - Export der Dashboard-Ansicht als PDF/PNG
+
+#### Steueroptimierung & Strategien
+
+- **Intelligente Verkaufsstrategie mit Steuerstundung** - Optimierung des Verkaufszeitpunkts zur Steuerminimierung
+  - Analyse der besten Zeitpunkte für Verkäufe unter Berücksichtigung von Freibeträgen
+  - Mehrjährige Steueroptimierung durch zeitliche Streuung von Gewinnen
+  - Berücksichtigung der Haltefrist (Spekulationsfrist) für verschiedene Anlageklassen
+  - Simulation von Steuerlast bei verschiedenen Verkaufsszenarien
+  - Integration mit Tax Loss Harvesting für optimale Verlustverrechnung
+  - Empfehlungen für steueroptimale Reihenfolge von Verkäufen (FIFO vs. LIFO vs. steueroptimiert)
 
 ### Beratungs- & Bildungsfeatures
 
