@@ -77,7 +77,7 @@ describe('Kapitalverzehr (Capital Depletion) Strategy', () => {
       }
 
       const result = calculateWithdrawal({
-        elements: [createTestElement(2024, 500000, 500000, 2024-1)],
+        elements: [createTestElement(2024, 500000, 500000, 2024)],
         startYear,
         endYear: 2045,
         strategy: 'kapitalverzehr',
@@ -106,7 +106,7 @@ describe('Kapitalverzehr (Capital Depletion) Strategy', () => {
       }
 
       const result = calculateWithdrawal({
-        elements: [createTestElement(2024, 500000, 500000, 2024-1)],
+        elements: [createTestElement(2024, 500000, 500000, 2024)],
         startYear,
         endYear: 2030,
         strategy: 'kapitalverzehr',
@@ -132,7 +132,7 @@ describe('Kapitalverzehr (Capital Depletion) Strategy', () => {
       }
 
       const result = calculateWithdrawal({
-        elements: [createTestElement(2024, 500000, 500000, 2024-1)],
+        elements: [createTestElement(2024, 500000, 500000, 2024)],
         startYear,
         endYear: 2030,
         strategy: 'kapitalverzehr',
@@ -160,7 +160,7 @@ describe('Kapitalverzehr (Capital Depletion) Strategy', () => {
       }
 
       const result = calculateWithdrawal({
-        elements: [createTestElement(2024, 500000, 500000, 2024-1)],
+        elements: [createTestElement(2024, 500000, 500000, 2024)],
         startYear,
         endYear: 2030,
         strategy: 'kapitalverzehr',
@@ -186,7 +186,7 @@ describe('Kapitalverzehr (Capital Depletion) Strategy', () => {
       }
 
       const result = calculateWithdrawal({
-        elements: [createTestElement(2039, 100000, 100000, 2039-1)],
+        elements: [createTestElement(2039, 100000, 100000, 2039)],
         startYear,
         endYear: 2042,
         strategy: 'kapitalverzehr',
@@ -214,7 +214,7 @@ describe('Kapitalverzehr (Capital Depletion) Strategy', () => {
       }
 
       const result = calculateWithdrawal({
-        elements: [createTestElement(2024, 500000, 500000, 2024-1)],
+        elements: [createTestElement(2024, 500000, 500000, 2024)],
         startYear,
         endYear: 2035,
         strategy: 'kapitalverzehr',
@@ -245,7 +245,7 @@ describe('Kapitalverzehr (Capital Depletion) Strategy', () => {
       }
 
       const result = calculateWithdrawal({
-        elements: [createTestElement(2024, 500000, 500000, 2024-1)],
+        elements: [createTestElement(2024, 500000, 500000, 2024)],
         startYear,
         endYear: 2030,
         strategy: 'kapitalverzehr',
@@ -265,7 +265,7 @@ describe('Kapitalverzehr (Capital Depletion) Strategy', () => {
 
   describe('Comparison with Other Strategies', () => {
     const testScenario = {
-      elements: [createTestElement(2024, 500000, 500000, 2024-1)],
+      elements: [createTestElement(2024, 500000, 500000, 2024)],
       startYear: 2025,
       endYear: 2035,
       returnConfig: { mode: 'fixed' as const, fixedRate: 0.05 },

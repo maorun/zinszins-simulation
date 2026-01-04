@@ -939,7 +939,13 @@ function calculateRMDWithdrawalAmount(
     )
   }
   
-  if (strategy === 'kapitalverzehr' && kapitalverzehrConfig && birthYear) {
+  if (strategy === 'kapitalverzehr') {
+    if (!kapitalverzehrConfig) {
+      throw new Error('Kapitalverzehr strategy requires kapitalverzehrConfig')
+    }
+    if (!birthYear) {
+      throw new Error('Kapitalverzehr strategy requires birthYear for age calculation')
+    }
     return calculateKapitalverzehrAmount(
       capitalAtStartOfYear,
       kapitalverzehrConfig,
