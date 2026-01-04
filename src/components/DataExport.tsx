@@ -1,12 +1,13 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
 import { Button } from './ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { ChevronDown, Download, FileText, Copy, Info } from 'lucide-react'
+import { ChevronDown, Download, FileText, Copy, Info, FileBarChart } from 'lucide-react'
 import { useParameterExport } from '../hooks/useParameterExport'
 import { useDataExport } from '../hooks/useDataExport'
 import { useDataAvailability } from '../hooks/useDataAvailability'
 import { useNestingLevel } from '../lib/nesting-utils'
 import { useNavigationItem } from '../hooks/useNavigationItem'
+import { useReportGeneration } from '../hooks/useReportGeneration'
 
 type ButtonVariant = 'default' | 'secondary' | 'destructive' | 'outline'
 
@@ -49,6 +50,81 @@ function ParameterExportSection({ isExporting, lastExportResult, onExport }: Par
         {getButtonText()}
       </Button>
       <div className="block sm:hidden text-xs text-gray-500">💡 Kopiert alle Parameter in die Zwischenablage</div>
+    </div>
+  )
+}
+
+interface AutomatedReportSectionProps {
+  isGenerating: boolean
+  lastResult: { success: boolean; format: string; filename?: string; error?: string } | null
+  onGenerate: () => void
+  hasData: boolean
+}
+
+function ReportGenerationButton({ 
+  isGenerating, 
+  lastResult, 
+  onGenerate 
+}: Pick<AutomatedReportSectionProps, 'isGenerating' | 'lastResult' | 'onGenerate'>) {
+  const getButtonText = () => {
+    if (isGenerating) return 'Generiere Bericht...'
+    if (lastResult?.success) return `✓ ${lastResult.filename || 'Bericht erstellt'}`
+    if (lastResult?.error) return '✗ Fehler'
+    return '📊 Portfolio-Bericht generieren'
+  }
+
+  const getButtonVariant = (): ButtonVariant => {
+    if (lastResult?.success) return 'secondary'
+    if (lastResult?.error) return 'destructive'
+    return 'default'
+  }
+
+  return (
+    <>
+      <Button
+        variant={getButtonVariant()}
+        size="sm"
+        onClick={onGenerate}
+        disabled={isGenerating}
+        className="w-full sm:w-auto"
+      >
+        {getButtonText()}
+      </Button>
+      
+      {lastResult?.error && (
+        <div className="text-xs text-red-600">
+          Fehler: {lastResult.error}
+        </div>
+      )}
+      
+      <div className="text-xs text-gray-500">
+        💡 Erstellt Markdown-Bericht mit Portfolio-Übersicht, Performance-Metriken und Steuer-Details
+      </div>
+    </>
+  )
+}
+
+function AutomatedReportSection({ isGenerating, lastResult, onGenerate, hasData }: AutomatedReportSectionProps) {
+  return (
+    <div className="space-y-3">
+      <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+        <FileBarChart className="h-4 w-4" />
+        Automatisierter Bericht
+      </h3>
+      <p className="text-sm text-gray-600">
+        Generiert einen umfassenden Portfolio-Bericht mit Zusammenfassung, Performance-Kennzahlen und Steuerübersicht.
+      </p>
+      
+      {!hasData ? (
+        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+          <div className="flex items-center gap-2 text-yellow-800 text-sm">
+            <Info className="h-4 w-4 flex-shrink-0" />
+            <span>Simulationsdaten erforderlich für Berichtsgenerierung.</span>
+          </div>
+        </div>
+      ) : (
+        <ReportGenerationButton isGenerating={isGenerating} lastResult={lastResult} onGenerate={onGenerate} />
+      )}
     </div>
   )
 }
@@ -521,6 +597,7 @@ function useDataExportHooks() {
   const parameterExport = useParameterExport()
   const { lastExportResult, ...restDataExport } = useDataExport()
   const dataAvailability = useDataAvailability()
+  const reportGeneration = useReportGeneration()
   const nestingLevel = useNestingLevel()
   const navigationRef = useNavigationItem({
     id: 'data-export',
@@ -536,6 +613,9 @@ function useDataExportHooks() {
     exportResult: lastExportResult,
     ...restDataExport,
     ...dataAvailability,
+    isReportGenerating: reportGeneration.isGenerating,
+    reportGenerationResult: reportGeneration.lastResult,
+    generateReport: reportGeneration.generateReport,
     nestingLevel,
     navigationRef,
   }
@@ -545,6 +625,9 @@ interface DataExportContentProps {
   isParameterExporting: boolean
   parameterExportResult: 'success' | 'error' | null
   exportParameters: () => Promise<boolean>
+  isReportGenerating: boolean
+  reportGenerationResult: { success: boolean; format: string; filename?: string; error?: string } | null
+  generateReport: () => void
   hasAnyData: boolean
   hasSavingsData: boolean
   hasWithdrawalCapability: boolean
@@ -565,7 +648,7 @@ interface DataExportContentProps {
   nestingLevel: number
 }
 
-function buildDataExportSectionProps(props: Omit<DataExportContentProps, 'isParameterExporting' | 'parameterExportResult' | 'exportParameters' | 'nestingLevel'>): DataExportSectionProps {
+function buildDataExportSectionProps(props: Omit<DataExportContentProps, 'isParameterExporting' | 'parameterExportResult' | 'exportParameters' | 'isReportGenerating' | 'reportGenerationResult' | 'generateReport' | 'nestingLevel'>): DataExportSectionProps {
   const {
     hasAnyData,
     hasSavingsData,
@@ -608,7 +691,16 @@ function buildDataExportSectionProps(props: Omit<DataExportContentProps, 'isPara
 }
 
 function DataExportContent(props: DataExportContentProps) {
-  const { isParameterExporting, parameterExportResult, exportParameters, nestingLevel, ...rest } = props
+  const { 
+    isParameterExporting, 
+    parameterExportResult, 
+    exportParameters, 
+    isReportGenerating,
+    reportGenerationResult,
+    generateReport,
+    nestingLevel, 
+    ...rest 
+  } = props
   const dataExportProps = buildDataExportSectionProps(rest)
 
   return (
@@ -616,6 +708,12 @@ function DataExportContent(props: DataExportContentProps) {
       <CardContent nestingLevel={nestingLevel}>
         <div className="space-y-6">
           <ParameterExportSection isExporting={isParameterExporting} lastExportResult={parameterExportResult} onExport={exportParameters} />
+          <AutomatedReportSection 
+            isGenerating={isReportGenerating}
+            lastResult={reportGenerationResult}
+            onGenerate={generateReport}
+            hasData={rest.hasAnyData}
+          />
           <DataExportSection {...dataExportProps} />
           <FormatInformationSection />
         </div>
