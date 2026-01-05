@@ -53,29 +53,60 @@ export function isStandardGrundfreibetragValue(amount: number): boolean {
   )
 }
 
-// Historical and projected German Basiszins (base interest rate) values for Vorabpauschale calculation
-// These are official rates set by the German Federal Ministry of Finance
-// NOTE: This is now a fallback - the main configuration should come from BasiszinsConfiguration
+/**
+ * Historical and projected German Basiszins (base interest rate) values for Vorabpauschale calculation.
+ * 
+ * The Basiszins is the official base interest rate set annually by the German Federal Ministry of Finance
+ * (Bundesfinanzministerium) for calculating the Vorabpauschale on investment funds.
+ * 
+ * These values serve as a fallback when dynamic configuration is not available.
+ * The primary source should be the configurable BasiszinsConfiguration from Deutsche Bundesbank.
+ * 
+ * Historical rates are official values; future rates are projections that should be updated
+ * when official values become available.
+ * 
+ * @see BasiszinsConfiguration for dynamic rate configuration
+ * @see getBasiszinsForYear for rate retrieval with fallback logic
+ */
 const basiszinsen: {
   [year: number]: number
 } = {
-  2018: 0.0087, // 0.87%
-  2019: 0.0087, // 0.87%
-  2020: 0.007, // 0.70%
-  2021: 0.007, // 0.70%
-  2022: 0.018, // 1.80%
-  2023: 0.0255, // 2.55%
-  2024: 0.0255, // 2.55% (estimated - to be updated when official)
-  2025: 0.0255, // 2.55% (projected - to be updated when official)
+  2018: 0.0087, // 0.87% - Official rate
+  2019: 0.0087, // 0.87% - Official rate
+  2020: 0.007, // 0.70% - Official rate
+  2021: 0.007, // 0.70% - Official rate
+  2022: 0.018, // 1.80% - Official rate
+  2023: 0.0255, // 2.55% - Official rate
+  2024: 0.0255, // 2.55% - Estimated (to be updated when official)
+  2025: 0.0255, // 2.55% - Projected (to be updated when official)
 }
 
 /**
- * Get the basiszins (base interest rate) for a specific year
- * Falls back to the latest available year if the requested year is not found
- *
+ * Get the Basiszins (base interest rate) for a specific year with intelligent fallback logic.
+ * 
+ * This function retrieves the official German base interest rate used for Vorabpauschale calculations.
+ * It implements a multi-tier fallback strategy to ensure a rate is always available:
+ * 
+ * 1. **Dynamic Configuration**: First checks the provided BasiszinsConfiguration (from Bundesbank API)
+ * 2. **Historical Data**: Falls back to hardcoded historical rates
+ * 3. **Latest Available**: Uses the most recent rate from either source
+ * 4. **Ultimate Fallback**: Returns 2.55% (2023 rate) as last resort
+ * 
  * @param year - The year to get the basiszins for
- * @param basiszinsConfig - Optional configurable basiszins configuration
- * (from Deutsche Bundesbank)
+ * @param basiszinsConfig - Optional configurable basiszins configuration from Deutsche Bundesbank API
+ * @returns The base interest rate as a decimal (e.g., 0.0255 for 2.55%)
+ * 
+ * @example
+ * ```typescript
+ * // With dynamic configuration
+ * const rate = getBasiszinsForYear(2024, bundesbankConfig) // Returns configured rate
+ * 
+ * // Using historical fallback
+ * const rate = getBasiszinsForYear(2023) // Returns 0.0255 (2.55%)
+ * 
+ * // Future year with fallback
+ * const rate = getBasiszinsForYear(2030, bundesbankConfig) // Returns latest available rate
+ * ```
  */
 export function getBasiszinsForYear(year: number, basiszinsConfig?: BasiszinsConfiguration): number {
   // First, try to use the configurable basiszins if provided
