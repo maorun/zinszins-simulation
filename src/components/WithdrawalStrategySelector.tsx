@@ -38,6 +38,9 @@ export function WithdrawalStrategySelector({ strategie, onStrategyChange }: With
         <RadioTile value="rmd" label="RMD (Lebenserwartung)">
           Entnahme basierend auf Alter und Lebenserwartung
         </RadioTile>
+        <RadioTile value="kapitalverzehr" label="Kapitalverzehr">
+          Geplanter vollständiger Kapitalverbrauch bis Zielalter
+        </RadioTile>
         <RadioTile value="steueroptimiert" label="Steueroptimierte Entnahme">
           Automatische Optimierung zur Steuerminimierung
         </RadioTile>

@@ -47,6 +47,7 @@ export type WithdrawalStrategy =
   | 'rmd'
   | 'kapitalerhalt'
   | 'steueroptimiert'
+  | 'kapitalverzehr'
 
 /**
  * Generate fixed rate growth for all years.
@@ -382,6 +383,61 @@ function calculateKapitalerhaltAmount(
 }
 
 /**
+ * Helper function: Calculate capital depletion (Kapitalverzehr) withdrawal amount
+ * 
+ * This strategy calculates withdrawals to completely deplete capital by a target age.
+ * Uses the present value of annuity formula to determine appropriate withdrawal amounts.
+ * 
+ * @param currentCapital - Current portfolio value
+ * @param kapitalverzehrConfig - Configuration including target age and safety buffer
+ * @param expectedReturn - Expected annual return rate (e.g., 0.05 for 5%)
+ * @param currentYear - Current year in the simulation
+ * @param birthYear - Birth year of the person (for age calculation)
+ * @returns Annual withdrawal amount
+ */
+function calculateKapitalverzehrAmount(
+  currentCapital: number,
+  kapitalverzehrConfig: KapitalverzehrConfig,
+  expectedReturn: number,
+  currentYear: number,
+  birthYear: number,
+): number {
+  const currentAge = currentYear - birthYear
+  const targetAge = kapitalverzehrConfig.targetAge + kapitalverzehrConfig.safetyBuffer
+  const yearsRemaining = Math.max(1, targetAge - currentAge)
+
+  // If we're past target age, withdraw a higher percentage as safety measure
+  if (yearsRemaining <= 1) {
+    return currentCapital * 0.5 // Withdraw 50% per year in final years
+  }
+
+  // Use present value of annuity formula to calculate withdrawal amount
+  // PMT = PV * (r * (1 + r)^n) / ((1 + r)^n - 1)
+  // Where: PV = present value (currentCapital), r = return rate, n = years remaining
+  
+  let withdrawalAmount: number
+  
+  if (expectedReturn === 0) {
+    // Simple case: no return, just divide equally
+    withdrawalAmount = currentCapital / yearsRemaining
+  } else {
+    // Standard annuity formula
+    const onePlusR = 1 + expectedReturn
+    const onePlusRtoN = Math.pow(onePlusR, yearsRemaining)
+    withdrawalAmount = currentCapital * (expectedReturn * onePlusRtoN) / (onePlusRtoN - 1)
+  }
+
+  // Apply optional min/max constraints
+  const minRate = kapitalverzehrConfig.minWithdrawalRate || 0.01 // Min 1% per year
+  const maxRate = kapitalverzehrConfig.maxWithdrawalRate || 0.20 // Max 20% per year
+  
+  const minAmount = currentCapital * minRate
+  const maxAmount = currentCapital * maxRate
+  
+  return Math.max(minAmount, Math.min(maxAmount, withdrawalAmount))
+}
+
+/**
  * Parameters for calculating base withdrawal amount
  */
 type BaseWithdrawalParams = {
@@ -393,7 +449,10 @@ type BaseWithdrawalParams = {
   bucketConfig?: BucketStrategyConfig
   rmdConfig?: RMDConfig
   kapitalerhaltConfig?: KapitalerhaltConfig
+  kapitalverzehrConfig?: KapitalverzehrConfig
   steueroptimierteEntnahmeConfig?: SteueroptimierteEntnahmeConfig
+  currentYear?: number
+  birthYear?: number
 }
 
 /**
@@ -484,6 +543,11 @@ function getWithdrawalCalculator(strategy: WithdrawalStrategy, params: BaseWithd
     kapitalerhalt: () => {
       if (!params.kapitalerhaltConfig) throw new Error('Kapitalerhalt config required')
       return calculateKapitalerhaltAmount(params.initialStartingCapital, params.kapitalerhaltConfig)
+    },
+    kapitalverzehr: () => {
+      // Kapitalverzehr is recalculated per year, but provide a default base calculation
+      // Using 4% as initial base (will be overridden with actual calculation per year)
+      return params.initialStartingCapital * 0.04
     },
     steueroptimiert: () =>
       calculateSteueroptimierteWithdrawal(params.initialStartingCapital, params.steueroptimierteEntnahmeConfig),
@@ -851,6 +915,7 @@ function applyTaxOptimization(params: {
 
 /**
  * Helper function: Calculate adjusted withdrawal amount for the year
+ * Handles strategies that need per-year recalculation (RMD, Kapitalverzehr)
  */
 function calculateRMDWithdrawalAmount(
   strategy: WithdrawalStrategy,
@@ -859,6 +924,9 @@ function calculateRMDWithdrawalAmount(
   year: number,
   startYear: number,
   rmdConfig: RMDConfig | undefined,
+  kapitalverzehrConfig: KapitalverzehrConfig | undefined,
+  birthYear: number | undefined,
+  expectedReturn: number,
 ): number {
   if (strategy === 'rmd' && rmdConfig) {
     const yearsSinceStart = year - startYear
@@ -870,6 +938,23 @@ function calculateRMDWithdrawalAmount(
       rmdConfig.customLifeExpectancy,
     )
   }
+  
+  if (strategy === 'kapitalverzehr') {
+    if (!kapitalverzehrConfig) {
+      throw new Error('Kapitalverzehr strategy requires kapitalverzehrConfig')
+    }
+    if (!birthYear) {
+      throw new Error('Kapitalverzehr strategy requires birthYear for age calculation')
+    }
+    return calculateKapitalverzehrAmount(
+      capitalAtStartOfYear,
+      kapitalverzehrConfig,
+      expectedReturn,
+      year,
+      birthYear,
+    )
+  }
+  
   return baseWithdrawalAmount
 }
 
@@ -884,6 +969,7 @@ function applyWithdrawalAdjustments(
   dynamicConfig: DynamicWithdrawalConfig | undefined,
   bucketConfig: BucketStrategyConfig | undefined,
   rmdConfig: RMDConfig | undefined,
+  kapitalverzehrConfig: KapitalverzehrConfig | undefined,
 ): {
   withdrawal: number
   inflationAnpassung: number
@@ -897,7 +983,10 @@ function applyWithdrawalAdjustments(
     inflationConfig,
   )
 
-  let withdrawal = strategy === 'rmd' && rmdConfig ? rmdAmount : withdrawalAfterInflation
+  // RMD and Kapitalverzehr strategies calculate their own withdrawal amounts
+  let withdrawal = (strategy === 'rmd' && rmdConfig) || (strategy === 'kapitalverzehr' && kapitalverzehrConfig) 
+    ? rmdAmount 
+    : withdrawalAfterInflation
 
   const { adjustment: dynamischeAnpassung, previousReturn: vorjahresRendite } = calculateDynamicAdjustment(
     strategy,
@@ -921,6 +1010,8 @@ type AdjustedWithdrawalParams = {
   startYear: number
   yearlyGrowthRates: Record<number, number>
   rmdConfig: RMDConfig | undefined
+  kapitalverzehrConfig: KapitalverzehrConfig | undefined
+  birthYear: number | undefined
   inflationConfig: InflationConfig | undefined
   dynamicConfig: DynamicWithdrawalConfig | undefined
   bucketConfig: BucketStrategyConfig | undefined
@@ -939,6 +1030,9 @@ type AdjustedWithdrawalResult = {
 }
 
 function calculateAdjustedWithdrawal(params: AdjustedWithdrawalParams): AdjustedWithdrawalResult {
+  // Get expected return for the current year (needed for kapitalverzehr calculation)
+  const expectedReturn = params.yearlyGrowthRates[params.year] || 0
+  
   const rmdAmount = calculateRMDWithdrawalAmount(
     params.strategy,
     params.baseWithdrawalAmount,
@@ -946,6 +1040,9 @@ function calculateAdjustedWithdrawal(params: AdjustedWithdrawalParams): Adjusted
     params.year,
     params.startYear,
     params.rmdConfig,
+    params.kapitalverzehrConfig,
+    params.birthYear,
+    expectedReturn,
   )
 
   const { withdrawal, inflationAnpassung, dynamischeAnpassung, vorjahresRendite } = applyWithdrawalAdjustments(
@@ -959,6 +1056,7 @@ function calculateAdjustedWithdrawal(params: AdjustedWithdrawalParams): Adjusted
     params.dynamicConfig,
     params.bucketConfig,
     params.rmdConfig,
+    params.kapitalverzehrConfig,
   )
 
   const { optimizedWithdrawal, steueroptimierungAnpassung } = applyTaxOptimization({
@@ -1193,6 +1291,7 @@ type WithdrawalYearParams = {
   dynamicConfig?: DynamicWithdrawalConfig
   bucketConfig?: BucketStrategyConfig
   rmdConfig?: RMDConfig
+  kapitalverzehrConfig?: KapitalverzehrConfig
   steueroptimierteEntnahmeConfig?: SteueroptimierteEntnahmeConfig
   basiszinsConfiguration?: BasiszinsConfiguration
   healthCareInsuranceConfig?: HealthCareInsuranceConfig
@@ -1491,6 +1590,7 @@ type ProcessYearlyWithdrawalParams = {
   dynamicConfig?: DynamicWithdrawalConfig
   bucketConfig?: BucketStrategyConfig
   rmdConfig?: RMDConfig
+  kapitalverzehrConfig?: KapitalverzehrConfig
   steueroptimierteEntnahmeConfig?: SteueroptimierteEntnahmeConfig
   basiszinsConfiguration?: BasiszinsConfiguration
   healthCareInsuranceConfig?: HealthCareInsuranceConfig
@@ -1522,6 +1622,7 @@ type ProcessWithdrawalAmountsParams = {
   startYear: number
   yearlyGrowthRates: Record<number, number>
   rmdConfig: RMDConfig | undefined
+  kapitalverzehrConfig: KapitalverzehrConfig | undefined
   inflationConfig: InflationConfig | undefined
   dynamicConfig: DynamicWithdrawalConfig | undefined
   bucketConfig: BucketStrategyConfig | undefined
@@ -1583,6 +1684,8 @@ function getAdjustedWithdrawalData(params: ProcessWithdrawalAmountsParams): Adju
     startYear: params.startYear,
     yearlyGrowthRates: params.yearlyGrowthRates,
     rmdConfig: params.rmdConfig,
+    kapitalverzehrConfig: params.kapitalverzehrConfig,
+    birthYear: params.birthYear,
     inflationConfig: params.inflationConfig,
     dynamicConfig: params.dynamicConfig,
     bucketConfig: params.bucketConfig,
@@ -1773,6 +1876,7 @@ function getOrchestratedWithdrawalData(params: OrchestrateYearlyWithdrawalParams
     startYear: params.yearParams.startYear,
     yearlyGrowthRates: params.yearParams.yearlyGrowthRates,
     rmdConfig: params.yearParams.rmdConfig,
+    kapitalverzehrConfig: params.yearParams.kapitalverzehrConfig,
     inflationConfig: params.yearParams.inflationConfig,
     dynamicConfig: params.yearParams.dynamicConfig,
     bucketConfig: params.yearParams.bucketConfig,
@@ -2537,6 +2641,13 @@ export type KapitalerhaltConfig = {
   inflationRate: number // Expected inflation rate as percentage (e.g., 0.02 for 2%)
 }
 
+export type KapitalverzehrConfig = {
+  targetAge: number // Target age by which capital should be fully depleted
+  safetyBuffer: number // Safety buffer in years (e.g., 5 years for longevity risk)
+  minWithdrawalRate?: number // Optional minimum withdrawal rate to ensure meaningful withdrawals
+  maxWithdrawalRate?: number // Optional maximum withdrawal rate to prevent excessive early withdrawals
+}
+
 export type SteueroptimierteEntnahmeConfig = {
   baseWithdrawalRate: number // Base withdrawal rate as percentage (e.g., 0.04 for 4%)
   targetTaxRate: number // Target tax rate to optimize towards (default: current tax rate)
@@ -2591,6 +2702,7 @@ export type CalculateWithdrawalParams = {
   bucketConfig?: BucketStrategyConfig
   rmdConfig?: RMDConfig
   kapitalerhaltConfig?: KapitalerhaltConfig
+  kapitalverzehrConfig?: KapitalverzehrConfig
   steueroptimierteEntnahmeConfig?: SteueroptimierteEntnahmeConfig
   basiszinsConfiguration?: BasiszinsConfiguration
   statutoryPensionConfig?: StatutoryPensionConfig
