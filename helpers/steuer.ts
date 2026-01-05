@@ -12,6 +12,22 @@ export const GERMAN_TAX_CONSTANTS = {
   get GRUNDFREIBETRAG_COUPLE() {
     return this.GRUNDFREIBETRAG_2024 * 2
   }, // €23,208 for couples
+
+  /**
+   * Vorabpauschale percentage factor (70%)
+   * 
+   * This is the percentage of theoretical base interest gains used to calculate
+   * the Vorabpauschale (advance lump-sum taxation) for German investment funds.
+   * 
+   * German regulation stipulates that only 70% of the theoretical gains at the
+   * base interest rate (Basiszins) should be subject to advance taxation.
+   * This reflects the principle that not all gains should be taxed upfront.
+   * 
+   * Formula: Basisertrag = Startwert × Basiszins × VORABPAUSCHALE_PERCENTAGE
+   * 
+   * @see https://www.bundesfinanzministerium.de/ for official regulation details
+   */
+  VORABPAUSCHALE_PERCENTAGE: 0.7,
 } as const
 
 /**
@@ -110,12 +126,11 @@ export function calculateVorabpauschale(
   anteilImJahr = 12,
 ): number {
   const jahresgewinn = endwert - startwert
-  const vorabpauschale_prozentsatz = 0.7
 
   // The Basisertrag is 70% of the gain the investment would have made at the base interest rate.
   // German regulation: Basisertrag = Startwert × Basiszins × 70%
   // The 70% factor reflects that only a portion of theoretical gains should be taxed upfront
-  let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz
+  let basisertrag = startwert * basiszins * GERMAN_TAX_CONSTANTS.VORABPAUSCHALE_PERCENTAGE
   basisertrag = (anteilImJahr / 12) * basisertrag
 
   // The Vorabpauschale is the lesser of the Basisertrag and the actual gain. It cannot be negative.
@@ -153,10 +168,9 @@ export function calculateVorabpauschaleDetailed(
   anteilImJahr: number
 } {
   const jahresgewinn = endwert - startwert
-  const vorabpauschale_prozentsatz = 0.7
 
   // Step 1: Calculate Basisertrag - 70% of theoretical gain at base interest rate
-  let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz
+  let basisertrag = startwert * basiszins * GERMAN_TAX_CONSTANTS.VORABPAUSCHALE_PERCENTAGE
   basisertrag = (anteilImJahr / 12) * basisertrag
 
   // Step 2: Vorabpauschale is minimum of Basisertrag and actual gain, cannot be negative
