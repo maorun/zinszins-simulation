@@ -5,60 +5,83 @@
 import type { ExtendedSavedConfiguration } from '../contexts/helpers/config-types'
 import { useSimulation } from '../contexts/useSimulation'
 
-/**
- * Build configuration from simulation state
- */
-function buildConfigurationFromState(simulation: ReturnType<typeof useSimulation>): ExtendedSavedConfiguration {
+type SimulationState = ReturnType<typeof useSimulation>
+
+/** Extract basic financial configuration */
+function getBasicConfig(s: SimulationState) {
   return {
-    rendite: simulation.rendite,
-    steuerlast: simulation.steuerlast,
-    teilfreistellungsquote: simulation.teilfreistellungsquote,
-    freibetragPerYear: simulation.freibetragPerYear,
-    basiszinsConfiguration: simulation.basiszinsConfiguration,
-    steuerReduzierenEndkapitalSparphase: simulation.steuerReduzierenEndkapitalSparphase,
-    steuerReduzierenEndkapitalEntspharphase: simulation.steuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv: simulation.grundfreibetragAktiv,
-    grundfreibetragBetrag: simulation.grundfreibetragBetrag,
-    personalTaxRate: simulation.personalTaxRate,
-    guenstigerPruefungAktiv: simulation.guenstigerPruefungAktiv,
-    kirchensteuerAktiv: simulation.kirchensteuerAktiv,
-    kirchensteuersatz: simulation.kirchensteuersatz,
-    assetClass: simulation.assetClass,
-    customTeilfreistellungsquote: simulation.customTeilfreistellungsquote,
-    freistellungsauftragAccounts: simulation.freistellungsauftragAccounts,
-    returnMode: simulation.returnMode,
-    averageReturn: simulation.averageReturn,
-    standardDeviation: simulation.standardDeviation,
-    randomSeed: simulation.randomSeed,
-    variableReturns: simulation.variableReturns,
-    historicalIndex: simulation.historicalIndex,
-    multiAssetConfig: simulation.multiAssetConfig,
-    withdrawalMultiAssetConfig: simulation.withdrawalMultiAssetConfig,
-    inflationAktivSparphase: simulation.inflationAktivSparphase,
-    inflationsrateSparphase: simulation.inflationsrateSparphase,
-    inflationAnwendungSparphase: simulation.inflationAnwendungSparphase,
-    startEnd: simulation.startEnd,
-    sparplan: simulation.sparplan,
-    simulationAnnual: simulation.simulationAnnual,
-    endOfLife: simulation.endOfLife,
-    lifeExpectancyTable: simulation.lifeExpectancyTable,
-    customLifeExpectancy: simulation.customLifeExpectancy,
-    planningMode: simulation.planningMode,
-    gender: simulation.gender,
-    spouse: simulation.spouse,
-    birthYear: simulation.birthYear,
-    expectedLifespan: simulation.expectedLifespan,
-    useAutomaticCalculation: simulation.useAutomaticCalculation,
-    withdrawal: simulation.withdrawalConfig ?? undefined,
-    statutoryPensionConfig: simulation.statutoryPensionConfig ?? undefined,
-    coupleStatutoryPensionConfig: simulation.coupleStatutoryPensionConfig ?? undefined,
-    careCostConfiguration: simulation.careCostConfiguration,
-    financialGoals: simulation.financialGoals,
-    emergencyFundConfig: simulation.emergencyFundConfig,
-    termLifeInsuranceConfig: simulation.termLifeInsuranceConfig ?? undefined,
-    careInsuranceConfig: simulation.careInsuranceConfig ?? undefined,
-    alimonyConfig: simulation.alimonyConfig ?? undefined,
-    emRenteConfig: simulation.emRenteConfig ?? undefined,
+    rendite: s.rendite,
+    steuerlast: s.steuerlast,
+    teilfreistellungsquote: s.teilfreistellungsquote,
+    freibetragPerYear: s.freibetragPerYear,
+    basiszinsConfiguration: s.basiszinsConfiguration,
+    steuerReduzierenEndkapitalSparphase: s.steuerReduzierenEndkapitalSparphase,
+    steuerReduzierenEndkapitalEntspharphase: s.steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv: s.grundfreibetragAktiv,
+    grundfreibetragBetrag: s.grundfreibetragBetrag,
+    personalTaxRate: s.personalTaxRate,
+    guenstigerPruefungAktiv: s.guenstigerPruefungAktiv,
+    kirchensteuerAktiv: s.kirchensteuerAktiv,
+    kirchensteuersatz: s.kirchensteuersatz,
+    assetClass: s.assetClass,
+    customTeilfreistellungsquote: s.customTeilfreistellungsquote,
+    freistellungsauftragAccounts: s.freistellungsauftragAccounts,
+  }
+}
+
+/** Extract return and investment configuration */
+function getReturnConfig(s: SimulationState) {
+  return {
+    returnMode: s.returnMode,
+    averageReturn: s.averageReturn,
+    standardDeviation: s.standardDeviation,
+    randomSeed: s.randomSeed,
+    variableReturns: s.variableReturns,
+    historicalIndex: s.historicalIndex,
+    multiAssetConfig: s.multiAssetConfig,
+    withdrawalMultiAssetConfig: s.withdrawalMultiAssetConfig,
+    inflationAktivSparphase: s.inflationAktivSparphase,
+    inflationsrateSparphase: s.inflationsrateSparphase,
+    inflationAnwendungSparphase: s.inflationAnwendungSparphase,
+    startEnd: s.startEnd,
+    sparplan: s.sparplan,
+    simulationAnnual: s.simulationAnnual,
+  }
+}
+
+/** Extract life planning and advanced configuration */
+function getAdvancedConfig(s: SimulationState) {
+  return {
+    endOfLife: s.endOfLife,
+    lifeExpectancyTable: s.lifeExpectancyTable,
+    customLifeExpectancy: s.customLifeExpectancy,
+    planningMode: s.planningMode,
+    gender: s.gender,
+    spouse: s.spouse,
+    birthYear: s.birthYear,
+    expectedLifespan: s.expectedLifespan,
+    useAutomaticCalculation: s.useAutomaticCalculation,
+    withdrawal: s.withdrawalConfig ?? undefined,
+    statutoryPensionConfig: s.statutoryPensionConfig ?? undefined,
+    coupleStatutoryPensionConfig: s.coupleStatutoryPensionConfig ?? undefined,
+    careCostConfiguration: s.careCostConfiguration,
+    financialGoals: s.financialGoals,
+    emergencyFundConfig: s.emergencyFundConfig,
+    termLifeInsuranceConfig: s.termLifeInsuranceConfig ?? undefined,
+    careInsuranceConfig: s.careInsuranceConfig ?? undefined,
+    alimonyConfig: s.alimonyConfig ?? undefined,
+    emRenteConfig: s.emRenteConfig ?? undefined,
+  }
+}
+
+/**
+ * Build complete configuration from simulation state
+ */
+function buildConfigurationFromState(simulation: SimulationState): ExtendedSavedConfiguration {
+  return {
+    ...getBasicConfig(simulation),
+    ...getReturnConfig(simulation),
+    ...getAdvancedConfig(simulation),
   }
 }
 
