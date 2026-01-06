@@ -46,13 +46,14 @@ export function HomePageConfigurationSection({
 }: HomePageConfigurationSectionProps) {
   const getCurrentConfiguration = useCurrentConfiguration()
   const { handleLoadScenario } = useLoadSavedScenario()
+  const currentConfig = getCurrentConfiguration()
 
   return (
     <>
       <SimulationParameters />
 
       {/* Scenario Management - Save and Load Configurations */}
-      <ScenarioManagement currentConfiguration={getCurrentConfiguration()} onLoadScenario={handleLoadScenario} />
+      <ScenarioManagement currentConfiguration={currentConfig} onLoadScenario={handleLoadScenario} />
 
       {/* Global Planning Configuration - Available for all calculations including Vorabpauschale */}
       <Suspense fallback={<LoadingCard />}>
