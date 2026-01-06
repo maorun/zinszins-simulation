@@ -1,6 +1,7 @@
 import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-portfolio'
 import { createDefaultVolatilityTargetingConfig } from '../../../helpers/volatility-targeting'
 import { createDefaultGeographicDiversificationConfig } from '../../../helpers/geographic-diversification'
+import { createDefaultGlidePathConfig } from '../../../helpers/glide-path'
 
 /**
  * Create stocks asset classes for savings phase
@@ -137,6 +138,7 @@ export function createFallbackMultiAssetConfig(): MultiAssetPortfolioConfig {
     rebalancing: createDefaultRebalancing(),
     simulation: createDefaultSimulation(),
     volatilityTargeting: createDefaultVolatilityTargetingConfig(),
+    glidePath: createDefaultGlidePathConfig(),
     geographicDiversification: createDefaultGeographicDiversificationConfig(),
   }
 }
@@ -249,5 +251,6 @@ export function createFallbackWithdrawalConfig(): MultiAssetPortfolioConfig {
     rebalancing: createDefaultRebalancing(),
     simulation: createDefaultSimulation(),
     volatilityTargeting: createDefaultVolatilityTargetingConfig(),
+    glidePath: createDefaultGlidePathConfig(),
   }
 }

@@ -15,6 +15,7 @@ import {
   type RebalancingProtocol,
   type RebalancingTransaction,
 } from './multi-asset-portfolio'
+import { applyGlidePath } from './glide-path'
 
 /**
  * Simple Linear Congruential Generator for reproducible random numbers
@@ -345,9 +346,50 @@ function createRebalancingProtocol(
 }
 
 /**
+ * Apply glide path adjustments to portfolio configuration
+ * Returns a new config with adjusted target allocations based on age
+ */
+function applyGlidePathToConfig(
+  config: MultiAssetPortfolioConfig,
+  currentAge: number,
+): MultiAssetPortfolioConfig {
+  if (!config.glidePath.enabled) {
+    return config
+  }
+
+  const glidePathResult = applyGlidePath(config.glidePath, config.assetClasses, currentAge)
+
+  // Create adjusted config with new target allocations
+  const adjustedConfig: MultiAssetPortfolioConfig = {
+    ...config,
+    assetClasses: { ...config.assetClasses },
+  }
+
+  // Update target allocations based on glide path
+  Object.entries(glidePathResult.adjustedAllocations).forEach(([assetClass, allocation]) => {
+    const asset = assetClass as AssetClass
+    if (adjustedConfig.assetClasses[asset]) {
+      adjustedConfig.assetClasses[asset] = {
+        ...adjustedConfig.assetClasses[asset],
+        targetAllocation: allocation,
+      }
+    }
+  })
+
+  return adjustedConfig
+}
+
+/**
  * Rebalance portfolio to target allocations
  */
-function rebalancePortfolio(holdings: PortfolioHoldings, config: MultiAssetPortfolioConfig): PortfolioHoldings {
+function rebalancePortfolio(
+  holdings: PortfolioHoldings,
+  config: MultiAssetPortfolioConfig,
+  currentAge?: number,
+): PortfolioHoldings {
+  // Apply glide path adjustments if age is provided
+  const adjustedConfig = currentAge !== undefined ? applyGlidePathToConfig(config, currentAge) : config
+
   const rebalancedHoldings: PortfolioHoldings = {
     totalValue: holdings.totalValue,
     holdings: {} as Record<
@@ -364,11 +406,11 @@ function rebalancePortfolio(holdings: PortfolioHoldings, config: MultiAssetPortf
     rebalancingCost: 0, // Simplified: no transaction costs for now
   }
 
-  // Redistribute according to target allocations
-  const enabledAssets = getEnabledAssets(config)
+  // Redistribute according to target allocations (potentially adjusted by glide path)
+  const enabledAssets = getEnabledAssets(adjustedConfig)
 
   for (const assetClass of enabledAssets) {
-    const assetConfig = config.assetClasses[assetClass]
+    const assetConfig = adjustedConfig.assetClasses[assetClass]
     const targetValue = holdings.totalValue * assetConfig.targetAllocation
     const oldCostBasis = holdings.holdings[assetClass]?.costBasis || holdings.holdings[assetClass]?.value || 0
 
@@ -641,12 +683,26 @@ function performRebalancing(
   year: number,
   holdings: PortfolioHoldings,
   config: MultiAssetPortfolioConfig,
+  currentAge?: number,
 ): { rebalancedHoldings: PortfolioHoldings; protocol: RebalancingProtocol } {
-  const rebalancedHoldings = rebalancePortfolio(holdings, config)
+  const rebalancedHoldings = rebalancePortfolio(holdings, config, currentAge)
   const reason = config.rebalancing.useThreshold && holdings.needsRebalancing ? 'threshold' : 'scheduled'
   const protocol = createRebalancingProtocol(year, 0, reason, holdings, rebalancedHoldings, config)
-  
+
   return { rebalancedHoldings, protocol }
+}
+
+/**
+ * Calculate current age from year and glide path start age/year
+ * Returns undefined if glide path is disabled
+ */
+function calculateCurrentAge(year: number, config: MultiAssetPortfolioConfig, startYear: number): number | undefined {
+  if (!config.glidePath.enabled) {
+    return undefined
+  }
+
+  const yearsSinceStart = year - startYear
+  return config.glidePath.startAge + yearsSinceStart
 }
 
 /**
@@ -660,6 +716,7 @@ function processSimulationYear(
   enabledAssets: AssetClass[],
   config: MultiAssetPortfolioConfig,
   rng: SeededRandom,
+  startYear: number,
 ): { yearResult: MultiAssetYearResult; endHoldings: PortfolioHoldings } {
   const startHoldings = { ...currentHoldings }
   const assetReturns = generateCorrelatedReturns(enabledAssets, config, rng)
@@ -673,7 +730,8 @@ function processSimulationYear(
   let rebalancingProtocol: RebalancingProtocol | undefined
 
   if (shouldPerformRebalancing(year, endHoldings, config)) {
-    const { rebalancedHoldings, protocol } = performRebalancing(year, endHoldings, config)
+    const currentAge = calculateCurrentAge(year, config, startYear)
+    const { rebalancedHoldings, protocol } = performRebalancing(year, endHoldings, config, currentAge)
     endHoldings = rebalancedHoldings
     rebalancingProtocol = protocol
     rebalanced = true
@@ -740,6 +798,7 @@ function runPortfolioSimulation(
   const annualReturns: number[] = []
   let currentHoldings = initialHoldings
   let totalContributions = contributions[years[0]] || 0
+  const startYear = years[0]
 
   for (let i = 0; i < years.length; i++) {
     const year = years[i]
@@ -757,6 +816,7 @@ function runPortfolioSimulation(
       enabledAssets,
       config,
       rng,
+      startYear,
     )
 
     annualReturns.push(yearResult.totalReturn)

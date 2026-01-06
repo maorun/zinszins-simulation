@@ -20,6 +20,7 @@ import {
   type GeographicDiversificationConfig,
   createDefaultGeographicDiversificationConfig,
 } from './geographic-diversification'
+import { type GlidePathConfig, createDefaultGlidePathConfig } from './glide-path'
 
 /**
  * Supported asset classes for multi-asset portfolios
@@ -234,6 +235,9 @@ export interface MultiAssetPortfolioConfig {
   /** Volatility targeting configuration for dynamic allocation */
   volatilityTargeting: VolatilityTargetingConfig
 
+  /** Glide path configuration for age-based dynamic allocation */
+  glidePath: GlidePathConfig
+
   /** Currency risk configuration for international investments */
   currencyRisk?: {
     /** Whether currency risk management is enabled */
@@ -277,6 +281,7 @@ export function createDefaultMultiAssetConfig(): MultiAssetPortfolioConfig {
       seed: undefined,
     },
     volatilityTargeting: createDefaultVolatilityTargetingConfig(),
+    glidePath: createDefaultGlidePathConfig(),
     currencyRisk: {
       enabled: false,
       currencyAllocations: [
