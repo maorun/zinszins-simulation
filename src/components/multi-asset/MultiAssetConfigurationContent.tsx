@@ -1,5 +1,6 @@
 import type { MultiAssetPortfolioConfig, AssetClass } from '../../../helpers/multi-asset-portfolio'
 import type { VolatilityTargetingConfig } from '../../../helpers/volatility-targeting'
+import type { GlidePathConfig } from '../../../helpers/glide-path'
 import type { FactorPortfolioConfig } from '../../../helpers/factor-investing'
 import type { Currency, CurrencyHedgingConfig } from '../../../helpers/currency-risk'
 import type { ESGFilterConfig } from '../../../helpers/esg-scoring'
@@ -9,6 +10,7 @@ import { AssetClassesConfiguration } from './AssetClassesConfiguration'
 import { RebalancingConfiguration } from './RebalancingConfiguration'
 import { AdvancedSimulationSettings } from './AdvancedSimulationSettings'
 import { VolatilityTargetingConfiguration } from './VolatilityTargetingConfiguration'
+import { GlidePathConfiguration } from './GlidePathConfiguration'
 import { CorrelationMatrixHeatmap } from './CorrelationMatrixHeatmap'
 import { PortfolioOptimizer } from './PortfolioOptimizer'
 import { FactorInvestingConfiguration } from './FactorInvestingConfiguration'
@@ -52,6 +54,7 @@ interface MultiAssetConfigurationContentProps {
   onRebalancingChange: (updates: Partial<MultiAssetPortfolioConfig['rebalancing']>) => void
   onSimulationChange: (updates: Partial<MultiAssetPortfolioConfig['simulation']>) => void
   onVolatilityTargetingChange: (updates: Partial<VolatilityTargetingConfig>) => void
+  onGlidePathChange: (updates: Partial<GlidePathConfig>) => void
   onApplyOptimizedAllocations: (allocations: Record<AssetClass, number>) => void
   onCurrencyRiskChange?: (updates: {
     enabled?: boolean
@@ -186,6 +189,8 @@ export function MultiAssetConfigurationContent(props: MultiAssetConfigurationCon
         config={props.config.volatilityTargeting}
         onChange={props.onVolatilityTargetingChange}
       />
+
+      <GlidePathConfiguration config={props.config.glidePath} onChange={props.onGlidePathChange} />
 
       <AdvancedSimulationSettings config={props.config.simulation} onChange={props.onSimulationChange} />
 

@@ -66,6 +66,15 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Allokationsgrenzen** - Minimale und maximale Risikoallokation konfigurierbar
     - **Glättungsfaktor** - Exponentiell gewichtete Volatilitätsschätzung für stabilere Anpassungen
     - **Automatische Anpassung** - Reduziert Risikoexposition bei hoher Volatilität, erhöht bei niedriger
+  - **Dynamische Asset Allocation (Gleitpfad)** - Altersbasierte automatische Portfolioanpassung
+    - **Lebensalter-Faustformel** - Deutsche Regel: Aktienquote = 100 - Lebensalter
+    - **Benutzerdefinierter Gleitpfad** - Flexible Konfiguration von Start- und Zielallokation
+    - **3 Anpassungskurven** - Linear, Konvex (vorsichtig), Konkav (aggressiv)
+    - **Altersbereich-Konfiguration** - Startalter und Rentenalter frei wählbar
+    - **Automatische Allokationsanpassung** - Portfolio wird während der Simulation altersgerecht angepasst
+    - **Schrittweise Risikoreduzierung** - Kontinuierliche Umschichtung von Aktien zu Anleihen mit zunehmendem Alter
+    - **Integration mit Rebalancing** - Gleitpfad-Anpassungen werden bei jedem Rebalancing berücksichtigt
+    - **Validierung** - Automatische Prüfung der Konfiguration mit deutschen Fehlermeldungen
   - **Faktor-Investing** - Wissenschaftlich fundierte Faktor-Strategien zur Portfolio-Optimierung
     - **4 Investment-Faktoren** - Value, Growth, Small-Cap, Momentum basierend auf akademischer Forschung (Fama-French, Carhart)
     - **Konfigurierbare Factor-Exposure** - Individuelle Steuerung der Faktor-Gewichtung (0-100%)

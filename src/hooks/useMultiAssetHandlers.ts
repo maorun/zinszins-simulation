@@ -5,6 +5,7 @@ import {
   createDefaultMultiAssetConfig,
 } from '../../helpers/multi-asset-portfolio'
 import type { VolatilityTargetingConfig } from '../../helpers/volatility-targeting'
+import type { GlidePathConfig } from '../../helpers/glide-path'
 import type { Currency, CurrencyHedgingConfig } from '../../helpers/currency-risk'
 import type { ESGFilterConfig } from '../../helpers/esg-scoring'
 import {
@@ -141,42 +142,30 @@ function useGeographicDiversificationHandler({ config, onChange }: UseMultiAsset
 
 function useBasicConfigHandlers({ config, onChange }: UseMultiAssetHandlersProps) {
   const handleConfigChange = useCallback(
-    (updates: Partial<MultiAssetPortfolioConfig>) => {
-      onChange({ ...config, ...updates })
-    },
+    (updates: Partial<MultiAssetPortfolioConfig>) => onChange({ ...config, ...updates }),
     [config, onChange],
   )
 
   const handleRebalancingChange = useCallback(
-    (updates: Partial<typeof config.rebalancing>) => {
-      onChange({
-        ...config,
-        rebalancing: {
-          ...config.rebalancing,
-          ...updates,
-        },
-      })
-    },
+    (updates: Partial<typeof config.rebalancing>) =>
+      onChange({ ...config, rebalancing: { ...config.rebalancing, ...updates } }),
     [config, onChange],
   )
 
   const handleSimulationChange = useCallback(
-    (updates: Partial<typeof config.simulation>) => {
-      onChange({
-        ...config,
-        simulation: {
-          ...config.simulation,
-          ...updates,
-        },
-      })
-    },
+    (updates: Partial<typeof config.simulation>) =>
+      onChange({ ...config, simulation: { ...config.simulation, ...updates } }),
     [config, onChange],
   )
 
   const handleVolatilityTargetingChange = useCallback(
-    (updates: Partial<VolatilityTargetingConfig>) => {
-      onChange({ ...config, volatilityTargeting: { ...config.volatilityTargeting, ...updates } })
-    },
+    (updates: Partial<VolatilityTargetingConfig>) =>
+      onChange({ ...config, volatilityTargeting: { ...config.volatilityTargeting, ...updates } }),
+    [config, onChange],
+  )
+
+  const handleGlidePathChange = useCallback(
+    (updates: Partial<GlidePathConfig>) => onChange({ ...config, glidePath: { ...config.glidePath, ...updates } }),
     [config, onChange],
   )
 
@@ -185,6 +174,7 @@ function useBasicConfigHandlers({ config, onChange }: UseMultiAssetHandlersProps
     handleRebalancingChange,
     handleSimulationChange,
     handleVolatilityTargetingChange,
+    handleGlidePathChange,
     handleCurrencyRiskChange: useCurrencyRiskHandler({ config, onChange }),
     handleESGFilterChange: useESGFilterHandler({ config, onChange }),
     handleGeographicDiversificationChange: useGeographicDiversificationHandler({ config, onChange }),

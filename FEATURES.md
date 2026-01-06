@@ -11,13 +11,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Asset Allocation & Portfolio-Management
 
 - **Alternative Investments** - Private Equity, Hedge Funds, Kryptowährungen
-- **Dynamische Asset Allocation (Gleitpfad-Strategie)** - Automatische altersbasierte Risikoanpassung der Portfolio-Allokation
-  - Gleitpfad-Konfiguration mit Start- und Ziel-Aktienquote
-  - Lineare oder konvexe/konkave Anpassungskurven
-  - Berücksichtigung der deutschen "Lebensalter-Faustformel": Aktienquote = 100 - Lebensalter
-  - Automatische Umschichtung zwischen Aktien und sicheren Anlagen
-  - Integration mit bestehenden Multi-Asset Portfolio Features
-  - Anpassung an Lebensabschnitte (z.B. aggressive Sparphase → konservative Entnahmephase)
 
 #### Szenario-Vergleiche & Optimierung
 
