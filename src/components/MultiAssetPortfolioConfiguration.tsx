@@ -98,6 +98,7 @@ export function MultiAssetPortfolioConfiguration({
         onRebalancingChange={setup.handleRebalancingChange}
         onSimulationChange={setup.handleSimulationChange}
         onVolatilityTargetingChange={setup.handleVolatilityTargetingChange}
+        onGlidePathChange={setup.handleGlidePathChange}
         onApplyOptimizedAllocations={setup.applyOptimizedAllocations}
         onCurrencyRiskChange={setup.handleCurrencyRiskChange}
         onESGFilterChange={setup.handleESGFilterChange}

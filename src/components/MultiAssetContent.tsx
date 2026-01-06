@@ -2,6 +2,7 @@ import { CardContent } from './ui/card'
 import { MultiAssetConfigurationContent } from './multi-asset/MultiAssetConfigurationContent'
 import type { MultiAssetPortfolioConfig, AssetClass } from '../../helpers/multi-asset-portfolio'
 import type { VolatilityTargetingConfig } from '../../helpers/volatility-targeting'
+import type { GlidePathConfig } from '../../helpers/glide-path'
 import type { Currency, CurrencyHedgingConfig } from '../../helpers/currency-risk'
 import type { ESGFilterConfig } from '../../helpers/esg-scoring'
 import type { GeographicDiversificationConfig } from '../../helpers/geographic-diversification'
@@ -23,6 +24,7 @@ interface MultiAssetContentProps {
   onRebalancingChange: (updates: Partial<MultiAssetPortfolioConfig['rebalancing']>) => void
   onSimulationChange: (updates: Partial<MultiAssetPortfolioConfig['simulation']>) => void
   onVolatilityTargetingChange: (updates: Partial<VolatilityTargetingConfig>) => void
+  onGlidePathChange: (updates: Partial<GlidePathConfig>) => void
   onApplyOptimizedAllocations: (allocations: Record<AssetClass, number>) => void
   onCurrencyRiskChange?: (updates: {
     enabled?: boolean
@@ -50,6 +52,7 @@ export function MultiAssetContent({
   onRebalancingChange,
   onSimulationChange,
   onVolatilityTargetingChange,
+  onGlidePathChange,
   onApplyOptimizedAllocations,
   onCurrencyRiskChange,
   onESGFilterChange,
@@ -71,6 +74,7 @@ export function MultiAssetContent({
         onRebalancingChange={onRebalancingChange}
         onSimulationChange={onSimulationChange}
         onVolatilityTargetingChange={onVolatilityTargetingChange}
+        onGlidePathChange={onGlidePathChange}
         onApplyOptimizedAllocations={onApplyOptimizedAllocations}
         onCurrencyRiskChange={onCurrencyRiskChange}
         onESGFilterChange={onESGFilterChange}
