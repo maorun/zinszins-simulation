@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import SavingsPlan from './SavingsPlan'
 import { EmergencyFundSection } from './emergency-fund/EmergencyFundSection'
 import { ScenarioManagement } from './ScenarioManagement'
@@ -11,7 +12,8 @@ import { useLoadSavedScenario } from '../hooks/useLoadSavedScenario'
 export function SparenView() {
   const getCurrentConfiguration = useCurrentConfiguration()
   const { handleLoadScenario } = useLoadSavedScenario()
-  const currentConfig = getCurrentConfiguration()
+  // Memoize current configuration to avoid unnecessary recalculations on every render
+  const currentConfig = useMemo(() => getCurrentConfiguration(), [getCurrentConfiguration])
 
   return (
     <div className="space-y-4">
