@@ -3,7 +3,7 @@
  * Allows users to save and load their financial planning scenarios
  */
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
@@ -21,6 +21,7 @@ import {
   AlertDialogTitle,
 } from './ui/alert-dialog'
 import { useScenarioManagement } from '../hooks/useScenarioManagement'
+import { useScenarioHandlers } from '../hooks/useScenarioHandlers'
 import { useNavigationItem } from '../hooks/useNavigationItem'
 import type { ExtendedSavedConfiguration } from '../contexts/helpers/config-types'
 import type { SavedScenario } from '../types/scenario-comparison'
@@ -170,47 +171,83 @@ function ScenarioList({ scenarios, onLoad, onDelete }: ScenarioListProps) {
   )
 }
 
-function useScenarioHandlers(
-  saveScenario: ReturnType<typeof useScenarioManagement>['saveScenario'],
-  deleteScenario: ReturnType<typeof useScenarioManagement>['deleteScenario'],
-  currentConfiguration: ExtendedSavedConfiguration,
-  setScenarioName: (v: string) => void,
-  setScenarioDescription: (v: string) => void,
-  setSaveSuccess: (v: boolean) => void
-) {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [scenarioToDelete, setScenarioToDelete] = useState<string | null>(null)
+interface ScenarioCardProps {
+  isOpen: boolean
+  setIsOpen: (open: boolean) => void
+  navigationRef: React.RefObject<HTMLDivElement | null>
+  scenarioName: string
+  scenarioDescription: string
+  saveSuccess: boolean
+  scenarios: SavedScenario[]
+  onNameChange: (value: string) => void
+  onDescriptionChange: (value: string) => void
+  onSave: () => void
+  onLoad: (configuration: ExtendedSavedConfiguration) => void
+  onDelete: (id: string) => void
+}
 
-  const handleSave = () => {
-    const saved = saveScenario(currentConfiguration.rendite ? 'Scenario' : '', currentConfiguration, '')
-    if (saved) {
-      setScenarioName('')
-      setScenarioDescription('')
-      setSaveSuccess(true)
-      setTimeout(() => setSaveSuccess(false), 3000)
-    }
-  }
+function ScenarioCard(props: ScenarioCardProps) {
+  return (
+    <Collapsible open={props.isOpen} onOpenChange={props.setIsOpen}>
+      <Card ref={props.navigationRef} className="w-full">
+        <CollapsibleTrigger asChild>
+          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                <span>Szenario-Verwaltung</span>
+              </div>
+              <ChevronDown 
+                className={`h-5 w-5 transition-transform ${props.isOpen ? 'transform rotate-180' : ''}`}
+              />
+            </CardTitle>
+          </CardHeader>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent className="space-y-6">
+            <ScenarioSaveForm
+              scenarioName={props.scenarioName}
+              scenarioDescription={props.scenarioDescription}
+              saveSuccess={props.saveSuccess}
+              onNameChange={props.onNameChange}
+              onDescriptionChange={props.onDescriptionChange}
+              onSave={props.onSave}
+            />
+            <ScenarioList
+              scenarios={props.scenarios}
+              onLoad={props.onLoad}
+              onDelete={props.onDelete}
+            />
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
+  )
+}
 
-  const handleDeleteClick = (id: string) => {
-    setScenarioToDelete(id)
-    setDeleteDialogOpen(true)
-  }
+interface DeleteDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onConfirm: () => void
+}
 
-  const handleDeleteConfirm = () => {
-    if (scenarioToDelete) {
-      deleteScenario(scenarioToDelete)
-      setScenarioToDelete(null)
-    }
-    setDeleteDialogOpen(false)
-  }
-
-  return {
-    handleSave,
-    handleDeleteClick,
-    handleDeleteConfirm,
-    deleteDialogOpen,
-    setDeleteDialogOpen,
-  }
+function DeleteDialog({ open, onOpenChange, onConfirm }: DeleteDialogProps) {
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Szenario löschen?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Möchten Sie dieses Szenario wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>Löschen</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
 }
 
 export function ScenarioManagement({ currentConfiguration, onLoadScenario }: ScenarioManagementProps) {
@@ -220,32 +257,6 @@ export function ScenarioManagement({ currentConfiguration, onLoadScenario }: Sce
   const [isOpen, setIsOpen] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
 
-  const {
-    handleSave: _handleSave,
-    handleDeleteClick,
-    handleDeleteConfirm,
-    deleteDialogOpen,
-    setDeleteDialogOpen,
-  } = useScenarioHandlers(
-    saveScenario,
-    deleteScenario,
-    currentConfiguration,
-    setScenarioName,
-    setScenarioDescription,
-    setSaveSuccess
-  )
-
-  const handleSave = () => {
-    if (!scenarioName.trim()) return
-    const saved = saveScenario(scenarioName, currentConfiguration, scenarioDescription)
-    if (saved) {
-      setScenarioName('')
-      setScenarioDescription('')
-      setSaveSuccess(true)
-      setTimeout(() => setSaveSuccess(false), 3000)
-    }
-  }
-
   const navigationRef = useNavigationItem({
     id: 'scenario-management',
     title: 'Szenario-Verwaltung',
@@ -253,58 +264,39 @@ export function ScenarioManagement({ currentConfiguration, onLoadScenario }: Sce
     level: 0,
   })
 
+  const { handleSave, handleDeleteClick, handleDeleteConfirm, deleteDialogOpen, setDeleteDialogOpen } =
+    useScenarioHandlers(
+      saveScenario,
+      deleteScenario,
+      currentConfiguration,
+      scenarioName,
+      scenarioDescription,
+      setScenarioName,
+      setScenarioDescription,
+      setSaveSuccess
+    )
+
   return (
     <>
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <Card ref={navigationRef} className="w-full">
-          <CollapsibleTrigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  <span>Szenario-Verwaltung</span>
-                </div>
-                <ChevronDown 
-                  className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
-                />
-              </CardTitle>
-            </CardHeader>
-          </CollapsibleTrigger>
-
-          <CollapsibleContent>
-            <CardContent className="space-y-6">
-              <ScenarioSaveForm
-                scenarioName={scenarioName}
-                scenarioDescription={scenarioDescription}
-                saveSuccess={saveSuccess}
-                onNameChange={setScenarioName}
-                onDescriptionChange={setScenarioDescription}
-                onSave={handleSave}
-              />
-              <ScenarioList
-                scenarios={scenarios}
-                onLoad={onLoadScenario}
-                onDelete={handleDeleteClick}
-              />
-            </CardContent>
-          </CollapsibleContent>
-        </Card>
-      </Collapsible>
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Szenario löschen?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Möchten Sie dieses Szenario wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>Löschen</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ScenarioCard
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        navigationRef={navigationRef}
+        scenarioName={scenarioName}
+        scenarioDescription={scenarioDescription}
+        saveSuccess={saveSuccess}
+        scenarios={scenarios}
+        onNameChange={setScenarioName}
+        onDescriptionChange={setScenarioDescription}
+        onSave={handleSave}
+        onLoad={onLoadScenario}
+        onDelete={handleDeleteClick}
+      />
+      <DeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+      />
     </>
   )
 }
