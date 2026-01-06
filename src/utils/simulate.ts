@@ -423,8 +423,12 @@ function getBaseSavingsAmount(element: SparplanElement, year: number, options: S
 }
 
 /**
- * Determines whether inflation adjustment should be applied to contributions.
- * Checks if inflation is enabled, rate is positive, and mode is 'sparplan'.
+ * Determines whether inflation adjustment should be applied to savings contributions.
+ * 
+ * Inflation adjustment is applied when ALL of these conditions are met:
+ * 1. Inflation is configured (either fixed or variable rates)
+ * 2. Current year has a positive inflation rate
+ * 3. Inflation mode is set to "sparplan" (adjust contributions) rather than "endkapital" (adjust final capital)
  *
  * @param options - Simulation options containing inflation configuration
  * @param yearInflationRate - The inflation rate for the current year as decimal
@@ -483,13 +487,17 @@ function calculateEndkapital(
   const isFirstYear = new Date(element.start).getFullYear() === year
 
   if (simulationAnnual === 'monthly' && isFirstYear) {
+    // Monthly calculation for first year: pro-rate based on start month
+    // Convert annual growth rate to monthly: (1 + annual)^(1/12) - 1
     const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1
     const startMonth = new Date(element.start).getMonth()
+    // Calculate how many months the investment was active (e.g., start in March = 10 months)
     const anteilImJahr = 12 - startMonth
     const endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr)
     return { endkapitalVorSteuer, anteilImJahr }
   }
 
+  // Annual calculation or non-first years: use full year growth
   return {
     endkapitalVorSteuer: startkapital * (1 + wachstumsrate),
     anteilImJahr: 12,
