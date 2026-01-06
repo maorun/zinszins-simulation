@@ -35,7 +35,7 @@
     "chartjs-plugin-zoom": "^2.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "jspdf": "^3.0.4",
+    "jspdf": "^4.0.0",
     "lucide-react": "^0.542.0",
     "react": "^19.1.1",
     "react-chartjs-2": "^5.3.1",
