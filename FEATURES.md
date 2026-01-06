@@ -12,16 +12,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 - **Alternative Investments** - Private Equity, Hedge Funds, Kryptowährungen
 
-#### Szenario-Vergleiche & Optimierung
-
-- **Szenario-Vergleichsansicht** - Paralleler Vergleich mehrerer Finanzplanungs-Szenarien
-  - Side-by-Side Darstellung von 2-4 Szenarien gleichzeitig
-  - Schnelle Parametervariationen (z.B. verschiedene Sparraten, Renditen, Entnahmestrategien)
-  - Visuelle Hervorhebung der Unterschiede zwischen Szenarien
-  - Best/Worst/Base-Case Analyse für Entscheidungsfindung
-  - Export und Speicherung von Vergleichsergebnissen
-  - Deutsche Finanz-Szenarien (konservativ, moderat, optimistisch)
-
 #### Entnahmestrategien & Kapitalplanung
 
 ### Lebenssituationen & Planung
