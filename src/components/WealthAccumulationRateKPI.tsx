@@ -108,20 +108,32 @@ function WealthDetailsSection({ currentWealth, targetWealth, yearsToTarget, weal
   );
 }
 
-/**
- * WealthAccumulationRateKPI Component
- * 
- * Displays the wealth accumulation rate (Vermögensaufbau-Rate) as a KPI widget
- * Shows how quickly wealth needs to grow to reach the target
- */
-export function WealthAccumulationRateKPI({
-  currentWealth,
-  targetWealth,
-  yearsToTarget,
-  showDetails = true,
-}: WealthAccumulationRateKPIProps) {
-  const cardId = useMemo(() => generateFormId('wealth-accumulation-kpi', 'card'), []);
-  
+function WealthProgressDisplay({ accumulationRate, progressPercentage }: { accumulationRate: number; progressPercentage: number }) {
+  return (
+    <>
+      <div className="flex items-baseline justify-between">
+        <div className="flex items-baseline gap-2">
+          <span className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+            {accumulationRate.toFixed(1)}%
+          </span>
+          <span className="text-sm text-muted-foreground">
+            pro Jahr
+          </span>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
+          <span>Fortschritt zum Ziel</span>
+          <span className="font-semibold">{progressPercentage.toFixed(1)}%</span>
+        </div>
+        <Progress value={progressPercentage} className="h-2" />
+      </div>
+    </>
+  );
+}
+
+function useWealthAccumulationCalculations(currentWealth: number, targetWealth: number, yearsToTarget: number) {
   const accumulationRate = useMemo(() => 
     calculateWealthAccumulationRate(currentWealth, targetWealth, yearsToTarget),
     [currentWealth, targetWealth, yearsToTarget]
@@ -142,6 +154,25 @@ export function WealthAccumulationRateKPI({
     return Math.min(100, (currentWealth / targetWealth) * 100);
   }, [currentWealth, targetWealth]);
   
+  return { accumulationRate, wealthGap, annualRequiredGrowth, progressPercentage };
+}
+
+/**
+ * WealthAccumulationRateKPI Component
+ * 
+ * Displays the wealth accumulation rate (Vermögensaufbau-Rate) as a KPI widget
+ * Shows how quickly wealth needs to grow to reach the target
+ */
+export function WealthAccumulationRateKPI({
+  currentWealth,
+  targetWealth,
+  yearsToTarget,
+  showDetails = true,
+}: WealthAccumulationRateKPIProps) {
+  const cardId = useMemo(() => generateFormId('wealth-accumulation-kpi', 'card'), []);
+  const { accumulationRate, wealthGap, annualRequiredGrowth, progressPercentage } = 
+    useWealthAccumulationCalculations(currentWealth, targetWealth, yearsToTarget);
+  
   const isTargetReached = currentWealth >= targetWealth;
   
   return (
@@ -158,25 +189,7 @@ export function WealthAccumulationRateKPI({
           <TargetReachedMessage />
         ) : (
           <>
-            <div className="flex items-baseline justify-between">
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-blue-600 dark:text-blue-400">
-                  {accumulationRate.toFixed(1)}%
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  pro Jahr
-                </span>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Fortschritt zum Ziel</span>
-                <span className="font-semibold">{progressPercentage.toFixed(1)}%</span>
-              </div>
-              <Progress value={progressPercentage} className="h-2" />
-            </div>
-            
+            <WealthProgressDisplay accumulationRate={accumulationRate} progressPercentage={progressPercentage} />
             {showDetails && (
               <WealthDetailsSection 
                 currentWealth={currentWealth}

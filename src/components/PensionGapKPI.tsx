@@ -112,20 +112,20 @@ function RecommendationsSection() {
   );
 }
 
-/**
- * PensionGapKPI Component
- * 
- * Displays the expected pension gap (erwartete Rentenlücke) as a KPI widget
- * Shows the difference between desired retirement income and expected pension
- * Optionally calculates the required portfolio size to cover the gap using the 4% rule
- */
-export function PensionGapKPI({
-  desiredMonthlyIncome,
-  expectedPension,
-  showPortfolioRequirement = true,
-}: PensionGapKPIProps) {
-  const cardId = useMemo(() => generateFormId('pension-gap-kpi', 'card'), []);
-  
+function PensionGapDisplay({ monthlyGap }: { monthlyGap: number }) {
+  return (
+    <div className="flex items-baseline justify-between">
+      <div className="flex items-baseline gap-2">
+        <span className="text-4xl font-bold text-orange-600 dark:text-orange-400">
+          {formatCurrency(monthlyGap)}
+        </span>
+        <span className="text-sm text-muted-foreground">/ Monat</span>
+      </div>
+    </div>
+  );
+}
+
+function usePensionGapCalculations(desiredMonthlyIncome: number, expectedPension: number) {
   const monthlyGap = useMemo(() => 
     calculatePensionGap(desiredMonthlyIncome, expectedPension),
     [desiredMonthlyIncome, expectedPension]
@@ -148,6 +148,25 @@ export function PensionGapKPI({
     return Math.min(100, (expectedPension / desiredMonthlyIncome) * 100);
   }, [desiredMonthlyIncome, expectedPension]);
   
+  return { monthlyGap, monthlySurplus, annualGap, requiredPortfolio, coveragePercentage };
+}
+
+/**
+ * PensionGapKPI Component
+ * 
+ * Displays the expected pension gap (erwartete Rentenlücke) as a KPI widget
+ * Shows the difference between desired retirement income and expected pension
+ * Optionally calculates the required portfolio size to cover the gap using the 4% rule
+ */
+export function PensionGapKPI({
+  desiredMonthlyIncome,
+  expectedPension,
+  showPortfolioRequirement = true,
+}: PensionGapKPIProps) {
+  const cardId = useMemo(() => generateFormId('pension-gap-kpi', 'card'), []);
+  const { monthlyGap, monthlySurplus, annualGap, requiredPortfolio, coveragePercentage } = 
+    usePensionGapCalculations(desiredMonthlyIncome, expectedPension);
+  
   const hasGap = monthlyGap > 0;
   const hasSurplus = expectedPension > desiredMonthlyIncome;
   
@@ -165,28 +184,16 @@ export function PensionGapKPI({
           <NoGapAlert hasSurplus={hasSurplus} monthlySurplus={monthlySurplus} />
         ) : (
           <>
-            <div className="flex items-baseline justify-between">
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-orange-600 dark:text-orange-400">
-                  {formatCurrency(monthlyGap)}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  / Monat
-                </span>
-              </div>
-            </div>
-            
+            <PensionGapDisplay monthlyGap={monthlyGap} />
             <PensionGapDetails
               desiredMonthlyIncome={desiredMonthlyIncome}
               expectedPension={expectedPension}
               coveragePercentage={coveragePercentage}
               annualGap={annualGap}
             />
-            
             {showPortfolioRequirement && (
               <PortfolioRequirementAlert requiredPortfolio={requiredPortfolio} />
             )}
-            
             <RecommendationsSection />
           </>
         )}
