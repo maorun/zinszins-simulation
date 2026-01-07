@@ -995,6 +995,30 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Deutsche Beschriftungen** - Vollständig deutsche Beschreibungen aller Bereiche
   - **Barrierefreiheit** - Tastaturnavigation und Screen-Reader-Unterstützung
 
+### Finanz-KPIs & Dashboard-Widgets
+
+- **📊 Interaktive Finanz-KPI-Komponenten** - Wichtige Kennzahlen für die Altersvorsorgeplanung
+  - **Sparquote (Savings Rate)** - Prozentsatz des Einkommens, der gespart wird
+    - **Kategorisierung** - Ausgezeichnet (≥20%), Gut (15-20%), Durchschnittlich (10-15%), Niedrig (<10%)
+    - **Visualisierung** - Fortschrittsbalken und Farbcodierung für schnelle Einschätzung
+    - **Trend-Anzeige** - Vergleich mit vorheriger Periode optional
+    - **Empfehlungen** - Integrierte Hinweise zur Optimierung der Sparquote
+  - **Vermögensaufbau-Rate (Wealth Accumulation Rate)** - Erforderliches jährliches Wachstum zum Erreichen des Zielvermögens
+    - **Fortschritts-Tracking** - Visualisierung des Wegs zum Vermögensziel
+    - **Ziel-Erreichung** - Feiert automatisch das Erreichen des Ziels
+    - **Detaillierte Metriken** - Aktuelles Vermögen, Zielvermögen, verbleibende Zeit, erforderliches Wachstum
+    - **Realistische Planung** - Hilft bei der Einschätzung der Erreichbarkeit von Sparzielen
+  - **Erwartete Rentenlücke (Expected Pension Gap)** - Differenz zwischen Wunscheinkommen und gesetzlicher Rente
+    - **Lücken-Berechnung** - Monatliche und jährliche Darstellung der Versorgungslücke
+    - **4%-Regel Integration** - Automatische Berechnung des erforderlichen Portfolios zur Lückenschließung
+    - **Abdeckungsanalyse** - Prozentuale Darstellung der Rentendeckung
+    - **Surplus-Erkennung** - Positive Meldung bei Rentenüberschuss
+    - **Handlungsempfehlungen** - Konkrete Hinweise zur privaten Altersvorsorge
+  - **Demo-Seite** - Interaktive Demo-Umgebung zum Experimentieren mit allen KPIs
+    - **Live-Berechnungen** - Echtzeit-Updates bei Parametereränderungen
+    - **Responsive Design** - Optimiert für Desktop und mobile Geräte
+    - **Bildungsfokus** - Detaillierte Erklärungen für jede KPI
+
 ### Auszahlungsphase
 
 - **Standard-Strategien**: 4% Regel, 3% Regel, variable Entnahme-Strategien
