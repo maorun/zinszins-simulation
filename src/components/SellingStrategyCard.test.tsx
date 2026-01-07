@@ -98,13 +98,15 @@ describe('SellingStrategyCard', () => {
     const header = screen.getByText(/Verkaufsstrategie-Optimierung/i)
     await user.click(header)
 
-    await waitFor(async () => {
-      const compareButton = screen.getByRole('button', { name: /Methoden vergleichen/i })
-      await user.click(compareButton)
+    // Wait for the button to be visible
+    const compareButton = await screen.findByRole('button', { name: /Methoden vergleichen/i })
+    await user.click(compareButton)
 
+    // Wait for comparison content to appear
+    await waitFor(() => {
       expect(screen.getByText(/Methodenvergleich/i)).toBeInTheDocument()
-      expect(screen.getByText(/FIFO/i)).toBeInTheDocument()
-      expect(screen.getByText(/LIFO/i)).toBeInTheDocument()
+      expect(screen.getAllByText(/FIFO/i).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(/LIFO/i).length).toBeGreaterThan(0)
       expect(screen.getByText(/Beste Methode:/i)).toBeInTheDocument()
     })
   })
@@ -156,15 +158,15 @@ describe('SellingStrategyCard', () => {
     const header = screen.getByText(/Verkaufsstrategie-Optimierung/i)
     await user.click(header)
 
-    await waitFor(async () => {
-      // Switch to FIFO
-      const fifoRadio = screen.getByRole('radio', { name: /FIFO/i })
-      await user.click(fifoRadio)
+    // Wait for radio button to be available
+    const fifoRadio = await screen.findByRole('radio', { name: /FIFO \(First In, First Out\)/i })
+    await user.click(fifoRadio)
 
+    await waitFor(() => {
       expect(fifoRadio).toBeChecked()
 
-      // Results should update
-      expect(screen.getByText(/FIFO/)).toBeInTheDocument()
+      // Results should update - use getAllByText since "FIFO" appears multiple times
+      expect(screen.getAllByText(/FIFO/).length).toBeGreaterThan(0)
     })
   })
 
