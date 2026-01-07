@@ -1,5 +1,8 @@
 import { lazy, Suspense } from 'react'
 import SimulationParameters from './SimulationParameters'
+import { ScenarioManagement } from './ScenarioManagement'
+import { useCurrentConfiguration } from '../hooks/useCurrentConfiguration'
+import { useLoadSavedScenario } from '../hooks/useLoadSavedScenario'
 import type { FinancialScenario } from '../data/scenarios'
 import { Card, CardContent } from './ui/card'
 
@@ -41,9 +44,16 @@ export function HomePageConfigurationSection({
   handleApplyScenario,
   startOfIndependence,
 }: HomePageConfigurationSectionProps) {
+  const getCurrentConfiguration = useCurrentConfiguration()
+  const { handleLoadScenario } = useLoadSavedScenario()
+  const currentConfig = getCurrentConfiguration()
+
   return (
     <>
       <SimulationParameters />
+
+      {/* Scenario Management - Save and Load Configurations */}
+      <ScenarioManagement currentConfiguration={currentConfig} onLoadScenario={handleLoadScenario} />
 
       {/* Global Planning Configuration - Available for all calculations including Vorabpauschale */}
       <Suspense fallback={<LoadingCard />}>

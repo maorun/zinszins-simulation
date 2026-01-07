@@ -665,6 +665,26 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Bundesbank API Integration** - Automatischer Abruf aktueller Basiszinssätze über SDMX API
 - **Validierung und Fallbacks** - Intelligente Validierung mit automatischen Fallback-Mechanismen
 
+### Szenario-Verwaltung
+
+- **Speichern und Laden von Konfigurationen** - Persistent management of financial planning scenarios
+  - **Szenario-Speicherung** - Speichern der aktuellen Konfiguration mit Name und Beschreibung
+  - **localStorage-Persistenz** - Alle Szenarien werden lokal im Browser gespeichert (keine Cloud-Synchronisation)
+  - **Vollständige Konfigurationserfassung** - Alle Parameter werden gespeichert:
+    - Grundeinstellungen (Zeitraum, Berechnungsmodus, Renditekonfiguration)
+    - Sparpläne und Einmalzahlungen
+    - Steuer-Konfiguration (Freibeträge, Steuersätze, Teilfreistellung)
+    - Erweiterte Konfiguration (Inflation, Multi-Asset Portfolio, ESG-Filter)
+    - Entnahmestrategien und Lebensplanungs-Parameter
+  - **Szenario-Verwaltung** - Übersichtliche Darstellung aller gespeicherten Szenarien
+    - Szenario-Name und Beschreibung
+    - Erstellungs- und Änderungsdatum
+    - Ein-Klick Laden von Szenarien
+  - **Löschen mit Bestätigung** - AlertDialog zur Vermeidung versehentlichen Löschens
+  - **Import/Export-Funktionalität** - JSON-basierter Export und Import von Szenarien
+  - **Privacy-First** - Alle Daten bleiben lokal auf dem Gerät des Nutzers
+  - **shadcn/ui Design** - Moderne, barrierefreie Komponenten mit Collapsible Card
+
 ### Was-wäre-wenn Szenarien
 
 - **Vordefinierte Finanzszenarien** - Lernszenarien zum Erkunden verschiedener Anlagestrategien
