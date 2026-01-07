@@ -13,6 +13,101 @@ interface WealthAccumulationRateKPIProps {
   showDetails?: boolean;
 }
 
+function TargetReachedMessage() {
+  return (
+    <div className="text-center py-4">
+      <div className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">
+        🎉 Ziel erreicht!
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Das Vermögensziel wurde bereits erreicht oder überschritten.
+      </p>
+    </div>
+  );
+}
+
+function WealthMetrics({ currentWealth, targetWealth }: { currentWealth: number; targetWealth: number }) {
+  return (
+    <div className="grid grid-cols-2 gap-4 text-sm">
+      <div className="space-y-1">
+        <p className="text-muted-foreground flex items-center gap-1">
+          <Target className="h-3 w-3" />
+          Aktuelles Vermögen
+        </p>
+        <p className="font-semibold">{formatCurrency(currentWealth)}</p>
+      </div>
+      <div className="space-y-1">
+        <p className="text-muted-foreground flex items-center gap-1">
+          <Target className="h-3 w-3" />
+          Zielvermögen
+        </p>
+        <p className="font-semibold">{formatCurrency(targetWealth)}</p>
+      </div>
+    </div>
+  );
+}
+
+function WealthRequirements({ yearsToTarget, wealthGap, annualRequiredGrowth }: {
+  yearsToTarget: number;
+  wealthGap: number;
+  annualRequiredGrowth: number;
+}) {
+  return (
+    <div className="pt-2 border-t space-y-2">
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground flex items-center gap-1">
+          <Calendar className="h-3 w-3" />
+          Verbleibende Zeit
+        </span>
+        <span className="font-semibold">
+          {yearsToTarget} {yearsToTarget === 1 ? 'Jahr' : 'Jahre'}
+        </span>
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">
+          Erforderliches Wachstum/Jahr
+        </span>
+        <span className="font-semibold">{formatCurrency(annualRequiredGrowth)}</span>
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">
+          Fehlbetrag zum Ziel
+        </span>
+        <span className="font-semibold">{formatCurrency(wealthGap)}</span>
+      </div>
+    </div>
+  );
+}
+
+function WealthHint() {
+  return (
+    <div className="pt-2 border-t text-xs text-muted-foreground">
+      <p><strong>Hinweis:</strong></p>
+      <p className="mt-1">
+        Diese Rate zeigt, wie viel Ihr Vermögen jährlich wachsen muss, 
+        um das Zielvermögen in der verbleibenden Zeit zu erreichen. 
+        Sie berücksichtigt Sparraten, Renditen und Steuern.
+      </p>
+    </div>
+  );
+}
+
+function WealthDetailsSection({ currentWealth, targetWealth, yearsToTarget, wealthGap, annualRequiredGrowth }: {
+  currentWealth: number;
+  targetWealth: number;
+  yearsToTarget: number;
+  wealthGap: number;
+  annualRequiredGrowth: number;
+}) {
+  return (
+    <>
+      <WealthMetrics currentWealth={currentWealth} targetWealth={targetWealth} />
+      <WealthRequirements yearsToTarget={yearsToTarget} wealthGap={wealthGap} annualRequiredGrowth={annualRequiredGrowth} />
+      <WealthHint />
+    </>
+  );
+}
+
 /**
  * WealthAccumulationRateKPI Component
  * 
@@ -60,14 +155,7 @@ export function WealthAccumulationRateKPI({
       </CardHeader>
       <CardContent className="space-y-4">
         {isTargetReached ? (
-          <div className="text-center py-4">
-            <div className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">
-              🎉 Ziel erreicht!
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Das Vermögensziel wurde bereits erreicht oder überschritten.
-            </p>
-          </div>
+          <TargetReachedMessage />
         ) : (
           <>
             <div className="flex items-baseline justify-between">
@@ -90,57 +178,13 @@ export function WealthAccumulationRateKPI({
             </div>
             
             {showDetails && (
-              <>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="space-y-1">
-                    <p className="text-muted-foreground flex items-center gap-1">
-                      <Target className="h-3 w-3" />
-                      Aktuelles Vermögen
-                    </p>
-                    <p className="font-semibold">{formatCurrency(currentWealth)}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-muted-foreground flex items-center gap-1">
-                      <Target className="h-3 w-3" />
-                      Zielvermögen
-                    </p>
-                    <p className="font-semibold">{formatCurrency(targetWealth)}</p>
-                  </div>
-                </div>
-                
-                <div className="pt-2 border-t space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      Verbleibende Zeit
-                    </span>
-                    <span className="font-semibold">
-                      {yearsToTarget} {yearsToTarget === 1 ? 'Jahr' : 'Jahre'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Erforderliches Wachstum/Jahr
-                    </span>
-                    <span className="font-semibold">{formatCurrency(annualRequiredGrowth)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Fehlbetrag zum Ziel
-                    </span>
-                    <span className="font-semibold">{formatCurrency(wealthGap)}</span>
-                  </div>
-                </div>
-                
-                <div className="pt-2 border-t text-xs text-muted-foreground">
-                  <p><strong>Hinweis:</strong></p>
-                  <p className="mt-1">
-                    Diese Rate zeigt, wie viel Ihr Vermögen jährlich wachsen muss, 
-                    um das Zielvermögen in der verbleibenden Zeit zu erreichen. 
-                    Sie berücksichtigt Sparraten, Renditen und Steuern.
-                  </p>
-                </div>
-              </>
+              <WealthDetailsSection 
+                currentWealth={currentWealth}
+                targetWealth={targetWealth}
+                yearsToTarget={yearsToTarget}
+                wealthGap={wealthGap}
+                annualRequiredGrowth={annualRequiredGrowth}
+              />
             )}
           </>
         )}
