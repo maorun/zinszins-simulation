@@ -38,14 +38,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Reporting & Visualisierung
 
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
-- **Interaktives Finanz-Dashboard** - Zentrale Übersicht aller wichtigen Finanzkennzahlen
-  - Anpassbare Widget-basierte Ansicht mit Drag-&-Drop Funktion
-  - Key Performance Indicators (KPIs): Sparquote, Vermögensaufbau-Rate, erwartete Rentenlücke
-  - Grafische Darstellung von Vermögensverteilung (Asset Allocation Pie Chart)
-  - Timeline-Visualisierung wichtiger finanzieller Meilensteine
-  - Fortschrittsanzeigen für Sparziele und Entnahmepläne
-  - Mobile-optimierte Dashboard-Ansicht
-  - Export der Dashboard-Ansicht als PDF/PNG
 
 #### Steueroptimierung & Strategien
 
