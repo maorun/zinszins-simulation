@@ -41,14 +41,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Strategien
 
-- **Intelligente Verkaufsstrategie mit Steuerstundung** - Optimierung des Verkaufszeitpunkts zur Steuerminimierung
-  - Analyse der besten Zeitpunkte für Verkäufe unter Berücksichtigung von Freibeträgen
-  - Mehrjährige Steueroptimierung durch zeitliche Streuung von Gewinnen
-  - Berücksichtigung der Haltefrist (Spekulationsfrist) für verschiedene Anlageklassen
-  - Simulation von Steuerlast bei verschiedenen Verkaufsszenarien
-  - Integration mit Tax Loss Harvesting für optimale Verlustverrechnung
-  - Empfehlungen für steueroptimale Reihenfolge von Verkäufen (FIFO vs. LIFO vs. steueroptimiert)
-
 ### Beratungs- & Bildungsfeatures
 
 #### Finanzbildung
