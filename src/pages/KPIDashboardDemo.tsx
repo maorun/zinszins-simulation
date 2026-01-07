@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { SavingsRateKPI } from '../components/SavingsRateKPI';
 import { WealthAccumulationRateKPI } from '../components/WealthAccumulationRateKPI';
@@ -6,7 +6,6 @@ import { PensionGapKPI } from '../components/PensionGapKPI';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { generateFormId } from '../utils/unique-id';
-import { useMemo } from 'react';
 
 /**
  * KPI Dashboard Demo Page

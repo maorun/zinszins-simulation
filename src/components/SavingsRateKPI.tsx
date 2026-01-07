@@ -12,6 +12,20 @@ interface SavingsRateKPIProps {
   previousSavingsRate?: number;
 }
 
+function SavingsRateRecommendations() {
+  return (
+    <div className="pt-2 border-t text-xs text-muted-foreground">
+      <p><strong>Empfehlung:</strong></p>
+      <ul className="list-disc list-inside space-y-1 mt-1">
+        <li>&gt; 20%: Ausgezeichnete Sparquote</li>
+        <li>15-20%: Gute Sparquote</li>
+        <li>10-15%: Durchschnittliche Sparquote</li>
+        <li>&lt; 10%: Verbesserungspotenzial</li>
+      </ul>
+    </div>
+  );
+}
+
 /**
  * SavingsRateKPI Component
  * 
@@ -87,15 +101,7 @@ export function SavingsRateKPI({
           </div>
         </div>
         
-        <div className="pt-2 border-t text-xs text-muted-foreground">
-          <p><strong>Empfehlung:</strong></p>
-          <ul className="list-disc list-inside space-y-1 mt-1">
-            <li>&gt; 20%: Ausgezeichnete Sparquote</li>
-            <li>15-20%: Gute Sparquote</li>
-            <li>10-15%: Durchschnittliche Sparquote</li>
-            <li>&lt; 10%: Verbesserungspotenzial</li>
-          </ul>
-        </div>
+        <SavingsRateRecommendations />
       </CardContent>
     </Card>
   );
