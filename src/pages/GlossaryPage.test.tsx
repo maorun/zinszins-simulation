@@ -46,10 +46,10 @@ describe('GlossaryPage', () => {
   it('displays all terms by default', () => {
     renderWithRouter(<GlossaryPage />)
 
-    // Should show all terms
-    expect(screen.getByText('Vorabpauschale')).toBeInTheDocument()
-    expect(screen.getByText('Kapitalertragsteuer')).toBeInTheDocument()
-    expect(screen.getByText('Sparerpauschbetrag')).toBeInTheDocument()
+    // Should show all terms (use getAllByText since terms appear multiple times - in headings and related terms)
+    expect(screen.getAllByText('Vorabpauschale')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('Kapitalertragsteuer')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('Sparerpauschbetrag')[0]).toBeInTheDocument()
   })
 
   it('shows results count', () => {
@@ -67,9 +67,9 @@ describe('GlossaryPage', () => {
     const steuernButton = screen.getByRole('button', { name: 'Steuern' })
     await user.click(steuernButton)
 
-    // Should show tax-related terms
-    expect(screen.getByText('Vorabpauschale')).toBeInTheDocument()
-    expect(screen.getByText('Kapitalertragsteuer')).toBeInTheDocument()
+    // Should show tax-related terms (use getAllByText since terms appear in headings and related terms)
+    expect(screen.getAllByText('Vorabpauschale')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('Kapitalertragsteuer')[0]).toBeInTheDocument()
 
     // Results count should update
     expect(screen.getByText(/\d+ Begriffe gefunden/)).toBeInTheDocument()
@@ -82,8 +82,8 @@ describe('GlossaryPage', () => {
     const searchInput = screen.getByPlaceholderText('Begriffe durchsuchen...')
     await user.type(searchInput, 'Vorabpauschale')
 
-    // Should show matching terms
-    expect(screen.getByText('Vorabpauschale')).toBeInTheDocument()
+    // Should show matching terms (use heading query to avoid related terms)
+    expect(screen.getByRole('heading', { name: 'Vorabpauschale', level: 3 })).toBeInTheDocument()
 
     // Should not show non-matching terms
     expect(screen.queryByText('Kindergeld')).not.toBeInTheDocument()
@@ -102,8 +102,12 @@ describe('GlossaryPage', () => {
   it('displays term details including category badge', () => {
     renderWithRouter(<GlossaryPage />)
 
-    // Find a term card (e.g., Vorabpauschale)
-    const vorabCard = screen.getByText('Vorabpauschale').closest('div')
+    // Find a term heading (unique h3 element)
+    const vorabHeading = screen.getByRole('heading', { name: 'Vorabpauschale', level: 3 })
+    expect(vorabHeading).toBeInTheDocument()
+
+    // Find the card containing this heading
+    const vorabCard = vorabHeading.closest('[class*="rounded-xl"]') as HTMLElement
     expect(vorabCard).toBeInTheDocument()
 
     // Should show category badge
@@ -115,15 +119,15 @@ describe('GlossaryPage', () => {
   it('displays term examples when available', () => {
     renderWithRouter(<GlossaryPage />)
 
-    // Vorabpauschale has an example
-    expect(screen.getByText(/Beispiel:/)).toBeInTheDocument()
+    // Vorabpauschale has an example (use getAllByText since "Beispiel:" appears multiple times)
+    expect(screen.getAllByText(/Beispiel:/)[0]).toBeInTheDocument()
   })
 
   it('displays related terms when available', () => {
     renderWithRouter(<GlossaryPage />)
 
-    // Vorabpauschale has related terms
-    expect(screen.getByText('Verwandte Begriffe:')).toBeInTheDocument()
+    // Vorabpauschale has related terms (use getAllByText since multiple terms have related terms)
+    expect(screen.getAllByText('Verwandte Begriffe:')[0]).toBeInTheDocument()
   })
 
   it('resets to all terms when "Alle" category is clicked', async () => {
@@ -136,9 +140,9 @@ describe('GlossaryPage', () => {
     // Then click "Alle"
     await user.click(screen.getByRole('button', { name: 'Alle' }))
 
-    // Should show all terms again
-    expect(screen.getByText('Vorabpauschale')).toBeInTheDocument()
-    expect(screen.getByText('Volatilität')).toBeInTheDocument()
+    // Should show all terms again (use heading query for specificity)
+    expect(screen.getByRole('heading', { name: 'Vorabpauschale', level: 3 })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Volatilität', level: 3 })).toBeInTheDocument()
   })
 
   it('shows proper German plural for single result', async () => {
@@ -146,8 +150,9 @@ describe('GlossaryPage', () => {
     renderWithRouter(<GlossaryPage />)
 
     // Search for a specific term that should return exactly one result
+    // "Freistellungsauftrag" is unique and only appears in its own entry
     const searchInput = screen.getByPlaceholderText('Begriffe durchsuchen...')
-    await user.type(searchInput, 'Vorabpauschale')
+    await user.type(searchInput, 'Freistellungsauftrag')
 
     // Should show singular form
     expect(screen.getByText('1 Begriff gefunden')).toBeInTheDocument()

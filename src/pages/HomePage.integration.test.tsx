@@ -2,6 +2,8 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { BrowserRouter } from 'react-router-dom'
+import { ReactElement } from 'react'
 import HomePage from '../pages/HomePage'
 
 // Mock Vercel Analytics
@@ -31,13 +33,18 @@ vi.mock('../../helpers/withdrawal', () => ({
   calculateWithdrawalDuration: vi.fn(() => 25),
 }))
 
+// Helper to render with router
+function renderWithRouter(ui: ReactElement) {
+  return render(<BrowserRouter>{ui}</BrowserRouter>)
+}
+
 describe('HomePage Integration Tests - Optimized', () => {
   beforeEach(() => {
     localStorage.clear()
   })
 
   it('renders the main calculator interface', async () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />)
 
     // Wait for lazy-loaded components to render - use getAllByRole to find tabs
     await waitFor(
@@ -58,7 +65,7 @@ describe('HomePage Integration Tests - Optimized', () => {
   })
 
   it('has working tab navigation between Sparen, Entnahme, and Sonstiges', async () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />)
 
     // Wait for lazy-loaded components - use getAllByRole to be safe
     await waitFor(
@@ -91,7 +98,7 @@ describe('HomePage Integration Tests - Optimized', () => {
   })
 
   it('displays financial overview when enhanced summary is available', () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />)
 
     // Should show financial metrics
     const overviewSection = screen.queryByText(/Finanzübersicht/)
@@ -107,7 +114,7 @@ describe('HomePage Integration Tests - Optimized', () => {
   })
 
   it('handles simulation configuration without errors', () => {
-    const { container } = render(<HomePage />)
+    const { container } = renderWithRouter(<HomePage />)
 
     // Should render configuration sections without errors
     expect(container).toBeInTheDocument()
@@ -118,7 +125,7 @@ describe('HomePage Integration Tests - Optimized', () => {
   })
 
   it('shows collapsible configuration section', async () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />)
 
     // The Grundeinstellungen category should always be present in the Sonstiges tab
     await waitFor(
@@ -140,7 +147,7 @@ describe('HomePage Integration Tests - Optimized', () => {
 
   it('displays savings plan creation interface', async () => {
     const user = userEvent.setup()
-    const { container } = render(<HomePage />)
+    const { container } = renderWithRouter(<HomePage />)
 
     // First ensure we're on the correct tab (Sparen)
     await waitFor(
@@ -194,7 +201,7 @@ describe('HomePage Integration Tests - Optimized', () => {
 
   it('renders without performance issues', () => {
     const startTime = Date.now()
-    const { container } = render(<HomePage />)
+    const { container } = renderWithRouter(<HomePage />)
     const endTime = Date.now()
 
     // Should render quickly (under 2 seconds in test environment)

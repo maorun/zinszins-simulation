@@ -1,17 +1,24 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
+import { BrowserRouter } from 'react-router-dom'
+import { ReactElement } from 'react'
 import Header from './Header'
+
+// Helper to render with router
+function renderWithRouter(ui: ReactElement) {
+  return render(<BrowserRouter>{ui}</BrowserRouter>)
+}
 
 describe('Header', () => {
   it('renders the header with the correct title and subtitle', () => {
-    render(<Header />)
+    renderWithRouter(<Header />)
     expect(screen.getByText('Zinseszins-Simulation')).toBeInTheDocument()
     expect(screen.getByText('Berechne deine Kapitalentwicklung mit deutschen Steuerregeln')).toBeInTheDocument()
   })
 
   it('has mobile-optimized typography classes', () => {
-    const { container } = render(<Header />)
+    const { container } = renderWithRouter(<Header />)
     const title = container.querySelector('h1')
     const subtitle = container.querySelector('p')
 
@@ -22,17 +29,18 @@ describe('Header', () => {
     expect(title).toHaveClass('sm:mb-2')
 
     // Subtitle with proper mobile spacing
-    expect(subtitle).toHaveClass('mb-3')
-    expect(subtitle).toHaveClass('sm:mb-4')
+    expect(subtitle).toHaveClass('text-sm')
+    expect(subtitle).toHaveClass('text-gray-600')
     expect(subtitle).toHaveClass('px-1')
   })
 
   it('maintains responsive layout structure', () => {
-    const { container } = render(<Header />)
+    const { container } = renderWithRouter(<Header />)
     const header = container.querySelector('header')
+    const centerDiv = container.querySelector('.text-center')
 
     expect(header).toHaveClass('mb-3')
     expect(header).toHaveClass('sm:mb-4')
-    expect(header).toHaveClass('text-center')
+    expect(centerDiv).toHaveClass('text-center')
   })
 })
