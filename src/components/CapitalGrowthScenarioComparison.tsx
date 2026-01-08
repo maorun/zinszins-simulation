@@ -11,6 +11,7 @@ import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { Alert, AlertDescription } from './ui/alert'
+import { Switch } from './ui/switch'
 import { Plus, Trash2, Play, Info } from 'lucide-react'
 import { formatCurrency } from '../utils/currency'
 import {
@@ -25,6 +26,7 @@ import {
 } from '../utils/capital-growth-comparison'
 import { useSimulation } from '../contexts/useSimulation'
 import { generateUniqueId } from '../utils/unique-id'
+import { ScenarioComparisonChart } from './ScenarioComparisonChart'
 
 /**
  * Main component for scenario comparison
@@ -37,6 +39,7 @@ export function CapitalGrowthScenarioComparison() {
     createComparison('Szenario-Vergleich')
   )
   const [isSimulating, setIsSimulating] = useState(false)
+  const [showRealValues, setShowRealValues] = useState(false)
 
   // Add a new scenario based on current configuration
   const handleAddScenario = () => {
@@ -169,7 +172,28 @@ export function CapitalGrowthScenarioComparison() {
 
         {/* Results Display */}
         {comparison.results && comparison.results.length >= 2 && (
-          <ComparisonResults comparison={comparison} />
+          <>
+            {/* Chart Visualization */}
+            <div className="pt-4 border-t">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Kapitalentwicklung im Vergleich</h3>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="show-real-values"
+                    checked={showRealValues}
+                    onCheckedChange={setShowRealValues}
+                  />
+                  <Label htmlFor="show-real-values" className="cursor-pointer">
+                    Inflationsbereinigt
+                  </Label>
+                </div>
+              </div>
+              <ScenarioComparisonChart comparison={comparison} showRealValues={showRealValues} />
+            </div>
+
+            {/* Statistics and Table */}
+            <ComparisonResults comparison={comparison} />
+          </>
         )}
       </CardContent>
     </Card>
