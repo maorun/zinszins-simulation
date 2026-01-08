@@ -6,6 +6,50 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
+#### Steueroptimierung & Finanzplanung
+
+- **Steuerbelastungs-Verlaufsanalyse** - Visualisierung der jährlichen Steuerbelastung über den gesamten Planungszeitraum
+  - Detaillierte Jahr-für-Jahr Steueraufschlüsselung mit Kapitalertragsteuer, Vorabpauschale und Gesamtsteuerquote
+  - Identifikation von Spitzenjahren mit hoher Steuerbelastung
+  - Vergleich verschiedener Szenarien zur Steuerglättung
+  - Integration mit allen bestehenden Steuerfeatures (Freibetrag, Teilfreistellung, Quellensteuer)
+  - Export der Steueranalyse für die Finanzplanung
+  - Priorisierung: ⭐⭐⭐ (Hoch) - Nutzt bestehende Steuerfunktionen, liefert wertvollen Mehrwert
+
+- **Entnahmestrategien-Vergleichsmatrix** - Umfassender Vergleich verschiedener Entnahmestrategien mit Rangfolge
+  - Vergleich von 4% Rule, 3% Rule, Fixed Monthly, Variable Percentage und benutzerdefinierten Strategien
+  - Kennzahlen: Portfolio-Lebensdauer, Gesamtentnahme, Durchschnittliche jährliche Entnahme, Restkapital
+  - Risikoanalyse: Erfolgsrate (Portfolio überlebt geplante Dauer), Downside Risk
+  - Side-by-Side Visualisierung der Kapitalverläufe
+  - Empfehlungsalgorithmus basierend auf Risikoprofil und Zielen
+  - Priorisierung: ⭐⭐⭐ (Hoch) - Baut auf bestehenden Entnahmestrategien auf
+
+- **Kapitalwertentwicklungs-Szenario-Vergleich** - Interaktiver Vergleich mehrerer Spar-/Entnahmeszenarien
+  - Gleichzeitige Simulation von bis zu 5 unterschiedlichen Szenarien (z.B. konservativ, ausgewogen, aggressiv)
+  - Parametervariation: Sparrate, Rendite, Entnahmestrategie, Steuersituation
+  - Überlagertes Liniendiagramm mit Szenario-Bezeichnungen
+  - Best/Worst Case Analyse mit Perzentilen
+  - Hilft bei der Entscheidung zwischen verschiedenen Strategien
+  - Priorisierung: ⭐⭐⭐ (Hoch) - Ergänzt Monte Carlo Analyse um deterministische Szenarien
+
+#### Finanzielle Bildung & Transparenz
+
+- **Interaktiver Finanz-Glossar** - Deutschsprachige Erklärungen aller Fachbegriffe mit Beispielen
+  - Alphabetisch sortierte Begriffsdatenbank (Vorabpauschale, Teilfreistellung, Basiszins, etc.)
+  - Praxisbeispiele mit Zahlen für jedes Konzept
+  - Tooltips im gesamten Interface mit Glossar-Verlinkungen
+  - Suchfunktion für schnellen Zugriff
+  - Steuerrechtliche Grundlagen verständlich erklärt (§ 20 InvStG, § 32d EStG)
+  - Kategorisierung: Steuern, Investitionen, Rente, Versicherungen
+  - Priorisierung: ⭐⭐ (Mittel) - Hoher Nutzen für Bildung, moderater Implementierungsaufwand
+
+- **Finanzielle Meilenstein-Tracker** - Gamifizierte Fortschrittsanzeige für Sparziele
+  - Definition von Meilensteinen (z.B. "Erste 10.000€", "Notgroschen vollständig", "Rentenlücke geschlossen")
+  - Visuelle Fortschrittsbalken mit Prozentanzeige
+  - Geschätzte Zeitpunkte bis zum Erreichen des nächsten Meilensteins
+  - Motivierende Visualisierung ohne Social/Gamification-Features
+  - Priorisierung: ⭐ (Niedrig) - Nice-to-have, aber hoher UX-Wert
+
 ### Erweiterte Finanzplanung
 
 #### Asset Allocation & Portfolio-Management
