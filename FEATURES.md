@@ -16,14 +16,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - Empfehlungsalgorithmus basierend auf Risikoprofil und Zielen
   - Priorisierung: ⭐⭐⭐ (Hoch) - Baut auf bestehenden Entnahmestrategien auf
 
-- **Kapitalwertentwicklungs-Szenario-Vergleich** - Interaktiver Vergleich mehrerer Spar-/Entnahmeszenarien
-  - Gleichzeitige Simulation von bis zu 5 unterschiedlichen Szenarien (z.B. konservativ, ausgewogen, aggressiv)
-  - Parametervariation: Sparrate, Rendite, Entnahmestrategie, Steuersituation
-  - Überlagertes Liniendiagramm mit Szenario-Bezeichnungen
-  - Best/Worst Case Analyse mit Perzentilen
-  - Hilft bei der Entscheidung zwischen verschiedenen Strategien
-  - Priorisierung: ⭐⭐⭐ (Hoch) - Ergänzt Monte Carlo Analyse um deterministische Szenarien
-
 #### Finanzielle Bildung & Transparenz
 
 - **Interaktiver Finanz-Glossar** - Deutschsprachige Erklärungen aller Fachbegriffe mit Beispielen
