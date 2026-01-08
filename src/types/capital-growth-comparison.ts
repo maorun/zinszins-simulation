@@ -7,7 +7,27 @@
  */
 
 import type { ExtendedSavedConfiguration } from '../contexts/helpers/config-types'
-import type { SparplanElement } from '../utils/sparplan-utils'
+
+/**
+ * Yearly data element with year number (used in comparisons)
+ * This is a simplified interface - the actual implementation uses SimulationResultElement + jahr
+ */
+export interface YearlyDataElement {
+  jahr: number
+  startkapital: number
+  zinsen: number
+  endkapital: number
+  bezahlteSteuer: number
+  genutzterFreibetrag: number
+  vorabpauschale: number
+  vorabpauschaleAccumulated: number
+  startkapitalReal?: number
+  zinsenReal?: number
+  endkapitalReal?: number
+  terCosts?: number
+  transactionCosts?: number
+  totalCosts?: number
+}
 
 /**
  * A single scenario configuration for comparison
@@ -37,7 +57,7 @@ export interface ScenarioSimulationResult {
   scenarioId: string
 
   /** Year-by-year simulation data */
-  yearlyData: SparplanElement[]
+  yearlyData: YearlyDataElement[]
 
   /** Summary metrics */
   metrics: {
