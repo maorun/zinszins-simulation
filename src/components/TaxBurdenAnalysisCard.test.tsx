@@ -63,17 +63,21 @@ describe('TaxBurdenAnalysisCard', () => {
     const trigger = screen.getByRole('button', { name: /Steuerbelastungs-Verlaufsanalyse/i })
     await user.click(trigger)
 
-    // Check total tax paid
-    expect(screen.getByText('220,00 €')).toBeInTheDocument() // Total tax: 100 + 120
+    // Check total tax paid - appears in summary and table
+    const taxPaidElements = screen.getAllByText('220,00 €')
+    expect(taxPaidElements.length).toBeGreaterThan(0)
 
     // Check average tax rate (220 / 1100 * 100 = 20%)
-    expect(screen.getByText('20.00%')).toBeInTheDocument()
+    const taxRateElements = screen.getAllByText('20.00%')
+    expect(taxRateElements.length).toBeGreaterThan(0)
 
-    // Check total allowance used
-    expect(screen.getByText('1.100,00 €')).toBeInTheDocument() // 500 + 600
+    // Check total allowance used - appears in summary and table
+    const allowanceElements = screen.getAllByText('1.100,00 €')
+    expect(allowanceElements.length).toBeGreaterThan(0)
 
-    // Check total vorabpauschale
-    expect(screen.getByText('110,00 €')).toBeInTheDocument() // 50 + 60
+    // Check total vorabpauschale - appears in summary and table
+    const vorabpauschaleElements = screen.getAllByText('110,00 €')
+    expect(vorabpauschaleElements.length).toBeGreaterThan(0)
   })
 
   it('should identify and highlight peak tax year', async () => {
@@ -116,8 +120,12 @@ describe('TaxBurdenAnalysisCard', () => {
 
     // Check peak year alert
     expect(screen.getByText(/Höchste Steuerbelastung/i)).toBeInTheDocument()
-    expect(screen.getByText(/2025/)).toBeInTheDocument()
-    expect(screen.getByText(/200,00 €/)).toBeInTheDocument()
+    // Year 2025 appears multiple times (alert, optimization, table)
+    const year2025Elements = screen.getAllByText('2025')
+    expect(year2025Elements.length).toBeGreaterThan(0)
+    // Peak tax amount appears in alert and table
+    const peakTaxElements = screen.getAllByText('200,00 €')
+    expect(peakTaxElements.length).toBeGreaterThan(0)
   })
 
   it('should show optimization opportunities for high tax years', async () => {
@@ -191,17 +199,21 @@ describe('TaxBurdenAnalysisCard', () => {
     const trigger = screen.getByRole('button', { name: /Steuerbelastungs-Verlaufsanalyse/i })
     await user.click(trigger)
 
-    // Check table headers
+    // Check table headers - some appear in summary cards too
     expect(screen.getByText('Jahr')).toBeInTheDocument()
     expect(screen.getByText('Gewinne')).toBeInTheDocument()
     expect(screen.getByText('Steuern')).toBeInTheDocument()
     expect(screen.getByText('Steuersatz')).toBeInTheDocument()
-    expect(screen.getByText('Vorabpauschale')).toBeInTheDocument()
+    // Vorabpauschale appears in summary card and table header
+    const vorabpauschaleHeaders = screen.getAllByText('Vorabpauschale')
+    expect(vorabpauschaleHeaders.length).toBeGreaterThan(0)
     expect(screen.getByText('Freibetrag')).toBeInTheDocument()
 
-    // Check year data - use getAllByText for values that appear multiple times
-    expect(screen.getByText('2024')).toBeInTheDocument()
-    expect(screen.getByText('2025')).toBeInTheDocument()
+    // Check year data - years appear in alerts and table
+    const year2024Elements = screen.getAllByText('2024')
+    expect(year2024Elements.length).toBeGreaterThan(0)
+    const year2025Elements = screen.getAllByText('2025')
+    expect(year2025Elements.length).toBeGreaterThan(0)
 
     // Check totals row exists
     expect(screen.getByText('Gesamt')).toBeInTheDocument()
@@ -329,9 +341,11 @@ describe('TaxBurdenAnalysisCard', () => {
     const trigger = screen.getByRole('button', { name: /Steuerbelastungs-Verlaufsanalyse/i })
     await user.click(trigger)
 
-    // Should render without errors
-    expect(screen.getByText('2024')).toBeInTheDocument()
-    expect(screen.getByText('2025')).toBeInTheDocument()
+    // Should render without errors - years appear multiple times in alerts and table
+    const year2024Elements = screen.getAllByText('2024')
+    expect(year2024Elements.length).toBeGreaterThan(0)
+    const year2025Elements = screen.getAllByText('2025')
+    expect(year2025Elements.length).toBeGreaterThan(0)
 
     // Year 2024 should show 0.00% tax rate
     expect(screen.getByText('0.00%')).toBeInTheDocument()
@@ -378,7 +392,10 @@ describe('TaxBurdenAnalysisCard', () => {
     await user.click(trigger)
 
     // Check formatted values (German format with comma as decimal separator)
-    expect(screen.getByText('123,45 €')).toBeInTheDocument()
-    expect(screen.getByText('50,50 €')).toBeInTheDocument()
+    // Values appear multiple times (summary, alert, table)
+    const taxElements = screen.getAllByText('123,45 €')
+    expect(taxElements.length).toBeGreaterThan(0)
+    const vorabpauschaleElements = screen.getAllByText('50,50 €')
+    expect(vorabpauschaleElements.length).toBeGreaterThan(0)
   })
 })
