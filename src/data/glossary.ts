@@ -1,10 +1,13 @@
 // Glossary of German financial and tax terms with detailed explanations
 // Used for contextual tooltips throughout the application
 
+export type GlossaryCategory = 'Steuern' | 'Investitionen' | 'Rente' | 'Versicherungen' | 'Allgemein'
+
 export interface GlossaryTerm {
   term: string
   shortDefinition: string
   detailedExplanation: string
+  category: GlossaryCategory
   example?: string
   relatedTerms?: string[]
 }
@@ -12,6 +15,7 @@ export interface GlossaryTerm {
 export const glossaryTerms: Record<string, GlossaryTerm> = {
   vorabpauschale: {
     term: 'Vorabpauschale',
+    category: 'Steuern',
     shortDefinition: 'Jährliche Besteuerung von thesaurierenden Fonds',
     detailedExplanation:
       'Die Vorabpauschale ist eine pauschale Besteuerung für thesaurierende Investmentfonds. Sie stellt sicher, dass Anleger auch dann Steuern zahlen, wenn die Erträge im Fonds verbleiben und nicht ausgeschüttet werden. Die Höhe wird anhand des Basiszinses berechnet.',
@@ -21,6 +25,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   basiszins: {
     term: 'Basiszins',
+    category: 'Steuern',
     shortDefinition: 'Referenzzinssatz für die Vorabpauschale',
     detailedExplanation:
       'Der Basiszins wird vom Bundesfinanzministerium jährlich festgelegt und dient als Grundlage für die Berechnung der Vorabpauschale. Er orientiert sich am Zinssatz für langfristige öffentliche Anleihen und wird zu Jahresbeginn veröffentlicht.',
@@ -29,6 +34,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   kapitalertragsteuer: {
     term: 'Kapitalertragsteuer',
+    category: 'Steuern',
     shortDefinition: 'Steuer auf Kapitalerträge (25% + Soli)',
     detailedExplanation:
       'Die Kapitalertragsteuer (auch Abgeltungssteuer genannt) beträgt 25% auf Kapitalerträge wie Zinsen, Dividenden und Kursgewinne. Hinzu kommt der Solidaritätszuschlag von 5,5% auf die Kapitalertragsteuer, insgesamt also 26,375%.',
@@ -37,6 +43,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   sparerpauschbetrag: {
     term: 'Sparerpauschbetrag',
+    category: 'Steuern',
     shortDefinition: 'Steuerfreier Freibetrag für Kapitalerträge',
     detailedExplanation:
       'Der Sparerpauschbetrag ist ein jährlicher Freibetrag, bis zu dem Kapitalerträge steuerfrei bleiben. Seit 2023 beträgt er 1.000 € für Einzelpersonen und 2.000 € für zusammenveranlagte Ehepaare. Ab 2024 wurde er auf 1.000 € bzw. 2.000 € erhöht.',
@@ -46,6 +53,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   teilfreistellung: {
     term: 'Teilfreistellung',
+    category: 'Steuern',
     shortDefinition: 'Steuerermäßigung für Aktienfonds',
     detailedExplanation:
       'Die Teilfreistellung berücksichtigt, dass auf Fondsebene bereits Körperschaftsteuer anfällt. Bei Aktienfonds sind 30% der Erträge steuerfrei, bei Mischfonds 15% und bei Immobilienfonds 60% bzw. 80%.',
@@ -54,6 +62,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   guenstigerpruefung: {
     term: 'Günstigerprüfung',
+    category: 'Steuern',
     shortDefinition: 'Vergleich zwischen Kapitalertragsteuer und persönlichem Steuersatz',
     detailedExplanation:
       'Bei der Günstigerprüfung prüft das Finanzamt automatisch, ob die Besteuerung mit dem persönlichen Einkommensteuersatz günstiger ist als die pauschale Kapitalertragsteuer. Dies lohnt sich bei niedrigem Einkommen und persönlichem Steuersatz unter 25%.',
@@ -63,6 +72,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   grundfreibetrag: {
     term: 'Grundfreibetrag',
+    category: 'Steuern',
     shortDefinition: 'Steuerfreies Existenzminimum bei Einkommensteuer',
     detailedExplanation:
       'Der Grundfreibetrag ist der Betrag, bis zu dem keine Einkommensteuer anfällt. Er soll das Existenzminimum sichern. Für 2023 beträgt er 10.908 € (Einzelperson) bzw. 21.816 € (Ehepaare). Er wird jährlich angepasst.',
@@ -71,6 +81,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   freistellungsauftrag: {
     term: 'Freistellungsauftrag',
+    category: 'Steuern',
     shortDefinition: 'Antrag zur Nutzung des Sparerpauschbetrags',
     detailedExplanation:
       'Mit einem Freistellungsauftrag teilen Sie Ihrer Bank mit, bis zu welchem Betrag keine Kapitalertragsteuer einbehalten werden soll. Der Freistellungsauftrag kann auf mehrere Banken verteilt werden, darf aber insgesamt den Sparerpauschbetrag nicht überschreiten.',
@@ -79,6 +90,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   kindergeld: {
     term: 'Kindergeld',
+    category: 'Steuern',
     shortDefinition: 'Staatliche Familienleistung für Kinder',
     detailedExplanation:
       'Kindergeld ist eine steuerfreie staatliche Leistung zur Unterstützung von Familien. Ab 2024 beträgt es einheitlich 250 € pro Monat für jedes Kind. Es wird in der Regel bis zum 18. Geburtstag des Kindes gezahlt, bei Ausbildung oder Studium bis zum 25. Geburtstag. Kindergeld ist nicht steuerpflichtig und wird zusätzlich zum Einkommen gezahlt.',
@@ -87,6 +99,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   kinderfreibetrag: {
     term: 'Kinderfreibetrag',
+    category: 'Steuern',
     shortDefinition: 'Steuerlicher Freibetrag für Kinder',
     detailedExplanation:
       'Der Kinderfreibetrag ist ein Freibetrag bei der Einkommensteuer, der alternativ zum Kindergeld genutzt werden kann. Das Finanzamt prüft automatisch (Günstigerprüfung), ob der Kinderfreibetrag oder das Kindergeld vorteilhafter ist. Bei höherem Einkommen kann der Kinderfreibetrag günstiger sein.',
@@ -96,6 +109,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   einkommensteuersatz: {
     term: 'Einkommensteuersatz',
+    category: 'Steuern',
     shortDefinition: 'Persönlicher Steuersatz auf das Gesamteinkommen',
     detailedExplanation:
       'Der Einkommensteuersatz ist progressiv und steigt mit dem Einkommen. Er beginnt bei 0% (bis zum Grundfreibetrag) und kann bis zu 45% (Reichensteuer ab ca. 277.826 €) betragen. Der durchschnittliche Steuersatz liegt meist zwischen 14% und 42%.',
@@ -104,6 +118,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   inflationsausgleich: {
     term: 'Inflationsausgleich',
+    category: 'Investitionen',
     shortDefinition: 'Anpassung von Beträgen an Kaufkraftverlust',
     detailedExplanation:
       'Der Inflationsausgleich berücksichtigt, dass Geld im Zeitverlauf an Kaufkraft verliert. Bei langfristiger Finanzplanung ist es wichtig, zukünftige Ausgaben und Einnahmen inflationsbereinigt zu betrachten, um realistische Planungen zu erstellen.',
@@ -112,6 +127,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   realrendite: {
     term: 'Realrendite',
+    category: 'Investitionen',
     shortDefinition: 'Rendite nach Abzug der Inflation',
     detailedExplanation:
       'Die Realrendite ist die tatsächliche Wertsteigerung Ihres Kapitals unter Berücksichtigung der Inflation. Sie wird berechnet als Nominalrendite minus Inflationsrate. Nur die Realrendite zeigt den echten Kaufkraftgewinn.',
@@ -120,6 +136,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   entnahmestrategie: {
     term: 'Entnahmestrategie',
+    category: 'Rente',
     shortDefinition: 'Plan für regelmäßige Kapitalentnahmen im Ruhestand',
     detailedExplanation:
       'Eine Entnahmestrategie legt fest, wie viel Kapital jährlich oder monatlich aus dem Portfolio entnommen wird, um den Lebensunterhalt zu finanzieren. Bekannte Strategien sind die 4%-Regel, variable Entnahmen oder feste monatliche Beträge.',
@@ -128,6 +145,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   sequenzrisiko: {
     term: 'Sequenzrisiko',
+    category: 'Rente',
     shortDefinition: 'Risiko ungünstiger Renditen zu Beginn der Entnahmephase',
     detailedExplanation:
       'Das Sequenzrisiko beschreibt die Gefahr, dass schlechte Börsenjahre am Anfang der Entnahmephase das Portfolio dauerhaft schädigen. Wenn gleichzeitig Verluste entstehen und Entnahmen getätigt werden, kann das Portfolio vorzeitig erschöpft sein.',
@@ -137,6 +155,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   montecarlo: {
     term: 'Monte-Carlo-Simulation',
+    category: 'Investitionen',
     shortDefinition: 'Statistische Analyse mit vielen Zufallsszenarien',
     detailedExplanation:
       'Die Monte-Carlo-Simulation führt Tausende von Berechnungen mit unterschiedlichen zufälligen Renditen durch. So können Wahrscheinlichkeiten für verschiedene Ergebnisse ermittelt werden und das Risiko besser eingeschätzt werden.',
@@ -146,6 +165,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   volatilitaet: {
     term: 'Volatilität',
+    category: 'Investitionen',
     shortDefinition: 'Schwankungsbreite der Renditen',
     detailedExplanation:
       'Die Volatilität misst, wie stark die Renditen eines Investments schwanken. Eine hohe Volatilität bedeutet größere Schwankungen nach oben und unten. Aktien haben typischerweise höhere Volatilität als Anleihen.',
@@ -155,6 +175,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   szenario: {
     term: 'Was-wäre-wenn Szenario',
+    category: 'Allgemein',
     shortDefinition: 'Vordefinierte Finanzplanung zum Lernen',
     detailedExplanation:
       'Was-wäre-wenn Szenarien sind vordefinierte Beispielkonfigurationen, die realistische Finanzplanungssituationen abbilden. Sie helfen Anfängern, verschiedene Anlagestrategien und deren Auswirkungen zu verstehen, ohne selbst alle Parameter konfigurieren zu müssen.',
@@ -164,6 +185,7 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
   },
   progressionsvorbehalt: {
     term: 'Progressionsvorbehalt',
+    category: 'Steuern',
     shortDefinition: 'Steuerfreie Einkünfte erhöhen den Steuersatz auf zu versteuerndes Einkommen',
     detailedExplanation:
       'Der Progressionsvorbehalt ist ein deutsches Steuerprinzip, bei dem bestimmte steuerfreie Einkünfte (z.B. Elterngeld, Arbeitslosengeld I, Kurzarbeitergeld, ausländische Einkünfte) den Steuersatz auf Ihr zu versteuerndes Einkommen erhöhen, obwohl diese Einkünfte selbst nicht besteuert werden. Das Finanzamt berechnet einen höheren Steuersatz, der dann auf Ihre steuerpflichtigen Einkünfte angewendet wird. Dies führt zu einer höheren Steuerlast auf Einkünfte wie Kapitalerträge, Gehalt oder Entnahmen.',
@@ -181,6 +203,23 @@ export function getGlossaryTerm(key: string): GlossaryTerm | undefined {
 // Get all glossary terms as an array
 export function getAllGlossaryTerms(): GlossaryTerm[] {
   return Object.values(glossaryTerms)
+}
+
+// Get all glossary terms sorted alphabetically
+export function getSortedGlossaryTerms(): GlossaryTerm[] {
+  return getAllGlossaryTerms().sort((a, b) => a.term.localeCompare(b.term, 'de'))
+}
+
+// Get glossary terms by category
+export function getGlossaryTermsByCategory(category: GlossaryCategory): GlossaryTerm[] {
+  return getAllGlossaryTerms()
+    .filter(term => term.category === category)
+    .sort((a, b) => a.term.localeCompare(b.term, 'de'))
+}
+
+// Get all unique categories
+export function getGlossaryCategories(): GlossaryCategory[] {
+  return ['Steuern', 'Investitionen', 'Rente', 'Versicherungen', 'Allgemein']
 }
 
 // Search glossary terms

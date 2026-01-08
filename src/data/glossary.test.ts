@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { getGlossaryTerm, getAllGlossaryTerms, searchGlossaryTerms, glossaryTerms } from './glossary'
+import {
+  getGlossaryTerm,
+  getAllGlossaryTerms,
+  searchGlossaryTerms,
+  glossaryTerms,
+  getSortedGlossaryTerms,
+  getGlossaryTermsByCategory,
+  getGlossaryCategories,
+} from './glossary'
 
 describe('glossary', () => {
   describe('glossaryTerms data structure', () => {
@@ -8,6 +16,10 @@ describe('glossary', () => {
         expect(term.term).toBeDefined()
         expect(typeof term.term).toBe('string')
         expect(term.term.length).toBeGreaterThan(0)
+
+        expect(term.category).toBeDefined()
+        expect(typeof term.category).toBe('string')
+        expect(term.category.length).toBeGreaterThan(0)
 
         expect(term.shortDefinition).toBeDefined()
         expect(typeof term.shortDefinition).toBe('string')
@@ -150,6 +162,102 @@ describe('glossary', () => {
       const vorab = glossaryTerms.vorabpauschale
       expect(vorab.example).toContain('€')
       expect(vorab.example).toMatch(/\d/)
+    })
+  })
+
+  describe('getGlossaryCategories', () => {
+    it('should return all available categories', () => {
+      const categories = getGlossaryCategories()
+      expect(Array.isArray(categories)).toBe(true)
+      expect(categories.length).toBeGreaterThan(0)
+    })
+
+    it('should include expected categories', () => {
+      const categories = getGlossaryCategories()
+      expect(categories).toContain('Steuern')
+      expect(categories).toContain('Investitionen')
+      expect(categories).toContain('Rente')
+      expect(categories).toContain('Versicherungen')
+      expect(categories).toContain('Allgemein')
+    })
+  })
+
+  describe('getGlossaryTermsByCategory', () => {
+    it('should return terms filtered by category', () => {
+      const taxTerms = getGlossaryTermsByCategory('Steuern')
+      expect(Array.isArray(taxTerms)).toBe(true)
+      expect(taxTerms.length).toBeGreaterThan(0)
+      taxTerms.forEach(term => {
+        expect(term.category).toBe('Steuern')
+      })
+    })
+
+    it('should return sorted terms', () => {
+      const terms = getGlossaryTermsByCategory('Steuern')
+      if (terms.length > 1) {
+        for (let i = 0; i < terms.length - 1; i++) {
+          const comparison = terms[i].term.localeCompare(terms[i + 1].term, 'de')
+          expect(comparison).toBeLessThanOrEqual(0)
+        }
+      }
+    })
+
+    it('should return investment-related terms', () => {
+      const investmentTerms = getGlossaryTermsByCategory('Investitionen')
+      expect(investmentTerms.length).toBeGreaterThan(0)
+      investmentTerms.forEach(term => {
+        expect(term.category).toBe('Investitionen')
+      })
+    })
+
+    it('should return pension-related terms', () => {
+      const pensionTerms = getGlossaryTermsByCategory('Rente')
+      expect(pensionTerms.length).toBeGreaterThan(0)
+      pensionTerms.forEach(term => {
+        expect(term.category).toBe('Rente')
+      })
+    })
+  })
+
+  describe('getSortedGlossaryTerms', () => {
+    it('should return all terms sorted alphabetically', () => {
+      const sortedTerms = getSortedGlossaryTerms()
+      expect(Array.isArray(sortedTerms)).toBe(true)
+      expect(sortedTerms.length).toBeGreaterThan(0)
+    })
+
+    it('should sort terms in German alphabetical order', () => {
+      const sortedTerms = getSortedGlossaryTerms()
+      if (sortedTerms.length > 1) {
+        for (let i = 0; i < sortedTerms.length - 1; i++) {
+          const comparison = sortedTerms[i].term.localeCompare(sortedTerms[i + 1].term, 'de')
+          expect(comparison).toBeLessThanOrEqual(0)
+        }
+      }
+    })
+
+    it('should return same number of terms as getAllGlossaryTerms', () => {
+      const allTerms = getAllGlossaryTerms()
+      const sortedTerms = getSortedGlossaryTerms()
+      expect(sortedTerms.length).toBe(allTerms.length)
+    })
+  })
+
+  describe('category assignment', () => {
+    it('should categorize tax terms correctly', () => {
+      expect(glossaryTerms.vorabpauschale.category).toBe('Steuern')
+      expect(glossaryTerms.kapitalertragsteuer.category).toBe('Steuern')
+      expect(glossaryTerms.sparerpauschbetrag.category).toBe('Steuern')
+    })
+
+    it('should categorize investment terms correctly', () => {
+      expect(glossaryTerms.volatilitaet.category).toBe('Investitionen')
+      expect(glossaryTerms.montecarlo.category).toBe('Investitionen')
+    })
+
+    it('should categorize pension terms correctly', () => {
+      expect(glossaryTerms.entnahmestrategie.category).toBe('Rente')
+      expect(glossaryTerms.sequenzrisiko.category).toBe('Rente')
     })
   })
 })
