@@ -8,6 +8,7 @@ import type { ReturnConfiguration } from '../../utils/random-returns'
 const DataExport = lazy(() => import('../DataExport'))
 const SensitivityAnalysisDisplay = lazy(() => import('../SensitivityAnalysisDisplay'))
 const ProfileManagement = lazy(() => import('../ProfileManagement'))
+const CapitalGrowthScenarioComparison = lazy(() => import('../CapitalGrowthScenarioComparison').then(m => ({ default: m.CapitalGrowthScenarioComparison })))
 
 interface AnalysenWerkzeugeSectionProps {
   sensitivityConfig: SensitivityAnalysisConfig
@@ -28,6 +29,9 @@ export function AnalysenWerkzeugeSection({
     <CollapsibleCategory title="Analysen & Werkzeuge" icon="📊" defaultOpen={false} nestingLevel={0}>
       {/* 📤 Export */}
       <ConfigurationSection Component={DataExport} />
+
+      {/* 📊 Kapitalwertentwicklungs-Szenario-Vergleich */}
+      <ConfigurationSection Component={CapitalGrowthScenarioComparison} />
 
       {/* 📊 Sensitivitätsanalyse */}
       <ConfigurationSection
