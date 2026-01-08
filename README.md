@@ -1295,6 +1295,20 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Sequence of Returns Risk** - Erklärt warum die Reihenfolge der Renditen in den ersten Ruhestandsjahren kritisch ist
   - **Interaktive Visualisierung** - Vergleich der Portfolio-Entwicklung über die Zeit in allen drei Szenarien
 - **Monte Carlo Analyse** - Statistische Auswertung verschiedener Rendite-Szenarien
+- **Kapitalwertentwicklungs-Szenario-Vergleich** - Interaktiver Vergleich mehrerer Spar-/Entnahmeszenarien side-by-side
+  - **Bis zu 5 Szenarien gleichzeitig** - Parallele Simulation unterschiedlicher Anlagestrategien (z.B. konservativ, ausgewogen, aggressiv)
+  - **Flexible Parametervariation** - Individuelle Konfiguration von Sparrate, Rendite, Entnahmestrategie und Steuersituation pro Szenario
+  - **Farbcodierte Visualisierung** - Überlagertes Liniendiagramm mit eindeutiger Szenario-Zuordnung
+  - **Statistischer Vergleich**:
+    - Identifikation des besten und schlechtesten Szenarios
+    - Durchschnittswerte und Median-Berechnung
+    - Perzentil-Analyse (25., 50., 75. Perzentil)
+    - Standardabweichung und Spannweite der Ergebnisse
+  - **Echtzeit-Metriken** - Anzeige von Endkapital, annualisierter Rendite, Gesamtertrag und Steuerlast pro Szenario
+  - **Nominal vs. Real** - Umschaltbare Ansicht zwischen nominalen und inflationsbereinigten Werten
+  - **Vergleichstabelle** - Detaillierte Gegenüberstellung aller Szenarien mit wichtigsten Kennzahlen
+  - **Integration mit Hauptkonfiguration** - Neue Szenarien basieren automatisch auf aktuellen Simulationseinstellungen
+  - **Ergänzung zu Monte Carlo** - Deterministische Szenario-Vergleiche als Gegenstück zur stochastischen Monte Carlo Analyse
 - **Sensitivitätsanalyse** - Analyse der Auswirkungen von Parameteränderungen
   - **Parameter-Ranking** - Automatische Bewertung der einflussreichsten Faktoren
   - **Interaktive Visualisierung** - Grafische Darstellung der Auswirkungen einzelner Parameter
