@@ -22,6 +22,7 @@ import { useSimulationModals } from '../hooks/useSimulationModals'
 import { useCallback, useMemo } from 'react'
 import { FinancialGoalsKPIDashboard } from './FinancialGoalsKPIDashboard'
 import { PortfolioTimeline } from './timeline/PortfolioTimeline'
+import { TaxBurdenAnalysisCard } from './TaxBurdenAnalysisCard'
 
 // Type for calculation info click data
 interface CalculationInfoData {
@@ -373,6 +374,9 @@ function SparplanCardContent(props: SparplanCardContentProps) {
         summary={summary}
         yearlyProgression={yearlyProgression}
       />
+      <div className="mt-6">
+        <TaxBurdenAnalysisCard simulationResult={convertSparplanElementsToSimulationResult(elemente)} />
+      </div>
       <ModalsSection
         showVorabpauschaleModal={showVorabpauschaleModal}
         hideVorabpauschaleInfo={hideVorabpauschaleInfo}
