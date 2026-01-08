@@ -30,6 +30,7 @@ interface ScenarioComparisonChartProps {
 /**
  * Chart component showing capital development for multiple scenarios
  */
+// eslint-disable-next-line max-lines-per-function -- Chart configuration requires extensive options and data processing
 export function ScenarioComparisonChart({
   comparison,
   showRealValues = false,

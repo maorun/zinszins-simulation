@@ -79,12 +79,12 @@ function accumulateYearData(existing: SimulationResultElement, data: SimulationR
  * @param scenario - The scenario to simulate
  * @returns Simulation result with metrics
  */
-// eslint-disable-next-line max-lines-per-function -- Simulation logic requires configuration setup and metric extraction
+// eslint-disable-next-line max-lines-per-function, complexity -- Simulation logic requires configuration setup and metric extraction
 export function simulateScenario(scenario: ComparisonScenario): ScenarioSimulationResult {
   const { configuration } = scenario
 
-  // Convert sparplan to elements
-  const elementsInput = configuration.sparplan.map((plan) => ({
+  // Convert sparplan to elements (with fallback for empty sparplan)
+  const elementsInput = (configuration.sparplan || []).map((plan) => ({
     start: plan.start,
     type: 'sparplan' as const,
     einzahlung: plan.einzahlung,
@@ -119,12 +119,12 @@ export function simulateScenario(scenario: ComparisonScenario): ScenarioSimulati
 
   // Run the simulation using the existing simulate function
   const elements = simulate({
-    startYear: configuration.startEnd[0],
-    endYear: configuration.startEnd[1],
+    startYear: configuration.startEnd?.[0] || 2024,
+    endYear: configuration.startEnd?.[1] || 2050,
     elements: elementsInput,
     returnConfig,
-    steuerlast: configuration.steuerlast,
-    simulationAnnual: configuration.simulationAnnual,
+    steuerlast: configuration.steuerlast || 0,
+    simulationAnnual: configuration.simulationAnnual || 'yearly',
     teilfreistellungsquote: configuration.teilfreistellungsquote,
     freibetragPerYear: configuration.freibetragPerYear,
     steuerReduzierenEndkapital: configuration.steuerReduzierenEndkapitalSparphase,
