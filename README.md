@@ -310,6 +310,17 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Transparente Ergebnisse**: Detaillierte Aufschlüsselung von Gesamtbeiträgen, Endkapital, Nettogewinn, Steuern und Kosten
   - **Realistische Planung**: Hilft bei der Beantwortung "Wie viel muss ich sparen für X Euro im Ruhestand?"
 - **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds mit detaillierter Erklärung
+- **Steuerbelastungs-Verlaufsanalyse** - Umfassende Analyse und Visualisierung der Steuerlast über den Anlagezeitraum
+  - **Jahr-für-Jahr Aufschlüsselung**: Detaillierte Tabelle mit jährlicher Steuerbelastung, Vorabpauschale und genutztem Freibetrag
+  - **Kennzahlen-Übersicht**: Gesamtsteuerlast, durchschnittlicher Steuersatz, genutzte Freibeträge und Vorabpauschale auf einen Blick
+  - **Spitzenjahr-Identifikation**: Automatische Erkennung des Jahres mit höchster Steuerbelastung
+  - **Optimierungspotenziale**: Warnung bei überdurchschnittlich hoher Steuerbelastung (>20% über Durchschnitt)
+  - **Optimierungsempfehlungen**: Konkrete Hinweise auf Tax Loss Harvesting und Entnahmezeitpunkt-Optimierung
+  - **Visuelle Hervorhebung**: Farbcodierte Darstellung von Spitzenjahren (rot) und Jahren mit hoher Steuerlast (gelb)
+  - **Effektiver Steuersatz**: Berechnung des tatsächlichen Steuersatzes auf Gewinne (Steuern / Gewinne × 100%)
+  - **Integration**: Vollständige Berücksichtigung aller Steuerfeatures (Kapitalertragsteuer, Vorabpauschale, Freibetrag, Teilfreistellung)
+  - **Collapsible Interface**: Platzsparende Darstellung mit ausklappbarem Detailbereich
+  - **Legende und Erklärungen**: Verständliche Erläuterungen aller Kennzahlen und Symbole
 - **Vierteljährliche Steuervorauszahlungen** - Vorauszahlungsrechner für Selbstständige und Freiberufler
   - **Quartalstermine**: Automatische Berechnung der Zahlungstermine (10.03., 10.06., 10.09., 10.12.)
   - **Erwartete Kapitalerträge**: Planung basierend auf geschätzten jährlichen Kapitalerträgen
