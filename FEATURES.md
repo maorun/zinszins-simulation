@@ -8,14 +8,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
-- **Steuerbelastungs-Verlaufsanalyse** - Visualisierung der jährlichen Steuerbelastung über den gesamten Planungszeitraum
-  - Detaillierte Jahr-für-Jahr Steueraufschlüsselung mit Kapitalertragsteuer, Vorabpauschale und Gesamtsteuerquote
-  - Identifikation von Spitzenjahren mit hoher Steuerbelastung
-  - Vergleich verschiedener Szenarien zur Steuerglättung
-  - Integration mit allen bestehenden Steuerfeatures (Freibetrag, Teilfreistellung, Quellensteuer)
-  - Export der Steueranalyse für die Finanzplanung
-  - Priorisierung: ⭐⭐⭐ (Hoch) - Nutzt bestehende Steuerfunktionen, liefert wertvollen Mehrwert
-
 - **Entnahmestrategien-Vergleichsmatrix** - Umfassender Vergleich verschiedener Entnahmestrategien mit Rangfolge
   - Vergleich von 4% Rule, 3% Rule, Fixed Monthly, Variable Percentage und benutzerdefinierten Strategien
   - Kennzahlen: Portfolio-Lebensdauer, Gesamtentnahme, Durchschnittliche jährliche Entnahme, Restkapital
