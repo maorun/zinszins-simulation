@@ -543,6 +543,46 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Detaillierte Aufschlüsselung nach Verlusttyp
   - **Informations-Tool**: Berechnung basiert auf Beispielwerten (10.000 € Kapitalerträge + 500 € Vorabpauschale)
   - **Steuerintegration**: Nutzt aktuelle Steuereinstellungen (Kapitalertragsteuer, Teilfreistellung) aus der Konfiguration
+- **Verkaufsstrategie-Optimierung (Intelligente Verkaufsstrategie mit Steuerstundung)** - Optimierung des Verkaufszeitpunkts und der Verkaufsmethode zur Steuerminimierung
+  - **3 Verkaufsmethoden**:
+    - **FIFO (First In, First Out)** - Verkauf der ältesten Investments zuerst (Standardmethode nach deutschem Steuerrecht)
+    - **LIFO (Last In, First Out)** - Verkauf der neuesten Investments zuerst
+    - **Steueroptimiert** - Intelligente Auswahl zur Minimierung der Steuerlast
+      - Priorisiert Verlustpositionen (Tax Loss Harvesting)
+      - Wählt Lots mit kleinsten Gewinnen relativ zur Kostenbasis
+      - Berücksichtigt optimale Freibetragsnutzung
+  - **Konfigurierbare Parameter**:
+    - Zu verkaufender Betrag in Euro
+    - Startjahr für den Verkauf
+    - Verkauf über mehrere Jahre verteilen (für optimale Freibetragsnutzung)
+    - Anzahl der Jahre bei mehrjährigem Verkauf
+  - **Steuerliche Optimierungen**:
+    - Automatische Kostenbasis-Berechnung (FIFO/LIFO/steueroptimiert)
+    - Berücksichtigung der Teilfreistellung (30% für Aktienfonds)
+    - Optimale Nutzung des jährlichen Freibetrags (2.000 € pro Jahr)
+    - Mehrjährige Steueroptimierung durch zeitliche Streuung
+  - **Berechnungsergebnisse**:
+    - Verkaufter Gesamtbetrag
+    - Kostenbasis der verkauften Investments
+    - Steuerpflichtige Gewinne (nach Teilfreistellung)
+    - Gesamte Steuerlast
+    - Nettoerlös nach Steuern
+    - Steuereffizienz in Prozent
+  - **Jahr-für-Jahr Aufschlüsselung** (bei mehrjährigem Verkauf):
+    - Verkaufsbetrag pro Jahr
+    - Steuerlast pro Jahr
+    - Genutzter Freibetrag pro Jahr
+    - Nettoerlös pro Jahr
+  - **Methodenvergleich**: Interaktiver Vergleich der drei Verkaufsmethoden
+    - Gegenüberstellung der Steuerlast für FIFO, LIFO und steueroptimiert
+    - Automatische Identifikation der besten Methode
+    - Berechnung der Steuerersparnis gegenüber ungünstigster Methode
+  - **Beispiel-Investments**: Demonstration mit drei beispielhaften Investment-Lots unterschiedlicher Kaufzeitpunkte und Renditen
+  - **Anwendungsfälle**:
+    - Planung großer Verkäufe zur Eigenheimfinanzierung
+    - Optimierung von Entnahmen im Ruhestand
+    - Steueroptimierte Portfolio-Umschichtung
+    - Mehrjährige Verkaufsplanung zur Freibetragsmaximierung
 - **Tail-Risk Hedging** - Informations-Tool zur Bewertung von Absicherungsstrategien gegen extreme Marktverluste
   - **4 Hedging-Strategien**:
     - Protective Put (Put-Optionen) - Klassische Absicherung mit Put-Optionen zu bekannten Kosten
