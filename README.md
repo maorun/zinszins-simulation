@@ -1358,6 +1358,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Risiko-Zeitreihen** - Detaillierte Drawdown- und Rendite-Serien für tiefere Analyse
 - **Detaillierte Simulation** - Jahr-für-Jahr Aufschlüsselung mit Vorabpauschale-Berechnungen
 - **Berechnungsaufschlüsselung** - Interaktive Erklärungen für Steuer- und Zinsberechnungen
+- **Finanzglossar** - Interaktives Glossar mit alphabetisch sortierten Finanzbegriffen für die deutsche Finanzplanung
+  - **19 Finanzbegriffe** - Umfassende Erklärungen wichtiger Begriffe (Vorabpauschale, Kapitalertragsteuer, Sparerpauschbetrag, etc.)
+  - **Such-Funktion** - Echtzeit-Suche über alle Begriffe mit automatischer Filterung
+  - **Kategorie-Filter** - Filterung nach 5 Kategorien (Steuern, Investitionen, Rente, Versicherungen, Allgemein)
+  - **Detaillierte Erklärungen** - Kurzbeschreibung, ausführliche Erläuterung und praktische Beispiele für jeden Begriff
+  - **Verwandte Begriffe** - Verlinkte Begriffe zur schnellen Navigation zwischen verwandten Themen
+  - **Kategorie-Badges** - Visuelle Kennzeichnung der Kategorie jedes Begriffs
+  - **Responsive Design** - Optimierte Darstellung auf Desktop und mobilen Geräten
+  - **Alphabetische Sortierung** - Automatische Sortierung aller Begriffe für schnelles Auffinden
+  - **Ergebnis-Zähler** - Anzeige der Anzahl gefundener Begriffe bei Suche und Filterung
 - **Daten Export** - CSV Export, Excel Export (mit Formeln), PDF Export (professionelle Berichte), Markdown Export, Parameter Export für alle Simulationsdaten (inkl. Sonderereignisse)
   - **Automatisierte Portfolio-Berichte** - Umfassende Berichtsgenerierung mit einem Klick
     - **Portfolio-Zusammenfassung** - Gesamtwert, Beiträge, Renditen, ROI und bezahlte Steuern

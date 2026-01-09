@@ -1,6 +1,8 @@
 /// <reference types="@testing-library/jest-dom" />
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
+import { BrowserRouter } from 'react-router-dom'
+import { ReactElement } from 'react'
 import HomePage from './HomePage'
 
 // Mock Vercel Analytics
@@ -29,13 +31,18 @@ vi.mock('../../helpers/withdrawal', () => ({
   getTotalCapitalAtYear: vi.fn(() => 596168.79),
 }))
 
+// Helper to render with router
+function renderWithRouter(ui: ReactElement) {
+  return render(<BrowserRouter>{ui}</BrowserRouter>)
+}
+
 describe('Dashboard Customization Integration', () => {
   beforeEach(() => {
     localStorage.clear()
   })
 
   it('should render dashboard customization button in header', async () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />)
 
     // Wait for the button to appear
     const customizeButton = await screen.findByRole('button', { name: /dashboard anpassen/i })
@@ -43,7 +50,7 @@ describe('Dashboard Customization Integration', () => {
   })
 
   it('should open customization dialog when button is clicked', async () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />)
 
     const customizeButton = await screen.findByRole('button', { name: /dashboard anpassen/i })
     fireEvent.click(customizeButton)
@@ -53,7 +60,7 @@ describe('Dashboard Customization Integration', () => {
   })
 
   it('should show all sections in customization dialog', async () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />)
 
     const customizeButton = await screen.findByRole('button', { name: /dashboard anpassen/i })
     fireEvent.click(customizeButton)
@@ -65,7 +72,7 @@ describe('Dashboard Customization Integration', () => {
   })
 
   it('should persist customization preferences', async () => {
-    const { unmount } = render(<HomePage />)
+    const { unmount } = renderWithRouter(<HomePage />)
 
     const customizeButton = await screen.findByRole('button', { name: /dashboard anpassen/i })
     fireEvent.click(customizeButton)
@@ -81,7 +88,7 @@ describe('Dashboard Customization Integration', () => {
     unmount()
 
     // Re-render and check if preferences persisted
-    render(<HomePage />)
+    renderWithRouter(<HomePage />)
 
     const customizeButtonAgain = await screen.findByRole('button', { name: /dashboard anpassen/i })
     fireEvent.click(customizeButtonAgain)
@@ -91,7 +98,7 @@ describe('Dashboard Customization Integration', () => {
   })
 
   it('should display recalculate button alongside customization button', async () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />)
 
     const recalculateButton = await screen.findByRole('button', { name: /neu berechnen/i })
     const customizeButton = await screen.findByRole('button', { name: /dashboard anpassen/i })

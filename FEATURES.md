@@ -18,15 +18,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Finanzielle Bildung & Transparenz
 
-- **Interaktiver Finanz-Glossar** - Deutschsprachige Erklärungen aller Fachbegriffe mit Beispielen
-  - Alphabetisch sortierte Begriffsdatenbank (Vorabpauschale, Teilfreistellung, Basiszins, etc.)
-  - Praxisbeispiele mit Zahlen für jedes Konzept
-  - Tooltips im gesamten Interface mit Glossar-Verlinkungen
-  - Suchfunktion für schnellen Zugriff
-  - Steuerrechtliche Grundlagen verständlich erklärt (§ 20 InvStG, § 32d EStG)
-  - Kategorisierung: Steuern, Investitionen, Rente, Versicherungen
-  - Priorisierung: ⭐⭐ (Mittel) - Hoher Nutzen für Bildung, moderater Implementierungsaufwand
-
 - **Finanzielle Meilenstein-Tracker** - Gamifizierte Fortschrittsanzeige für Sparziele
   - Definition von Meilensteinen (z.B. "Erste 10.000€", "Notgroschen vollständig", "Rentenlücke geschlossen")
   - Visuelle Fortschrittsbalken mit Prozentanzeige
