@@ -8,14 +8,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
-- **Entnahmestrategien-Vergleichsmatrix** - Umfassender Vergleich verschiedener Entnahmestrategien mit Rangfolge
-  - Vergleich von 4% Rule, 3% Rule, Fixed Monthly, Variable Percentage und benutzerdefinierten Strategien
-  - Kennzahlen: Portfolio-Lebensdauer, Gesamtentnahme, Durchschnittliche jährliche Entnahme, Restkapital
-  - Risikoanalyse: Erfolgsrate (Portfolio überlebt geplante Dauer), Downside Risk
-  - Side-by-Side Visualisierung der Kapitalverläufe
-  - Empfehlungsalgorithmus basierend auf Risikoprofil und Zielen
-  - Priorisierung: ⭐⭐⭐ (Hoch) - Baut auf bestehenden Entnahmestrategien auf
-
 #### Finanzielle Bildung & Transparenz
 
 - **Finanzielle Meilenstein-Tracker** - Gamifizierte Fortschrittsanzeige für Sparziele
