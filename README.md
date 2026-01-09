@@ -251,6 +251,40 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Transparente Berechnung** - Detaillierte Aufschlüsselung von Brutto-Kosten, Leistungen und Netto-Belastung
     - **Integration in Finanzplanung** - Automatische Berücksichtigung in Spar- und Entnahmephasen
 
+### Finanzielle Meilensteine
+
+- **Meilenstein-Tracker** - Visuelles Tracking von Sparzielen mit Fortschrittsanzeige
+  - **9 Vordefinierte Meilensteine** - Von Notgroschen (9.000 €) bis zur ersten Million (1.000.000 €)
+    - Notgroschen: 3 Monate (9.000 €)
+    - Erste 10.000 €
+    - Notgroschen: 6 Monate (18.000 €)
+    - Erste 25.000 €
+    - Erste 50.000 €
+    - Erste 100.000 €
+    - Erste 250.000 €
+    - Erste 500.000 €
+    - Erste Million (1.000.000 €)
+  - **Nächster Meilenstein Hervorhebung** - Prominente Anzeige des nächsten zu erreichenden Ziels
+    - Aktuelle Kapitalstand
+    - Noch benötigter Betrag
+    - Prozentuale Fortschrittsanzeige
+    - Geschätzte Erreichung (Jahr und verbleibende Jahre)
+  - **Farbcodierte Fortschrittsbalken** - Visuelle Motivation durch farbliche Darstellung
+    - Grau: < 50% des Ziels erreicht
+    - Gelb: 50-75% des Ziels erreicht
+    - Blau: 75-99% des Ziels erreicht
+    - Grün: 100% des Ziels erreicht
+  - **Zeitschätzung** - Automatische Berechnung wann Meilensteine erreicht werden
+    - Basierend auf aktueller Simulation und Sparrate
+    - Deutsche Zeitangaben ("Dieses Jahr", "Nächstes Jahr", "In ca. X Jahren")
+  - **Relevante Meilensteine** - Intelligente Auswahl der anzuzeigenden Ziele
+    - Letzter erreichter Meilenstein
+    - Aktuelles Ziel
+    - Nächste 2-3 kommende Meilensteine
+  - **Erfolgsmeldung** - Motivierende Glückwunsch-Nachricht bei Erreichen aller Ziele
+  - **Echtzeit-Aktualisierung** - Automatische Anpassung bei Änderung der Sparplanung
+  - **Mobile-optimiert** - Responsive Design für alle Bildschirmgrößen
+
 ### Kostenfaktoren
 
 - **TER (Total Expense Ratio)** - Jährliche Verwaltungskosten in Prozent
