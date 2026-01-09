@@ -3,7 +3,7 @@
  * Side-by-side comparison with ranking and recommendations
  */
 
-import { useMemo } from 'react'
+import { useMemo, type FC, type ReactNode } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
 import { Alert, AlertDescription } from './ui/alert'
@@ -146,35 +146,32 @@ function StrategyRow({ result }: { result: StrategyComparisonResult }) {
   )
 }
 
+const profileLabels: Record<RiskProfile, string> = {
+  conservative: 'Konservativ',
+  balanced: 'Ausgewogen',
+  aggressive: 'Aggressiv',
+}
+
+const profileDescriptions: Record<RiskProfile, string> = {
+  conservative: 'Fokus auf Kapitalerhalt und Langlebigkeit des Portfolios',
+  balanced: 'Ausgewogenes Verhältnis zwischen Entnahmen und Sicherheit',
+  aggressive: 'Maximierung der Gesamtentnahmen',
+}
+
+const profileIcons: Record<RiskProfile, ReactNode> = {
+  conservative: <Shield className="h-5 w-5" />,
+  balanced: <TrendingUp className="h-5 w-5" />,
+  aggressive: <DollarSign className="h-5 w-5" />,
+}
+
 /**
  * Recommendation card for top strategies
  */
-function RecommendationCard({
-  results,
-  riskProfile,
-}: {
+const RecommendationCard: FC<{
   results: StrategyComparisonResult[]
   riskProfile: RiskProfile
-}) {
+}> = ({ results, riskProfile }) => {
   const recommended = getRecommendedStrategies(results, riskProfile)
-  
-  const profileLabels: Record<RiskProfile, string> = {
-    conservative: 'Konservativ',
-    balanced: 'Ausgewogen',
-    aggressive: 'Aggressiv',
-  }
-  
-  const profileDescriptions: Record<RiskProfile, string> = {
-    conservative: 'Fokus auf Kapitalerhalt und Langlebigkeit des Portfolios',
-    balanced: 'Ausgewogenes Verhältnis zwischen Entnahmen und Sicherheit',
-    aggressive: 'Maximierung der Gesamtentnahmen',
-  }
-  
-  const profileIcons: Record<RiskProfile, React.ReactNode> = {
-    conservative: <Shield className="h-5 w-5" />,
-    balanced: <TrendingUp className="h-5 w-5" />,
-    aggressive: <DollarSign className="h-5 w-5" />,
-  }
   
   return (
     <Alert className="mb-6">
@@ -230,6 +227,59 @@ function WeightingInfo({ riskProfile }: { riskProfile: RiskProfile }) {
   )
 }
 
+function ComparisonLegend() {
+  return (
+    <div className="mt-6 text-xs text-gray-500 space-y-1">
+      <p><strong>Gesamt-Score:</strong> Gewichtete Bewertung basierend auf allen Kriterien (0-100)</p>
+      <p><strong>Erfolgsrate:</strong> Wahrscheinlichkeit, dass das Portfolio die geplante Dauer überlebt</p>
+      <p><strong>Risiko:</strong> Volatilität der jährlichen Entnahmen (Variationskoeffizient)</p>
+    </div>
+  )
+}
+
+function ComparisonTableHeader() {
+  return (
+    <thead className="bg-gray-100 border-b-2 border-gray-300">
+      <tr>
+        <th className="p-3 text-left font-semibold">Strategie</th>
+        <th className="p-3 text-right font-semibold">Gesamt-Score</th>
+        <th className="p-3 text-right font-semibold">Endkapital</th>
+        <th className="p-3 text-right font-semibold">Gesamt-Entnahme</th>
+        <th className="p-3 text-right font-semibold">Ø Jährlich</th>
+        <th className="p-3 text-right font-semibold">Portfolio-Lebensdauer</th>
+        <th className="p-3 text-center font-semibold">Erfolgsrate</th>
+        <th className="p-3 text-center font-semibold">Risiko</th>
+      </tr>
+    </thead>
+  )
+}
+
+function ComparisonMatrixContent({
+  rankedResults,
+  riskProfile,
+}: {
+  rankedResults: StrategyComparisonResult[]
+  riskProfile: RiskProfile
+}) {
+  return (
+    <>
+      <RecommendationCard results={rankedResults} riskProfile={riskProfile} />
+      <WeightingInfo riskProfile={riskProfile} />
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <ComparisonTableHeader />
+          <tbody>
+            {rankedResults.map(result => (
+              <StrategyRow key={result.strategy} result={result} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <ComparisonLegend />
+    </>
+  )
+}
+
 /**
  * Main comparison matrix component
  */
@@ -278,38 +328,7 @@ export function WithdrawalStrategyComparisonMatrix({
             <strong>Geplante Dauer:</strong> {plannedDuration} Jahre
           </p>
         </div>
-        
-        <RecommendationCard results={rankedResults} riskProfile={riskProfile} />
-        
-        <WeightingInfo riskProfile={riskProfile} />
-        
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-100 border-b-2 border-gray-300">
-              <tr>
-                <th className="p-3 text-left font-semibold">Strategie</th>
-                <th className="p-3 text-right font-semibold">Gesamt-Score</th>
-                <th className="p-3 text-right font-semibold">Endkapital</th>
-                <th className="p-3 text-right font-semibold">Gesamt-Entnahme</th>
-                <th className="p-3 text-right font-semibold">Ø Jährlich</th>
-                <th className="p-3 text-right font-semibold">Portfolio-Lebensdauer</th>
-                <th className="p-3 text-center font-semibold">Erfolgsrate</th>
-                <th className="p-3 text-center font-semibold">Risiko</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rankedResults.map(result => (
-                <StrategyRow key={result.strategy} result={result} />
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="mt-6 text-xs text-gray-500 space-y-1">
-          <p><strong>Gesamt-Score:</strong> Gewichtete Bewertung basierend auf allen Kriterien (0-100)</p>
-          <p><strong>Erfolgsrate:</strong> Wahrscheinlichkeit, dass das Portfolio die geplante Dauer überlebt</p>
-          <p><strong>Risiko:</strong> Volatilität der jährlichen Entnahmen (Variationskoeffizient)</p>
-        </div>
+        <ComparisonMatrixContent rankedResults={rankedResults} riskProfile={riskProfile} />
       </CardContent>
     </Card>
   )
