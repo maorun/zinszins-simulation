@@ -50,6 +50,7 @@ find src helpers -type f \( -name "*.ts" -o -name "*.tsx" \) ! -name "*.test.ts"
 Analysiere **jede Kategorie** systematisch und identifiziere fehlende Tests:
 
 **A. Helper-Funktionen (helpers/)**
+
 - Prüfe JEDE Datei in helpers/ auf zugehörige .test.ts Dateien
 - Identifiziere Funktionen ohne Test-Coverage
 - Fokus auf finanzielle Berechnungen:
@@ -60,6 +61,7 @@ Analysiere **jede Kategorie** systematisch und identifiziere fehlende Tests:
   - Rendite-Konfigurationen (Fixed, Random, Variable)
 
 **B. Utility-Funktionen (src/utils/)**
+
 - Array-Manipulationen
 - Zufallszahlen-Generierung
 - Formatierungs-Funktionen (Währung, Prozente, Datum)
@@ -67,6 +69,7 @@ Analysiere **jede Kategorie** systematisch und identifiziere fehlende Tests:
 - Berechnungs-Utilities
 
 **C. React-Komponenten (src/components/)**
+
 - UI-Komponenten ohne Tests
 - Custom Hooks (use*.ts) ohne Tests
 - Event-Handler und User-Interaktionen
@@ -74,6 +77,7 @@ Analysiere **jede Kategorie** systematisch und identifiziere fehlende Tests:
 - State-Management in Komponenten
 
 **D. Integration-Tests**
+
 - End-to-End User-Workflows
 - Komponenten-Interaktionen
 - Daten-Flow zwischen Komponenten
@@ -81,6 +85,7 @@ Analysiere **jede Kategorie** systematisch und identifiziere fehlende Tests:
 - Modal-Interaktionen
 
 **E. Edge Cases und Error Handling**
+
 - Null/Undefined-Handling
 - Leere Arrays/Objekte
 - Ungültige Eingaben (negative Zahlen, zu große/kleine Werte)
@@ -89,6 +94,7 @@ Analysiere **jede Kategorie** systematisch und identifiziere fehlende Tests:
 - Browser-Kompatibilität
 
 **F. Performance und Stability**
+
 - Monte Carlo mit verschiedenen Seeds
 - Große Datenmengen (viele Jahre, viele Simulationen)
 - Speicher-Leaks in Komponenten
