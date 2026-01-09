@@ -1108,6 +1108,19 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Variable Renditen** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
 - **Geteilte Entnahme-Phasen** - Segmentierung in verschiedene Zeiträume mit unterschiedlichen Strategien
 - **Strategienvergleich** - Vergleich verschiedener Entnahmestrategien mit demselben Startkapital
+- **Entnahmestrategien-Vergleichsmatrix** - Umfassender Vergleich verschiedener Entnahmestrategien mit Rangfolge
+  - **Umfassende Kennzahlen**: Portfolio-Lebensdauer, Gesamtentnahme, Durchschnittliche jährliche Entnahme, Restkapital
+  - **Risikoanalyse**: Erfolgsrate (Portfolio überlebt geplante Dauer), Downside Risk (Volatilität der Entnahmen)
+  - **Side-by-Side Visualisierung**: Alle Strategien im direkten Vergleich mit farbcodierter Score-Visualisierung
+  - **Intelligentes Ranking**: Gewichtete Bewertung basierend auf Portfolio-Lebensdauer, Gesamtentnahme, Kapitalerhalt und Stabilität
+  - **Empfehlungsalgorithmus**: Personalisierte Empfehlungen basierend auf Risikoprofil
+    - **Konservativ**: Fokus auf Kapitalerhalt und Langlebigkeit des Portfolios (40% Gewichtung Portfolio-Lebensdauer)
+    - **Ausgewogen**: Ausgewogenes Verhältnis zwischen Entnahmen und Sicherheit (Standard-Profil)
+    - **Aggressiv**: Maximierung der Gesamtentnahmen (45% Gewichtung Gesamtentnahme)
+  - **Visuelle Indikatoren**: Farbcodierte Erfolgsraten (grün ≥90%, gelb ≥70%, rot <70%) und Risiko-Level
+  - **Transparente Bewertungskriterien**: Detaillierte Aufschlüsselung der Gewichtung je Risikoprofil
+  - **Trophy-Ranking**: Klare #1, #2, #3 Platzierungen mit visuellen Badges für Top-Strategien
+  - **Legend und Erklärungen**: Integrierte Erläuterungen aller Metriken und Bewertungskriterien
 - **Gesetzliche Rente Integration** - Vollständige Integration der deutschen gesetzlichen Rente
   - **Konfiguration in der Entnahmephase**: Direkt im Variablen-Panel der Entnahmephase konfigurierbar
   - **Einzel- und Paarplanung**: Separate Rentenkonfiguration für Einzelpersonen oder Paare mit individuellen Rentenbeginn-Zeitpunkten
