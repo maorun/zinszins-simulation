@@ -33,13 +33,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Finanzielle Bildung & Transparenz
 
-- **Finanzielle Meilenstein-Tracker** - Gamifizierte Fortschrittsanzeige für Sparziele
-  - Definition von Meilensteinen (z.B. "Erste 10.000€", "Notgroschen vollständig", "Rentenlücke geschlossen")
-  - Visuelle Fortschrittsbalken mit Prozentanzeige
-  - Geschätzte Zeitpunkte bis zum Erreichen des nächsten Meilensteins
-  - Motivierende Visualisierung ohne Social/Gamification-Features
-  - Priorisierung: ⭐⭐ (Mittel) - Hoher UX-Wert und Motivationsfaktor
-
 - **Interaktive Szenario-Bibliothek** - Vordefinierte realistische Lebensszenarien
   - 10+ vorkonfigurierte Szenarien (z.B. "Berufsanfänger", "Mittleres Alter mit Familie", "Pre-Retirement")
   - Ein-Klick-Import von kompletten Konfigurationen
