@@ -16,6 +16,7 @@ Identifiziere **eigenständig** fehlende Tests im Projekt und implementiere umfa
 
 - **Lies die komplette `.github/copilot-instructions.md`** - ALLE Richtlinien, Best Practices und Workflow-Anforderungen müssen vollständig berücksichtigt werden
 - **Lies die `TESTING.md`** - Verstehe die Test-Struktur, Best Practices und Richtlinien
+  - **Siehe insbesondere**: Abschnitt "Test Coverage Improvements - Beispielprojekt" für ein vollständiges Beispiel zur eigenständigen Identifikation und Implementierung fehlender Tests
 - **Installiere Dependencies**: `npm install` (KRITISCH - muss als erstes ausgeführt werden in einem frischen Clone)
 - **Etabliere Baseline**: Führe `npm run test` aus um aktuellen Test-Status zu verstehen
 

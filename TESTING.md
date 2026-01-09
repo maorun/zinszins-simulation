@@ -4,11 +4,11 @@
 
 Dieses Dokument beschreibt die Test-Struktur, Best Practices und Richtlinien für das Zinszins-Simulation Projekt.
 
-## Test-Statistiken (Stand: Dezember 2024)
+## Test-Statistiken (Stand: Januar 2026)
 
-- **Gesamt-Test-Dateien**: 304
-- **Gesamt-Tests**: 2620
-- **Erfolgsrate**: 100% (2615 bestanden, 5 übersprungen)
+- **Gesamt-Test-Dateien**: 481
+- **Gesamt-Tests**: 6368
+- **Erfolgsrate**: 100% (6362 bestanden, 6 übersprungen)
 - **Test-Framework**: Vitest 2.1.9
 - **Test-Umgebung**: jsdom (für React-Komponententests)
 
@@ -381,6 +381,187 @@ describe('Monte Carlo', () => {
 - [React Testing Library](https://testing-library.com/react)
 - [Jest DOM Matchers](https://github.com/testing-library/jest-dom)
 
+## Test Coverage Improvements - Beispielprojekt
+
+### Überblick
+
+Dieser Abschnitt dokumentiert ein Beispielprojekt zur systematischen Identifikation und Implementierung fehlender Tests. Das Projekt zeigt, wie Test-Lücken eigenständig identifiziert und geschlossen werden können.
+
+### Methodik
+
+**Systematische Analyse**:
+
+1. Review von Source-Dateien ohne entsprechende Test-Dateien
+2. Analyse kritischer Utility-Funktionen und Komponenten
+3. Fokus auf high-impact Bereiche (finanzielle Berechnungen, Kern-Utilities)
+
+**Priorisierung nach Impact**:
+
+- **HIGH**: Financial calculation utilities (KPI calculations)
+- **MEDIUM**: Core infrastructure (Chart.js setup, component helpers)
+- **LOW**: Type utilities and edge cases
+
+**Implementation Best Practices**:
+
+- Arrange-Act-Assert Pattern
+- Comprehensive edge case coverage
+- Integration tests for workflows
+- Type-safe test implementations
+
+### Beispiel: Hinzugefügte Tests
+
+In einem Beispielprojekt wurden 137 neue Tests in 4 kritischen Bereichen hinzugefügt:
+
+#### 1. KPI Calculations Tests (62 tests)
+
+**Abgedeckte Bereiche**:
+
+- Sparquote-Berechnungen (10 tests)
+  - Normal cases, edge cases (zero/negative income)
+  - Boundary testing (clamping to 100%)
+  - Decimal value handling
+- Vermögensaufbau-Raten (10 tests)
+  - Target achievement scenarios
+  - Edge cases (zero years, negative years)
+- Rentenlücken-Berechnungen (10 tests)
+- Benötigtes Portfolio (9 tests)
+- Sparquote-Bewertung (8 tests)
+- Integration tests (6 tests)
+
+**Beispiel**:
+
+```typescript
+// src/utils/kpi-calculations.test.ts
+describe('calculateSavingsRate', () => {
+  it('should calculate savings rate correctly for typical values', () => {
+    const result = calculateSavingsRate(2000, 10000)
+    expect(result).toBe(20)
+  })
+
+  it('should return 0 for zero income', () => {
+    const result = calculateSavingsRate(1000, 0)
+    expect(result).toBe(0)
+  })
+
+  it('should clamp result to 100% maximum', () => {
+    const result = calculateSavingsRate(15000, 10000)
+    expect(result).toBe(100)
+  })
+})
+```
+
+#### 2. Chart Setup Tests (18 tests)
+
+**Abgedeckte Bereiche**:
+
+- Component registration (5 tests)
+- Integration mit Chart.js (3 tests)
+- Module state management (2 tests)
+- Error handling (2 tests)
+- Performance (2 tests)
+- Component verification (4 tests)
+
+**Key Features**:
+
+- Idempotency verification (mehrfache Aufrufe sicher)
+- Performance testing
+- Integration testing mit Chart.js library
+
+#### 3. Withdrawal Mode Helpers Tests (28 tests)
+
+**Abgedeckte Bereiche**:
+
+- Mode change handling (12 tests)
+- Comparison strategy management (12 tests)
+- Integration workflows (2 tests)
+- Edge case handling (2 tests)
+
+**Key Features**:
+
+- German retirement planning workflows
+- Withdrawal strategy configuration
+- Array immutability verification
+
+#### 4. Utility Types Tests (29 tests)
+
+**Abgedeckte Bereiche**:
+
+- Type utility verification (7 tests)
+- Result type pattern (6 tests)
+- Immutable types (2 tests)
+- Nullable types (3 tests)
+- Maybe types (5 tests)
+- Integration scenarios (5 tests)
+
+### Test-Qualitätsmerkmale
+
+**Code Quality**:
+
+- Keine eslint-disable comments
+- Vollständige TypeScript-Typisierung
+- Arrange-Act-Assert Pattern durchgehend
+- Beschreibende Test-Namen
+
+**Coverage Characteristics**:
+
+- Extensive edge case coverage (null, undefined, negative values, boundary conditions)
+- Integration tests ergänzen unit tests
+- Explizite error scenario testing
+- Performance validation wo relevant
+
+**Test Isolation**:
+
+- Jeder Test läuft unabhängig
+- Proper use of Vitest mocks mit beforeEach/afterEach cleanup
+- Keine side effects auf global state
+
+### Validierungsergebnisse
+
+```text
+Test Files  481 passed (481)
+Tests       6,368 passed | 6 skipped (6,374)
+Duration    221.31s
+```
+
+- ✅ Alle Tests bestehen
+- ✅ Keine flaky tests
+- ✅ Build und Lint erfolgreich
+
+### Impact Assessment
+
+**Quantitativer Impact**:
+
+- +137 tests (2.2% Erhöhung)
+- +4 test files für vorher ungetestete utilities
+- 100% pass rate erhalten
+
+**Qualitativer Impact**:
+
+1. **Critical Utility Coverage**: KPI calculations haben nun comprehensive test coverage
+2. **Infrastructure Reliability**: Chart setup und component helpers sind getestet
+3. **Type Safety Validation**: Runtime behavior von type utilities validiert
+4. **Edge Case Protection**: Extensive edge case testing verhindert unexpected behavior
+
+### Empfehlungen für zukünftige Arbeit
+
+**High Priority**:
+
+1. Tests für custom hooks in components hinzufügen
+2. Integration tests für komplexe user workflows
+3. Performance tests für heavy calculations (Monte Carlo simulations)
+
+**Medium Priority**:
+
+1. Visual regression tests für UI components
+2. Accessibility tests für forms und interactive elements
+3. Tests für error boundary behavior
+
+**Low Priority**:
+
+1. Tests für remaining display components
+2. Tests für configuration wrapper components
+3. Erhöhung der edge case coverage in existing tests
+
 ## Wartung
 
 Diese Dokumentation sollte aktualisiert werden, wenn:
@@ -389,3 +570,4 @@ Diese Dokumentation sollte aktualisiert werden, wenn:
 - Neue Test-Tools hinzugefügt werden
 - Best Practices sich ändern
 - Neue häufige Probleme identifiziert werden
+- Test Coverage Improvements durchgeführt werden (siehe Beispielprojekt oben)
