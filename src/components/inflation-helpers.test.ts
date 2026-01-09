@@ -221,7 +221,7 @@ describe('inflation-helpers', () => {
     beforeEach(() => {
       vi.spyOn(currencyModule, 'formatCurrency').mockReturnValue('100.000,00 €')
       vi.spyOn(inflationAdjustmentModule, 'formatInflationAdjustedValue').mockReturnValue(
-        '98.039,22 € (100.000,00 €)'
+        '100.000,00 € / 98.039,22 € real'
       )
     })
 
@@ -282,7 +282,7 @@ describe('inflation-helpers', () => {
           inflationRatePercent: 2,
         })
         
-        expect(result).toBe('98.039,22 € (100.000,00 €)')
+        expect(result).toBe('100.000,00 € / 98.039,22 € real')
         expect(currencyModule.formatCurrency).not.toHaveBeenCalled()
         expect(inflationAdjustmentModule.formatInflationAdjustedValue).toHaveBeenCalled()
       })
