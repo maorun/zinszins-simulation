@@ -16,6 +16,15 @@ Implementiere ein vielversprechendes Feature aus der `FEATURES.md` und folge dab
 
 - **Lies die komplette `copilot-instructions.md`** - Alle Richtlinien, Best Practices und Workflow-Anforderungen müssen berücksichtigt werden
 - **Analysiere `FEATURES.md`** - Identifiziere das vielversprechendste, am besten geeignete Feature
+- **⚠️ KRITISCH: Prüfe `README.md` auf bereits implementierte Features**:
+  - Durchsuche `README.md` nach Features, die den Ideen in `FEATURES.md` ähneln
+  - Vergleiche Feature-Beschreibungen mit implementierten Features in den Abschnitten:
+    - "Implementierte Features"
+    - "Steuerberechnung"
+    - "Rendite-Konfigurationen"
+    - "Entnahmestrategien"
+  - **KEINE Duplikate**: Füge NUR Features zu `FEATURES.md` hinzu, die noch NICHT implementiert sind
+  - Bei Teilimplementierung: Benenne Features präzise (z.B. "Erweiterte ..." statt "Automatische ...")
 - **Falls FEATURES.md leer ist**: Füge mindestens 3-5 neue, innovative Feature-Ideen zur `FEATURES.md` hinzu, bevor du fortfährst
 - **Installiere Dependencies**: `npm install` (KRITISCH - muss als erstes ausgeführt werden in einem frischen Clone)
 
@@ -112,14 +121,19 @@ Implementiere ein vielversprechendes Feature aus der `FEATURES.md` und folge dab
 
 **WICHTIG**: Falls keine Features mehr in `FEATURES.md` vorhanden sind:
 
-1. **Füge mindestens 3-5 neue, innovative Feature-Ideen hinzu** bevor du fortfährst
-2. **Orientiere dich an**:
+1. **⚠️ Prüfe ZUERST `README.md`** auf bereits implementierte Features
+   - Durchsuche alle Feature-Abschnitte im README
+   - Vermeide Duplikate von bereits implementierten Features
+   - Nur NEUE, noch NICHT implementierte Features hinzufügen
+2. **Füge mindestens 3-5 neue, innovative Feature-Ideen hinzu** bevor du fortfährst
+3. **Orientiere dich an**:
    - Bestehenden Feature-Kategorien in FEATURES.md
    - Aktuellen Trends in deutscher Finanzplanung
    - Verbesserungen der User Experience
    - Erweiterte Analyse-Möglichkeiten
-3. **Strukturiere neue Features** nach:
+4. **Strukturiere neue Features** nach:
    - Kategorie (z.B. Erweiterte Finanzplanung, Risikomanagement, etc.)
    - Beschreibung der Funktionalität
    - Priorisierung (Hoch ⭐⭐⭐, Mittel ⭐⭐, Niedrig ⭐)
-4. **Commit die neuen Feature-Ideen** mit `report_progress` bevor du mit der Implementierung beginnst
+   - **Hinweis bei Teilimplementierung**: Falls Basis-Feature existiert, benenne präzise (z.B. "Erweiterte Multi-Jahres ...")
+5. **Commit die neuen Feature-Ideen** mit `report_progress` bevor du mit der Implementierung beginnst

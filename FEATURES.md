@@ -8,14 +8,34 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
+- **Erweiterte Multi-Jahres Freibetrags-Optimierung** - Strategische Verteilung von Freibeträgen über mehrere Jahre
+  - Erweiterung der bestehenden Freistellungsauftrag-Optimierung um zeitliche Dimension
+  - Optimale zeitliche Verteilung von Verkäufen/Entnahmen zur maximalen Freibetragsnutzung über 5/10/20 Jahre
+  - Vorschau: Wie viel Steuern können durch optimales Timing gespart werden
+  - Berücksichtigung von Vorabpauschale, Kapitalgewinnen und anderen steuerpflichtigen Erträgen
+  - Konkrete Handlungsempfehlungen: "Verkaufen Sie in Jahr X, um Y€ Steuern zu sparen"
+  - Priorisierung: ⭐⭐⭐ (Hoch) - Direkter finanzieller Mehrwert für deutsche Steuerpflichtige
+  - **Hinweis**: Basis-Freistellungsauftrag-Optimierung bereits implementiert (Multi-Depot-Verwaltung)
+
+- **Erweiterter Verlustvortrag-Strategie-Simulator** - Umfassende Planung mit Verlustvorträgen
+  - Erweiterung des bestehenden Tax Loss Harvesting um vollständigen Simulator
+  - Simulation verschiedener Szenarien zur Realisierung von Verlusten mit Zeitachse
+  - Berechnung des optimalen Zeitpunkts zur Verlustrealisierung
+  - Verrechnung mit zukünftigen Gewinnen gemäß § 20 Abs. 6 EStG
+  - Berücksichtigung der Verrechnungsbeschränkungen bei Aktienverlusten
+  - Mehrjährige Planung mit Verlustvorträgen bis zur vollständigen Verrechnung
+  - Priorisierung: ⭐⭐⭐ (Hoch) - Wichtig für Anleger mit realisierten Verlusten
+  - **Hinweis**: Basis-Tax-Loss-Harvesting bereits implementiert (Steueroptimiertes Rebalancing)
+
 #### Finanzielle Bildung & Transparenz
 
-- **Finanzielle Meilenstein-Tracker** - Gamifizierte Fortschrittsanzeige für Sparziele
-  - Definition von Meilensteinen (z.B. "Erste 10.000€", "Notgroschen vollständig", "Rentenlücke geschlossen")
-  - Visuelle Fortschrittsbalken mit Prozentanzeige
-  - Geschätzte Zeitpunkte bis zum Erreichen des nächsten Meilensteins
-  - Motivierende Visualisierung ohne Social/Gamification-Features
-  - Priorisierung: ⭐ (Niedrig) - Nice-to-have, aber hoher UX-Wert
+- **Interaktive Szenario-Bibliothek** - Vordefinierte realistische Lebensszenarien
+  - 10+ vorkonfigurierte Szenarien (z.B. "Berufsanfänger", "Mittleres Alter mit Familie", "Pre-Retirement")
+  - Ein-Klick-Import von kompletten Konfigurationen
+  - Detaillierte Erklärungen zu jedem Szenario und dessen Annahmen
+  - Vergleichsmöglichkeit: Eigene Situation vs. typisches Szenario
+  - Bildungsfunktion: Verstehen typischer Finanzplanungs-Situationen
+  - Priorisierung: ⭐⭐ (Mittel) - Hilft Einsteigern bei der Orientierung
 
 ### Erweiterte Finanzplanung
 
