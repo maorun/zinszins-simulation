@@ -8,28 +8,24 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
-- **Automatische Freibetrags-Optimierung** - Intelligente Verteilung von Freibeträgen über mehrere Jahre
-  - Optimale zeitliche Verteilung von Verkäufen/Entnahmen zur maximalen Freibetragsnutzung
-  - Vorschau: Wie viel Steuern können über 5/10/20 Jahre durch optimales Timing gespart werden
+- **Erweiterte Multi-Jahres Freibetrags-Optimierung** - Strategische Verteilung von Freibeträgen über mehrere Jahre
+  - Erweiterung der bestehenden Freistellungsauftrag-Optimierung um zeitliche Dimension
+  - Optimale zeitliche Verteilung von Verkäufen/Entnahmen zur maximalen Freibetragsnutzung über 5/10/20 Jahre
+  - Vorschau: Wie viel Steuern können durch optimales Timing gespart werden
   - Berücksichtigung von Vorabpauschale, Kapitalgewinnen und anderen steuerpflichtigen Erträgen
   - Konkrete Handlungsempfehlungen: "Verkaufen Sie in Jahr X, um Y€ Steuern zu sparen"
   - Priorisierung: ⭐⭐⭐ (Hoch) - Direkter finanzieller Mehrwert für deutsche Steuerpflichtige
+  - **Hinweis**: Basis-Freistellungsauftrag-Optimierung bereits implementiert (Multi-Depot-Verwaltung)
 
-- **Verlustvortrag-Strategie-Simulator** - Optimale Nutzung von Verlustvorträgen nach deutschem Steuerrecht
-  - Simulation verschiedener Szenarien zur Realisierung von Verlusten (Tax Loss Harvesting)
+- **Erweiterter Verlustvortrag-Strategie-Simulator** - Umfassende Planung mit Verlustvorträgen
+  - Erweiterung des bestehenden Tax Loss Harvesting um vollständigen Simulator
+  - Simulation verschiedener Szenarien zur Realisierung von Verlusten mit Zeitachse
   - Berechnung des optimalen Zeitpunkts zur Verlustrealisierung
   - Verrechnung mit zukünftigen Gewinnen gemäß § 20 Abs. 6 EStG
   - Berücksichtigung der Verrechnungsbeschränkungen bei Aktienverlusten
   - Mehrjährige Planung mit Verlustvorträgen bis zur vollständigen Verrechnung
   - Priorisierung: ⭐⭐⭐ (Hoch) - Wichtig für Anleger mit realisierten Verlusten
-
-- **Kirchensteuer-Planung** - Integration der Kirchensteuer in alle Berechnungen
-  - Kirchensteuersätze nach Bundesland (8% oder 9% der Kapitalertragsteuer)
-  - Automatische Berechnung der Kirchensteuer auf Kapitalerträge
-  - Berücksichtigung des besonderen Kirchensteuerverfahrens bei Kapitalerträgen
-  - Optimierung: Kirchenaustritt vs. Kirchensteuerlast über Lebenszeit
-  - Sensitivitätsanalyse: Auswirkung der Kirchensteuer auf Endvermögen
-  - Priorisierung: ⭐⭐⭐ (Hoch) - Betrifft Millionen deutsche Steuerzahler
+  - **Hinweis**: Basis-Tax-Loss-Harvesting bereits implementiert (Steueroptimiertes Rebalancing)
 
 #### Finanzielle Bildung & Transparenz
 
