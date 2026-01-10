@@ -25,6 +25,8 @@ export default defineConfig({
         maxThreads: maxWorkers,
       },
     },
+    fileParallelism: true, // Run test files in parallel (enabled by default, explicit for clarity)
+    isolate: false, // Disable isolation for faster test execution (safe as tests don't rely on global state)
 
     coverage: {
       provider: 'v8',
