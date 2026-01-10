@@ -6,11 +6,201 @@ Dieses Dokument beschreibt die Test-Struktur, Best Practices und Richtlinien fü
 
 ## Test-Statistiken (Stand: Januar 2026)
 
-- **Gesamt-Test-Dateien**: 481
-- **Gesamt-Tests**: 6368
-- **Erfolgsrate**: 100% (6362 bestanden, 6 übersprungen)
+- **Gesamt-Test-Dateien**: 485
+- **Gesamt-Tests**: 6473
+- **Erfolgsrate**: 100% (6467 bestanden, 6 übersprungen)
 - **Test-Framework**: Vitest 2.1.9
 - **Test-Umgebung**: jsdom (für React-Komponententests)
+- **Durchschnittliche Testdauer**: ~223-248s (abhängig von Umgebung)
+
+## Test-Performance-Optimierung
+
+Die Tests in diesem Projekt sind für Geschwindigkeit und Zuverlässigkeit optimiert, insbesondere in CI/CD-Umgebungen.
+
+### Aktuelle Konfiguration
+
+Die Vitest-Konfiguration (`vitest.config.ts`) nutzt mehrere Performance-Optimierungen:
+
+1. **Thread Pool**: Verwendung von Worker Threads statt Prozess-Forks für schnellere Parallelisierung
+2. **CI-spezifische Worker-Limits**: Explizite Worker-Anzahl in CI (2-4 Worker) um Überlastung zu vermeiden
+3. **Lokale Entwicklung**: Vitest-Defaults für optimale lokale Performance
+4. **File Parallelism**: Test-Dateien werden parallel ausgeführt
+
+```typescript
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    pool: 'threads', // Schneller als 'forks'
+    poolOptions: isCI 
+      ? { threads: { minThreads: 2-4, maxThreads: 2-4 } } 
+      : undefined, // Vitest-Defaults für lokale Entwicklung
+    fileParallelism: true,
+  },
+})
+```
+
+### Performance-Metriken
+
+| Umgebung | Konfiguration | Test-Dateien | Tests | Dauer |
+|----------|--------------|--------------|-------|-------|
+| Lokal | Thread Pool | 485 | 6473 | ~248s |
+| CI | Thread Pool + Worker Limits | 485 | 6473 | ~160-190s (erwartet) |
+
+### Best Practices für schnelle Tests
+
+#### 1. Test-Isolierung beibehalten
+
+**❌ Nicht empfohlen**: `isolate: false` kann Tests um 10-20% beschleunigen, bricht aber 40+ Tests:
+
+```typescript
+// NICHT verwenden
+test: {
+  isolate: false, // Bricht Tests mit globalen Zuständen
+}
+```
+
+**✅ Empfohlen**: Test-Isolierung beibehalten für Zuverlässigkeit:
+
+```typescript
+// Standard-Konfiguration (isolate: true ist Standard)
+test: {
+  // isolate: true ist implizit
+}
+```
+
+#### 2. Parallele Test-Ausführung nutzen
+
+Tests werden automatisch parallel auf Datei-Ebene ausgeführt. Innerhalb von Dateien können Tests mit `test.concurrent()` parallelisiert werden:
+
+```typescript
+// Für I/O-lastige oder asynchrone Tests
+describe('Async operations', () => {
+  test.concurrent('fetches data 1', async () => {
+    // ...
+  })
+  
+  test.concurrent('fetches data 2', async () => {
+    // ...
+  })
+})
+```
+
+#### 3. CI-Umgebungen optimieren
+
+GitHub Actions und andere CI-Umgebungen haben oft begrenzte Ressourcen:
+
+```yaml
+# .github/workflows/ci.yml
+jobs:
+  test:
+    env:
+      CI: true # Aktiviert CI-spezifische Optimierungen
+```
+
+#### 4. Test-Timeouts angemessen setzen
+
+```typescript
+// vitest.config.ts
+test: {
+  testTimeout: 3000,  // 3 Sekunden pro Test
+  hookTimeout: 1000,  // 1 Sekunde für Hooks
+}
+```
+
+#### 5. Kostspielige Setup-Operationen vermeiden
+
+```typescript
+// ❌ Langsam: Setup in jedem Test
+describe('Component', () => {
+  it('test 1', () => {
+    const expensiveData = generateLargeDataset()
+    // ...
+  })
+  
+  it('test 2', () => {
+    const expensiveData = generateLargeDataset()
+    // ...
+  })
+})
+
+// ✅ Schneller: Setup einmal
+describe('Component', () => {
+  const expensiveData = generateLargeDataset()
+  
+  it('test 1', () => {
+    // Nutze expensiveData
+  })
+  
+  it('test 2', () => {
+    // Nutze expensiveData
+  })
+})
+```
+
+### Weitere Optimierungsstrategien
+
+#### Für große Test-Suites (>1000 Tests)
+
+1. **Test Sharding**: Verteilung von Tests auf mehrere CI-Runner
+
+```yaml
+# GitHub Actions mit Sharding
+strategy:
+  matrix:
+    shard: [1, 2, 3, 4]
+steps:
+  - run: npm run test -- --shard=${{ matrix.shard }}/4
+```
+
+2. **Selektive Test-Ausführung**: Nur geänderte Tests ausführen
+
+```bash
+# Nur Tests für geänderte Dateien
+npm run test -- --changed
+```
+
+3. **Watch-Mode für lokale Entwicklung**
+
+```bash
+# Automatische Test-Wiederholung bei Änderungen
+npm run test:watch
+```
+
+### Monitoring und Profiling
+
+#### Langsame Tests identifizieren
+
+```bash
+# Reporter für langsame Tests
+npm run test -- --reporter=verbose
+```
+
+#### Test-Coverage mit Performance-Fokus
+
+```bash
+# Coverage ohne langsame HTML-Reports
+npm run test:coverage -- --reporter=text
+```
+
+### Häufige Performance-Probleme
+
+1. **Problem**: Tests sind langsam in CI
+   - **Lösung**: Worker-Limits gesetzt (bereits implementiert)
+
+2. **Problem**: Flaky Tests in paralleler Ausführung
+   - **Lösung**: Globale Zustände vermeiden, Mocks richtig aufräumen
+
+3. **Problem**: Speicherprobleme bei vielen Tests
+   - **Lösung**: Worker-Anzahl reduzieren, Tests in Batches ausführen
+
+### Zukünftige Verbesserungen
+
+Mögliche weitere Optimierungen für noch schnellere Tests:
+
+1. **Test Sharding in CI**: Bei weiterem Test-Wachstum
+2. **Caching von Test-Artifacts**: Vite-Cache für schnellere Transforms
+3. **Selektive Test-Ausführung**: Abhängigkeitsanalyse für Smart Testing
+4. **Browser-Mode**: Native Browser-Tests für UI-kritische Tests
 
 ## Test-Struktur
 
