@@ -4,9 +4,11 @@ import { defineConfig } from 'vitest/config'
 // Optimize worker count for CI environments
 // CI machines often have limited resources - use fewer workers to prevent overload
 const cpuCount = os.cpus().length
-const maxWorkers = process.env.CI
-  ? Math.max(2, Math.min(4, Math.floor(cpuCount / 2))) // CI: 2-4 workers
-  : undefined // Local: use Vitest defaults
+const isCI = !!process.env.CI
+
+// For CI: use 2-4 workers (avoid overloading shared runners)
+// For local: let Vitest use defaults (typically cpuCount - 1)
+const maxWorkers = isCI ? Math.max(2, Math.min(4, Math.floor(cpuCount / 2))) : undefined
 
 export default defineConfig({
   test: {
@@ -19,14 +21,15 @@ export default defineConfig({
 
     // Performance optimizations for faster test execution
     pool: 'threads', // Use worker threads (faster than forks)
-    poolOptions: {
-      threads: {
-        minThreads: maxWorkers,
-        maxThreads: maxWorkers,
-      },
-    },
+    poolOptions: isCI
+      ? {
+          threads: {
+            minThreads: maxWorkers,
+            maxThreads: maxWorkers,
+          },
+        }
+      : undefined, // Let Vitest use defaults for local development
     fileParallelism: true, // Run test files in parallel (enabled by default, explicit for clarity)
-    isolate: false, // Disable isolation for faster test execution (safe as tests don't rely on global state)
 
     coverage: {
       provider: 'v8',
