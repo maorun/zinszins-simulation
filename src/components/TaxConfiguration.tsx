@@ -28,6 +28,7 @@ import { TaxDeferralCalculatorCard } from './TaxDeferralCalculatorCard'
 import { MultiYearLossTrackingDashboard } from './MultiYearLossTrackingDashboard'
 import { ImmobilienSteueroptimierungCard } from './ImmobilienSteueroptimierungCard'
 import { SellingStrategyCard } from './SellingStrategyCard'
+import { MultiYearFreibetragOptimizationCard } from './MultiYearFreibetragOptimizationCard'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -138,6 +139,7 @@ function TaxOptimizationCards({ simulation }: { simulation: ReturnType<typeof us
     <>
       <PortfolioTeilfreistellungCard />
       <TaxDeferralCalculatorCard />
+      <MultiYearFreibetragOptimizationCard />
       <ImmobilienSteueroptimierungCard />
       <SellingStrategyCard />
       <QuellensteuerconfigCard />
