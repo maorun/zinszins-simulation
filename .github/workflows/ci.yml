@@ -70,6 +70,8 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    env:
+      CI: true # Explicitly set CI environment variable for Vitest optimization
 
     steps:
       - name: Checkout code
