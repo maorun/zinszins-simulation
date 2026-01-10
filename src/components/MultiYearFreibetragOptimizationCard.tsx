@@ -13,8 +13,9 @@ import {
 } from '../../helpers/multi-year-freibetrag-optimization'
 import { useSimulation } from '../contexts/useSimulation'
 import { formatCurrency } from '../utils/currency'
-import { Calendar, Info, TrendingUp } from 'lucide-react'
+import { Calendar, Info } from 'lucide-react'
 import { useFormId } from '../utils/unique-id'
+import { ResultsSummaryCard, StrategyComparison, RecommendationsList, YearlyScheduleTable } from './multi-year-optimization/ResultsComponents'
 
 /**
  * Info message explaining the multi-year freibetrag optimization
@@ -197,89 +198,69 @@ interface ResultsDisplayProps {
 function ResultsDisplay({ result, config }: ResultsDisplayProps) {
   return (
     <div className="space-y-4">
-      {/* Summary */}
-      <div className="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <TrendingUp className="h-5 w-5 text-green-600" />
-          <h3 className="font-semibold text-green-900">Optimierungs-Ergebnis</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-green-700 mb-1">Steuerersparnis</p>
-            <p className="text-2xl font-bold text-green-900">{formatCurrency(result.totalTaxSavings)}</p>
-            <p className="text-xs text-green-700 mt-1">
-              {result.taxSavingsPercentage.toFixed(1)}% Ersparnis gegenüber sofortiger Realisierung
-            </p>
+      <ResultsSummaryCard result={result} />
+      <StrategyComparison result={result} config={config} />
+      <RecommendationsList recommendations={result.recommendations} />
+      <YearlyScheduleTable schedule={result.optimalRealizationSchedule} />
+    </div>
+  )
+}
+
+/**
+ * Create default configuration from simulation context
+ */
+function createDefaultConfig(simulation: ReturnType<typeof useSimulation>): MultiYearFreibetragOptimizationConfig {
+  const currentYear = new Date().getFullYear()
+  const freibetragPerYear: { [year: number]: number } = {}
+  const firstYearFreibetrag = simulation.freibetragPerYear[currentYear] || 2000
+
+  for (let i = 0; i < 20; i++) {
+    freibetragPerYear[currentYear + i] = simulation.freibetragPerYear[currentYear + i] || firstYearFreibetrag
+  }
+
+  return {
+    totalCapitalGains: 50000,
+    currentPortfolioValue: 200000,
+    annualReturnRate: 0,
+    optimizationHorizonYears: 10,
+    startYear: currentYear,
+    freibetragPerYear,
+    capitalGainsTaxRate: simulation.steuerlast / 100,
+    teilfreistellung: simulation.teilfreistellungsquote / 100,
+  }
+}
+
+/**
+ * Horizon comparison display component
+ */
+function HorizonComparisonSection({
+  horizonComparison,
+}: {
+  horizonComparison: ReturnType<typeof compareFreibetragOptimizationHorizons>
+}) {
+  return (
+    <div className="border-t pt-4">
+      <h4 className="font-medium text-sm mb-3">Zeitraum-Vergleich</h4>
+      <div className="grid grid-cols-3 gap-3">
+        {horizonComparison.horizons.map(horizon => (
+          <div
+            key={horizon.years}
+            className={`p-3 rounded border ${
+              horizon.years === horizonComparison.recommendedHorizon ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-200'
+            }`}
+          >
+            <p className="text-xs text-muted-foreground mb-1">{horizon.years} Jahre</p>
+            <p className="text-sm font-semibold">{formatCurrency(horizon.taxSavings)}</p>
+            <p className="text-xs text-muted-foreground mt-1">{(horizon.utilizationRate * 100).toFixed(0)}% Auslastung</p>
+            {horizon.years === horizonComparison.recommendedHorizon && (
+              <p className="text-xs text-green-600 font-medium mt-1">✓ Empfohlen</p>
+            )}
           </div>
-          <div>
-            <p className="text-green-700 mb-1">Freibetrag-Nutzung</p>
-            <p className="text-2xl font-bold text-green-900">
-              {(result.summary.averageFreibetragUtilizationRate * 100).toFixed(0)}%
-            </p>
-            <p className="text-xs text-green-700 mt-1">Durchschnittliche Auslastung des jährlichen Freibetrags</p>
-          </div>
-        </div>
+        ))}
       </div>
-
-      {/* Comparison */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-red-50 border border-red-200 rounded p-3">
-          <p className="text-xs text-red-700 mb-1">Naive Strategie</p>
-          <p className="text-lg font-semibold text-red-900">{formatCurrency(result.summary.naiveStrategyTax)}</p>
-          <p className="text-xs text-red-600">Sofortige Realisierung</p>
-        </div>
-        <div className="bg-green-50 border border-green-200 rounded p-3">
-          <p className="text-xs text-green-700 mb-1">Optimierte Strategie</p>
-          <p className="text-lg font-semibold text-green-900">{formatCurrency(result.summary.optimizedStrategyTax)}</p>
-          <p className="text-xs text-green-600">Über {config.optimizationHorizonYears} Jahre verteilt</p>
-        </div>
-      </div>
-
-      {/* Recommendations */}
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm flex items-center gap-2">
-          <Calendar className="h-4 w-4" />
-          Handlungsempfehlungen
-        </h4>
-        <div className="space-y-1.5">
-          {result.recommendations.map((rec, idx) => (
-            <div key={idx} className="text-xs bg-white border border-gray-200 rounded p-2">
-              {rec}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Year-by-year schedule */}
-      <div>
-        <h4 className="font-medium text-sm mb-2">Jahr-für-Jahr Optimierungsplan</h4>
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 text-left">Jahr</th>
-                <th className="p-2 text-right">Realisierung</th>
-                <th className="p-2 text-right">Verf. Freibetrag</th>
-                <th className="p-2 text-right">Steuerersparnis</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {result.optimalRealizationSchedule.map((entry, idx) => (
-                <tr key={idx} className="hover:bg-gray-50">
-                  <td className="p-2">{entry.year}</td>
-                  <td className="p-2 text-right font-medium">{formatCurrency(entry.recommendedRealization)}</td>
-                  <td className="p-2 text-right text-muted-foreground">
-                    {formatCurrency(entry.availableFreibetrag)}
-                  </td>
-                  <td className="p-2 text-right text-green-600">
-                    +{formatCurrency(entry.taxSavings)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <p className="text-xs text-muted-foreground mt-2">
+        Vergleich verschiedener Optimierungszeiträume basierend auf Steuerersparnis pro Jahr
+      </p>
     </div>
   )
 }
@@ -293,37 +274,9 @@ function ResultsDisplay({ result, config }: ResultsDisplayProps) {
 export function MultiYearFreibetragOptimizationCard() {
   const [isOpen, setIsOpen] = useState(false)
   const simulation = useSimulation()
+  const [config, setConfig] = useState<MultiYearFreibetragOptimizationConfig>(() => createDefaultConfig(simulation))
 
-  // Initialize with default values from simulation context
-  const [config, setConfig] = useState<MultiYearFreibetragOptimizationConfig>(() => {
-    const currentYear = new Date().getFullYear()
-    const freibetragPerYear: { [year: number]: number } = {}
-    
-    // Get the first year's freibetrag from freibetragPerYear or default to 2000
-    const firstYearFreibetrag = simulation.freibetragPerYear[currentYear] || 2000
-    
-    for (let i = 0; i < 20; i++) {
-      freibetragPerYear[currentYear + i] = simulation.freibetragPerYear[currentYear + i] || firstYearFreibetrag
-    }
-
-    return {
-      totalCapitalGains: 50000,
-      currentPortfolioValue: 200000,
-      annualReturnRate: 0, // Default to retirement scenario (no growth)
-      optimizationHorizonYears: 10,
-      startYear: currentYear,
-      freibetragPerYear,
-      capitalGainsTaxRate: simulation.steuerlast / 100,
-      teilfreistellung: simulation.teilfreistellungsquote / 100,
-    }
-  })
-
-  // Calculate optimization results
-  const result = useMemo(() => {
-    return optimizeMultiYearFreibetrag(config)
-  }, [config])
-
-  // Calculate horizon comparison
+  const result = useMemo(() => optimizeMultiYearFreibetrag(config), [config])
   const horizonComparison = useMemo(() => {
     const { optimizationHorizonYears: _optimizationHorizonYears, ...baseConfig } = config
     return compareFreibetragOptimizationHorizons(baseConfig)
@@ -363,36 +316,7 @@ export function MultiYearFreibetragOptimizationCard() {
               </div>
             </div>
 
-            {/* Horizon comparison */}
-            {config.totalCapitalGains > 0 && (
-              <div className="border-t pt-4">
-                <h4 className="font-medium text-sm mb-3">Zeitraum-Vergleich</h4>
-                <div className="grid grid-cols-3 gap-3">
-                  {horizonComparison.horizons.map(horizon => (
-                    <div
-                      key={horizon.years}
-                      className={`p-3 rounded border ${
-                        horizon.years === horizonComparison.recommendedHorizon
-                          ? 'bg-green-50 border-green-300'
-                          : 'bg-gray-50 border-gray-200'
-                      }`}
-                    >
-                      <p className="text-xs text-muted-foreground mb-1">{horizon.years} Jahre</p>
-                      <p className="text-sm font-semibold">{formatCurrency(horizon.taxSavings)}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {(horizon.utilizationRate * 100).toFixed(0)}% Auslastung
-                      </p>
-                      {horizon.years === horizonComparison.recommendedHorizon && (
-                        <p className="text-xs text-green-600 font-medium mt-1">✓ Empfohlen</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Vergleich verschiedener Optimierungszeiträume basierend auf Steuerersparnis pro Jahr
-                </p>
-              </div>
-            )}
+            {config.totalCapitalGains > 0 && <HorizonComparisonSection horizonComparison={horizonComparison} />}
           </CardContent>
         </CollapsibleContent>
       </Collapsible>

@@ -410,6 +410,25 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Renditekennzahlen: Netto-Cashflow und effektive Rendite
   - **Validierung**: Eingabeprüfung mit deutschen Fehlermeldungen
   - **Realistische Szenarien**: Hilft bei der Bewertung von Mietimmobilien-Investments
+- **Multi-Jahres Freibetrags-Optimierung** - Strategische Verteilung von Kapitalgewinnen zur Steueroptimierung ⭐⭐⭐
+  - **Zeitraum-Optimierung**: Verteilung von Kapitalgewinnen über 5/10/20 Jahre zur maximalen Freibetrag-Nutzung
+  - **Intelligente Planung**: Berücksichtigt Vorabpauschale, Teilfreistellung und jährliche Freibeträge
+  - **Steuerersparnis-Berechnung**: Vergleich zwischen naiver Strategie (sofortige Realisierung) und optimierter Strategie
+  - **Konkrete Handlungsempfehlungen**: Jahr-für-Jahr Empfehlungen mit exakten Beträgen zur Realisierung
+    - "2024: Realisieren Sie 2.857€ an Kapitalgewinnen, um 375€ Steuern zu sparen"
+    - Automatische Warnung bei nicht verteilbaren Restgewinnen
+  - **Zeitraum-Vergleich**: Gegenüberstellung verschiedener Optimierungshorizonte (5/10/20 Jahre)
+  - **Freibetrag-Nutzungsquote**: Durchschnittliche Auslastung der jährlichen Freibeträge in Prozent
+  - **Flexible Konfiguration**:
+    - Zu realisierende Kapitalgewinne (Gesamtsumme)
+    - Optimierungszeitraum (1-20 Jahre)
+    - Aktueller Portfoliowert (für Vorabpauschale-Berechnung)
+    - Portfolio-Rendite (0% für Entnahmephase, >0% für Ansparphase)
+  - **Anwendungsfälle**:
+    - Entnahmephase: Planbare Verkäufe zur Finanzierung des Ruhestands
+    - Portfolioanpassung: Strategischer Verkauf von Positionen
+    - Rebalancing: Steueroptimierte Umschichtung
+  - **Jahr-für-Jahr Optimierungsplan**: Detaillierte Tabelle mit Realisierungen, verfügbarem Freibetrag und Steuerersparnis pro Jahr
 - **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
 - **Steuerprogression-Visualisierung** - Interaktive Visualisierung des deutschen progressiven Steuersystems
   - **Interaktives Diagramm**: Zeigt Durchschnittssteuersatz und Grenzsteuersatz über verschiedene Einkommensniveaus
