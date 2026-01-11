@@ -18,16 +18,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - Priorisierung: ⭐⭐⭐ (Hoch) - Wichtig für Anleger mit realisierten Verlusten
   - **Hinweis**: Basis-Tax-Loss-Harvesting bereits implementiert (Steueroptimiertes Rebalancing)
 
-#### Finanzielle Bildung & Transparenz
-
-- **Interaktive Szenario-Bibliothek** - Vordefinierte realistische Lebensszenarien
-  - 10+ vorkonfigurierte Szenarien (z.B. "Berufsanfänger", "Mittleres Alter mit Familie", "Pre-Retirement")
-  - Ein-Klick-Import von kompletten Konfigurationen
-  - Detaillierte Erklärungen zu jedem Szenario und dessen Annahmen
-  - Vergleichsmöglichkeit: Eigene Situation vs. typisches Szenario
-  - Bildungsfunktion: Verstehen typischer Finanzplanungs-Situationen
-  - Priorisierung: ⭐⭐ (Mittel) - Hilft Einsteigern bei der Orientierung
-
 ### Erweiterte Finanzplanung
 
 #### Asset Allocation & Portfolio-Management
