@@ -17,6 +17,7 @@ import { FactorInvestingConfiguration } from './FactorInvestingConfiguration'
 import { CurrencyRiskConfiguration } from '../CurrencyRiskConfiguration'
 import { ESGFilterConfiguration } from '../ESGFilterConfiguration'
 import { GeographicDiversificationConfiguration } from './GeographicDiversificationConfiguration'
+import { CoreSatelliteInfo } from '../CoreSatelliteInfo'
 import { Info } from 'lucide-react'
 
 /** Information section component for multi-asset portfolio hints */
@@ -197,6 +198,8 @@ export function MultiAssetConfigurationContent(props: MultiAssetConfigurationCon
       {props.config.simulation.useCorrelation && <CorrelationMatrixHeatmap config={props.config} />}
 
       <MultiAssetInfoSection />
+
+      <CoreSatelliteInfo nestingLevel={1} />
     </div>
   )
 }
