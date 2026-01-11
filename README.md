@@ -789,6 +789,31 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Privacy-First** - Alle Daten bleiben lokal auf dem Gerät des Nutzers
   - **shadcn/ui Design** - Moderne, barrierefreie Komponenten mit Collapsible Card
 
+### Interaktive Szenario-Bibliothek
+
+- **Vordefinierte Lebensszenarien** - Realistische Finanzplanungsszenarien zum direkten Import
+  - **9 Lebensszenarien** - Typische Lebenssituationen mit passenden Finanzparametern
+  - **Kategorisiert nach Lebensphase** - Berufsanfänger, Familie, Karrieremitte, Vor dem Ruhestand, Vermögensaufbau
+  - **Ein-Klick Import** - Szenarien können direkt auf die aktuelle Konfiguration angewendet werden
+  - **Detaillierte Beschreibungen** - Jedes Szenario enthält:
+    - **Zielgruppe** - Alter, Einkommen und Lebenssituation
+    - **Detaillierte Erklärung** - Ausführliche Beschreibung der Strategie und Annahmen
+    - **Wichtige Annahmen** - Liste der Kernannahmen (Sparrate, Rendite, Zeithorizont)
+    - **Konfigurationsdetails** - Anlagehorizont, erwartete Rendite, Renditemodus, Sparpläne
+  - **Kategoriefilterung** - Szenarien nach Lebensphase filtern
+  - **Suchfunktion** - Schnelles Finden passender Szenarien durch Keyword-Suche
+  - **Erfolgsbestätigung** - Visuelles Feedback nach erfolgreichem Import
+  - **Szenarien-Beispiele**:
+    - Berufsanfänger - Konservativ (200-400€/Monat, 5% Rendite, 40 Jahre)
+    - Berufsanfänger - Offensiv (500€/Monat, 7% Rendite, hohes Risiko)
+    - Junge Familie mit Kindern (150€/Monat, 5,5% Rendite, ausgewogen)
+    - Karrieremitte - Vermögensaufbau (800€/Monat + 20.000€ Einmalzahlung)
+    - DINK - Doppelverdiener ohne Kinder (1.500€/Monat + 50.000€ Startkapital)
+    - Kurz vor Ruhestand - Sicherheitsorientiert (150.000€ Bestandskapital, 4% Rendite)
+    - Spätstarter - Aufholphase (1.200€/Monat, aggressive Strategie)
+    - Erbschaft-Management (250.000€ Erbschaft professionell anlegen)
+    - Unternehmer nach Exit (500.000€ Exit-Erlös diversifizieren)
+
 ### Was-wäre-wenn Szenarien
 
 - **Vordefinierte Finanzszenarien** - Lernszenarien zum Erkunden verschiedener Anlagestrategien
