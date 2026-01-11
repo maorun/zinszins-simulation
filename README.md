@@ -88,6 +88,15 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Validierung** - Automatische Prüfung auf konfliktäre Faktor-Kombinationen (z.B. Value vs. Growth)
     - **Akademische Grundlage** - Fama-French Three-Factor Model, Carhart Four-Factor Model
     - **Langfristiger Ansatz** - Faktoren funktionieren am besten über Anlagehorizonte von 10+ Jahren
+  - **Core-Satellite Strategie** - Bildungs-Feature für kostenoptimierte Portfolio-Konstruktion
+    - **Portfolio-Konzept** - Kombination aus passivem Kern (70-90%) und aktiven Satelliten (10-30%)
+    - **Kostenoptimierung** - Durchschnittliche Kosten bleiben niedrig durch günstigen Core
+    - **Kontrolliertes Risiko** - Aktive Positionen begrenzt auf 10-30% des Portfolios
+    - **Satelliten-Strategien** - Informationen zu Sektor-Übergewichtungen, Regional Tilts, Themeninvestments, Einzelaktien, Faktor-Strategien
+    - **Umsetzungshinweise** - Integration mit bestehendem Multi-Asset Portfolio Feature möglich
+    - **Deutsche Steueraspekte** - Teilfreistellung, Sparerpauschbetrag, Tax Loss Harvesting
+    - **Performance-Attribution** - Verständnis wie Core vs. Satellites zur Rendite beitragen
+    - **Bildungsfunktion** - Hilft Anlegern professionelle Portfolio-Konstruktion zu verstehen
 - **Währungsrisiko-Management** - Analyse und Verwaltung von Währungsrisiken bei internationalen Investments
   - **8 Unterstützte Währungen** - EUR, USD, GBP, CHF, JPY, CNY, AUD, CAD
   - **Währungsallokation** - Flexible Konfiguration der Portfolio-Aufteilung nach Währungen

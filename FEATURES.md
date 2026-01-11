@@ -37,12 +37,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - **Tracking Difference**: Analyse der Abweichung vom Referenzindex
   - **Rendite-Risiko-Profil**: Historische Performance-Analyse verschiedener Strategien
 
-- **Satelliten-Strategie (Core-Satellite)** - Kombination aus passivem Kern und aktiven Satelliten
-  - **Kern-Portfolio**: 70-90% in breit diversifizierte ETFs
-  - **Satelliten-Positionen**: 10-30% in Themenfonds, Einzelaktien, oder Übergewichtungen
-  - **Rebalancing-Regeln**: Automatische Anpassung bei Abweichungen
-  - **Performance-Attribution**: Tracking welche Teile des Portfolios zur Rendite beitragen
-
 #### Entnahmestrategien & Kapitalplanung
 
 - **Zeitweise Rückkehr in den Arbeitsmarkt** - Simulation von Teilzeit-Arbeit im Ruhestand
