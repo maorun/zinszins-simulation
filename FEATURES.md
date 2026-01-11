@@ -8,15 +8,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
-- **Erweiterte Multi-Jahres Freibetrags-Optimierung** - Strategische Verteilung von Freibeträgen über mehrere Jahre
-  - Erweiterung der bestehenden Freistellungsauftrag-Optimierung um zeitliche Dimension
-  - Optimale zeitliche Verteilung von Verkäufen/Entnahmen zur maximalen Freibetragsnutzung über 5/10/20 Jahre
-  - Vorschau: Wie viel Steuern können durch optimales Timing gespart werden
-  - Berücksichtigung von Vorabpauschale, Kapitalgewinnen und anderen steuerpflichtigen Erträgen
-  - Konkrete Handlungsempfehlungen: "Verkaufen Sie in Jahr X, um Y€ Steuern zu sparen"
-  - Priorisierung: ⭐⭐⭐ (Hoch) - Direkter finanzieller Mehrwert für deutsche Steuerpflichtige
-  - **Hinweis**: Basis-Freistellungsauftrag-Optimierung bereits implementiert (Multi-Depot-Verwaltung)
-
 - **Erweiterter Verlustvortrag-Strategie-Simulator** - Umfassende Planung mit Verlustvorträgen
   - Erweiterung des bestehenden Tax Loss Harvesting um vollständigen Simulator
   - Simulation verschiedener Szenarien zur Realisierung von Verlusten mit Zeitachse
