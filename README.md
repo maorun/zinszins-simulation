@@ -693,6 +693,48 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Korrekte Trennung von Aktienverlusttopf und sonstigem Verlusttopf
     - Präzise Anwendung der Verlustverrechnungsregeln
     - Unbegrenzte Verlustvortragsperiode wie im deutschen Steuerrecht
+- **Erweiterter Verlustvortrag-Strategie-Simulator** - Umfassende Mehrjahres-Planung für strategische Verlustverwendung
+  - **5 Verlustverwendungsstrategien**: Vergleich verschiedener Ansätze zur optimalen Verlustnutzung
+    - **Sofortige Realisierung**: Maximal mögliche Gewinne sofort realisieren wenn Verluste verfügbar
+    - **Schrittweise Realisierung**: Gleichmäßige Verteilung der Gewinnrealisierung über Planungszeitraum
+    - **Optimierte Realisierung**: Intelligente Balance zwischen vollständiger Verlustnutzung und zeitlicher Optimierung
+    - **Aggressive Strategie**: Frühzeitige Gewinnrealisierung zur schnellen Verlustverwendung
+    - **Konservative Strategie**: Erhalt eines Verlustvortragspuffers für zukünftige Flexibilität
+  - **Interaktive Konfiguration**:
+    - Verfügbare Aktienverluste und sonstige Verluste (Eröffnungsbilanz)
+    - Planungszeitraum (1-20 Jahre) mit flexibler Jahreszahl
+    - Maximal realisierbare Gewinne pro Jahr (Aktiengewinne und sonstige Gewinne)
+    - Integration mit globalen Steuereinstellungen (Kapitalertragsteuer, Teilfreistellung)
+  - **Strategievergleich mit Empfehlung**:
+    - Gesamte Steuerersparnisse pro Strategie über den Planungszeitraum
+    - Effizienzs core (Prozentsatz der genutzten Verluste)
+    - Anzahl der Jahre mit aktiver Verlustnutzung
+    - Durchschnittliche jährliche Steuerersparnisse
+    - Automatische Empfehlung der optimalen Strategie basierend auf Gesamteffizienz
+    - Badge-System zur Kennzeichnung: "Empfohlen", "Höchste Ersparnis", "Effizienteste"
+  - **Jahr-für-Jahr Timing-Empfehlungen**:
+    - Optimale Gewinnrealisierung pro Jahr mit Priorisierung (Hoch/Mittel/Niedrig)
+    - Empfohlene Aktiengewinne und sonstige Gewinne zur Realisierung
+    - Projizierte Steuerersparnis für jedes Jahr
+    - Begründung der Empfehlung (z.B. "Maximale Verlustnutzung möglich", "Verlustvortrag für Folgejahre optimieren")
+  - **Zeitachsen-Visualisierung**:
+    - Tabellarische Darstellung der Jahr-für-Jahr-Entwicklung
+    - Verfügbare Verluste zu Jahresbeginn
+    - Realisierte Gewinne nach gewählter Strategie
+    - Genutzte Verluste zur Steuerverrechnung
+    - Steuerersparnis pro Jahr
+    - Verlustvortrag ins nächste Jahr
+    - Gesamtsummen mit Abschlussübersicht
+  - **Strategische Analyse**:
+    - Detaillierte Beschreibung jeder Strategie mit Vor- und Nachteilen
+    - Kontextbezogene Empfehlungen basierend auf Verlusthöhe und Gewinnpotential
+    - Optimierungshinweise bei suboptimaler Konfiguration
+    - Warnungen bei ungenutzten Verlustpotenzialen
+  - **§ 20 Abs. 6 EStG konform**: Vollständige Berücksichtigung deutscher Verlustverrechnungsregeln
+    - Korrekte Trennung von Aktienverlusttopf und sonstigem Verlusttopf
+    - Unbegrenzte Verlustvortragsperiode
+    - Präzise Anwendung der Verrechnungshierarchie (erst Aktienverluste mit Aktiengewinnen, dann sonstige)
+  - **Umfassende Tests**: 47 Tests total (22 Helper-Tests + 25 UI-Tests) mit 100% Pass-Rate
 - **Abfindungs-Rechner (Fünftelregelung)** - Steueroptimierung für Abfindungszahlungen nach §34 EStG
   - **Fünftelregelung (§34 EStG)**: Steuervergünstigung für außerordentliche Einkünfte
     - Steuerberechnung als würde die Abfindung über 5 Jahre verteilt

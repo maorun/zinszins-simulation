@@ -8,16 +8,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
-- **Erweiterter Verlustvortrag-Strategie-Simulator** - Umfassende Planung mit Verlustvorträgen
-  - Erweiterung des bestehenden Tax Loss Harvesting um vollständigen Simulator
-  - Simulation verschiedener Szenarien zur Realisierung von Verlusten mit Zeitachse
-  - Berechnung des optimalen Zeitpunkts zur Verlustrealisierung
-  - Verrechnung mit zukünftigen Gewinnen gemäß § 20 Abs. 6 EStG
-  - Berücksichtigung der Verrechnungsbeschränkungen bei Aktienverlusten
-  - Mehrjährige Planung mit Verlustvorträgen bis zur vollständigen Verrechnung
-  - Priorisierung: ⭐⭐⭐ (Hoch) - Wichtig für Anleger mit realisierten Verlusten
-  - **Hinweis**: Basis-Tax-Loss-Harvesting bereits implementiert (Steueroptimiertes Rebalancing)
-
 ### Erweiterte Finanzplanung
 
 #### Asset Allocation & Portfolio-Management
