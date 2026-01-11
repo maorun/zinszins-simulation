@@ -8,21 +8,78 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
+- **Progressionsvorbehalt-Rechner** - Berechnung der Steuerauswirkung durch Progressionsvorbehalt bei steuerfreien Einkünften (Elterngeld, Arbeitslosengeld, Kurzarbeitergeld, Krankengeld)
+  - **Automatische Berechnung**: Wie steuerfreie Einkünfte den Steuersatz auf andere Einkünfte erhöhen
+  - **Mehrere Einkunftsarten**: Unterstützung verschiedener steuerfreier Einkünfte mit unterschiedlichen Progressionsvorbehalt-Regeln
+  - **Jährliche Steuerbelastung**: Transparente Darstellung der Mehrbelastung durch Progressionsvorbehalt
+  - **Optimierungsempfehlungen**: Hinweise zur Steuerplanung bei steuerfreien Einkünften
+  - **Integration in Simulation**: Berücksichtigung in Spar- und Entnahmephase
+
+- **Verlusttopf-Management** - Verwaltung und Optimierung von steuerlichen Verlustvorträgen
+  - **Drei Verlusttöpfe**: Aktien, sonstige Kapitalerträge, Termingeschäfte nach deutschem Steuerrecht
+  - **Verlustvortrag-Tracking**: Mehrjährige Verfolgung nicht genutzter Verluste
+  - **Optimale Verrechnung**: Empfehlungen für strategische Verlustnutzung
+  - **Depotübergreifend**: Verwaltung von Verlusttöpfen über mehrere Depots
+
+- **Denkmal-AfA / Denkmalschutz-Immobilien** - Steuervorteile bei denkmalgeschützten Immobilien
+  - **Erhöhte AfA**: 9% über 8 Jahre, dann 7% über 4 Jahre nach § 7i EStG
+  - **Sanierungskosten**: Besondere Abschreibungsmöglichkeiten für denkmalgerechte Sanierung
+  - **Eigennutzung vs. Vermietung**: Vergleich der steuerlichen Vorteile
+  - **ROI-Kalkulation**: Vollständige Wirtschaftlichkeitsberechnung inkl. Steuervorteile
+
 ### Erweiterte Finanzplanung
 
 #### Asset Allocation & Portfolio-Management
 
-- **Alternative Investments** - Private Equity, Hedge Funds, Kryptowährungen
+- **Smart Beta Strategien** - Faktor-basierte Indexstrategien ohne aktives Management
+  - **Regelbasierte Strategien**: Quality, Low Volatility, Dividend Yield, Multi-Factor
+  - **Kostenvergleich**: Smart Beta ETFs vs. traditionelle Marktkapitalisierungs-Indizes
+  - **Tracking Difference**: Analyse der Abweichung vom Referenzindex
+  - **Rendite-Risiko-Profil**: Historische Performance-Analyse verschiedener Strategien
+
+- **Satelliten-Strategie (Core-Satellite)** - Kombination aus passivem Kern und aktiven Satelliten
+  - **Kern-Portfolio**: 70-90% in breit diversifizierte ETFs
+  - **Satelliten-Positionen**: 10-30% in Themenfonds, Einzelaktien, oder Übergewichtungen
+  - **Rebalancing-Regeln**: Automatische Anpassung bei Abweichungen
+  - **Performance-Attribution**: Tracking welche Teile des Portfolios zur Rendite beitragen
 
 #### Entnahmestrategien & Kapitalplanung
+
+- **Zeitweise Rückkehr in den Arbeitsmarkt** - Simulation von Teilzeit-Arbeit im Ruhestand
+  - **Flexible Arbeitsphasen**: Konfigurierbare Zeiträume mit Teilzeiteinkommen
+  - **Steuerliche Integration**: Berücksichtigung von Einkommen + Renten + Kapitalerträgen
+  - **Sozialversicherung**: Automatische Berechnung von KV/PV-Beiträgen
+  - **Portfolio-Schonung**: Reduzierte Entnahmen während Arbeitsphasen
+
+- **Renten-Auffüll-Strategie** - Optimierung freiwilliger Rentenbeiträge
+  - **Nachkauf von Rentenpunkten**: Berechnung der Wirtschaftlichkeit von Rentenpunkten-Nachkauf
+  - **Ausgleich von Rentenabschlägen**: Kalkulation für vorzeitigen Renteneintritt ohne Abschläge
+  - **Steuervorteile**: Volle Absetzbarkeit freiwilliger Beiträge als Vorsorgeaufwendungen
+  - **Break-Even-Analyse**: Ab wann sich Nachzahlungen rentieren
 
 ### Lebenssituationen & Planung
 
 #### Selbstständigkeit & Unternehmertum
 
-- **Betriebsrente-Alternativen** - Rürup-Rente, Basis-Rente für Selbstständige
-- **Geschäftsrisiko-Integration** - Ausfallrisiko des Haupteinkommens
+- **Geschäftsrisiko-Integration** - Ausfallrisiko des Haupteinkommens für Selbstständige
+  - **Einkommensvolatilität**: Simulation schwankender Geschäftseinkünfte
+  - **Notfallreserve**: Erhöhte Liquiditätsreserven (12-18 Monate)
+  - **Krankentagegeld**: Integration von Krankentagegeldversicherung
+  - **Saisonalität**: Berücksichtigung saisonaler Geschäftszyklen
+
 - **Unternehmensverkauf-Simulation** - Exit-Strategien und Steueroptimierung
+  - **Veräußerungsgewinn**: Besteuerung nach § 16 EStG mit Freibetrag
+  - **Fünftelregelung**: Ermäßigte Besteuerung bei außerordentlichen Einkünften
+  - **Timing-Optimierung**: Optimaler Verkaufszeitpunkt unter Steueraspekten
+  - **Reinvestitions-Planung**: Strategie zur Anlage des Erlöses
+
+#### Familie & Generationen
+
+- **Großeltern-Enkel-Finanzplanung** - Unterstützung von Enkeln durch Schenkungen und Sparpläne
+  - **Enkel-Sparplan**: Aufbau von Vermögen für Enkel mit Schenkungssteuerfreibeträgen
+  - **Ausbildungsfinanzierung**: Planung für Studium oder Berufsausbildung
+  - **Steuergünstige Übertragung**: Optimale Nutzung des 400.000€ Freibetrags
+  - **Zeitliche Staffelung**: 10-Jahres-Perioden optimal nutzen
 
 ### Technische Verbesserungen
 
