@@ -26,6 +26,7 @@ import { PortfolioTeilfreistellungCard } from './tax-config/PortfolioTeilfreiste
 
 import { TaxDeferralCalculatorCard } from './TaxDeferralCalculatorCard'
 import { MultiYearLossTrackingDashboard } from './MultiYearLossTrackingDashboard'
+import { LossCarryforwardSimulator } from './tax-config/LossCarryforwardSimulator'
 import { ImmobilienSteueroptimierungCard } from './ImmobilienSteueroptimierungCard'
 import { SellingStrategyCard } from './SellingStrategyCard'
 import { MultiYearFreibetragOptimizationCard } from './MultiYearFreibetragOptimizationCard'
@@ -154,6 +155,8 @@ function TaxOptimizationCards({ simulation }: { simulation: ReturnType<typeof us
         initialStockLosses={0}
         initialOtherLosses={0}
       />
+      {/* Extended Loss Carryforward Strategy Simulator */}
+      <LossCarryforwardSimulator currentYear={new Date().getFullYear()} taxRate={simulation.steuerlast} />
       <QuarterlyTaxPrepaymentCard />
       <PfaendungsfreibetragCard />
       <TailRiskHedgingCard />
