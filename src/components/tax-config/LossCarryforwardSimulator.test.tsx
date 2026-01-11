@@ -67,14 +67,14 @@ describe('LossCarryforwardSimulator', () => {
       expect(screen.getByText(/Strategievergleich/i)).toBeInTheDocument()
     })
 
-    // Should show recommended strategy
-    expect(screen.getByText(/Empfohlene Strategie:/i)).toBeInTheDocument()
+    // Should show recommended strategy (appears in multiple places after refactoring)
+    expect(screen.getAllByText(/Empfohlene Strategie:/i).length).toBeGreaterThanOrEqual(1)
 
     // Should show all strategies table
     expect(screen.getByText(/Alle Strategien im Vergleich/i)).toBeInTheDocument()
 
     // Should have immediate strategy
-    expect(screen.getByText(/Sofortige Realisierung/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/Sofortige Realisierung/i).length).toBeGreaterThanOrEqual(1)
 
     // Should have optimal timing section
     expect(screen.getByText(/Optimale Zeitplanung/i)).toBeInTheDocument()
@@ -93,12 +93,12 @@ describe('LossCarryforwardSimulator', () => {
       expect(screen.getByText(/Strategievergleich/i)).toBeInTheDocument()
     })
 
-    // Check all strategy names are present
-    expect(screen.getByText(/Sofortige Realisierung/i)).toBeInTheDocument()
-    expect(screen.getByText(/Schrittweise Realisierung/i)).toBeInTheDocument()
-    expect(screen.getByText(/Optimierte Realisierung/i)).toBeInTheDocument()
-    expect(screen.getByText(/Aggressive Strategie/i)).toBeInTheDocument()
-    expect(screen.getByText(/Konservative Strategie/i)).toBeInTheDocument()
+    // Check all strategy names are present (may appear multiple times after refactoring)
+    expect(screen.getAllByText(/Sofortige Realisierung/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/Schrittweise Realisierung/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/Optimierte Realisierung/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/Aggressive Strategie/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/Konservative Strategie/i).length).toBeGreaterThanOrEqual(1)
   })
 
   it('should show efficiency badges in strategy table', async () => {
@@ -142,7 +142,7 @@ describe('LossCarryforwardSimulator', () => {
     })
 
     // Should show year 2024
-    expect(screen.getByText('2024')).toBeInTheDocument()
+    expect(screen.getAllByText('2024').length).toBeGreaterThanOrEqual(1)
 
     // Should show priority badges
     const priorityLabels = screen.getAllByText(/Niedrig|Mittel|Hoch/)
@@ -181,8 +181,8 @@ describe('LossCarryforwardSimulator', () => {
 
     expect(screen.getByText(/Realisierte Gewinne/i)).toBeInTheDocument()
     expect(screen.getByText(/Genutzte Verluste/i)).toBeInTheDocument()
-    expect(screen.getByText(/Steuerersparnis/i)).toBeInTheDocument()
-    expect(screen.getByText(/Verlustvortrag/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/Steuerersparnis/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/Verlustvortrag/i).length).toBeGreaterThanOrEqual(1)
   })
 
   it('should show total tax savings in timeline', async () => {
@@ -223,12 +223,12 @@ describe('LossCarryforwardSimulator', () => {
     fireEvent.click(simulateButton)
 
     await waitFor(() => {
-      expect(screen.getByText(/Empfohlen/i)).toBeInTheDocument()
+      expect(screen.getAllByText(/Empfohlen/i).length).toBeGreaterThanOrEqual(1)
     })
 
     // Should show at least "Empfohlen" badge
-    const empfohlenBadge = screen.getByText(/Empfohlen/i)
-    expect(empfohlenBadge).toBeInTheDocument()
+    const empfohlenBadges = screen.getAllByText(/Empfohlen/i)
+    expect(empfohlenBadges.length).toBeGreaterThanOrEqual(1)
   })
 
   it('should show metric displays in recommended strategy', async () => {
@@ -242,10 +242,10 @@ describe('LossCarryforwardSimulator', () => {
     })
 
     // Should show Steuerersparnisse
-    expect(screen.getByText(/Steuerersparnisse/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/Steuerersparnisse/i).length).toBeGreaterThanOrEqual(1)
 
     // Should show Effizienz
-    expect(screen.getByText(/Effizienz/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/Effizienz/i).length).toBeGreaterThanOrEqual(1)
   })
 
   it('should calculate and display correct year range', () => {
@@ -268,7 +268,7 @@ describe('LossCarryforwardSimulator', () => {
     })
 
     // Simulation should complete successfully with different tax rate
-    expect(screen.getByText(/Empfohlene Strategie:/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/Empfohlene Strategie:/i).length).toBeGreaterThanOrEqual(1)
   })
 
   it('should show correct number of years in timing recommendations', async () => {
