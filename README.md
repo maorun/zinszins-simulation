@@ -1215,6 +1215,17 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Realistische Planung**: Ideal für Ruheständler ohne Vererbungsabsicht oder mit definiertem Ausgabenhorizont
   - **Deutsche Bedarfsdeckung**: Orientiert am Bedarfsdeckungsprinzip der deutschen Altersvorsorge
 - **Kapitalerhalt / Ewige Rente** - Strategie zum dauerhaften Erhalt des realen Kapitalwerts
+- **Zeitweise Rückkehr in den Arbeitsmarkt** - Simulation von Teilzeit-Arbeit im Ruhestand mit steuerlicher Integration ⭐⭐⭐
+  - **Flexible Arbeitsphasen**: Konfigurierbare Zeiträume mit Teilzeiteinkommen (Startjahr, Endjahr, monatliches Bruttoeinkommen, Wochenstunden)
+  - **Deutsche Steuerberechnung**: Progressiver Einkommensteuertarif 2024 mit 5 Steuerzonen (Grundfreibetrag bis Reichensteuer)
+  - **Sozialversicherungsbeiträge**: Automatische Berechnung von Krankenversicherung (7,3%) und Pflegeversicherung (3,05% + 0,6% Kinderlosenzuschlag)
+  - **Steuerliche Integration**: Kombinierte Besteuerung von Arbeitseinkommen, Renten und Kapitalerträgen
+  - **Portfolio-Schonung**: Konfigurierbare Reduzierung der Portfolio-Entnahmen (0-100%) während Arbeitsphasen
+  - **Multi-Phasen-Unterstützung**: Mehrere Arbeitsphasen mit Lücken dazwischen (z.B. 2025-2027, dann Pause, dann 2030-2032)
+  - **Echtzeit-Validierung**: Sofortiges Feedback bei ungültigen Eingaben mit deutschen Fehlermeldungen
+  - **Portfolio-Langlebigkeit**: Berechnung der zusätzlichen Jahre, die das Portfolio durch reduzierte Entnahmen länger hält
+  - **Jahresübersicht**: Detaillierte Jahr-für-Jahr-Aufschlüsselung mit Brutto-/Nettoeinkommen, Steuern, Sozialversicherung und angepassten Portfolio-Entnahmen
+  - **Vollständig getestet**: 38 Tests mit 100% Pass-Rate (23 Helper-Tests + 15 UI-Component-Tests)
 - **Steueroptimierte Entnahme** - Automatische Optimierung zur Minimierung der Steuerlast
   - **Drei Optimierungsmodi**: Steuerminimierung, Netto-Maximierung oder ausgewogener Ansatz
   - **Freibetrag-Optimierung**: Intelligente Nutzung des Sparerpauschbetrags (85% Zielnutzung)

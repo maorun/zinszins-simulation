@@ -10,6 +10,7 @@ import type { HealthCareInsuranceConfig } from '../../helpers/health-care-insura
 import type { CareCostConfiguration } from '../../helpers/care-cost-simulation'
 import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
 import type { FinancialGoal } from '../../helpers/financial-goals'
+import type { PartTimeRetirementWorkConfig } from '../../helpers/part-time-retirement-work'
 
 /**
  * Return mode for withdrawal phase (includes multi-asset support)
@@ -133,6 +134,8 @@ export interface WithdrawalConfiguration {
   segmentedComparisonStrategies: SegmentedComparisonStrategy[]
   // Other income sources configuration
   otherIncomeConfig?: OtherIncomeConfiguration
+  // Part-time retirement work configuration
+  partTimeRetirementWorkConfig?: PartTimeRetirementWorkConfig
 }
 
 /**
