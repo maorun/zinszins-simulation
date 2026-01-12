@@ -79,6 +79,8 @@ describe('WithdrawalVariablesCard - Statutory Pension Integration', () => {
     },
     coupleStatutoryPensionConfig: null,
     onCoupleStatutoryPensionConfigChange: vi.fn(),
+    partTimeRetirementWorkConfig: undefined,
+    onPartTimeRetirementWorkConfigChange: vi.fn(),
     ...overrides,
   })
 

@@ -10,6 +10,7 @@ import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
 import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
 import type { HealthCareInsuranceChangeHandlers } from '../components/HealthCareInsuranceConfiguration'
 import type { CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
+import type { PartTimeRetirementWorkConfig } from '../../helpers/part-time-retirement-work'
 
 interface UseWithdrawalVariablesPropsParams {
   currentConfig: {
@@ -17,6 +18,7 @@ interface UseWithdrawalVariablesPropsParams {
     withdrawalSegments?: WithdrawalSegment[]
     comparisonStrategies?: ComparisonStrategy[]
     segmentedComparisonStrategies?: SegmentedComparisonStrategy[]
+    partTimeRetirementWorkConfig?: PartTimeRetirementWorkConfig
   }
   updateConfig: (updates: Record<string, unknown>) => void
   updateFormValue: (updates: Partial<WithdrawalFormValue>) => void
@@ -125,6 +127,7 @@ function prepareConfigProps(params: {
     otherIncomeConfig?: OtherIncomeConfiguration
     withdrawalSegments?: WithdrawalSegment[]
     segmentedComparisonStrategies?: SegmentedComparisonStrategy[]
+    partTimeRetirementWorkConfig?: PartTimeRetirementWorkConfig
   }
   updateConfig: (updates: Record<string, unknown>) => void
   formValue: WithdrawalFormValue
@@ -147,6 +150,9 @@ function prepareConfigProps(params: {
     onSegmentedComparisonStrategyUpdate: params.updateSegmentedComparisonStrategy,
     onSegmentedComparisonStrategyRemove: params.removeSegmentedComparisonStrategy,
     onConfigUpdate: params.updateConfig,
+    partTimeRetirementWorkConfig: params.currentConfig.partTimeRetirementWorkConfig,
+    onPartTimeRetirementWorkConfigChange: (partTimeRetirementWorkConfig: PartTimeRetirementWorkConfig) =>
+      params.updateConfig({ partTimeRetirementWorkConfig }),
   }
 }
 

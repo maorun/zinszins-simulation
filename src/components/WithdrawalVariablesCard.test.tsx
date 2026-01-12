@@ -110,6 +110,8 @@ describe('WithdrawalVariablesCard', () => {
     },
     coupleStatutoryPensionConfig: null,
     onCoupleStatutoryPensionConfigChange: vi.fn(),
+    partTimeRetirementWorkConfig: undefined,
+    onPartTimeRetirementWorkConfigChange: vi.fn(),
   }
 
   it('should render the card with header', () => {
