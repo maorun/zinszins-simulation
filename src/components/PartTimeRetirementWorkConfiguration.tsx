@@ -14,6 +14,7 @@ import {
 
 interface PartTimeRetirementWorkConfigurationProps {
   config: PartTimeRetirementWorkConfig
+  onConfigChange: (config: PartTimeRetirementWorkConfig) => void
   startYear: number
   endYear: number
 }
@@ -79,6 +80,32 @@ function YearFields({
   )
 }
 
+function IncomeField({
+  phase,
+  updatePhase,
+  monthlyIncomeId,
+}: {
+  phase: PartTimeWorkPhase
+  updatePhase: (updates: Partial<PartTimeWorkPhase>) => void
+  monthlyIncomeId: string
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={monthlyIncomeId}>Monatliches Bruttoeinkommen (€)</Label>
+      <Input
+        id={monthlyIncomeId}
+        type="number"
+        value={phase.monthlyGrossIncome}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updatePhase({ monthlyGrossIncome: Number(e.target.value) || 0 })}
+        min={0}
+        max={100000}
+        step={100}
+      />
+      <p className="text-xs text-gray-600">Jährlich: {(phase.monthlyGrossIncome * 12).toLocaleString('de-DE')} €</p>
+    </div>
+  )
+}
+
 function WorkDetailsFields({
   phase,
   updatePhase,
@@ -95,19 +122,7 @@ function WorkDetailsFields({
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor={monthlyIncomeId}>Monatliches Bruttoeinkommen (€)</Label>
-          <Input
-            id={monthlyIncomeId}
-            type="number"
-            value={phase.monthlyGrossIncome}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updatePhase({ monthlyGrossIncome: Number(e.target.value) || 0 })}
-            min={0}
-            max={100000}
-            step={100}
-          />
-          <p className="text-xs text-gray-600">Jährlich: {(phase.monthlyGrossIncome * 12).toLocaleString('de-DE')} €</p>
-        </div>
+        <IncomeField phase={phase} updatePhase={updatePhase} monthlyIncomeId={monthlyIncomeId} />
         <div className="space-y-2">
           <Label htmlFor={weeklyHoursId}>Wochenstunden</Label>
           <Input
@@ -194,6 +209,7 @@ function ConfigurationCard({
   calculateSocialSecurityId,
 }: {
   config: PartTimeRetirementWorkConfig
+  onConfigChange: (config: PartTimeRetirementWorkConfig) => void
   reduceWithdrawalsId: string
   reductionPercentId: string
   calculateSocialSecurityId: string
@@ -223,6 +239,7 @@ function WithdrawalReductionSwitch({
   id,
 }: {
   config: PartTimeRetirementWorkConfig
+  onConfigChange: (config: PartTimeRetirementWorkConfig) => void
   id: string
 }) {
   return (
@@ -244,6 +261,7 @@ function ReductionPercentSlider({
   id,
 }: {
   config: PartTimeRetirementWorkConfig
+  onConfigChange: (config: PartTimeRetirementWorkConfig) => void
   id: string
 }) {
   return (
@@ -285,6 +303,7 @@ function SocialSecuritySwitch({
   id,
 }: {
   config: PartTimeRetirementWorkConfig
+  onConfigChange: (config: PartTimeRetirementWorkConfig) => void
   id: string
 }) {
   return (
@@ -316,7 +335,6 @@ function HintsSection() {
 
 function WorkPhasesList({
   config,
-  onConfigChange,
   updateWorkPhase,
   deleteWorkPhase,
   addWorkPhase,
@@ -378,18 +396,15 @@ export function PartTimeRetirementWorkConfiguration({
 
   const updateWorkPhase = useCallback(
     (index: number, phase: PartTimeWorkPhase) => {
-      const newPhases = [...config.workPhases]
-      newPhases[index] = phase
-      onConfigChange({ ...config, workPhases: newPhases })
+      const phases = [...config.workPhases]
+      phases[index] = phase
+      onConfigChange({ ...config, workPhases: phases })
     },
     [config, onConfigChange]
   )
 
   const deleteWorkPhase = useCallback(
-    (index: number) => {
-      const newPhases = config.workPhases.filter((_: PartTimeWorkPhase, i: number) => i !== index)
-      onConfigChange({ ...config, workPhases: newPhases })
-    },
+    (index: number) => onConfigChange({ ...config, workPhases: config.workPhases.filter((_: PartTimeWorkPhase, i: number) => i !== index) }),
     [config, onConfigChange]
   )
 
@@ -404,7 +419,6 @@ export function PartTimeRetirementWorkConfiguration({
       />
       <WorkPhasesList
         config={config}
-        onConfigChange={onConfigChange}
         updateWorkPhase={updateWorkPhase}
         deleteWorkPhase={deleteWorkPhase}
         addWorkPhase={addWorkPhase}
