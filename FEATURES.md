@@ -39,12 +39,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Entnahmestrategien & Kapitalplanung
 
-- **Zeitweise Rückkehr in den Arbeitsmarkt** - Simulation von Teilzeit-Arbeit im Ruhestand
-  - **Flexible Arbeitsphasen**: Konfigurierbare Zeiträume mit Teilzeiteinkommen
-  - **Steuerliche Integration**: Berücksichtigung von Einkommen + Renten + Kapitalerträgen
-  - **Sozialversicherung**: Automatische Berechnung von KV/PV-Beiträgen
-  - **Portfolio-Schonung**: Reduzierte Entnahmen während Arbeitsphasen
-
 - **Renten-Auffüll-Strategie** - Optimierung freiwilliger Rentenbeiträge
   - **Nachkauf von Rentenpunkten**: Berechnung der Wirtschaftlichkeit von Rentenpunkten-Nachkauf
   - **Ausgleich von Rentenabschlägen**: Kalkulation für vorzeitigen Renteneintritt ohne Abschläge
