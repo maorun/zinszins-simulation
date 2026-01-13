@@ -54,78 +54,90 @@ interface ConfigFormProps {
   onConfigChange: (config: PensionTopUpConfig) => void
 }
 
-function ConfigForm({ config, onConfigChange }: ConfigFormProps) {
+function BasicInfoFields({ config, onConfigChange }: ConfigFormProps) {
   const birthYearId = generateFormId('pension-topup', 'birth-year')
   const desiredRetirementAgeId = generateFormId('pension-topup', 'desired-retirement-age')
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label htmlFor={birthYearId}>Geburtsjahr</Label>
+        <Input
+          id={birthYearId}
+          type="number"
+          min="1940"
+          max="2020"
+          value={config.birthYear}
+          onChange={(e) => onConfigChange({ ...config, birthYear: parseInt(e.target.value) || 1980 })}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={desiredRetirementAgeId}>Gewünschtes Renteneintrittsalter</Label>
+        <Input
+          id={desiredRetirementAgeId}
+          type="number"
+          min="50"
+          max="75"
+          step="0.5"
+          value={config.desiredRetirementAge}
+          onChange={(e) => onConfigChange({ ...config, desiredRetirementAge: parseFloat(e.target.value) || 63 })}
+        />
+      </div>
+    </div>
+  )
+}
+
+function PensionPointsFields({ config, onConfigChange }: ConfigFormProps) {
   const currentPointsId = generateFormId('pension-topup', 'current-points')
   const targetPointsId = generateFormId('pension-topup', 'target-points')
 
   return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label htmlFor={currentPointsId}>Aktuelle Rentenpunkte</Label>
+        <Input
+          id={currentPointsId}
+          type="number"
+          min="0"
+          step="0.1"
+          value={config.currentPensionPoints}
+          onChange={(e) =>
+            onConfigChange({ ...config, currentPensionPoints: parseFloat(e.target.value) || 0 })
+          }
+        />
+        <p className="text-xs text-muted-foreground">
+          Ihre bisher erworbenen Rentenpunkte (aus Ihrer Renteninformation)
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={targetPointsId}>Ziel-Rentenpunkte (optional)</Label>
+        <Input
+          id={targetPointsId}
+          type="number"
+          min="0"
+          step="0.1"
+          value={config.targetPensionPoints || ''}
+          onChange={(e) => {
+            const value = e.target.value === '' ? undefined : parseFloat(e.target.value)
+            onConfigChange({ ...config, targetPensionPoints: value })
+          }}
+          placeholder="Leer lassen für nur Abschlagsausgleich"
+        />
+        <p className="text-xs text-muted-foreground">
+          Gewünschte Gesamtzahl an Rentenpunkten (für Nachkauf)
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function ConfigForm({ config, onConfigChange }: ConfigFormProps) {
+  return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor={birthYearId}>Geburtsjahr</Label>
-          <Input
-            id={birthYearId}
-            type="number"
-            min="1940"
-            max="2020"
-            value={config.birthYear}
-            onChange={(e) => onConfigChange({ ...config, birthYear: parseInt(e.target.value) || 1980 })}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor={desiredRetirementAgeId}>Gewünschtes Renteneintrittsalter</Label>
-          <Input
-            id={desiredRetirementAgeId}
-            type="number"
-            min="50"
-            max="75"
-            step="0.5"
-            value={config.desiredRetirementAge}
-            onChange={(e) => onConfigChange({ ...config, desiredRetirementAge: parseFloat(e.target.value) || 63 })}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor={currentPointsId}>Aktuelle Rentenpunkte</Label>
-          <Input
-            id={currentPointsId}
-            type="number"
-            min="0"
-            step="0.1"
-            value={config.currentPensionPoints}
-            onChange={(e) =>
-              onConfigChange({ ...config, currentPensionPoints: parseFloat(e.target.value) || 0 })
-            }
-          />
-          <p className="text-xs text-muted-foreground">
-            Ihre bisher erworbenen Rentenpunkte (aus Ihrer Renteninformation)
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor={targetPointsId}>Ziel-Rentenpunkte (optional)</Label>
-          <Input
-            id={targetPointsId}
-            type="number"
-            min="0"
-            step="0.1"
-            value={config.targetPensionPoints || ''}
-            onChange={(e) => {
-              const value = e.target.value === '' ? undefined : parseFloat(e.target.value)
-              onConfigChange({ ...config, targetPensionPoints: value })
-            }}
-            placeholder="Leer lassen für nur Abschlagsausgleich"
-          />
-          <p className="text-xs text-muted-foreground">
-            Gewünschte Gesamtzahl an Rentenpunkten (für Nachkauf)
-          </p>
-        </div>
-      </div>
+      <BasicInfoFields config={config} onConfigChange={onConfigChange} />
+      <PensionPointsFields config={config} onConfigChange={onConfigChange} />
     </div>
   )
 }
@@ -156,126 +168,229 @@ function ValidationErrors({ errors }: ValidationErrorsProps) {
 
 interface ResultsDisplayProps {
   result: ReturnType<typeof calculatePensionTopUp>
-  config: PensionTopUpConfig
 }
 
-function ResultsDisplay({ result, config }: ResultsDisplayProps) {
+interface ResultRowProps {
+  label: string
+  value: string | number
+  valueClassName?: string
+  labelClassName?: string
+  divClassName?: string
+}
+
+function ResultRow({ label, value, valueClassName = '', labelClassName = '', divClassName = '' }: ResultRowProps) {
+  return (
+    <div className={`grid grid-cols-2 gap-2 ${divClassName}`}>
+      <span className={labelClassName}>{label}</span>
+      <span className={valueClassName}>{value}</span>
+    </div>
+  )
+}
+
+function DeductionOffsetBasicInfo({ result }: ResultsDisplayProps) {
+  const { deductionOffset } = result
+  const baseLabel = 'text-blue-800'
+  const baseValue = 'font-medium text-blue-900'
+
+  return (
+    <>
+      <ResultRow
+        label="Regelaltersgrenze:"
+        value={`${deductionOffset.standardRetirementAge.toFixed(1)} Jahre`}
+        labelClassName={baseLabel}
+        valueClassName={baseValue}
+      />
+      <ResultRow
+        label="Gewünschtes Alter:"
+        value={`${deductionOffset.desiredRetirementAge} Jahre`}
+        labelClassName={baseLabel}
+        valueClassName={baseValue}
+      />
+      <ResultRow
+        label="Vorzeitiger Eintritt:"
+        value={`${deductionOffset.monthsOfEarlyRetirement} Monate`}
+        labelClassName={baseLabel}
+        valueClassName={baseValue}
+      />
+      <ResultRow
+        label="Rentenabschlag:"
+        value={`${(deductionOffset.totalDeductionPercentage * 100).toFixed(2)}%`}
+        labelClassName={baseLabel}
+        valueClassName={baseValue}
+      />
+    </>
+  )
+}
+
+function DeductionOffsetCosts({ result }: ResultsDisplayProps) {
+  const { deductionOffset, breakEvenAnalysis } = result
+  const baseLabel = 'text-blue-800'
+  const baseValue = 'font-medium text-blue-900'
+
+  return (
+    <>
+      <ResultRow
+        label="Monatlicher Rentenverlust:"
+        value={formatCurrency(deductionOffset.monthlyPensionLost)}
+        labelClassName={baseLabel}
+        valueClassName={baseValue}
+        divClassName="pt-2 border-t border-blue-300"
+      />
+      <ResultRow
+        label="Ausgleichskosten:"
+        value={formatCurrency(deductionOffset.offsetCost)}
+        labelClassName="font-medium text-blue-900"
+        valueClassName="font-bold text-blue-900 text-base"
+      />
+      {breakEvenAnalysis.yearsUntilBreakEvenDeduction !== Infinity && (
+        <ResultRow
+          label="Break-Even:"
+          value={`${breakEvenAnalysis.yearsUntilBreakEvenDeduction.toFixed(1)} Jahre`}
+          labelClassName={baseLabel}
+          valueClassName={baseValue}
+          divClassName="mt-2 pt-2 border-t border-blue-300"
+        />
+      )}
+    </>
+  )
+}
+
+function DeductionOffsetContent({ result }: ResultsDisplayProps) {
+  return (
+    <>
+      <DeductionOffsetBasicInfo result={result} />
+      <DeductionOffsetCosts result={result} />
+    </>
+  )
+}
+
+function DeductionOffsetResults({ result }: ResultsDisplayProps) {
+  return (
+    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <h4 className="font-medium text-blue-900 mb-3">📉 Ausgleich von Rentenabschlägen</h4>
+      <div className="space-y-2 text-sm">
+        <DeductionOffsetContent result={result} />
+      </div>
+    </div>
+  )
+}
+
+function PointsPurchaseBasicInfo({ result }: ResultsDisplayProps) {
+  if (!result.pointsPurchase) return null
+
+  const { pointsPurchase } = result
+  const baseLabel = 'text-green-800'
+  const baseValue = 'font-medium text-green-900'
+
+  return (
+    <>
+      <ResultRow
+        label="Aktuelle Rentenpunkte:"
+        value={pointsPurchase.currentPensionPoints.toFixed(2)}
+        labelClassName={baseLabel}
+        valueClassName={baseValue}
+      />
+      <ResultRow
+        label="Ziel-Rentenpunkte:"
+        value={pointsPurchase.targetPensionPoints.toFixed(2)}
+        labelClassName={baseLabel}
+        valueClassName={baseValue}
+      />
+      <ResultRow
+        label="Zusätzliche Punkte:"
+        value={pointsPurchase.additionalPoints.toFixed(2)}
+        labelClassName={baseLabel}
+        valueClassName={baseValue}
+      />
+    </>
+  )
+}
+
+function PointsPurchaseCosts({ result }: ResultsDisplayProps) {
+  if (!result.pointsPurchase) return null
+
+  const { pointsPurchase, breakEvenAnalysis } = result
+  const baseLabel = 'text-green-800'
+  const baseValue = 'font-medium text-green-900'
+
+  return (
+    <>
+      <ResultRow
+        label="Kosten pro Rentenpunkt:"
+        value={formatCurrency(pointsPurchase.costPerPoint)}
+        labelClassName={baseLabel}
+        valueClassName={baseValue}
+        divClassName="pt-2 border-t border-green-300"
+      />
+      <ResultRow
+        label="Gesamtkosten:"
+        value={formatCurrency(pointsPurchase.totalCost)}
+        labelClassName="font-medium text-green-900"
+        valueClassName="font-bold text-green-900 text-base"
+      />
+      <ResultRow
+        label="Zusätzliche Monatsrente:"
+        value={`+${formatCurrency(pointsPurchase.additionalMonthlyPension)}`}
+        labelClassName={baseLabel}
+        valueClassName={baseValue}
+        divClassName="mt-2 pt-2 border-t border-green-300"
+      />
+      {breakEvenAnalysis.yearsUntilBreakEvenPurchase !== undefined &&
+        breakEvenAnalysis.yearsUntilBreakEvenPurchase !== Infinity && (
+          <ResultRow
+            label="Break-Even:"
+            value={`${breakEvenAnalysis.yearsUntilBreakEvenPurchase.toFixed(1)} Jahre`}
+            labelClassName={baseLabel}
+            valueClassName={baseValue}
+          />
+        )}
+    </>
+  )
+}
+
+function PointsPurchaseContent({ result }: ResultsDisplayProps) {
+  if (!result.pointsPurchase) return null
+
+  return (
+    <>
+      <PointsPurchaseBasicInfo result={result} />
+      <PointsPurchaseCosts result={result} />
+    </>
+  )
+}
+
+function PointsPurchaseResults({ result }: ResultsDisplayProps) {
+  if (!result.pointsPurchase) return null
+
+  return (
+    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+      <h4 className="font-medium text-green-900 mb-3">📈 Nachkauf von Rentenpunkten</h4>
+      <div className="space-y-2 text-sm">
+        <PointsPurchaseContent result={result} />
+      </div>
+    </div>
+  )
+}
+
+function RecommendationBox() {
+  return (
+    <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-900">
+      <p className="font-medium mb-1">💡 Empfehlung:</p>
+      <p>
+        Die Zahlungen sind vollständig steuerlich absetzbar und erhöhen Ihre spätere Rente. Die Break-Even-Analyse
+        zeigt, ab wann sich die Investition amortisiert. Berücksichtigen Sie Ihre persönliche Lebenserwartung und
+        finanzielle Situation.
+      </p>
+    </div>
+  )
+}
+
+function ResultsDisplay({ result }: ResultsDisplayProps) {
   return (
     <div className="space-y-4 mt-4">
-      {/* Deduction Offset Results */}
-      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h4 className="font-medium text-blue-900 mb-3">📉 Ausgleich von Rentenabschlägen</h4>
-        <div className="space-y-2 text-sm">
-          <div className="grid grid-cols-2 gap-2">
-            <span className="text-blue-800">Regelaltersgrenze:</span>
-            <span className="font-medium text-blue-900">
-              {result.deductionOffset.standardRetirementAge.toFixed(1)} Jahre
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <span className="text-blue-800">Gewünschtes Alter:</span>
-            <span className="font-medium text-blue-900">
-              {result.deductionOffset.desiredRetirementAge} Jahre
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <span className="text-blue-800">Vorzeitiger Eintritt:</span>
-            <span className="font-medium text-blue-900">
-              {result.deductionOffset.monthsOfEarlyRetirement} Monate
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <span className="text-blue-800">Rentenabschlag:</span>
-            <span className="font-medium text-blue-900">
-              {(result.deductionOffset.totalDeductionPercentage * 100).toFixed(2)}%
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-blue-300">
-            <span className="text-blue-800">Monatlicher Rentenverlust:</span>
-            <span className="font-medium text-blue-900">
-              {formatCurrency(result.deductionOffset.monthlyPensionLost)}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <span className="font-medium text-blue-900">Ausgleichskosten:</span>
-            <span className="font-bold text-blue-900 text-base">
-              {formatCurrency(result.deductionOffset.offsetCost)}
-            </span>
-          </div>
-          {result.breakEvenAnalysis.yearsUntilBreakEvenDeduction !== Infinity && (
-            <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-blue-300">
-              <span className="text-blue-800">Break-Even:</span>
-              <span className="font-medium text-blue-900">
-                {result.breakEvenAnalysis.yearsUntilBreakEvenDeduction.toFixed(1)} Jahre
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Points Purchase Results (if applicable) */}
-      {result.pointsPurchase && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-          <h4 className="font-medium text-green-900 mb-3">📈 Nachkauf von Rentenpunkten</h4>
-          <div className="space-y-2 text-sm">
-            <div className="grid grid-cols-2 gap-2">
-              <span className="text-green-800">Aktuelle Rentenpunkte:</span>
-              <span className="font-medium text-green-900">
-                {result.pointsPurchase.currentPensionPoints.toFixed(2)}
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <span className="text-green-800">Ziel-Rentenpunkte:</span>
-              <span className="font-medium text-green-900">
-                {result.pointsPurchase.targetPensionPoints.toFixed(2)}
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <span className="text-green-800">Zusätzliche Punkte:</span>
-              <span className="font-medium text-green-900">
-                {result.pointsPurchase.additionalPoints.toFixed(2)}
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-green-300">
-              <span className="text-green-800">Kosten pro Rentenpunkt:</span>
-              <span className="font-medium text-green-900">
-                {formatCurrency(result.pointsPurchase.costPerPoint)}
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <span className="font-medium text-green-900">Gesamtkosten:</span>
-              <span className="font-bold text-green-900 text-base">
-                {formatCurrency(result.pointsPurchase.totalCost)}
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-green-300">
-              <span className="text-green-800">Zusätzliche Monatsrente:</span>
-              <span className="font-medium text-green-900">
-                +{formatCurrency(result.pointsPurchase.additionalMonthlyPension)}
-              </span>
-            </div>
-            {result.breakEvenAnalysis.yearsUntilBreakEvenPurchase !== undefined &&
-              result.breakEvenAnalysis.yearsUntilBreakEvenPurchase !== Infinity && (
-                <div className="grid grid-cols-2 gap-2">
-                  <span className="text-green-800">Break-Even:</span>
-                  <span className="font-medium text-green-900">
-                    {result.breakEvenAnalysis.yearsUntilBreakEvenPurchase.toFixed(1)} Jahre
-                  </span>
-                </div>
-              )}
-          </div>
-        </div>
-      )}
-
-      {/* Recommendation */}
-      <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-900">
-        <p className="font-medium mb-1">💡 Empfehlung:</p>
-        <p>
-          Die Zahlungen sind vollständig steuerlich absetzbar und erhöhen Ihre spätere Rente. Die Break-Even-Analyse
-          zeigt, ab wann sich die Investition amortisiert. Berücksichtigen Sie Ihre persönliche Lebenserwartung und
-          finanzielle Situation.
-        </p>
-      </div>
+      <DeductionOffsetResults result={result} />
+      <PointsPurchaseResults result={result} />
+      <RecommendationBox />
     </div>
   )
 }
@@ -310,7 +425,7 @@ export function PensionTopUpCard() {
               <TaxInfoBox />
               <ConfigForm config={config} onConfigChange={setConfig} />
               <ValidationErrors errors={validationErrors} />
-              {result && <ResultsDisplay result={result} config={config} />}
+              {result && <ResultsDisplay result={result} />}
             </div>
           </CardContent>
         </CollapsibleContent>

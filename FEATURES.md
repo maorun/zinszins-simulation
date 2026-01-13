@@ -39,7 +39,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Entnahmestrategien & Kapitalplanung
 
-
 ### Lebenssituationen & Planung
 
 #### Selbstständigkeit & Unternehmertum
