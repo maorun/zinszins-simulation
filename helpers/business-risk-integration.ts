@@ -270,6 +270,11 @@ function createDisabledIncomeResult(
 
 /**
  * Calculate volatility adjustment for a given period
+ * 
+ * Note: Uses Math.sin() for pseudo-random generation, which is sufficient for
+ * reproducible simulations but not cryptographically secure. The seed-based
+ * approach ensures consistent results for the same inputs, which is important
+ * for testing and reproducibility.
  */
 function calculateVolatilityAdjustment(
   baseIncome: number,
@@ -280,7 +285,9 @@ function calculateVolatilityAdjustment(
   randomSeed?: number,
 ): number {
   const seed = randomSeed !== undefined ? randomSeed : year * 12 + month
-  const pseudoRandom = Math.sin(seed * 12345) // Simple pseudo-random between -1 and 1
+  // Simple pseudo-random using sine function - sufficient for financial simulation
+  // For cryptographic randomness, use crypto.getRandomValues() instead
+  const pseudoRandom = Math.sin(seed * 12345)
   return baseIncome * seasonalMultiplier * volatilityPercent * pseudoRandom
 }
 
@@ -306,30 +313,36 @@ function applyIncomeFailure(
 
 /**
  * Check if a month/year falls within an income failure period
+ * 
+ * Note: This implementation assumes failures start in January of the failure year.
+ * For more precise control, enhance this to accept a startMonth parameter in the scenario config.
  */
 function isInFailurePeriod(
   scenario: IncomeFailureScenario,
   month: number,
   year: number,
 ): boolean {
-  // Calculate the end of the failure period
-  const startMonth = 1 // Assume failures start in January of the failure year
-  const totalMonthsFromStart = (year - scenario.failureYear) * 12 + month
-  const failureEndMonthsFromStart = startMonth + scenario.durationMonths
+  // Failures start in January of the failure year
+  const startMonth = 1
+  
+  // Calculate months elapsed from failure start
+  const failureStartOffset = (scenario.failureYear * 12) + startMonth
+  const currentOffset = (year * 12) + month
+  const failureEndOffset = failureStartOffset + scenario.durationMonths
 
-  // Check if we're within the failure period
-  return (
-    year === scenario.failureYear &&
-    month >= startMonth &&
-    totalMonthsFromStart < failureEndMonthsFromStart
-  ) || (
-    year > scenario.failureYear &&
-    totalMonthsFromStart < failureEndMonthsFromStart
-  )
+  // Check if current month is within failure period
+  return currentOffset >= failureStartOffset && currentOffset < failureEndOffset
 }
 
 /**
  * Calculate Krankentagegeld benefit for income failure
+ * 
+ * Note: This is a simplified implementation that assumes:
+ * - 30 days per month (actual days vary)
+ * - Waiting period has already passed (should be tracked from failure start date)
+ * 
+ * For production use, consider enhancing to track actual failure start dates
+ * and implement proper waiting period logic.
  */
 function calculateKrankentagegeldBenefit(
   config: BusinessRiskConfig,
@@ -339,8 +352,12 @@ function calculateKrankentagegeldBenefit(
     return 0
   }
 
-  const daysInMonth = 30 // Simplified
-  const waitingPeriodPassed = true // Simplified: assume waiting period has passed
+  // Simplified: Assume 30 days per month
+  const daysInMonth = 30
+  
+  // Simplified: Assume waiting period has passed
+  // TODO: In future, track failure start date and check if waitingPeriodDays have elapsed
+  const waitingPeriodPassed = true
   
   if (!waitingPeriodPassed) {
     return 0
