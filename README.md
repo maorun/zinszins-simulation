@@ -438,6 +438,32 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Portfolioanpassung: Strategischer Verkauf von Positionen
     - Rebalancing: Steueroptimierte Umschichtung
   - **Jahr-für-Jahr Optimierungsplan**: Detaillierte Tabelle mit Realisierungen, verfügbarem Freibetrag und Steuerersparnis pro Jahr
+- **Renten-Auffüll-Strategie** - Optimierung freiwilliger Rentenbeiträge ⭐⭐⭐
+  - **Nachkauf von Rentenpunkten**: Berechnung der Kosten für zusätzliche Rentenpunkte
+    - Individuelle Kosten pro Rentenpunkt basierend auf aktuellem Durchschnittseinkommen
+    - Zusätzliche monatliche Rente durch Nachkauf
+    - Break-Even-Analyse für Investitionsentscheidung
+  - **Ausgleich von Rentenabschlägen**: Kalkulation für vorzeitigen Renteneintritt ohne Abschläge
+    - Automatische Berechnung der Regelaltersgrenze nach Geburtsjahr (§ 35 SGB VI)
+    - Rentenabschlag: 0,3% pro Monat vorzeitiger Renteneintritt
+    - Kosten für vollständigen Ausgleich der Rentenabschläge
+    - Monatlicher Rentenverlust bei vorzeitigem Eintritt
+  - **Steuervorteile**: 100% steuerlich absetzbar als Vorsorgeaufwendungen (ab 2024)
+    - Reduziert Einkommensteuerlast im Zahlungsjahr
+    - Erhöht spätere Rente dauerhaft
+  - **Break-Even-Analyse**: Berechnung ab wann sich freiwillige Beiträge amortisieren
+  - **Rechtliche Basis**: § 187a SGB VI (Sozialgesetzbuch)
+  - **Flexible Konfiguration**:
+    - Geburtsjahr (1940-2020)
+    - Gewünschtes Renteneintrittsalter (50-75 Jahre)
+    - Aktuelle Rentenpunkte (aus Renteninformation)
+    - Optional: Ziel-Rentenpunkte für Nachkauf
+  - **Detaillierte Ergebnisdarstellung**:
+    - Regelaltersgrenze und vorzeitiger Eintritt in Jahren und Monaten
+    - Gesamter Rentenabschlag in Prozent
+    - Ausgleichskosten und monatlicher Rentenverlust
+    - Bei Nachkauf: Zusätzliche Punkte, Gesamtkosten, zusätzliche Monatsrente
+  - **Validierung**: Automatische Prüfung der Eingaben mit deutschen Fehlermeldungen
 - **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
 - **Steuerprogression-Visualisierung** - Interaktive Visualisierung des deutschen progressiven Steuersystems
   - **Interaktives Diagramm**: Zeigt Durchschnittssteuersatz und Grenzsteuersatz über verschiedene Einkommensniveaus

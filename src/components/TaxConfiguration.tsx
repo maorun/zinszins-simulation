@@ -20,6 +20,7 @@ import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG, type ProgressionsvorbehaltConfig 
 import { TaxProgressionVisualization } from './TaxProgressionVisualization'
 import { InsuranceCostOverview } from './InsuranceCostOverview'
 import { PensionComparisonTool } from './PensionComparisonTool'
+import { PensionTopUpCard } from './PensionTopUpCard'
 import { QuellensteuerconfigCard } from './QuellensteuerconfigCard'
 import { FreistellungsauftragOptimizer } from './FreistellungsauftragOptimizer'
 import { PortfolioTeilfreistellungCard } from './tax-config/PortfolioTeilfreistellungCard'
@@ -205,6 +206,7 @@ function TaxConfigurationCards({
       />
       <InsuranceCostOverview />
       <PensionComparisonTool />
+      <PensionTopUpCard />
       <TaxOptimizationCards simulation={simulation} />
     </div>
   )
