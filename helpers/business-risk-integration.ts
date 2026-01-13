@@ -249,6 +249,110 @@ export function getRecommendedEmergencyMonths(status: EmploymentStatus): number 
 }
 
 /**
+ * Create disabled business risk result
+ */
+function createDisabledIncomeResult(
+  month: number,
+  year: number,
+  averageMonthlyIncome: number,
+): MonthlyIncomeResult {
+  return {
+    month,
+    year,
+    baseIncome: averageMonthlyIncome,
+    seasonalMultiplier: 1.0,
+    volatilityAdjustment: 0,
+    finalIncome: averageMonthlyIncome,
+    incomeFailure: false,
+    krankentagegeldBenefit: 0,
+  }
+}
+
+/**
+ * Calculate volatility adjustment for a given period
+ */
+function calculateVolatilityAdjustment(
+  baseIncome: number,
+  seasonalMultiplier: number,
+  volatilityPercent: number,
+  year: number,
+  month: number,
+  randomSeed?: number,
+): number {
+  const seed = randomSeed !== undefined ? randomSeed : year * 12 + month
+  const pseudoRandom = Math.sin(seed * 12345) // Simple pseudo-random between -1 and 1
+  return baseIncome * seasonalMultiplier * volatilityPercent * pseudoRandom
+}
+
+/**
+ * Apply income failure scenario to income
+ */
+function applyIncomeFailure(
+  config: BusinessRiskConfig,
+  incomeBeforeFailure: number,
+  failureScenario: IncomeFailureScenario,
+): { finalIncome: number; krankentagegeldBenefit: number } {
+  const incomeLoss = incomeBeforeFailure * failureScenario.incomeLossPercent
+  let finalIncome = incomeBeforeFailure - incomeLoss
+  let krankentagegeldBenefit = 0
+
+  if (failureScenario.coveredByKrankentagegeld) {
+    krankentagegeldBenefit = calculateKrankentagegeldBenefit(config, config.averageMonthlyIncome)
+    finalIncome += krankentagegeldBenefit
+  }
+
+  return { finalIncome, krankentagegeldBenefit }
+}
+
+/**
+ * Check if a month/year falls within an income failure period
+ */
+function isInFailurePeriod(
+  scenario: IncomeFailureScenario,
+  month: number,
+  year: number,
+): boolean {
+  // Calculate the end of the failure period
+  const startMonth = 1 // Assume failures start in January of the failure year
+  const totalMonthsFromStart = (year - scenario.failureYear) * 12 + month
+  const failureEndMonthsFromStart = startMonth + scenario.durationMonths
+
+  // Check if we're within the failure period
+  return (
+    year === scenario.failureYear &&
+    month >= startMonth &&
+    totalMonthsFromStart < failureEndMonthsFromStart
+  ) || (
+    year > scenario.failureYear &&
+    totalMonthsFromStart < failureEndMonthsFromStart
+  )
+}
+
+/**
+ * Calculate Krankentagegeld benefit for income failure
+ */
+function calculateKrankentagegeldBenefit(
+  config: BusinessRiskConfig,
+  averageMonthlyIncome: number,
+): number {
+  if (!config.krankentagegeld.enabled) {
+    return 0
+  }
+
+  const daysInMonth = 30 // Simplified
+  const waitingPeriodPassed = true // Simplified: assume waiting period has passed
+  
+  if (!waitingPeriodPassed) {
+    return 0
+  }
+
+  const benefit = config.krankentagegeld.dailyBenefit * daysInMonth
+  const maxBenefit = (averageMonthlyIncome * config.krankentagegeld.incomeCoveragePercent) / 100
+  
+  return Math.min(benefit, maxBenefit)
+}
+
+/**
  * Calculate monthly income with business risk factors
  *
  * @param config - Business risk configuration
@@ -264,50 +368,32 @@ export function calculateMonthlyBusinessIncome(
   randomSeed?: number,
 ): MonthlyIncomeResult {
   if (!config.enabled) {
-    return {
-      month,
-      year,
-      baseIncome: config.averageMonthlyIncome,
-      seasonalMultiplier: 1.0,
-      volatilityAdjustment: 0,
-      finalIncome: config.averageMonthlyIncome,
-      incomeFailure: false,
-      krankentagegeldBenefit: 0,
-    }
+    return createDisabledIncomeResult(month, year, config.averageMonthlyIncome)
   }
 
   const baseIncome = config.averageMonthlyIncome
-
-  // Apply seasonal adjustment
   const monthIndex = month - 1
   const seasonalMultiplier = config.seasonalCycle.monthlyMultipliers[monthIndex] || 1.0
 
-  // Calculate volatility adjustment using pseudo-random based on seed
   const volatilityPercent =
     config.customVolatilityPercent !== undefined
       ? config.customVolatilityPercent / 100
       : getVolatilityPercent(config.volatilityLevel)
 
-  // Use seed for reproducible randomness
-  const seed = randomSeed !== undefined ? randomSeed : year * 12 + month
-  const pseudoRandom = Math.sin(seed * 12345) // Simple pseudo-random between -1 and 1
-  const volatilityAdjustment = baseIncome * seasonalMultiplier * volatilityPercent * pseudoRandom
+  const volatilityAdjustment = calculateVolatilityAdjustment(
+    baseIncome,
+    seasonalMultiplier,
+    volatilityPercent,
+    year,
+    month,
+    randomSeed,
+  )
 
-  // Calculate income before failure scenarios
-  let incomeBeforeFailure = baseIncome * seasonalMultiplier + volatilityAdjustment
+  const incomeBeforeFailure = baseIncome * seasonalMultiplier + volatilityAdjustment
 
-  // Check for income failure scenarios
-  const failureScenario = config.failureScenarios.find(scenario => {
-    const failureEndYear = scenario.failureYear + Math.floor(scenario.durationMonths / 12)
-    const failureEndMonth = scenario.durationMonths % 12
-
-    const isInFailurePeriod =
-      (year === scenario.failureYear && month >= 1) ||
-      (year > scenario.failureYear && year < failureEndYear) ||
-      (year === failureEndYear && month <= failureEndMonth)
-
-    return isInFailurePeriod
-  })
+  const failureScenario = config.failureScenarios.find(scenario =>
+    isInFailurePeriod(scenario, month, year),
+  )
 
   let incomeFailure = false
   let krankentagegeldBenefit = 0
@@ -315,23 +401,9 @@ export function calculateMonthlyBusinessIncome(
 
   if (failureScenario) {
     incomeFailure = true
-    const incomeLoss = incomeBeforeFailure * failureScenario.incomeLossPercent
-    finalIncome = incomeBeforeFailure - incomeLoss
-
-    // Calculate Krankentagegeld benefit if applicable
-    if (failureScenario.coveredByKrankentagegeld && config.krankentagegeld.enabled) {
-      const daysInMonth = 30 // Simplified
-      const waitingPeriodPassed = true // Simplified: assume waiting period has passed
-      
-      if (waitingPeriodPassed) {
-        krankentagegeldBenefit = config.krankentagegeld.dailyBenefit * daysInMonth
-        krankentagegeldBenefit = Math.min(
-          krankentagegeldBenefit,
-          (config.averageMonthlyIncome * config.krankentagegeld.incomeCoveragePercent) / 100,
-        )
-        finalIncome += krankentagegeldBenefit
-      }
-    }
+    const result = applyIncomeFailure(config, incomeBeforeFailure, failureScenario)
+    finalIncome = result.finalIncome
+    krankentagegeldBenefit = result.krankentagegeldBenefit
   }
 
   return {
@@ -340,7 +412,7 @@ export function calculateMonthlyBusinessIncome(
     baseIncome,
     seasonalMultiplier,
     volatilityAdjustment,
-    finalIncome: Math.max(0, finalIncome), // Ensure non-negative
+    finalIncome: Math.max(0, finalIncome),
     incomeFailure,
     krankentagegeldBenefit,
   }
@@ -429,6 +501,63 @@ export function createDefaultBusinessRiskConfig(averageMonthlyIncome = 3000): Bu
 }
 
 /**
+ * Validate Krankentagegeld configuration
+ */
+function validateKrankentagegeld(krankentagegeld: KrankentagegeldConfig, errors: string[]): void {
+  if (!krankentagegeld.enabled) {
+    return
+  }
+
+  if (krankentagegeld.dailyBenefit < 0) {
+    errors.push('Krankentagegeld-Leistung kann nicht negativ sein')
+  }
+
+  if (krankentagegeld.waitingPeriodDays < 0) {
+    errors.push('Karenzzeit kann nicht negativ sein')
+  }
+
+  if (krankentagegeld.monthlyPremium < 0) {
+    errors.push('Krankentagegeld-Beitrag kann nicht negativ sein')
+  }
+
+  if (krankentagegeld.incomeCoveragePercent < 0 || krankentagegeld.incomeCoveragePercent > 100) {
+    errors.push('Einkommensabsicherung muss zwischen 0% und 100% liegen')
+  }
+}
+
+/**
+ * Validate emergency reserve configuration
+ */
+function validateEmergencyReserve(emergencyReserve: EmergencyReserveStrategy, errors: string[]): void {
+  if (emergencyReserve.targetMonths < 0) {
+    errors.push('Notfallreserve-Ziel kann nicht negativ sein')
+  }
+
+  if (emergencyReserve.monthlyAllocation < 0) {
+    errors.push('Monatliche Notfallreserve-Zuteilung kann nicht negativ sein')
+  }
+
+  if (emergencyReserve.currentBalance < 0) {
+    errors.push('Aktueller Notfallreserve-Stand kann nicht negativ sein')
+  }
+}
+
+/**
+ * Validate failure scenarios
+ */
+function validateFailureScenarios(scenarios: IncomeFailureScenario[], errors: string[]): void {
+  for (const scenario of scenarios) {
+    if (scenario.durationMonths <= 0) {
+      errors.push('Ausfalldauer muss mindestens 1 Monat betragen')
+    }
+
+    if (scenario.incomeLossPercent < 0 || scenario.incomeLossPercent > 1) {
+      errors.push('Einkommensverlust muss zwischen 0% und 100% liegen')
+    }
+  }
+}
+
+/**
  * Validate business risk configuration
  *
  * @param config - Configuration to validate
@@ -437,65 +566,27 @@ export function createDefaultBusinessRiskConfig(averageMonthlyIncome = 3000): Bu
 export function validateBusinessRiskConfig(config: BusinessRiskConfig): string[] {
   const errors: string[] = []
 
-  if (config.enabled) {
-    if (config.averageMonthlyIncome < 0) {
-      errors.push('Durchschnittseinkommen kann nicht negativ sein')
-    }
+  if (!config.enabled) {
+    return errors
+  }
 
-    if (config.customVolatilityPercent !== undefined) {
-      if (config.customVolatilityPercent < 0 || config.customVolatilityPercent > 100) {
-        errors.push('Volatilität muss zwischen 0% und 100% liegen')
-      }
-    }
+  if (config.averageMonthlyIncome < 0) {
+    errors.push('Durchschnittseinkommen kann nicht negativ sein')
+  }
 
-    if (config.seasonalCycle.monthlyMultipliers.length !== 12) {
-      errors.push('Saisonale Multiplikatoren müssen genau 12 Werte enthalten (einen pro Monat)')
-    }
-
-    if (config.krankentagegeld.enabled) {
-      if (config.krankentagegeld.dailyBenefit < 0) {
-        errors.push('Krankentagegeld-Leistung kann nicht negativ sein')
-      }
-
-      if (config.krankentagegeld.waitingPeriodDays < 0) {
-        errors.push('Karenzzeit kann nicht negativ sein')
-      }
-
-      if (config.krankentagegeld.monthlyPremium < 0) {
-        errors.push('Krankentagegeld-Beitrag kann nicht negativ sein')
-      }
-
-      if (
-        config.krankentagegeld.incomeCoveragePercent < 0 ||
-        config.krankentagegeld.incomeCoveragePercent > 100
-      ) {
-        errors.push('Einkommensabsicherung muss zwischen 0% und 100% liegen')
-      }
-    }
-
-    if (config.emergencyReserve.targetMonths < 0) {
-      errors.push('Notfallreserve-Ziel kann nicht negativ sein')
-    }
-
-    if (config.emergencyReserve.monthlyAllocation < 0) {
-      errors.push('Monatliche Notfallreserve-Zuteilung kann nicht negativ sein')
-    }
-
-    if (config.emergencyReserve.currentBalance < 0) {
-      errors.push('Aktueller Notfallreserve-Stand kann nicht negativ sein')
-    }
-
-    // Validate failure scenarios
-    for (const scenario of config.failureScenarios) {
-      if (scenario.durationMonths <= 0) {
-        errors.push('Ausfalldauer muss mindestens 1 Monat betragen')
-      }
-
-      if (scenario.incomeLossPercent < 0 || scenario.incomeLossPercent > 1) {
-        errors.push('Einkommensverlust muss zwischen 0% und 100% liegen')
-      }
+  if (config.customVolatilityPercent !== undefined) {
+    if (config.customVolatilityPercent < 0 || config.customVolatilityPercent > 100) {
+      errors.push('Volatilität muss zwischen 0% und 100% liegen')
     }
   }
+
+  if (config.seasonalCycle.monthlyMultipliers.length !== 12) {
+    errors.push('Saisonale Multiplikatoren müssen genau 12 Werte enthalten (einen pro Monat)')
+  }
+
+  validateKrankentagegeld(config.krankentagegeld, errors)
+  validateEmergencyReserve(config.emergencyReserve, errors)
+  validateFailureScenarios(config.failureScenarios, errors)
 
   return errors
 }
