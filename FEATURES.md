@@ -39,11 +39,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Entnahmestrategien & Kapitalplanung
 
-- **Renten-Auffüll-Strategie** - Optimierung freiwilliger Rentenbeiträge
-  - **Nachkauf von Rentenpunkten**: Berechnung der Wirtschaftlichkeit von Rentenpunkten-Nachkauf
-  - **Ausgleich von Rentenabschlägen**: Kalkulation für vorzeitigen Renteneintritt ohne Abschläge
-  - **Steuervorteile**: Volle Absetzbarkeit freiwilliger Beiträge als Vorsorgeaufwendungen
-  - **Break-Even-Analyse**: Ab wann sich Nachzahlungen rentieren
 
 ### Lebenssituationen & Planung
 
