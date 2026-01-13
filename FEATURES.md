@@ -21,12 +21,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - **Optimale Verrechnung**: Empfehlungen für strategische Verlustnutzung
   - **Depotübergreifend**: Verwaltung von Verlusttöpfen über mehrere Depots
 
-- **Denkmal-AfA / Denkmalschutz-Immobilien** - Steuervorteile bei denkmalgeschützten Immobilien
-  - **Erhöhte AfA**: 9% über 8 Jahre, dann 7% über 4 Jahre nach § 7i EStG
-  - **Sanierungskosten**: Besondere Abschreibungsmöglichkeiten für denkmalgerechte Sanierung
-  - **Eigennutzung vs. Vermietung**: Vergleich der steuerlichen Vorteile
-  - **ROI-Kalkulation**: Vollständige Wirtschaftlichkeitsberechnung inkl. Steuervorteile
-
 ### Erweiterte Finanzplanung
 
 #### Asset Allocation & Portfolio-Management

@@ -397,6 +397,15 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Gebäude vor 1925: 2,5% jährliche Abschreibung
     - Gebäude 1925-2022: 2% jährliche Abschreibung
     - Gebäude ab 2023: 3% jährliche Abschreibung
+  - **Denkmal-AfA (§ 7i EStG)** - Erhöhte Abschreibung für denkmalgeschützte Immobilien ⭐ NEU
+    - **Vermietung**: 9% AfA für 8 Jahre, dann 7% AfA für 4 Jahre (statt 2-3% bei normalen Immobilien)
+    - **Eigennutzung**: 9% Sonderausgabenabzug über 10 Jahre nach § 10f EStG
+    - **Sanierungskosten**: Separate erhöhte Abschreibung für denkmalgerechte Renovierungskosten
+    - **ROI-Kalkulation**: Vollständige Wirtschaftlichkeitsberechnung inkl. Steuervorteile
+    - **Vergleichsrechner**: Automatischer Vergleich Denkmal-AfA vs. Standard-AfA
+    - **Break-Even-Analyse**: Berechnung der Amortisationsdauer des Denkmal-Aufschlags
+    - **Helper-Funktionen verfügbar**: `calculateDenkmalAfaForYear()`, `analyzeDenkmalAfa()`, `compareDenkmalWithStandardAfa()`, `calculateDenkmalRoi()`, `getDefaultDenkmalConfig()`, `validateDenkmalConfig()`
+    - **Umfassend getestet**: 42 Tests mit 100% Pass-Rate
   - **Werbungskosten**: Vollständige Berücksichtigung aller steuerlich absetzbaren Ausgaben nach § 9 EStG
     - Instandhaltungskosten, Verwaltungskosten, Darlehenszinsen
     - Grundsteuer, Gebäudeversicherung, sonstige Ausgaben
