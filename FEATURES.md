@@ -8,40 +8,21 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
-- **Progressionsvorbehalt-Rechner** - Berechnung der Steuerauswirkung durch Progressionsvorbehalt bei steuerfreien Einkünften (Elterngeld, Arbeitslosengeld, Kurzarbeitergeld, Krankengeld)
-  - **Automatische Berechnung**: Wie steuerfreie Einkünfte den Steuersatz auf andere Einkünfte erhöhen
-  - **Mehrere Einkunftsarten**: Unterstützung verschiedener steuerfreier Einkünfte mit unterschiedlichen Progressionsvorbehalt-Regeln
-  - **Jährliche Steuerbelastung**: Transparente Darstellung der Mehrbelastung durch Progressionsvorbehalt
-  - **Optimierungsempfehlungen**: Hinweise zur Steuerplanung bei steuerfreien Einkünften
-  - **Integration in Simulation**: Berücksichtigung in Spar- und Entnahmephase
-
-- **Verlusttopf-Management** - Verwaltung und Optimierung von steuerlichen Verlustvorträgen
-  - **Drei Verlusttöpfe**: Aktien, sonstige Kapitalerträge, Termingeschäfte nach deutschem Steuerrecht
-  - **Verlustvortrag-Tracking**: Mehrjährige Verfolgung nicht genutzter Verluste
-  - **Optimale Verrechnung**: Empfehlungen für strategische Verlustnutzung
-  - **Depotübergreifend**: Verwaltung von Verlusttöpfen über mehrere Depots
+(Keine offenen High-Priority Features - Progressionsvorbehalt, Verlusttopf-Management bereits implementiert)
 
 ### Erweiterte Finanzplanung
 
 #### Asset Allocation & Portfolio-Management
 
-- **Smart Beta Strategien** - Faktor-basierte Indexstrategien ohne aktives Management
-  - **Regelbasierte Strategien**: Quality, Low Volatility, Dividend Yield, Multi-Factor
-  - **Kostenvergleich**: Smart Beta ETFs vs. traditionelle Marktkapitalisierungs-Indizes
-  - **Tracking Difference**: Analyse der Abweichung vom Referenzindex
-  - **Rendite-Risiko-Profil**: Historische Performance-Analyse verschiedener Strategien
+(Faktor-Investing/Smart Beta Strategien bereits vollständig implementiert)
 
 #### Entnahmestrategien & Kapitalplanung
+
+(Keine offenen High-Priority Features)
 
 ### Lebenssituationen & Planung
 
 #### Selbstständigkeit & Unternehmertum
-
-- **Geschäftsrisiko-Integration** - Ausfallrisiko des Haupteinkommens für Selbstständige
-  - **Einkommensvolatilität**: Simulation schwankender Geschäftseinkünfte
-  - **Notfallreserve**: Erhöhte Liquiditätsreserven (12-18 Monate)
-  - **Krankentagegeld**: Integration von Krankentagegeldversicherung
-  - **Saisonalität**: Berücksichtigung saisonaler Geschäftszyklen
 
 - **Unternehmensverkauf-Simulation** - Exit-Strategien und Steueroptimierung
   - **Veräußerungsgewinn**: Besteuerung nach § 16 EStG mit Freibetrag
@@ -51,11 +32,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Familie & Generationen
 
-- **Großeltern-Enkel-Finanzplanung** - Unterstützung von Enkeln durch Schenkungen und Sparpläne
-  - **Enkel-Sparplan**: Aufbau von Vermögen für Enkel mit Schenkungssteuerfreibeträgen
-  - **Ausbildungsfinanzierung**: Planung für Studium oder Berufsausbildung
-  - **Steuergünstige Übertragung**: Optimale Nutzung des 400.000€ Freibetrags
-  - **Zeitliche Staffelung**: 10-Jahres-Perioden optimal nutzen
+(Generationenübergreifende Vermögensplanung inkl. Großeltern-Enkel bereits vollständig implementiert)
 
 ### Technische Verbesserungen
 
