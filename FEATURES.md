@@ -40,19 +40,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Entnahmestrategien & Kapitalplanung
 
-- **Dynamische Ausgabenanpassung im Ruhestand** ⭐⭐⭐
-  - **Altersbezogene Ausgabenkurve**: Realistische Modellierung abnehmender Ausgaben im höheren Alter
-    - "Go-Go-Phase" (67-75 Jahre): 100% Ausgaben (aktiver Ruhestand, Reisen, Hobbys)
-    - "Slow-Go-Phase" (76-85 Jahre): 75% Ausgaben (reduziertere Aktivitäten)
-    - "No-Go-Phase" (85+ Jahre): 60% Ausgaben (überwiegend häuslich, höhere Pflegekosten)
-  - **Medizinische Kosten-Progression**: Berücksichtigung steigender Gesundheitsausgaben mit zunehmendem Alter
-  - **Spontane Großausgaben**: Planung außergewöhnlicher Ausgaben (Weltreise, Renovierung, Auto)
-  - **Geschenke und Zuwendungen**: Budgetierung für Kinder, Enkel und wohltätige Zwecke
-  - **Anpassung an Gesundheitszustand**: Szenario-Planung bei Pflegebedürftigkeit
-  - **Inflationsdifferenzierte Ausgabenkategorien**: Unterschiedliche Inflationsraten für Gesundheit, Pflege, Lebenshaltung
-  - **Liquiditätsreserven-Management**: Optimale Größe der Notfallreserve nach Lebensphase
-  - **Flexibilitätspuffer**: Einplanung von Puffern für unvorhergesehene Ausgaben
-  - **Integration mit bestehenden Entnahmestrategien**: Kompatibilität mit 4%-Regel, Guardrails, etc.
+(Dynamische Ausgabenanpassung im Ruhestand bereits implementiert)
 
 ### Lebenssituationen & Planung
 
