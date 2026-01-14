@@ -207,6 +207,30 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Flexible Anpassung** - Multiplikatoren von 0 bis 3 (z.B. 1.5 = +50%, 0.5 = -50%)
   - **Nur monatliche Berechnung** - Feature nur verfügbar bei monatlicher Berechnung
   - **Realistische Modellierung** - Ermöglicht präzise Planung bei unregelmäßigem Einkommen
+- **Geschäftsrisiko-Integration für Selbstständige** - Umfassende Risikomodellierung für selbstständige Einkommen
+  - **Einkommensvolatilität** - Simulation schwankender Geschäftseinkünfte mit 4 Volatilitätsstufen (Niedrig ±10%, Mittel ±20%, Hoch ±35%, Sehr hoch ±50%)
+  - **Saisonale Geschäftszyklen** - Vordefinierte Muster für Frühjahr/Sommer, Herbst/Winter, Quartalszyklen oder benutzerdefinierte Saisonalität
+  - **Erweiterte Notfallreserven** - Empfohlene 12-18 Monate Liquiditätsreserve für Selbstständige (vs. 3-6 Monate für Angestellte)
+  - **Krankentagegeld-Versicherung** - Integration der Krankentagegeld-Absicherung mit:
+    - Konfigurierbare Tagessätze und Karenzzeit (typisch 42 Tage)
+    - Einkommensabsicherung bis 80-100% des Durchschnittseinkommens
+    - Automatische Leistungsberechnung bei Einkommensausfall
+    - Prämienberücksichtigung in der Finanzplanung
+  - **Einkommensausfallszenarien** - Modellierung von Geschäftsausfällen:
+    - Konfigurierbare Ausfalldauer und Verlustprozentsatz
+    - Krankheitsbedingte Ausfälle mit Krankentagegeld-Abdeckung
+    - Saisonale oder marktbedingte Einkommensrückgänge
+    - Automatische Berücksichtigung in Jahresplanung
+  - **Beschäftigungsstatus-spezifisch** - Unterschiedliche Risikoprofile für Selbstständige, Freiberufler und Angestellte
+  - **Jährliche Risikoanalyse** - Detaillierte Auswertung mit:
+    - Gesamteinkommen und durchschnittliches monatliches Einkommen
+    - Min/Max-Einkommen und Volatilitätsmaße (Standardabweichung)
+    - Monate unter Durchschnittseinkommen
+    - Krankentagegeld-Leistungen vs. gezahlte Prämien
+    - Notfallreserve-Status und Zielerreichung
+  - **Validierung** - Automatische Prüfung aller Konfigurationen mit deutschen Fehlermeldungen
+  - **Helper-Funktionen verfügbar**: `calculateMonthlyBusinessIncome()`, `calculateYearlyBusinessRisk()`, `validateBusinessRiskConfig()`
+  - **Umfassend getestet**: 39 Tests mit 100% Pass-Rate
 - **Einmalzahlungen** - Einmalige Zahlungen mit Datum und Betrag
 - **Sonderereignisse** - Besondere finanzielle Ereignisse im Lebensverlauf
   - **💰 Erbschaften** - Berücksichtigung deutscher Erbschaftsteuer nach Verwandtschaftsgrad
