@@ -144,9 +144,11 @@ describe('FinancialEducationQuiz', () => {
       })
       
       // Click first answer option
-      const answerButtons = screen.getAllByRole('button').filter(
-        (button) => button.textContent && button.textContent.length > 10 && !button.textContent.includes('prüfen')
-      )
+      const allButtons = screen.getAllByRole('button')
+      const answerButtons = allButtons.filter(btn => {
+        const text = btn.textContent || ''
+        return text.length > 2 && !text.includes('prüfen') && !text.includes('Quiz')
+      })
       
       if (answerButtons.length > 0) {
         fireEvent.click(answerButtons[0])
@@ -169,23 +171,36 @@ describe('FinancialEducationQuiz', () => {
         expect(screen.getByText(/Frage 1 von/)).toBeInTheDocument()
       })
       
-      // Find and click an answer button
-      const answerButtons = screen.getAllByRole('button').filter(
-        (button) => button.textContent && button.textContent.length > 10 && !button.textContent.includes('prüfen')
-      )
+      // Wait a bit for buttons to render
+      await waitFor(() => {
+        const submitButton = screen.getByRole('button', { name: /Antwort prüfen/ })
+        expect(submitButton).toBeInTheDocument()
+        expect(submitButton).toBeDisabled() // Should be disabled until answer selected
+      })
+      
+      // Find answer option buttons - they have a different structure, not standard button role
+      // The RadioGroup wraps clickable divs/buttons for options
+      const allButtons = screen.getAllByRole('button')
+      const answerButtons = allButtons.filter(btn => {
+        const text = btn.textContent || ''
+        return text.length > 2 && !text.includes('prüfen') && !text.includes('Quiz')
+      })
       
       expect(answerButtons.length).toBeGreaterThanOrEqual(4)
       fireEvent.click(answerButtons[0])
       
       // Click submit button
       const submitButton = screen.getByRole('button', { name: /Antwort prüfen/ })
+      await waitFor(() => {
+        expect(submitButton).not.toBeDisabled()
+      })
       fireEvent.click(submitButton)
       
-      // Wait for explanation to appear
+      // Wait for explanation to appear - expect at least 1 text element with feedback
       await waitFor(
         () => {
           const explanationText = screen.queryAllByText(/Richtig!|Leider falsch/)
-          expect(explanationText.length).toBeGreaterThan(0)
+          expect(explanationText.length).toBeGreaterThanOrEqual(1)
         },
         { timeout: 5000 }
       )
@@ -197,22 +212,37 @@ describe('FinancialEducationQuiz', () => {
       const startButton = screen.getByRole('button', { name: /Quiz starten/ })
       fireEvent.click(startButton)
       
+      // Wait for quiz to start
       await waitFor(() => {
-        const answerButtons = screen.getAllByRole('button').filter(
-          (button) => button.textContent && button.textContent.length > 10 && !button.textContent.includes('prüfen')
-        )
-        
-        if (answerButtons.length > 0) {
-          fireEvent.click(answerButtons[0])
-        }
+        expect(screen.getByText(/Frage 1 von/)).toBeInTheDocument()
       })
       
+      // Wait for submit button to be present
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Antwort prüfen/ })).toBeInTheDocument()
+      })
+      
+      // Find answer option buttons
+      const allButtons = screen.getAllByRole('button')
+      const answerButtons = allButtons.filter(btn => {
+        const text = btn.textContent || ''
+        return text.length > 2 && !text.includes('prüfen') && !text.includes('Quiz')
+      })
+      
+      expect(answerButtons.length).toBeGreaterThanOrEqual(4)
+      fireEvent.click(answerButtons[0])
+      
+      // Click submit button
       const submitButton = screen.getByRole('button', { name: /Antwort prüfen/ })
+      await waitFor(() => {
+        expect(submitButton).not.toBeDisabled()
+      })
       fireEvent.click(submitButton)
       
+      // Wait for next question button to appear (or results button if last question)
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /Nächste Frage|Neues Quiz starten/ })).toBeInTheDocument()
-      })
+        expect(screen.getByRole('button', { name: /Nächste Frage|Ergebnisse anzeigen/ })).toBeInTheDocument()
+      }, { timeout: 5000 })
     })
   })
 
@@ -225,7 +255,9 @@ describe('FinancialEducationQuiz', () => {
       
       await waitFor(() => {
         expect(screen.getByText(/Frage 1 von/)).toBeInTheDocument()
-        expect(screen.getByText(/10%|20%|100%/)).toBeInTheDocument()
+        // Use getAllByText since percentages might appear in both progress bar and quiz questions
+        const percentageElements = screen.getAllByText(/10%|20%|100%/)
+        expect(percentageElements.length).toBeGreaterThanOrEqual(1)
       })
     })
 
@@ -236,17 +268,23 @@ describe('FinancialEducationQuiz', () => {
       fireEvent.click(startButton)
       
       await waitFor(() => {
-        const answerButtons = screen.getAllByRole('button').filter(
-          (button) => button.textContent && button.textContent.length > 10 && !button.textContent.includes('prüfen')
-        )
-        
-        if (answerButtons.length > 0) {
-          fireEvent.click(answerButtons[0])
-          
-          const submitButton = screen.getByRole('button', { name: /Antwort prüfen/ })
-          fireEvent.click(submitButton)
-        }
+        expect(screen.getByText(/Frage 1 von/)).toBeInTheDocument()
       })
+      
+      // Find and click an answer button
+      const allButtons = screen.getAllByRole('button')
+      const answerButtons = allButtons.filter(btn => {
+        const text = btn.textContent || ''
+        return text.length > 2 && !text.includes('prüfen') && !text.includes('Quiz')
+      })
+      
+      if (answerButtons.length > 0) {
+        fireEvent.click(answerButtons[0])
+        
+        const submitButton = screen.getByRole('button', { name: /Antwort prüfen/ })
+        await waitFor(() => expect(submitButton).not.toBeDisabled())
+        fireEvent.click(submitButton)
+      }
       
       // Wait for next button to appear
       await waitFor(
@@ -283,25 +321,31 @@ describe('FinancialEducationQuiz', () => {
       // Answer all 5 questions
       for (let i = 0; i < 5; i++) {
         await waitFor(() => {
-          const answerButtons = screen.getAllByRole('button').filter(
-            (button) => button.textContent && button.textContent.length > 10 && !button.textContent.includes('prüfen')
-          )
-          
-          if (answerButtons.length > 0) {
-            fireEvent.click(answerButtons[0])
-          }
+          expect(screen.getByText(new RegExp(`Frage ${i + 1} von`))).toBeInTheDocument()
         })
         
+        // Find and click an answer button
+        const allButtons = screen.getAllByRole('button')
+        const answerButtons = allButtons.filter(btn => {
+          const text = btn.textContent || ''
+          return text.length > 2 && !text.includes('prüfen') && !text.includes('Quiz')
+        })
+        
+        if (answerButtons.length > 0) {
+          fireEvent.click(answerButtons[0])
+        }
+        
         const submitButton = screen.getByRole('button', { name: /Antwort prüfen/ })
+        await waitFor(() => expect(submitButton).not.toBeDisabled())
         fireEvent.click(submitButton)
         
         await waitFor(() => {
           const nextButton = screen.queryByRole('button', { name: /Nächste Frage/ })
-          const restartButton = screen.queryByRole('button', { name: /Neues Quiz starten/ })
+          const resultsButton = screen.queryByRole('button', { name: /Ergebnisse anzeigen/ })
           
           if (nextButton) {
             fireEvent.click(nextButton)
-          } else if (restartButton) {
+          } else if (resultsButton) {
             // Last question, results should be shown
             expect(screen.getByText(/Quiz abgeschlossen!/)).toBeInTheDocument()
           }
