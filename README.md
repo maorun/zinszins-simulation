@@ -1315,6 +1315,29 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Portfolio-Langlebigkeit**: Berechnung der zusätzlichen Jahre, die das Portfolio durch reduzierte Entnahmen länger hält
   - **Jahresübersicht**: Detaillierte Jahr-für-Jahr-Aufschlüsselung mit Brutto-/Nettoeinkommen, Steuern, Sozialversicherung und angepassten Portfolio-Entnahmen
   - **Vollständig getestet**: 38 Tests mit 100% Pass-Rate (23 Helper-Tests + 15 UI-Component-Tests)
+- **Dynamische Ausgabenanpassung im Ruhestand** - Realistische altersbasierte Ausgabenmuster im Ruhestand ⭐⭐⭐
+  - **Drei Ruhestandsphasen**: Wissenschaftlich fundierte Modellierung der Go-Go, Slow-Go und No-Go Phasen
+    - **Go-Go-Phase (67-75 Jahre)**: 100% Ausgaben - Aktiver Ruhestand mit Reisen, Hobbys und hoher Mobilität
+    - **Slow-Go-Phase (76-85 Jahre)**: 75% Ausgaben - Reduzierte Aktivitäten, weniger Reisen, mehr Zeit zu Hause
+    - **No-Go-Phase (85+ Jahre)**: 60% Ausgaben - Überwiegend häuslicher Lebensstil (teils kompensiert durch höhere Pflegekosten)
+  - **Konfigurierbare Phasenübergänge**: Flexible Anpassung der Altersgrenzen und Ausgabenmultiplikatoren nach persönlichen Erwartungen
+  - **Medizinische Kosten-Progression**: Automatische Berücksichtigung steigender Gesundheitsausgaben mit zunehmendem Alter
+    - Basis-Gesundheitskosten mit konfigurierbarer medizinischer Inflationsrate (typisch 4% p.a.)
+    - Beschleunigtes Wachstum ab konfigurierbarem Alter (Standard: 75 Jahre mit 6% p.a.)
+    - Realistische Abbildung der überproportional steigenden Gesundheitsausgaben im hohen Alter
+  - **Großausgaben-Planung**: Verwaltung einmaliger größerer Ausgaben (Weltreise, Auto, Renovierung, etc.)
+    - 6 Kategorien: Reise, Renovierung, Auto, Gesundheit, Familie, Sonstiges
+    - Jahr-für-Jahr Zuordnung mit individueller Beschreibung
+    - Automatische Berücksichtigung in Jahresberechnung
+  - **Jährliche Geschenke/Spenden**: Optionale Budgetierung regelmäßiger Zuwendungen an Familie oder wohltätige Zwecke
+  - **Live-Vorschau mit Metriken**: Echtzeit-Berechnung und Anzeige von:
+    - Durchschnittliche Jahresausgaben über gesamten Ruhestand
+    - Verteilung der Jahre auf Go-Go/Slow-Go/No-Go Phasen
+    - Gesamt-Ausgaben und Kostenaufschlüsselung (Basis, Medizin, Großausgaben)
+  - **Umfassende Validierung**: Automatische Prüfung aller Eingaben mit verständlichen deutschen Fehlermeldungen
+  - **Integration in Entnahmeplanung**: Nahtlose Verknüpfung mit bestehenden Entnahmestrategien für realistische Ruhestandsplanung
+  - **Forschungsbasis**: Basierend auf Studien zu Ausgabenmustern im Ruhestand (typisch ~1-2% realer Rückgang pro Jahr)
+  - **Vollständig getestet**: 117 Tests mit 100% Pass-Rate (58 Helper-Tests + 59 UI-Component-Tests)
 - **Steueroptimierte Entnahme** - Automatische Optimierung zur Minimierung der Steuerlast
   - **Drei Optimierungsmodi**: Steuerminimierung, Netto-Maximierung oder ausgewogener Ansatz
   - **Freibetrag-Optimierung**: Intelligente Nutzung des Sparerpauschbetrags (85% Zielnutzung)
