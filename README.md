@@ -972,6 +972,24 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Barrierearm** - Tastatur-navigierbar und screenreader-freundlich
   - **Moderne UI** - Integration mit shadcn/ui Design System
 
+### Finanzbildungs-Quiz
+
+- **Interaktives Lernwerkzeug** - Wissenstest zu deutschem Steuerrecht und Finanzplanung
+  - **24 Fragen** - Umfassende Fragensammlung zu wichtigen Finanzthemen
+    - **Steuern** - Vorabpauschale, Freibeträge, Kapitalertragsteuer, Teilfreistellung
+    - **Altersvorsorge** - Riester, Rürup, Rentenabschläge, private Vorsorge
+    - **Portfolio-Management** - Diversifikation, Rebalancing, Kosteneffizienz
+    - **Risikomanagement** - Volatilität, Korrelation, Absicherungsstrategien
+  - **3 Schwierigkeitsstufen** - Einsteiger, Fortgeschritten, Experte
+  - **Konfigurierbare Quiz-Sessions** - Anpassung nach Kategorie, Schwierigkeit und Fragenzahl (5/10/15 Fragen)
+  - **Sofortiges Feedback** - Ausführliche Erklärungen nach jeder Antwort
+  - **Detaillierte Auswertung** - Ergebnisanalyse nach Kategorien mit visuellen Fortschrittsbalken
+  - **Performance-Feedback** - Leistungseinschätzung und Verbesserungsvorschläge
+  - **Fortschrittsanzeige** - Visuelle Darstellung des Quiz-Fortschritts
+  - **Randomisierung** - Zufällige Fragenauswahl für wiederholbares Lernen
+  - **Bildungsfokus** - Keine Gamification, reiner Lernzweck
+  - **Deutsche Sprache** - Alle Inhalte in verständlichem Deutsch mit praktischen Erklärungen
+
 ### Behavioral Finance Insights
 
 - **Häufige Anlegerfehler verstehen und vermeiden** - Bildungskomponente über psychologische Fallen beim Investieren

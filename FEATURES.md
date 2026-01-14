@@ -53,6 +53,8 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Finanzbildung
 
+(Interaktives Finanzbildungs-Quiz bereits implementiert - siehe README.md)
+
 ---
 
 ## ❌ Explizit NICHT zu entwickelnde Features

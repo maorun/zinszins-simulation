@@ -31,6 +31,7 @@ import { LossCarryforwardSimulator } from './tax-config/LossCarryforwardSimulato
 import { ImmobilienSteueroptimierungCard } from './ImmobilienSteueroptimierungCard'
 import { SellingStrategyCard } from './SellingStrategyCard'
 import { MultiYearFreibetragOptimizationCard } from './MultiYearFreibetragOptimizationCard'
+import { FinancialEducationQuiz } from './FinancialEducationQuiz'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -207,6 +208,7 @@ function TaxConfigurationCards({
       <InsuranceCostOverview />
       <PensionComparisonTool />
       <PensionTopUpCard />
+      <FinancialEducationQuiz />
       <TaxOptimizationCards simulation={simulation} />
     </div>
   )
