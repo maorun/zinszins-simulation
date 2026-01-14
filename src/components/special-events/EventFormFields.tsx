@@ -1,7 +1,5 @@
 import type { RelationshipType, ExpenseType } from '../../utils/sparplan-utils'
-import { InheritanceFields } from './InheritanceFields'
-import { ExpenseFields } from './ExpenseFields'
-import { CareCostFields } from './CareCostFields'
+import { EventTypeSpecificFields } from './EventTypeSpecificFields'
 import { PhaseSelectionField } from './PhaseSelectionField'
 import { DateField } from './DateField'
 import { EventTypeField } from './EventTypeField'
@@ -11,7 +9,7 @@ type EventPhase = 'sparphase' | 'entsparphase'
 
 export interface EventFormValues {
   date: Date
-  eventType: 'inheritance' | 'expense' | 'care_costs'
+  eventType: 'inheritance' | 'expense' | 'care_costs' | 'business_sale'
   phase: EventPhase
   relationshipType: RelationshipType
   grossAmount: string
@@ -25,6 +23,13 @@ export interface EventFormValues {
   customMonthlyCosts: string
   careDurationYears: string
   careInflationRate: string
+  // Business sale fields
+  businessSalePrice: string
+  businessBookValue: string
+  sellerAge: string
+  permanentlyDisabled: boolean
+  businessSaleOtherIncome: string
+  applyFifthRule: boolean
   description: string
 }
 
@@ -74,16 +79,7 @@ export function EventFormFields({
         <EventTypeField formValues={formValues} onFormChange={onFormChange} />
       </div>
 
-      {/* Inheritance-specific fields */}
-      {formValues.eventType === 'inheritance' && (
-        <InheritanceFields formValues={formValues} onFormChange={onFormChange} />
-      )}
-
-      {/* Expense-specific fields */}
-      {formValues.eventType === 'expense' && <ExpenseFields formValues={formValues} onFormChange={onFormChange} />}
-
-      {/* Care cost-specific fields */}
-      {formValues.eventType === 'care_costs' && <CareCostFields formValues={formValues} onFormChange={onFormChange} />}
+      <EventTypeSpecificFields formValues={formValues} onFormChange={onFormChange} />
 
       <DescriptionField formValues={formValues} onFormChange={onFormChange} />
     </form>
