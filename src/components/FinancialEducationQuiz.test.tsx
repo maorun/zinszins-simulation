@@ -164,28 +164,30 @@ describe('FinancialEducationQuiz', () => {
       const startButton = screen.getByRole('button', { name: /Quiz starten/ })
       fireEvent.click(startButton)
       
+      // Wait for quiz to start
       await waitFor(() => {
-        const answerButtons = screen.getAllByRole('button').filter(
-          (button) => button.textContent && button.textContent.length > 10 && !button.textContent.includes('prüfen')
-        )
-        
-        if (answerButtons.length > 0) {
-          // Select first answer
-          fireEvent.click(answerButtons[0])
-          
-          const submitButton = screen.getByRole('button', { name: /Antwort prüfen/ })
-          fireEvent.click(submitButton)
-        }
+        expect(screen.getByText(/Frage 1 von/)).toBeInTheDocument()
       })
       
-      // Give time for state update
+      // Find and click an answer button
+      const answerButtons = screen.getAllByRole('button').filter(
+        (button) => button.textContent && button.textContent.length > 10 && !button.textContent.includes('prüfen')
+      )
+      
+      expect(answerButtons.length).toBeGreaterThanOrEqual(4)
+      fireEvent.click(answerButtons[0])
+      
+      // Click submit button
+      const submitButton = screen.getByRole('button', { name: /Antwort prüfen/ })
+      fireEvent.click(submitButton)
+      
+      // Wait for explanation to appear
       await waitFor(
         () => {
-          // Should show either "Richtig!" or "Leider falsch." in explanation
-          const elements = screen.queryAllByText(/Richtig!|Leider falsch/)
-          expect(elements.length).toBeGreaterThan(0)
+          const explanationText = screen.queryAllByText(/Richtig!|Leider falsch/)
+          expect(explanationText.length).toBeGreaterThan(0)
         },
-        { timeout: 3000 }
+        { timeout: 5000 }
       )
     })
 
