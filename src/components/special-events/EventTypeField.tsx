@@ -20,13 +20,14 @@ export function EventTypeField({ formValues, onFormChange }: EventTypeFieldProps
         onChange={e =>
           onFormChange({
             ...formValues,
-            eventType: e.target.value as 'inheritance' | 'expense' | 'care_costs',
+            eventType: e.target.value as 'inheritance' | 'expense' | 'care_costs' | 'business_sale',
           })
         }
       >
         <option value="inheritance">💰 Erbschaft</option>
         <option value="expense">💸 Ausgabe</option>
         <option value="care_costs">🏥 Pflegekosten</option>
+        <option value="business_sale">🏢 Unternehmensverkauf</option>
       </select>
     </div>
   )

@@ -20,6 +20,12 @@ export function createMockEventFormValues(overrides?: Partial<EventFormValues>):
     customMonthlyCosts: '',
     careDurationYears: '',
     careInflationRate: '3',
+    businessSalePrice: '',
+    businessBookValue: '',
+    sellerAge: '',
+    permanentlyDisabled: false,
+    businessSaleOtherIncome: '',
+    applyFifthRule: true,
     description: '',
     ...overrides,
   }

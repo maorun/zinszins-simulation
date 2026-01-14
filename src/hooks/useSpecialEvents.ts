@@ -4,6 +4,7 @@ import type { Sparplan } from '../utils/sparplan-utils'
 import { calculateInheritanceTax } from '../../helpers/inheritance-tax'
 import { getDefaultCreditTerms } from '../../helpers/credit-calculation'
 import { calculateCareCostsForYear } from '../../helpers/care-cost-simulation'
+import { calculateBusinessSaleTax } from '../../helpers/business-sale'
 import type { EventFormValues } from '../components/special-events/EventFormFields'
 
 const INITIAL_FORM_VALUES: EventFormValues = {
@@ -22,6 +23,13 @@ const INITIAL_FORM_VALUES: EventFormValues = {
   customMonthlyCosts: '',
   careDurationYears: '',
   careInflationRate: '3',
+  // Business sale default values
+  businessSalePrice: '',
+  businessBookValue: '',
+  sellerAge: '',
+  permanentlyDisabled: false,
+  businessSaleOtherIncome: '',
+  applyFifthRule: true,
   description: '',
 }
 
@@ -120,6 +128,93 @@ function createCareCostSparplan(formValues: EventFormValues, nextId: number): Sp
   }
 }
 
+function createBusinessSaleSparplan(formValues: EventFormValues, nextId: number): Sparplan {
+  const salePrice = Number(formValues.businessSalePrice)
+  const bookValue = Number(formValues.businessBookValue)
+  const sellerAge = Number(formValues.sellerAge)
+  const otherIncome = formValues.businessSaleOtherIncome ? Number(formValues.businessSaleOtherIncome) : 0
+
+  const taxCalc = calculateBusinessSaleTax({
+    salePrice,
+    bookValue,
+    sellerAge,
+    permanentlyDisabled: formValues.permanentlyDisabled,
+    otherIncome,
+    applyFifthRule: formValues.applyFifthRule,
+  })
+
+  return {
+    id: nextId,
+    start: formValues.date,
+    end: formValues.date,
+    einzahlung: taxCalc.netProceeds,
+    eventType: 'business_sale',
+    specialEventData: {
+      businessSalePrice: salePrice,
+      businessBookValue: bookValue,
+      sellerAge,
+      permanentlyDisabled: formValues.permanentlyDisabled,
+      businessSaleOtherIncome: otherIncome,
+      applyFifthRule: formValues.applyFifthRule,
+      description: formValues.description,
+      phase: formValues.phase,
+    },
+  }
+}
+
+function isInheritanceValid(formValues: EventFormValues): boolean {
+  return Boolean(formValues.grossAmount)
+}
+
+function isExpenseValid(formValues: EventFormValues): boolean {
+  return Boolean(formValues.expenseAmount)
+}
+
+function isBusinessSaleValid(formValues: EventFormValues): boolean {
+  return Boolean(
+    formValues.businessSalePrice && formValues.businessBookValue && formValues.sellerAge,
+  )
+}
+
+function createEventSparplan(
+  formValues: EventFormValues,
+  nextId: number,
+): { sparplan: Sparplan; message: string } | null {
+  const { eventType } = formValues
+
+  switch (eventType) {
+    case 'inheritance':
+      if (!isInheritanceValid(formValues)) return null
+      return {
+        sparplan: createInheritanceSparplan(formValues, nextId),
+        message: 'Erbschaft erfolgreich hinzugefügt!',
+      }
+
+    case 'expense':
+      if (!isExpenseValid(formValues)) return null
+      return {
+        sparplan: createExpenseSparplan(formValues, nextId),
+        message: 'Ausgabe erfolgreich hinzugefügt!',
+      }
+
+    case 'care_costs':
+      return {
+        sparplan: createCareCostSparplan(formValues, nextId),
+        message: 'Pflegekosten erfolgreich hinzugefügt!',
+      }
+
+    case 'business_sale':
+      if (!isBusinessSaleValid(formValues)) return null
+      return {
+        sparplan: createBusinessSaleSparplan(formValues, nextId),
+        message: 'Unternehmensverkauf erfolgreich hinzugefügt!',
+      }
+
+    default:
+      return null
+  }
+}
+
 export function useSpecialEvents(currentSparplans: Sparplan[], dispatch: (val: Sparplan[]) => void) {
   const [specialEventFormValues, setSpecialEventFormValues] = useState<EventFormValues>(INITIAL_FORM_VALUES)
 
@@ -127,21 +222,11 @@ export function useSpecialEvents(currentSparplans: Sparplan[], dispatch: (val: S
 
   const handleSubmit = () => {
     const nextId = getNextSparplanId()
-    let newSparplan: Sparplan | undefined
+    const result = createEventSparplan(specialEventFormValues, nextId)
 
-    if (specialEventFormValues.eventType === 'inheritance' && specialEventFormValues.grossAmount) {
-      newSparplan = createInheritanceSparplan(specialEventFormValues, nextId)
-      toast.success('Erbschaft erfolgreich hinzugefügt!')
-    } else if (specialEventFormValues.eventType === 'expense' && specialEventFormValues.expenseAmount) {
-      newSparplan = createExpenseSparplan(specialEventFormValues, nextId)
-      toast.success('Ausgabe erfolgreich hinzugefügt!')
-    } else if (specialEventFormValues.eventType === 'care_costs') {
-      newSparplan = createCareCostSparplan(specialEventFormValues, nextId)
-      toast.success('Pflegekosten erfolgreich hinzugefügt!')
-    }
-
-    if (newSparplan) {
-      dispatch([...currentSparplans, newSparplan])
+    if (result) {
+      dispatch([...currentSparplans, result.sparplan])
+      toast.success(result.message)
       setSpecialEventFormValues(INITIAL_FORM_VALUES)
     }
   }
