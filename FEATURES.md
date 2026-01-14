@@ -53,13 +53,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Finanzbildung
 
-- **Interaktives Finanzbildungs-Quiz** - Spielerisches Lernen deutscher Steuer- und Investmentkonzepte ⭐⭐
-  - Multiple-Choice-Fragen zu Vorabpauschale, Teilfreistellung, Freibeträgen
-  - Sofortiges Feedback mit ausführlichen Erklärungen
-  - Verschiedene Schwierigkeitsstufen (Einsteiger, Fortgeschritten, Experte)
-  - Kategorien: Steuern, Altersvorsorge, Portfolio-Management, Risikomanagement
-  - Fortschrittstracking mit Statistiken (richtige/falsche Antworten)
-  - Keine Gamification-Elemente (Punkte/Badges), nur Wissenstest
+(Interaktives Finanzbildungs-Quiz bereits implementiert - siehe README.md)
 
 ---
 
