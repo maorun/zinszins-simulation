@@ -8,7 +8,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
-(Keine offenen High-Priority Features - Progressionsvorbehalt, Verlusttopf-Management bereits implementiert)
+(Keine offenen High-Priority Features - Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation bereits implementiert)
 
 ### Erweiterte Finanzplanung
 
@@ -24,11 +24,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Selbstständigkeit & Unternehmertum
 
-- **Unternehmensverkauf-Simulation** - Exit-Strategien und Steueroptimierung
-  - **Veräußerungsgewinn**: Besteuerung nach § 16 EStG mit Freibetrag
-  - **Fünftelregelung**: Ermäßigte Besteuerung bei außerordentlichen Einkünften
-  - **Timing-Optimierung**: Optimaler Verkaufszeitpunkt unter Steueraspekten
-  - **Reinvestitions-Planung**: Strategie zur Anlage des Erlöses
+(Keine offenen High-Priority Features - Unternehmensverkauf-Simulation bereits implementiert)
 
 #### Familie & Generationen
 
