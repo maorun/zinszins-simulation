@@ -283,6 +283,18 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Steuerliche Absetzbarkeit** - Berücksichtigung als außergewöhnliche Belastung (bis 20.000 € p.a.)
     - **Transparente Berechnung** - Detaillierte Aufschlüsselung von Brutto-Kosten, Leistungen und Netto-Belastung
     - **Integration in Finanzplanung** - Automatische Berücksichtigung in Spar- und Entnahmephasen
+  - **🏢 Unternehmensverkauf-Simulation** - Exit-Strategien und Steueroptimierung für Selbstständige
+    - **§16 EStG Freibetrag** - Bis zu 45.000 € steuerfrei bei Verkauf ab 55 Jahren oder dauerhafter Erwerbsminderung
+    - **Freibetragskurve** - Volle 45.000 € bis 136.000 € Gewinn, dann schrittweiser Abbau bis 181.000 €
+    - **Fünftelregelung (§34 EStG)** - Ermäßigte Besteuerung durch steuerliche Verteilung auf 5 Jahre
+    - **Solidaritätszuschlag** - Automatische Berechnung des Solidaritätszuschlags (5,5% der Einkommensteuer)
+    - **Vergleichsrechnung** - Gegenüberstellung mit und ohne Fünftelregelung zur Steuerersparnis-Analyse
+    - **Timing-Optimierung** - Analyse des optimalen Verkaufszeitpunkts unter Berücksichtigung von Alter und sonstigem Einkommen
+    - **Reinvestitions-Planung** - Berechnung des Wachstums reinvestierter Verkaufserlöse
+    - **Umfassende Eingaben** - Verkaufspreis, Buchwert, Verkäuferalter, Erwerbsminderung, sonstiges Einkommen
+    - **Transparente Steuerberechnung** - Detaillierte Aufschlüsselung von Kapitalgewinn, Freibetrag, Steuern und Nettoprozeeds
+    - **Helper-Funktionen verfügbar**: `calculateBusinessSaleTax()`, `compareBusinessSaleTaxMethods()`, `calculateOptimalSaleTiming()`, `calculateReinvestmentStrategy()`
+    - **Umfassend getestet**: 40 Tests mit 100% Pass-Rate
 
 ### Finanzielle Meilensteine
 
