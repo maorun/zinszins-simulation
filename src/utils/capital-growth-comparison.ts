@@ -46,12 +46,11 @@ function aggregateSimulationData(
 }
 
 /**
- * Accumulates simulation data from one year into another (helper for aggregation)
+ * Accumulates core simulation values (always present)
  * @param existing - The existing accumulated data
  * @param data - New data to add
  */
-// eslint-disable-next-line complexity -- Data aggregation requires checking multiple optional fields
-function accumulateYearData(existing: SimulationResultElement, data: SimulationResultElement): void {
+function accumulateCoreValues(existing: SimulationResultElement, data: SimulationResultElement): void {
   existing.startkapital += data.startkapital
   existing.zinsen += data.zinsen
   existing.endkapital += data.endkapital
@@ -59,14 +58,26 @@ function accumulateYearData(existing: SimulationResultElement, data: SimulationR
   existing.genutzterFreibetrag += data.genutzterFreibetrag
   existing.vorabpauschale += data.vorabpauschale
   existing.vorabpauschaleAccumulated += data.vorabpauschaleAccumulated
+}
 
-  // Add costs if available
+/**
+ * Accumulates cost values (optional fields)
+ * @param existing - The existing accumulated data
+ * @param data - New data to add
+ */
+function accumulateCosts(existing: SimulationResultElement, data: SimulationResultElement): void {
   if (data.terCosts) existing.terCosts = (existing.terCosts || 0) + data.terCosts
   if (data.transactionCosts)
     existing.transactionCosts = (existing.transactionCosts || 0) + data.transactionCosts
   if (data.totalCosts) existing.totalCosts = (existing.totalCosts || 0) + data.totalCosts
+}
 
-  // Add real values if available
+/**
+ * Accumulates inflation-adjusted real values (optional fields)
+ * @param existing - The existing accumulated data
+ * @param data - New data to add
+ */
+function accumulateRealValues(existing: SimulationResultElement, data: SimulationResultElement): void {
   if (data.startkapitalReal)
     existing.startkapitalReal = (existing.startkapitalReal || 0) + data.startkapitalReal
   if (data.zinsenReal) existing.zinsenReal = (existing.zinsenReal || 0) + data.zinsenReal
@@ -75,16 +86,23 @@ function accumulateYearData(existing: SimulationResultElement, data: SimulationR
 }
 
 /**
- * Simulates a single scenario and extracts key metrics
- * @param scenario - The scenario to simulate
- * @returns Simulation result with metrics
+ * Accumulates simulation data from one year into another (helper for aggregation)
+ * @param existing - The existing accumulated data
+ * @param data - New data to add
  */
-// eslint-disable-next-line max-lines-per-function, complexity -- Simulation logic requires configuration setup and metric extraction
-export function simulateScenario(scenario: ComparisonScenario): ScenarioSimulationResult {
-  const { configuration } = scenario
+function accumulateYearData(existing: SimulationResultElement, data: SimulationResultElement): void {
+  accumulateCoreValues(existing, data)
+  accumulateCosts(existing, data)
+  accumulateRealValues(existing, data)
+}
 
-  // Convert sparplan to elements (with fallback for empty sparplan)
-  const elementsInput = (configuration.sparplan || []).map((plan) => ({
+/**
+ * Converts sparplan configuration to simulation elements
+ * @param configuration - Scenario configuration
+ * @returns Array of simulation elements
+ */
+function convertSparplanToElements(configuration: ComparisonScenario['configuration']) {
+  return (configuration.sparplan || []).map((plan) => ({
     start: plan.start,
     type: 'sparplan' as const,
     einzahlung: plan.einzahlung,
@@ -96,9 +114,17 @@ export function simulateScenario(scenario: ComparisonScenario): ScenarioSimulati
     specialEventData: plan.specialEventData,
     dynamicSavingsConfig: plan.dynamicSavingsConfig,
   }))
+}
 
-  // Build return configuration
-  const returnConfig: ReturnConfiguration = {
+/**
+ * Builds return configuration from scenario configuration
+ * @param configuration - Scenario configuration
+ * @returns Return configuration for simulation
+ */
+function buildReturnConfiguration(
+  configuration: ComparisonScenario['configuration']
+): ReturnConfiguration {
+  return {
     mode: configuration.returnMode,
     fixedRate: configuration.rendite,
     randomConfig: {
@@ -116,6 +142,71 @@ export function simulateScenario(scenario: ComparisonScenario): ScenarioSimulati
       : undefined,
     multiAssetConfig: configuration.multiAssetConfig,
   }
+}
+
+/**
+ * Converts aggregated simulation data to sorted yearly data array
+ * @param aggregatedSimulation - Aggregated simulation data by year
+ * @returns Sorted array of yearly data elements
+ */
+function convertToYearlyData(aggregatedSimulation: {
+  [year: number]: SimulationResultElement
+}): YearlyDataElement[] {
+  return Object.entries(aggregatedSimulation)
+    .sort(([yearA], [yearB]) => Number(yearA) - Number(yearB))
+    .map(([year, data]) => ({
+      jahr: Number(year),
+      ...data,
+    }))
+}
+
+/**
+ * Calculates scenario metrics from yearly data
+ * @param yearlyData - Yearly simulation data
+ * @param totalContributions - Total contributions from elements
+ * @returns Scenario metrics
+ */
+function calculateScenarioMetrics(
+  yearlyData: YearlyDataElement[],
+  totalContributions: number
+): ScenarioSimulationResult['metrics'] {
+  const lastYear = yearlyData[yearlyData.length - 1]
+  const firstYear = yearlyData[0]
+
+  if (!lastYear || !firstYear) {
+    throw new Error('Simulation produced no data')
+  }
+
+  const totalReturns = yearlyData.reduce((sum, year) => sum + year.zinsen, 0)
+  const totalTaxes = yearlyData.reduce((sum, year) => sum + year.bezahlteSteuer, 0)
+
+  const duration = lastYear.jahr - firstYear.jahr
+  const annualizedReturn =
+    duration > 0 && totalContributions > 0
+      ? (Math.pow(lastYear.endkapital / totalContributions, 1 / duration) - 1) * 100
+      : 0
+
+  return {
+    endCapital: lastYear.endkapital,
+    endCapitalReal: lastYear.endkapitalReal ?? lastYear.endkapital,
+    totalContributions,
+    totalReturns,
+    totalTaxes,
+    annualizedReturn,
+    duration,
+  }
+}
+
+/**
+ * Simulates a single scenario and extracts key metrics
+ * @param scenario - The scenario to simulate
+ * @returns Simulation result with metrics
+ */
+export function simulateScenario(scenario: ComparisonScenario): ScenarioSimulationResult {
+  const { configuration } = scenario
+
+  const elementsInput = convertSparplanToElements(configuration)
+  const returnConfig = buildReturnConfiguration(configuration)
 
   // Run the simulation using the existing simulate function
   const elements = simulate({
@@ -136,53 +227,16 @@ export function simulateScenario(scenario: ComparisonScenario): ScenarioSimulati
     personalTaxRate: configuration.personalTaxRate,
   })
 
-  // Aggregate all simulation results from all elements
   const aggregatedSimulation = aggregateSimulationData(elements)
+  const yearlyData = convertToYearlyData(aggregatedSimulation)
 
-  // Convert aggregated simulation result to yearly data array with year numbers
-  const yearlyData: YearlyDataElement[] = Object.entries(aggregatedSimulation)
-    .sort(([yearA], [yearB]) => Number(yearA) - Number(yearB))
-    .map(([year, data]) => ({
-      jahr: Number(year),
-      ...data,
-    }))
-
-  // Calculate metrics from the simulation result
-  const lastYear = yearlyData[yearlyData.length - 1]
-  const firstYear = yearlyData[0]
-
-  if (!lastYear || !firstYear) {
-    throw new Error('Simulation produced no data')
-  }
-
-  // Calculate total contributions from the elements
   const totalContributions = elements.reduce((sum, element) => sum + element.einzahlung, 0)
-
-  // Calculate total returns
-  const totalReturns = yearlyData.reduce((sum, year) => sum + year.zinsen, 0)
-
-  // Calculate total taxes
-  const totalTaxes = yearlyData.reduce((sum, year) => sum + year.bezahlteSteuer, 0)
-
-  // Calculate annualized return
-  const duration = lastYear.jahr - firstYear.jahr
-  const annualizedReturn =
-    duration > 0 && totalContributions > 0
-      ? (Math.pow(lastYear.endkapital / totalContributions, 1 / duration) - 1) * 100
-      : 0
+  const metrics = calculateScenarioMetrics(yearlyData, totalContributions)
 
   return {
     scenarioId: scenario.id,
     yearlyData,
-    metrics: {
-      endCapital: lastYear.endkapital,
-      endCapitalReal: lastYear.endkapitalReal ?? lastYear.endkapital,
-      totalContributions,
-      totalReturns,
-      totalTaxes,
-      annualizedReturn,
-      duration,
-    },
+    metrics,
   }
 }
 

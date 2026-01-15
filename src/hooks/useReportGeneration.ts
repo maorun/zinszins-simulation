@@ -14,6 +14,7 @@ import {
   generateAndDownloadReport,
   type ReportData,
 } from '../services/report-generation'
+import type { SimulationResultElement } from '../utils/simulate'
 
 export interface UseReportGenerationResult {
   /** Whether a report is currently being generated */
@@ -31,23 +32,73 @@ export interface UseReportGenerationResult {
 }
 
 /**
+ * Extracts simulation results from sparplan elements
+ */
+function extractSimulationResults(sparplanElements: unknown[]): SimulationResultElement[] {
+  return sparplanElements
+    .map(element => {
+      if (element && typeof element === 'object' && 'simulation' in element && element.simulation) {
+        // Extract year results from simulation object
+        return Object.values(element.simulation as Record<string, SimulationResultElement>)
+      }
+      return []
+    })
+    .flat()
+}
+
+/**
+ * Prepares report data from simulation context
+ */
+function prepareReportData(simulation: ReturnType<typeof useSimulation>): ReportData {
+  const sparplanElements = simulation.simulationData?.sparplanElements || []
+  const simulationResults = extractSimulationResults(sparplanElements)
+
+  return {
+    context: simulation,
+    simulationResults,
+    withdrawalData: simulation.withdrawalResults || undefined,
+  }
+}
+
+/**
+ * Handles successful report generation
+ */
+function handleReportSuccess(
+  result: ReportGenerationResult,
+  config: ReportConfiguration,
+  setConfig: (config: ReportConfiguration) => void
+): void {
+  if (result.success) {
+    const updatedConfig = updateLastGenerated(config)
+    setConfig(updatedConfig)
+    saveReportConfig(updatedConfig)
+  }
+}
+
+/**
+ * Creates error result for report generation
+ */
+function createErrorResult(error: unknown, config: ReportConfiguration): ReportGenerationResult {
+  return {
+    success: false,
+    error: error instanceof Error ? error.message : 'Unbekannter Fehler',
+    generatedAt: new Date().toISOString(),
+    format: config.format,
+  }
+}
+
+/**
  * Hook for managing report generation
  *
  * Provides functionality to generate portfolio reports with configurable content and format.
  * Integrates with the simulation context to access current portfolio data.
- *
- * Note: This hook has justified complexity due to comprehensive report generation logic.
  */
-// eslint-disable-next-line max-lines-per-function
 export function useReportGeneration(): UseReportGenerationResult {
   const simulation = useSimulation()
   const [isGenerating, setIsGenerating] = useState(false)
   const [lastResult, setLastResult] = useState<ReportGenerationResult | null>(null)
   const [config, setConfig] = useState<ReportConfiguration>(() => loadReportConfig())
 
-  /**
-   * Update report configuration and persist to storage
-   */
   const updateConfig = useCallback((newConfig: Partial<ReportConfiguration>) => {
     setConfig(prevConfig => {
       const updated = { ...prevConfig, ...newConfig }
@@ -56,65 +107,25 @@ export function useReportGeneration(): UseReportGenerationResult {
     })
   }, [])
 
-  /**
-   * Reset configuration to defaults
-   */
   const resetConfig = useCallback(() => {
     setConfig(DEFAULT_REPORT_CONFIG)
     saveReportConfig(DEFAULT_REPORT_CONFIG)
   }, [])
 
-  /**
-   * Generate and download a report with current simulation data
-   */
   const generateReport = useCallback(async () => {
-    if (isGenerating) {
-      return
-    }
+    if (isGenerating) return
 
     setIsGenerating(true)
     setLastResult(null)
 
     try {
-      // Extract simulation results - sparplanElements contain the simulation data
-      const sparplanElements = simulation.simulationData?.sparplanElements || []
-
-      // Extract simulation result elements from sparplan elements
-      const simulationResults = sparplanElements
-        .map(element => {
-          if ('simulation' in element && element.simulation) {
-            // Extract year results from simulation object
-            return Object.values(element.simulation)
-          }
-          return []
-        })
-        .flat()
-
-      // Prepare report data
-      const reportData: ReportData = {
-        context: simulation,
-        simulationResults,
-        withdrawalData: simulation.withdrawalResults || undefined,
-      }
-
-      // Generate and download the report
+      const reportData = prepareReportData(simulation)
       const result = await generateAndDownloadReport(reportData, config)
 
       setLastResult(result)
-
-      // Update last generated timestamp if successful
-      if (result.success) {
-        const updatedConfig = updateLastGenerated(config)
-        setConfig(updatedConfig)
-        saveReportConfig(updatedConfig)
-      }
+      handleReportSuccess(result, config, setConfig)
     } catch (error) {
-      setLastResult({
-        success: false,
-        error: error instanceof Error ? error.message : 'Unbekannter Fehler',
-        generatedAt: new Date().toISOString(),
-        format: config.format,
-      })
+      setLastResult(createErrorResult(error, config))
     } finally {
       setIsGenerating(false)
     }

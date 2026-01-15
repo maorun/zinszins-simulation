@@ -186,10 +186,158 @@ export function calculateTaxOverview(
 }
 
 /**
- * Generate report content as a formatted markdown string
- * Complex formatting logic with multiple sections - complexity is justified
+ * Adds report header section
  */
-// eslint-disable-next-line max-lines-per-function, complexity
+function addReportHeader(lines: string[], title: string, reportDate: string): void {
+  lines.push(`# ${title}`)
+  lines.push(``)
+  lines.push(`**Erstellt am:** ${reportDate}`)
+  lines.push(``)
+  lines.push(`---`)
+  lines.push(``)
+}
+
+/**
+ * Adds portfolio summary section
+ */
+function addPortfolioSummarySection(lines: string[], data: ReportData): void {
+  const totalContributions = data.context.sparplan.reduce((sum, plan) => {
+    const months = data.context.simulationAnnual === 'yearly' ? 12 : 1
+    return sum + plan.einzahlung * months * (data.context.startEnd[1] - data.context.startEnd[0])
+  }, 0)
+  const summary = calculatePortfolioSummary(data.simulationResults, totalContributions)
+  lines.push(`## 📊 Portfolio-Übersicht`)
+  lines.push(``)
+  lines.push(`- **Gesamtwert:** ${formatCurrency(summary.totalValue)}`)
+  lines.push(`- **Gesamte Einzahlungen:** ${formatCurrency(summary.totalContributions)}`)
+  lines.push(`- **Gesamte Erträge:** ${formatCurrency(summary.totalReturns)}`)
+  lines.push(`- **Rendite:** ${formatPercentage(summary.returnPercentage)}`)
+  lines.push(`- **Bezahlte Steuern:** ${formatCurrency(summary.taxesPaid)}`)
+  lines.push(``)
+  lines.push(`---`)
+  lines.push(``)
+}
+
+/**
+ * Adds performance metrics section
+ */
+function addPerformanceMetricsSection(lines: string[], data: ReportData): void {
+  const metrics = calculatePerformanceMetrics(data.simulationResults)
+  if (metrics) {
+    lines.push(`## 📈 Performance-Kennzahlen`)
+    lines.push(``)
+    lines.push(`- **Durchschnittliche jährliche Rendite:** ${formatPercentage(metrics.averageAnnualReturn)}`)
+    lines.push(`- **Bestes Jahr:** ${metrics.bestYear.year} (${formatPercentage(metrics.bestYear.return)})`)
+    lines.push(`- **Schlechtestes Jahr:** ${metrics.worstYear.year} (${formatPercentage(metrics.worstYear.return)})`)
+    lines.push(`- **Volatilität:** ${formatPercentage(metrics.volatility)}`)
+    lines.push(`- **Sharpe Ratio:** ${formatNumberGerman(metrics.sharpeRatio)}`)
+    lines.push(``)
+    lines.push(`---`)
+    lines.push(``)
+  }
+}
+
+/**
+ * Adds tax overview section
+ */
+function addTaxOverviewSection(lines: string[], data: ReportData): void {
+  const taxOverview = calculateTaxOverview(data.simulationResults, data.context)
+  lines.push(`## 💰 Steuer-Übersicht`)
+  lines.push(``)
+  lines.push(`- **Gesamte Steuern:** ${formatCurrency(taxOverview.totalTaxes)}`)
+  lines.push(`- **Vorabpauschale:** ${formatCurrency(taxOverview.vorabpauschale)}`)
+  lines.push(`- **Kapitalertragsteuer:** ${formatCurrency(taxOverview.capitalGainsTax)}`)
+  lines.push(`- **Genutzter Freibetrag:** ${formatCurrency(taxOverview.freibetragUsed)}`)
+  lines.push(`- **Verbleibender Freibetrag:** ${formatCurrency(taxOverview.freibetragRemaining)}`)
+  lines.push(``)
+  lines.push(`---`)
+  lines.push(``)
+}
+
+/**
+ * Adds savings breakdown section
+ */
+function addSavingsBreakdownSection(lines: string[], data: ReportData): void {
+  lines.push(`## 🏦 Sparplan-Aufschlüsselung`)
+  lines.push(``)
+  lines.push(`- **Anzahl Sparpläne:** ${data.context.sparplan.length}`)
+  lines.push(`- **Zeitraum:** ${data.context.startEnd[0]} - ${data.context.startEnd[1]}`)
+  lines.push(`- **Berechnungsmodus:** ${data.context.simulationAnnual === 'yearly' ? 'Jährlich' : 'Monatlich'}`)
+  lines.push(`- **Rendite:** ${formatPercentage(data.context.rendite)}`)
+  lines.push(`- **Kapitalertragsteuer:** ${formatPercentage(data.context.steuerlast)}`)
+  lines.push(`- **Teilfreistellungsquote:** ${formatPercentage(data.context.teilfreistellungsquote)}`)
+  lines.push(``)
+  lines.push(`---`)
+  lines.push(``)
+}
+
+/**
+ * Adds withdrawal projections section
+ */
+function addWithdrawalProjectionsSection(lines: string[], data: ReportData): void {
+  lines.push(`## 🏖️ Entnahme-Projektionen`)
+  lines.push(``)
+  lines.push(`- **Entnahmestrategie:** ${data.context.withdrawalConfig?.formValue?.strategie || 'Nicht konfiguriert'}`)
+
+  const withdrawalYears = Object.keys(data.withdrawalData!)
+    .map(Number)
+    .sort((a, b) => a - b)
+
+  if (withdrawalYears.length > 0) {
+    const firstYear = withdrawalYears[0]
+    const lastYear = withdrawalYears[withdrawalYears.length - 1]
+
+    const startCapital = data.withdrawalData![firstYear].startkapital
+    lines.push(`- **Startkapital:** ${formatCurrency(startCapital)}`)
+    lines.push(`- **Dauer:** ${withdrawalYears.length} Jahre`)
+
+    const totalWithdrawals = withdrawalYears.reduce(
+      (sum: number, year: number) => sum + data.withdrawalData![year].entnahme,
+      0,
+    )
+    lines.push(`- **Gesamte Entnahmen:** ${formatCurrency(totalWithdrawals)}`)
+
+    const finalCapital = data.withdrawalData![lastYear].endkapital
+    lines.push(`- **Endkapital:** ${formatCurrency(finalCapital)}`)
+  }
+  lines.push(``)
+  lines.push(`---`)
+  lines.push(``)
+}
+
+/**
+ * Adds risk analysis section
+ */
+function addRiskAnalysisSection(lines: string[], data: ReportData): void {
+  const metrics = calculatePerformanceMetrics(data.simulationResults)
+  if (metrics) {
+    lines.push(`## ⚠️ Risiko-Analyse`)
+    lines.push(``)
+    lines.push(
+      `- **Risiko-Rating:** ${metrics.volatility < 10 ? 'Niedrig' : metrics.volatility < 20 ? 'Mittel' : 'Hoch'}`,
+    )
+    lines.push(`- **Volatilität:** ${formatPercentage(metrics.volatility)}`)
+    lines.push(`- **Risiko-adjustierte Rendite (Sharpe):** ${formatNumberGerman(metrics.sharpeRatio)}`)
+    const maxDrawdown = Math.abs(metrics.worstYear.return)
+    lines.push(`- **Maximaler Drawdown:** ${formatPercentage(maxDrawdown)}`)
+    lines.push(``)
+    lines.push(`---`)
+    lines.push(``)
+  }
+}
+
+/**
+ * Adds report footer
+ */
+function addReportFooter(lines: string[], reportDate: string): void {
+  lines.push(``)
+  lines.push(`*Dieser Bericht wurde automatisch vom Zinseszins-Rechner generiert.*`)
+  lines.push(`*Stand: ${reportDate}*`)
+}
+
+/**
+ * Generate report content as a formatted markdown string
+ */
 export function generateReportMarkdown(data: ReportData, content: ReportContentSelection, title?: string): string {
   const lines: string[] = []
   const reportDate = new Date().toLocaleDateString('de-DE', {
@@ -198,146 +346,116 @@ export function generateReportMarkdown(data: ReportData, content: ReportContentS
     day: 'numeric',
   })
 
-  // Report header
-  lines.push(`# ${title || 'Portfolio-Bericht'}`)
-  lines.push(``)
-  lines.push(`**Erstellt am:** ${reportDate}`)
-  lines.push(``)
-  lines.push(`---`)
-  lines.push(``)
+  addReportHeader(lines, title || 'Portfolio-Bericht', reportDate)
 
-  // Portfolio summary
-  if (content.portfolioSummary && data.simulationResults.length > 0) {
-    // Calculate total contributions from context
-    const totalContributions = data.context.sparplan.reduce((sum, plan) => {
-      const months = data.context.simulationAnnual === 'yearly' ? 12 : 1
-      return sum + plan.einzahlung * months * (data.context.startEnd[1] - data.context.startEnd[0])
-    }, 0)
-    const summary = calculatePortfolioSummary(data.simulationResults, totalContributions)
-    lines.push(`## 📊 Portfolio-Übersicht`)
-    lines.push(``)
-    lines.push(`- **Gesamtwert:** ${formatCurrency(summary.totalValue)}`)
-    lines.push(`- **Gesamte Einzahlungen:** ${formatCurrency(summary.totalContributions)}`)
-    lines.push(`- **Gesamte Erträge:** ${formatCurrency(summary.totalReturns)}`)
-    lines.push(`- **Rendite:** ${formatPercentage(summary.returnPercentage)}`)
-    lines.push(`- **Bezahlte Steuern:** ${formatCurrency(summary.taxesPaid)}`)
-    lines.push(``)
-    lines.push(`---`)
-    lines.push(``)
-  }
+  const hasSimulationResults = data.simulationResults.length > 0
 
-  // Performance metrics
-  if (content.performanceMetrics && data.simulationResults.length > 0) {
-    const metrics = calculatePerformanceMetrics(data.simulationResults)
-    if (metrics) {
-      lines.push(`## 📈 Performance-Kennzahlen`)
-      lines.push(``)
-      lines.push(`- **Durchschnittliche jährliche Rendite:** ${formatPercentage(metrics.averageAnnualReturn)}`)
-      lines.push(`- **Bestes Jahr:** ${metrics.bestYear.year} (${formatPercentage(metrics.bestYear.return)})`)
-      lines.push(`- **Schlechtestes Jahr:** ${metrics.worstYear.year} (${formatPercentage(metrics.worstYear.return)})`)
-      lines.push(`- **Volatilität:** ${formatPercentage(metrics.volatility)}`)
-      lines.push(`- **Sharpe Ratio:** ${formatNumberGerman(metrics.sharpeRatio)}`)
-      lines.push(``)
-      lines.push(`---`)
-      lines.push(``)
-    }
-  }
+  // Add sections based on content selection
+  const sections = [
+    { condition: content.portfolioSummary && hasSimulationResults, action: () => addPortfolioSummarySection(lines, data) },
+    { condition: content.performanceMetrics && hasSimulationResults, action: () => addPerformanceMetricsSection(lines, data) },
+    { condition: content.taxOverview && hasSimulationResults, action: () => addTaxOverviewSection(lines, data) },
+    { condition: content.savingsBreakdown && hasSimulationResults, action: () => addSavingsBreakdownSection(lines, data) },
+    { condition: content.withdrawalProjections && data.withdrawalData, action: () => addWithdrawalProjectionsSection(lines, data) },
+    { condition: content.riskAnalysis && hasSimulationResults, action: () => addRiskAnalysisSection(lines, data) },
+  ]
 
-  // Tax overview
-  if (content.taxOverview && data.simulationResults.length > 0) {
-    const taxOverview = calculateTaxOverview(data.simulationResults, data.context)
-    lines.push(`## 💰 Steuer-Übersicht`)
-    lines.push(``)
-    lines.push(`- **Gesamte Steuern:** ${formatCurrency(taxOverview.totalTaxes)}`)
-    lines.push(`- **Vorabpauschale:** ${formatCurrency(taxOverview.vorabpauschale)}`)
-    lines.push(`- **Kapitalertragsteuer:** ${formatCurrency(taxOverview.capitalGainsTax)}`)
-    lines.push(`- **Genutzter Freibetrag:** ${formatCurrency(taxOverview.freibetragUsed)}`)
-    lines.push(`- **Verbleibender Freibetrag:** ${formatCurrency(taxOverview.freibetragRemaining)}`)
-    lines.push(``)
-    lines.push(`---`)
-    lines.push(``)
-  }
+  sections.forEach(({ condition, action }) => {
+    if (condition) action()
+  })
 
-  // Savings breakdown
-  if (content.savingsBreakdown && data.simulationResults.length > 0) {
-    lines.push(`## 🏦 Sparplan-Aufschlüsselung`)
-    lines.push(``)
-    lines.push(`- **Anzahl Sparpläne:** ${data.context.sparplan.length}`)
-    lines.push(`- **Zeitraum:** ${data.context.startEnd[0]} - ${data.context.startEnd[1]}`)
-    lines.push(`- **Berechnungsmodus:** ${data.context.simulationAnnual === 'yearly' ? 'Jährlich' : 'Monatlich'}`)
-    lines.push(`- **Rendite:** ${formatPercentage(data.context.rendite)}`)
-    lines.push(`- **Kapitalertragsteuer:** ${formatPercentage(data.context.steuerlast)}`)
-    lines.push(`- **Teilfreistellungsquote:** ${formatPercentage(data.context.teilfreistellungsquote)}`)
-    lines.push(``)
-    lines.push(`---`)
-    lines.push(``)
-  }
-
-  // Withdrawal projections
-  if (content.withdrawalProjections && data.withdrawalData) {
-    lines.push(`## 🏖️ Entnahme-Projektionen`)
-    lines.push(``)
-    lines.push(`- **Entnahmestrategie:** ${data.context.withdrawalConfig?.formValue?.strategie || 'Nicht konfiguriert'}`)
-
-    // Convert withdrawal result object to array and sort by year
-    const withdrawalYears = Object.keys(data.withdrawalData)
-      .map(Number)
-      .sort((a, b) => a - b)
-
-    if (withdrawalYears.length > 0) {
-      const firstYear = withdrawalYears[0]
-      const lastYear = withdrawalYears[withdrawalYears.length - 1]
-
-      const startCapital = data.withdrawalData[firstYear].startkapital
-      lines.push(`- **Startkapital:** ${formatCurrency(startCapital)}`)
-      lines.push(`- **Dauer:** ${withdrawalYears.length} Jahre`)
-
-      const totalWithdrawals = withdrawalYears.reduce(
-        (sum: number, year: number) => sum + data.withdrawalData![year].entnahme,
-        0,
-      )
-      lines.push(`- **Gesamte Entnahmen:** ${formatCurrency(totalWithdrawals)}`)
-
-      const finalCapital = data.withdrawalData[lastYear].endkapital
-      lines.push(`- **Endkapital:** ${formatCurrency(finalCapital)}`)
-    }
-    lines.push(``)
-    lines.push(`---`)
-    lines.push(``)
-  }
-
-  // Risk analysis
-  if (content.riskAnalysis && data.simulationResults.length > 0) {
-    const metrics = calculatePerformanceMetrics(data.simulationResults)
-    if (metrics) {
-      lines.push(`## ⚠️ Risiko-Analyse`)
-      lines.push(``)
-      lines.push(
-        `- **Risiko-Rating:** ${metrics.volatility < 10 ? 'Niedrig' : metrics.volatility < 20 ? 'Mittel' : 'Hoch'}`,
-      )
-      lines.push(`- **Volatilität:** ${formatPercentage(metrics.volatility)}`)
-      lines.push(`- **Risiko-adjustierte Rendite (Sharpe):** ${formatNumberGerman(metrics.sharpeRatio)}`)
-      const maxDrawdown = Math.abs(metrics.worstYear.return)
-      lines.push(`- **Maximaler Drawdown:** ${formatPercentage(maxDrawdown)}`)
-      lines.push(``)
-      lines.push(`---`)
-      lines.push(``)
-    }
-  }
-
-  // Footer
-  lines.push(``)
-  lines.push(`*Dieser Bericht wurde automatisch vom Zinseszins-Rechner generiert.*`)
-  lines.push(`*Stand: ${reportDate}*`)
+  addReportFooter(lines, reportDate)
 
   return lines.join('\n')
 }
 
 /**
- * Generate a report and download it in the specified format
- * Multiple format handlers with error handling - complexity is justified
+ * Creates base export data structure
  */
-// eslint-disable-next-line max-lines-per-function, complexity
+function createExportData(data: ReportData): ExportData {
+  return {
+    savingsData: data.simulationResults.length > 0 ? { sparplanElements: [] } : undefined,
+    withdrawalData: data.withdrawalData,
+    context: data.context,
+  }
+}
+
+/**
+ * Generates and downloads markdown report
+ */
+function generateMarkdownReport(
+  data: ReportData,
+  config: ReportConfiguration,
+  filenameBase: string,
+  timestamp: string,
+): ReportGenerationResult {
+  const markdown = generateReportMarkdown(data, config.content, config.customTitle)
+  downloadTextAsFile(markdown, `${filenameBase}.md`)
+
+  return {
+    success: true,
+    generatedAt: timestamp,
+    format: 'markdown',
+    filename: `${filenameBase}.md`,
+  }
+}
+
+/**
+ * Generates and downloads PDF report
+ */
+function generatePDFReport(
+  data: ReportData,
+  config: ReportConfiguration,
+  filenameBase: string,
+  timestamp: string,
+): ReportGenerationResult {
+  const exportData = createExportData(data)
+
+  let pdfBlob: Blob
+  if (config.content.savingsBreakdown && config.content.withdrawalProjections && data.withdrawalData) {
+    pdfBlob = exportAllDataToPDF(exportData)
+  } else if (config.content.withdrawalProjections && data.withdrawalData) {
+    pdfBlob = exportWithdrawalDataToPDF(exportData)
+  } else {
+    pdfBlob = exportSavingsDataToPDF(exportData)
+  }
+
+  downloadPDFBlob(pdfBlob, `${filenameBase}.pdf`)
+
+  return {
+    success: true,
+    generatedAt: timestamp,
+    format: 'pdf',
+    filename: `${filenameBase}.pdf`,
+  }
+}
+
+/**
+ * Generates and downloads Excel report
+ */
+function generateExcelReport(
+  data: ReportData,
+  filenameBase: string,
+  timestamp: string,
+): ReportGenerationResult {
+  const exportData = createExportData(data)
+
+  // Excel export only supports savings data with the current API
+  if (exportData.savingsData) {
+    exportSavingsDataToExcel(exportData.savingsData, data.context)
+  }
+
+  return {
+    success: true,
+    generatedAt: timestamp,
+    format: 'excel',
+    filename: `${filenameBase}.xlsx`,
+  }
+}
+
+/**
+ * Generate a report and download it in the specified format
+ */
 export async function generateAndDownloadReport(
   data: ReportData,
   config: ReportConfiguration,
@@ -348,62 +466,15 @@ export async function generateAndDownloadReport(
 
   try {
     if (config.format === 'markdown') {
-      const markdown = generateReportMarkdown(data, config.content, config.customTitle)
-      downloadTextAsFile(markdown, `${filenameBase}.md`)
-
-      return {
-        success: true,
-        generatedAt: timestamp,
-        format: 'markdown',
-        filename: `${filenameBase}.md`,
-      }
+      return generateMarkdownReport(data, config, filenameBase, timestamp)
     }
 
     if (config.format === 'pdf') {
-      let pdfBlob: Blob
-
-      const exportData: ExportData = {
-        savingsData: data.simulationResults.length > 0 ? { sparplanElements: [] } : undefined,
-        withdrawalData: data.withdrawalData,
-        context: data.context,
-      }
-
-      if (config.content.savingsBreakdown && config.content.withdrawalProjections && data.withdrawalData) {
-        pdfBlob = exportAllDataToPDF(exportData)
-      } else if (config.content.withdrawalProjections && data.withdrawalData) {
-        pdfBlob = exportWithdrawalDataToPDF(exportData)
-      } else {
-        pdfBlob = exportSavingsDataToPDF(exportData)
-      }
-
-      downloadPDFBlob(pdfBlob, `${filenameBase}.pdf`)
-
-      return {
-        success: true,
-        generatedAt: timestamp,
-        format: 'pdf',
-        filename: `${filenameBase}.pdf`,
-      }
+      return generatePDFReport(data, config, filenameBase, timestamp)
     }
 
     if (config.format === 'excel') {
-      const exportData: ExportData = {
-        savingsData: data.simulationResults.length > 0 ? { sparplanElements: [] } : undefined,
-        withdrawalData: data.withdrawalData,
-        context: data.context,
-      }
-
-      // Excel export only supports savings data with the current API
-      if (exportData.savingsData) {
-        exportSavingsDataToExcel(exportData.savingsData, data.context)
-      }
-
-      return {
-        success: true,
-        generatedAt: timestamp,
-        format: 'excel',
-        filename: `${filenameBase}.xlsx`,
-      }
+      return generateExcelReport(data, filenameBase, timestamp)
     }
 
     return {

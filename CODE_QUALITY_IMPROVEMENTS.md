@@ -4,9 +4,81 @@ This document summarizes the code quality improvements made to enhance maintaina
 
 ## Overview
 
-All improvements follow the principle of **minimal, surgical changes** focused on code quality. No functional behavior was modified, and all 4614 tests continue to pass.
+All improvements follow the principle of **minimal, surgical changes** focused on code quality. No functional behavior was modified, and all 7134 tests continue to pass (6 skipped).
 
-## Changes Made
+## Latest Changes (January 2026)
+
+### 4. ESLint-Disable Comment Removal
+
+**Objective:** Remove eslint-disable comments by refactoring complex functions into smaller, more manageable units.
+
+**Files Modified:**
+
+- `src/utils/capital-growth-comparison.ts` - Refactored complex aggregation and simulation functions
+- `src/services/report-generation.ts` - Extracted report section builders and format handlers
+- `src/components/ScenarioComparisonChart.tsx` - Separated chart configuration into helper functions
+- `src/hooks/useReportGeneration.ts` - Extracted data preparation and error handling logic
+
+**Improvements:**
+
+1. **capital-growth-comparison.ts:**
+   - Extracted `accumulateCoreValues()` for core simulation value accumulation
+   - Extracted `accumulateCosts()` for optional cost field handling
+   - Extracted `accumulateRealValues()` for inflation-adjusted value handling
+   - Extracted `convertSparplanToElements()` for element mapping
+   - Extracted `buildReturnConfiguration()` for return config creation
+   - Extracted `convertToYearlyData()` for data transformation
+   - Extracted `calculateScenarioMetrics()` for metric computation
+   - **Result:** Reduced complexity from 14+ to manageable units, removed 2 eslint-disable comments
+
+2. **report-generation.ts:**
+   - Extracted `addReportHeader()` for header section generation
+   - Extracted `addPortfolioSummarySection()` for portfolio summary
+   - Extracted `addPerformanceMetricsSection()` for performance metrics
+   - Extracted `addTaxOverviewSection()` for tax information
+   - Extracted `addSavingsBreakdownSection()` for savings details
+   - Extracted `addWithdrawalProjectionsSection()` for withdrawal projections
+   - Extracted `addRiskAnalysisSection()` for risk assessment
+   - Extracted `addReportFooter()` for footer generation
+   - Extracted `createExportData()` for data structure creation
+   - Extracted `generateMarkdownReport()` for markdown generation
+   - Extracted `generatePDFReport()` for PDF generation
+   - Extracted `generateExcelReport()` for Excel generation
+   - Refactored section selection using functional approach to reduce cyclomatic complexity
+   - **Result:** Reduced function lengths and complexity, removed 2 eslint-disable comments
+
+3. **ScenarioComparisonChart.tsx:**
+   - Extracted `extractUniqueYears()` for year extraction logic
+   - Extracted `createScenarioDataset()` for dataset creation
+   - Extracted `createXAxisConfig()` for x-axis configuration
+   - Extracted `createYAxisConfig()` for y-axis configuration
+   - Extracted `createChartOptions()` for chart option generation
+   - **Result:** Reduced function length to under 50 lines, removed 1 eslint-disable comment
+
+4. **useReportGeneration.ts:**
+   - Extracted `extractSimulationResults()` for data extraction
+   - Extracted `prepareReportData()` for data preparation
+   - Extracted `handleReportSuccess()` for success handling
+   - Extracted `createErrorResult()` for error result creation
+   - **Result:** Reduced function length to under 50 lines, removed 1 eslint-disable comment
+
+**Benefits:**
+
+- **Improved Readability:** Smaller functions with single responsibilities
+- **Better Testability:** Each extracted function can be tested independently
+- **Reduced Complexity:** Functions now meet ESLint complexity requirements
+- **No eslint-disable Comments:** Fixed underlying issues instead of suppressing warnings
+- **Maintained Functionality:** All 7134 tests pass, 0 linting warnings
+- **Better Code Organization:** Related logic grouped into focused helper functions
+
+**Remaining eslint-disable Comments:** 4 comments remain in `CapitalGrowthScenarioComparison.tsx`
+
+- These are in a large UI component (451 lines) with complex state management
+- Refactoring would require significant architectural changes
+- Documented as future improvement opportunity
+- Component is stable, well-tested, and functionally correct
+
+## Previous Changes
 
 ### 1. Locale and Currency Constants Extraction
 
