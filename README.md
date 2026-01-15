@@ -711,6 +711,53 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Detaillierte Aufschlüsselung nach Verlusttyp
   - **Informations-Tool**: Berechnung basiert auf Beispielwerten (10.000 € Kapitalerträge + 500 € Vorabpauschale)
   - **Steuerintegration**: Nutzt aktuelle Steuereinstellungen (Kapitalertragsteuer, Teilfreistellung) aus der Konfiguration
+- **Portfolio Tax Loss Harvesting Tracker** - Umfassender Portfolio-Tracker mit automatischer Verlust-Opportunitäts-Erkennung
+  - **Portfolio-Management**: Vollständige Verwaltung von Investment-Positionen
+    - Eingabe von Positionen mit Name, ISIN/Symbol, Asset-Klasse (Aktien, Anleihen, REITs, Rohstoffe, Mischfonds)
+    - Automatische Berechnung von unrealisierten Gewinnen/Verlusten
+    - Portfolio-Übersicht mit Gesamtwert, Kosten und Performance
+    - Flexible Positionsverwaltung (Hinzufügen, Löschen)
+  - **Automatische Verlust-Opportunitäts-Erkennung**: Intelligente Identifikation von Tax Loss Harvesting Möglichkeiten
+    - Erkennung aller Positionen mit unrealisierten Verlusten
+    - Berechnung von Transaktionskosten (prozentuale + fixe Gebühren)
+    - Automatische Berechnung von potentiellen Steuerersparnissen (nach Teilfreistellung)
+    - Net-Benefit-Analyse (Steuerersparnis minus Transaktionskosten)
+    - Filterung unprofitabler Opportunitäten (zu kleine Positionen, negative Net-Benefits)
+  - **Wash-Sale-Regel-Prüfung**: Berücksichtigung der 30-Tage-Regel (Gestaltungsmissbrauch § 42 AO)
+    - Automatische Erkennung substantiell identischer Positionen (ISIN-Match + Fuzzy-Name-Matching)
+    - Prüfung auf Käufe 30 Tage vor und nach geplantem Verkauf
+    - Anzeige des frühesten Verkaufsdatums ohne Wash-Sale-Risiko
+    - Warnung bei Wash-Sale-Verstößen in der Opportunity-Anzeige
+  - **Priorisierung nach Steuereffizienz**: 3-Level-Priorisierung (High/Medium/Low)
+    - Ranking basierend auf Net-Benefit, Verlustbetrag und Verlustprozent
+    - Wash-Sale-Risiko reduziert Priorität automatisch
+    - Priority-Score (0-100) für objektive Vergleichbarkeit
+    - Farbkodierte Anzeige (rot=high, gelb=medium, blau=low)
+  - **Ersatz-Investment-Vorschläge**: Asset-klassenspezifische Recommendations
+    - Vorschläge für Aktien (Alternativer World-ETF, Sektor-rotierte ETFs)
+    - Vorschläge für Anleihen (Alternativer Laufzeitenstruktur)
+    - Vorschläge für REITs (Alternativer geografischer/Sektor-Focus)
+    - Vorschläge für Rohstoffe (Diversifizierter Basket)
+    - Vorschläge für Mischfonds (Alternative Asset Allocation)
+    - Liquiditäts-Option (30-Tage-Pause mit Geldmarkt/Tagesgeld)
+  - **Comprehensive Opportunity Display**: Detaillierte Anzeige jeder Opportunität
+    - Prioritäts-Ranking (#1, #2, etc.)
+    - Unrealisierter Verlust in EUR
+    - Potentielle Steuerersparnis (nach Teilfreistellung)
+    - Transaktionskosten
+    - Net-Benefit
+    - Wash-Sale-Warnung mit frühestem Verkaufsdatum
+    - Top-2 Ersatz-Investment-Vorschläge mit Begründung
+  - **Two-Tab-Interface**: Integration in bestehendes Tax Loss Harvesting Card
+    - Tab 1: Einfacher Rechner (bestehende Funktionalität)
+    - Tab 2: Portfolio Tracker (neue erweiterte Funktionalität)
+  - **Deutsche Steuerintegration**:
+    - Vollständige Integration mit Kapitalertragsteuer
+    - Berücksichtigung der Teilfreistellungsquote (default 30% für Aktienfonds)
+    - Berücksichtigung von Transaktionskosten (default 0.25% Gebühr)
+    - Minimum Transaction Amount Filter (default 500 EUR)
+  - **Helper-Funktionen verfügbar**: `identifyLossHarvestingOpportunities()`, `checkWashSaleViolation()`, `generateReplacementSuggestions()`, `calculateTaxSavings()`, `createPortfolioPosition()`
+  - **Umfassend getestet**: 42 Tests (37 Helper + 5 Component) mit 100% Pass-Rate
 - **Verkaufsstrategie-Optimierung (Intelligente Verkaufsstrategie mit Steuerstundung)** - Optimierung des Verkaufszeitpunkts und der Verkaufsmethode zur Steuerminimierung
   - **3 Verkaufsmethoden**:
     - **FIFO (First In, First Out)** - Verkauf der ältesten Investments zuerst (Standardmethode nach deutschem Steuerrecht)
