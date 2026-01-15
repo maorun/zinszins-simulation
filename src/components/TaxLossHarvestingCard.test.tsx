@@ -13,14 +13,14 @@ describe('TaxLossHarvestingCard', () => {
   it('should render the card with title', () => {
     renderWithContext(<TaxLossHarvestingCard />)
 
-    expect(screen.getByText(/Verlustverrechnungs-Rechner/)).toBeInTheDocument()
+    expect(screen.getByText(/Tax Loss Harvesting \(Verlustverrechnung\)/)).toBeInTheDocument()
   })
 
   it('should be collapsed by default', () => {
     renderWithContext(<TaxLossHarvestingCard />)
 
     // Title is visible
-    expect(screen.getByText(/Verlustverrechnungs-Rechner/)).toBeInTheDocument()
+    expect(screen.getByText(/Tax Loss Harvesting \(Verlustverrechnung\)/)).toBeInTheDocument()
     
     // Content is not visible when collapsed
     expect(screen.queryByText(/Informations-Tool/)).not.toBeInTheDocument()
@@ -30,7 +30,7 @@ describe('TaxLossHarvestingCard', () => {
     renderWithContext(<TaxLossHarvestingCard />)
 
     // Just verify the component renders without errors
-    const title = screen.getByText(/Verlustverrechnungs-Rechner/)
+    const title = screen.getByText(/Tax Loss Harvesting \(Verlustverrechnung\)/)
     expect(title).toBeInTheDocument()
   })
 })
