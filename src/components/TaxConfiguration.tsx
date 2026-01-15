@@ -24,6 +24,7 @@ import { PensionTopUpCard } from './PensionTopUpCard'
 import { QuellensteuerconfigCard } from './QuellensteuerconfigCard'
 import { FreistellungsauftragOptimizer } from './FreistellungsauftragOptimizer'
 import { PortfolioTeilfreistellungCard } from './tax-config/PortfolioTeilfreistellungCard'
+import { SozialversicherungsOptimierungCard } from './SozialversicherungsOptimierungCard'
 
 import { TaxDeferralCalculatorCard } from './TaxDeferralCalculatorCard'
 import { MultiYearLossTrackingDashboard } from './MultiYearLossTrackingDashboard'
@@ -149,6 +150,7 @@ function TaxOptimizationCards({ simulation }: { simulation: ReturnType<typeof us
       <ReverseCalculatorCard />
       <SequenceRiskAnalysisCard />
       <TaxLossHarvestingCard />
+      <SozialversicherungsOptimierungCard />
       {/* Multi-Year Loss Tracking Dashboard */}
       <MultiYearLossTrackingDashboard
         taxRate={simulation.steuerlast}

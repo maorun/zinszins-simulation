@@ -16,21 +16,10 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - **Verlusttopf-Integration**: Berücksichtigung bestehender Verlustverrechnungstöpfe nach deutschem Steuerrecht
   - **Steuerersparnis-Kalkulation**: Berechnung der konkreten Steuerersparnisse durch Tax Loss Harvesting
   - **Multi-Jahres-Verlustvortrags-Planung**: Strategische Nutzung von Verlustvorträgen über mehrere Jahre
-  - **Priorisierung nach Steuereffizien z**: Automatisches Ranking der Harvesting-Opportunitäten
+  - **Priorisierung nach Steuereffizienz**: Automatisches Ranking der Harvesting-Opportunitäten
   - **Transaktionskosten-Berücksichtigung**: Kosten-Nutzen-Analyse vor Verkauf
 
-- **Sozialversicherungs-Optimierung für Grenzfälle** ⭐⭐⭐
-  - **Midijob-Optimierung (§ 20 SGB IV)**: Berechnung optimaler Gehälter im Übergangsbereich (538€ - 2.000€)
-  - **Gleitzone-Faktor**: Automatische Berechnung des reduzierten Arbeitnehmeranteils zur Sozialversicherung
-  - **Versicherungspflichtgrenze**: Optimierung für privat versicherte Arbeitnehmer (2024: 69.300€)
-  - **Geringfügigkeitsgrenze**: Optimierung bei 538€-Jobs (Minijobs) mit pauschalen Abgaben
-  - **Mehrfachbeschäftigung**: Zusammenrechnung mehrerer Minijobs und Auswirkungen auf Sozialversicherung
-  - **Rentenpunkte-Optimierung**: Berechnung des optimalen Verzichts auf Rentenversicherungsfreiheit bei Minijobs
-  - **Brutto-Netto-Optimierung**: Vergleich verschiedener Gehaltsszenarien unter Berücksichtigung von SV-Beiträgen
-  - **Arbeitgeber-Perspektive**: Berechnung der Gesamtkosten inkl. Arbeitgeberanteile
-  - **Steuer- und SV-Kombinationsoptimierung**: Ganzheitliche Optimierung unter Berücksichtigung beider Systeme
-
-(Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation bereits implementiert)
+(Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation, Sozialversicherungs-Optimierung für Grenzfälle bereits implementiert)
 
 ### Erweiterte Finanzplanung
 

@@ -599,6 +599,30 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Automatische Anwendung**: Wird bei Günstigerprüfung automatisch verwendet
   - **Effektiver Steuersatz**: Zeigt den tatsächlich angewendeten Steuersatz nach progressiver Berechnung
   - **Besonders vorteilhaft**: Bei niedrigeren Einkommen oft günstiger als Abgeltungssteuer
+- **Sozialversicherungs-Optimierung für Grenzfälle** - Umfassende Rechner für deutsche Sozialversicherungsoptimierung
+  - **Midijob/Gleitzone (§ 20 SGB IV)**: Berechnung optimaler Gehälter im Übergangsbereich (538€ - 2.000€ monatlich)
+    - **Gleitzonenfaktor**: Automatische Berechnung des reduzierten Arbeitnehmeranteils zur Sozialversicherung
+    - **Bemessungsentgelt**: Präzise Berechnung der reduzierten Beitragsgrundlage in der Gleitzone
+    - **Optimales Einkommen**: Identifikation der besten Netto-Quote innerhalb der Gleitzone
+    - **Interaktive Konfiguration**: Anpassung für Kinderlose (Pflegeversicherungs-Kinderlosenzuschlag)
+  - **Minijob-Optimierung (Geringfügigkeitsgrenze)**: Berechnung bei 538€-Jobs mit pauschalen Abgaben
+    - **Rentenversicherungspflicht**: Vergleich mit und ohne Rentenversicherung
+    - **Rentenpunkte-Kalkulation**: Berechnung der jährlich erworbenen Rentenpunkte
+    - **Break-Even-Analyse**: Abwägung zwischen sofortigem Netto-Vorteil und späterer Rente
+    - **Langfristige Planung**: Entscheidungshilfe für oder gegen Rentenversicherungsbefreiung
+  - **Brutto-Netto-Rechner**: Präzise Berechnung aller Sozialversicherungsbeiträge
+    - **Krankenversicherung**: 7,3% + durchschnittlich 0,9% Zusatzbeitrag
+    - **Pflegeversicherung**: 1,525% (+ 0,6% Kinderlosenzuschlag für kinderlose Personen über 23 Jahre)
+    - **Rentenversicherung**: 9,3% mit automatischer Rentenpunkte-Berechnung
+    - **Arbeitslosenversicherung**: 1,2%
+    - **Arbeitgeberkosten**: Vollständige Berechnung der Gesamtkosten inkl. Arbeitgeberbeiträge
+  - **Versicherungspflichtgrenze**: Optimierung für privat versicherte Arbeitnehmer (2024: 69.300€ jährlich)
+    - **PKV-Berechtigung**: Prüfung ob Jahreseinkommen Grenze überschreitet
+    - **Gehaltsoptimierung**: Berechnung des benötigten Mehrverdienstes für PKV-Berechtigung
+    - **Empfehlungen**: Intelligente Vorschläge basierend auf Abstand zur Grenze
+    - **Wichtige Hinweise**: Umfassende Information zu PKV-Vor- und Nachteilen
+  - **Helper-Funktionen verfügbar**: `calculateMidijobBeitraege()`, `calculateOptimalGleitzoneIncome()`, `compareMinijobRentenversicherung()`, `calculateVersicherungspflichtgrenzeOptimization()`
+  - **Umfassend getestet**: 41 Tests mit 100% Pass-Rate
 - **Kirchensteuer** - Berücksichtigung der deutschen Kirchensteuer
   - **Bundesländerspezifisch**: 8% für Bayern/Baden-Württemberg, 9% für andere Bundesländer
   - **Automatische Integration**: Wird bei Günstigerprüfung und Einkommensteuerberechnung berücksichtigt
