@@ -72,6 +72,7 @@ All improvements follow the principle of **minimal, surgical changes** focused o
 - **Better Code Organization:** Related logic grouped into focused helper functions
 
 **Remaining eslint-disable Comments:** 4 comments remain in `CapitalGrowthScenarioComparison.tsx`
+
 - These are in a large UI component (451 lines) with complex state management
 - Refactoring would require significant architectural changes
 - Documented as future improvement opportunity
