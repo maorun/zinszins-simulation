@@ -8,7 +8,29 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
-(Keine offenen High-Priority Features - Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation bereits implementiert)
+- **Steuerverlust-Offsetting-Strategie (Tax Loss Harvesting Tracker)** ⭐⭐⭐
+  - **Automatische Verlust-Opportunitäts-Erkennung**: Identifikation von Positionen mit unrealisierten Verlusten zur Steueroptimierung
+  - **Wash-Sale-Regel-Berücksichtigung**: Einhaltung der 30-Tage-Regel zur Vermeidung von Wash Sales
+  - **Ersatz-Investment-Vorschläge**: Empfehlung ähnlicher Investments zur Aufrechterhaltung der Asset Allocation
+  - **Jährliche Verlustnutzungs-Planung**: Optimale Timing-Strategie für Verlustrealisierung
+  - **Verlusttopf-Integration**: Berücksichtigung bestehender Verlustverrechnungstöpfe nach deutschem Steuerrecht
+  - **Steuerersparnis-Kalkulation**: Berechnung der konkreten Steuerersparnisse durch Tax Loss Harvesting
+  - **Multi-Jahres-Verlustvortrags-Planung**: Strategische Nutzung von Verlustvorträgen über mehrere Jahre
+  - **Priorisierung nach Steuereffizien z**: Automatisches Ranking der Harvesting-Opportunitäten
+  - **Transaktionskosten-Berücksichtigung**: Kosten-Nutzen-Analyse vor Verkauf
+
+- **Sozialversicherungs-Optimierung für Grenzfälle** ⭐⭐⭐
+  - **Midijob-Optimierung (§ 20 SGB IV)**: Berechnung optimaler Gehälter im Übergangsbereich (538€ - 2.000€)
+  - **Gleitzone-Faktor**: Automatische Berechnung des reduzierten Arbeitnehmeranteils zur Sozialversicherung
+  - **Versicherungspflichtgrenze**: Optimierung für privat versicherte Arbeitnehmer (2024: 69.300€)
+  - **Geringfügigkeitsgrenze**: Optimierung bei 538€-Jobs (Minijobs) mit pauschalen Abgaben
+  - **Mehrfachbeschäftigung**: Zusammenrechnung mehrerer Minijobs und Auswirkungen auf Sozialversicherung
+  - **Rentenpunkte-Optimierung**: Berechnung des optimalen Verzichts auf Rentenversicherungsfreiheit bei Minijobs
+  - **Brutto-Netto-Optimierung**: Vergleich verschiedener Gehaltsszenarien unter Berücksichtigung von SV-Beiträgen
+  - **Arbeitgeber-Perspektive**: Berechnung der Gesamtkosten inkl. Arbeitgeberanteile
+  - **Steuer- und SV-Kombinationsoptimierung**: Ganzheitliche Optimierung unter Berücksichtigung beider Systeme
+
+(Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation bereits implementiert)
 
 ### Erweiterte Finanzplanung
 
@@ -18,7 +40,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Entnahmestrategien & Kapitalplanung
 
-(Keine offenen High-Priority Features)
+(Dynamische Ausgabenanpassung im Ruhestand bereits implementiert)
 
 ### Lebenssituationen & Planung
 
@@ -28,9 +50,42 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Familie & Generationen
 
+- **Ausbildungsfinanzierungs-Strategie (Kinder-Studium)** ⭐⭐⭐
+  - **BAföG-Optimierung**: Berechnung optimaler Vermögensübertragungen zur Maximierung des BAföG-Anspruchs
+    - **Freibeträge**: Berücksichtigung der Vermögensfreibeträge für Studierende (15.000€ ab 2024)
+    - **Elterneinkommen**: Berechnung des Einflusses des Elterneinkommens auf BAföG-Berechtigung
+    - **Geschwister-Berücksichtigung**: Anpassung bei mehreren studierenden Kindern
+  - **Bildungskredit vs. Eigenfinanzierung**: Vergleich verschiedener Finanzierungsoptionen
+    - KfW-Studienkredit (0,01% - 5,5% variabel)
+    - Studienkredit der KfW-Bildungsbank
+    - Eigenfinanzierung aus Kapitalvermögen
+  - **Steuersparmodell Ausbildungsfreibetrag**: § 33a Abs. 2 EStG (1.200€/Jahr bei auswärtiger Unterbringung)
+  - **Kindergeld-Optimierung**: Berücksichtigung bis Studienabschluss (max. 25 Jahre)
+  - **Depot-auf-Kind-Strategie**: Steueroptimierte Kapitalanlage auf Namen des Kindes
+    - Nutzung des Kinder-Freibetrags (1.000€ Sparerpauschbetrag)
+    - Berechnung der Steuerersparnis durch niedrigeren Steuersatz
+  - **529-Plan-Alternative (Deutschland)**: Vergleich mit deutschen Bildungssparplänen
+  - **Timing-Optimierung**: Optimaler Zeitpunkt für Vermögensübertragungen (vor/während Studium)
+  - **Rückzahlungssimulation**: Planung der Studienkredit-Rückzahlung nach Berufseinstieg
+  - **Mehrere Kinder**: Optimierung bei gestaffelten Studienzeiten
+  - **Realistische Kosten**: Durchschnittliche Studienkosten nach Stadt und Studienform
+
 (Generationenübergreifende Vermögensplanung inkl. Großeltern-Enkel bereits vollständig implementiert)
 
 ### Technische Verbesserungen
+
+#### User Experience & Visualisierung
+
+- **Interaktive Szenario-Vergleichstabelle** ⭐⭐
+  - **Side-by-Side Vergleich**: Gleichzeitiger Vergleich von bis zu 4 verschiedenen Anlagestrategien
+  - **Parametrierte Szenarien**: Speicherung und Benennung verschiedener Konfigurationen
+  - **Delta-Hervorhebung**: Visuelle Darstellung der Unterschiede zwischen Szenarien
+  - **Best-Case/Worst-Case/Base-Case**: Vordefinierte Szenario-Templates
+  - **Export-Funktion**: PDF-Export der Vergleichstabelle für Beratungsgespräche
+  - **Mobile-optimierte Darstellung**: Responsive Design mit horizontalem Scrolling
+  - **Kennzahlen-Fokus**: Direkter Vergleich von Endkapital, Steuern, Kosten, ROI
+  - **Farbcodierung**: Grün für beste, Rot für schlechteste Option pro Kennzahl
+  - **Prozentuale Abweichungen**: Automatische Berechnung relativer Unterschiede
 
 #### Datenintegration
 
