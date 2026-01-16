@@ -11,6 +11,7 @@ import { BURenteConfigSection } from './BURenteConfigSection'
 import { KapitallebensversicherungConfigSection } from './KapitallebensversicherungConfigSection'
 import { PflegezusatzversicherungConfigSection } from './PflegezusatzversicherungConfigSection'
 import { RisikolebensversicherungConfigSection } from './RisikolebensversicherungConfigSection'
+import { DepotAufKindConfigSection } from './DepotAufKindConfigSection'
 
 interface FormConfigurationSectionsProps {
   editingSource: OtherIncomeSource
@@ -23,6 +24,7 @@ interface FormConfigurationSectionsProps {
   isKapitallebensversicherung: boolean
   isPflegezusatzversicherung: boolean
   isRisikolebensversicherung: boolean
+  isDepotAufKind: boolean
   isGrossIncome: boolean
   onUpdate: (source: OtherIncomeSource) => void
 }
@@ -124,25 +126,36 @@ function StandardConfigSections(props: Pick<
   )
 }
 
-function InsuranceConfigSections({
+function BasicIncomeConfigSections({
   editingSource,
-  currentYear,
   isKindergeld,
   isElterngeld,
   isBURente,
-  isKapitallebensversicherung,
-  isPflegezusatzversicherung,
-  isRisikolebensversicherung,
   onUpdate,
-}: Pick<
-  FormConfigurationSectionsProps,
-  'editingSource' | 'currentYear' | 'isKindergeld' | 'isElterngeld' | 'isBURente' | 'isKapitallebensversicherung' | 'isPflegezusatzversicherung' | 'isRisikolebensversicherung' | 'onUpdate'
->) {
+}: Pick<FormConfigurationSectionsProps, 'editingSource' | 'isKindergeld' | 'isElterngeld' | 'isBURente' | 'onUpdate'>) {
   return (
     <>
       {isKindergeld && <KindergeldConfigSection editingSource={editingSource} onUpdate={onUpdate} />}
-      {isElterngeld && <ElterngeldConfigSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />}
-      {isBURente && <BURenteConfigSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />}
+      {isElterngeld && <ElterngeldConfigSection editingSource={editingSource} currentYear={new Date().getFullYear()} onUpdate={onUpdate} />}
+      {isBURente && <BURenteConfigSection editingSource={editingSource} currentYear={new Date().getFullYear()} onUpdate={onUpdate} />}
+    </>
+  )
+}
+
+function InsuranceConfigSections({
+  editingSource,
+  currentYear,
+  isKapitallebensversicherung,
+  isPflegezusatzversicherung,
+  isRisikolebensversicherung,
+  isDepotAufKind,
+  onUpdate,
+}: Pick<
+  FormConfigurationSectionsProps,
+  'editingSource' | 'currentYear' | 'isKapitallebensversicherung' | 'isPflegezusatzversicherung' | 'isRisikolebensversicherung' | 'isDepotAufKind' | 'onUpdate'
+>) {
+  return (
+    <>
       {isKapitallebensversicherung && (
         <KapitallebensversicherungConfigSection
           editingSource={editingSource}
@@ -164,6 +177,13 @@ function InsuranceConfigSections({
           onUpdate={onUpdate}
         />
       )}
+      {isDepotAufKind && editingSource.depotAufKindConfig && (
+        <DepotAufKindConfigSection
+          config={editingSource.depotAufKindConfig}
+          onUpdate={(updates) => onUpdate({ ...editingSource, depotAufKindConfig: { ...editingSource.depotAufKindConfig!, ...updates } })}
+          currentYear={currentYear}
+        />
+      )}
     </>
   )
 }
@@ -173,6 +193,7 @@ export function FormConfigurationSections(props: FormConfigurationSectionsProps)
     <>
       <StandardConfigSections {...props} />
       {props.isRental && <RealEstateConfigSection editingSource={props.editingSource} onUpdate={props.onUpdate} />}
+      <BasicIncomeConfigSections {...props} />
       <InsuranceConfigSections {...props} />
     </>
   )

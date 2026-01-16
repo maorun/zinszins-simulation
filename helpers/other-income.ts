@@ -16,6 +16,8 @@ import {
   calculateRiesterAllowances,
 } from './riester-rente'
 
+import type { DepotAufKindConfig } from './depot-auf-kind'
+
 /**
  * Type of income source
  */
@@ -31,6 +33,7 @@ export type IncomeType =
   | 'pflegezusatzversicherung'
   | 'risikolebensversicherung'
   | 'kinder_bildung'
+  | 'depot_auf_kind'
   | 'ruerup_rente'
   | 'riester_rente'
   | 'other'
@@ -414,6 +417,9 @@ export interface OtherIncomeSource {
 
   /** Kinder-Bildung-specific configuration (only for kinder_bildung type) */
   kinderBildungConfig?: KinderBildungConfig
+
+  /** Depot-auf-Kind-specific configuration (only for depot_auf_kind type) */
+  depotAufKindConfig?: DepotAufKindConfig
 
   /** Elterngeld-specific configuration (only for elterngeld type) */
   elterngeldConfig?: ElterngeldConfig
@@ -2304,6 +2310,7 @@ function getDefaultNameForType(type: IncomeType): string {
     pflegezusatzversicherung: 'Pflegezusatzversicherung',
     risikolebensversicherung: 'Risikolebensversicherung',
     kinder_bildung: 'Kinder-Bildungskosten',
+    depot_auf_kind: 'Depot-auf-Kind-Strategie',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || 'Einkommen'
@@ -2334,6 +2341,7 @@ export function getIncomeTypeDisplayName(type: IncomeType): string {
     pflegezusatzversicherung: 'Pflegezusatzversicherung',
     risikolebensversicherung: 'Risikolebensversicherung',
     kinder_bildung: 'Kinder-Bildungskosten',
+    depot_auf_kind: 'Depot-auf-Kind-Strategie',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || type

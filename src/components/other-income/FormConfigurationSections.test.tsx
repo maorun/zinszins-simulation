@@ -36,6 +36,7 @@ describe('FormConfigurationSections', () => {
         isPflegezusatzversicherung={false}
         isRisikolebensversicherung={false}
         isGrossIncome={true}
+        isDepotAufKind={false}
         onUpdate={mockOnUpdate}
       />,
     )
@@ -58,6 +59,7 @@ describe('FormConfigurationSections', () => {
         isPflegezusatzversicherung={false}
         isRisikolebensversicherung={false}
         isGrossIncome={false}
+        isDepotAufKind={false}
         onUpdate={mockOnUpdate}
       />,
     )
@@ -80,6 +82,7 @@ describe('FormConfigurationSections', () => {
         isPflegezusatzversicherung={false}
         isRisikolebensversicherung={false}
         isGrossIncome={true}
+        isDepotAufKind={false}
         onUpdate={mockOnUpdate}
       />,
     )
@@ -102,6 +105,7 @@ describe('FormConfigurationSections', () => {
         isPflegezusatzversicherung={false}
         isRisikolebensversicherung={false}
         isGrossIncome={false}
+        isDepotAufKind={false}
         onUpdate={mockOnUpdate}
       />,
     )
@@ -134,6 +138,7 @@ describe('FormConfigurationSections', () => {
         isPflegezusatzversicherung={false}
         isRisikolebensversicherung={false}
         isGrossIncome={true}
+        isDepotAufKind={false}
         onUpdate={mockOnUpdate}
       />,
     )
@@ -156,6 +161,7 @@ describe('FormConfigurationSections', () => {
         isPflegezusatzversicherung={false}
         isRisikolebensversicherung={false}
         isGrossIncome={true}
+        isDepotAufKind={false}
         onUpdate={mockOnUpdate}
       />,
     )
@@ -186,6 +192,7 @@ describe('FormConfigurationSections', () => {
         isPflegezusatzversicherung={false}
         isRisikolebensversicherung={false}
         isGrossIncome={false}
+        isDepotAufKind={false}
         onUpdate={mockOnUpdate}
       />,
     )
@@ -208,6 +215,7 @@ describe('FormConfigurationSections', () => {
         isPflegezusatzversicherung={false}
         isRisikolebensversicherung={false}
         isGrossIncome={true}
+        isDepotAufKind={false}
         onUpdate={mockOnUpdate}
       />,
     )

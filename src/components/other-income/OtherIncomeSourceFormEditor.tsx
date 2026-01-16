@@ -11,6 +11,7 @@ import {
   createDefaultPflegezusatzversicherungConfig,
   createDefaultRisikolebensversicherungConfig,
 } from '../../../helpers/other-income'
+import { createDefaultDepotAufKindConfig } from '../../../helpers/depot-auf-kind'
 import { useFormId } from '../../utils/unique-id'
 import { NameInputSection } from './NameInputSection'
 import { TypeSelectSection } from './TypeSelectSection'
@@ -143,6 +144,25 @@ function configureRisikolebensversicherungSettings(source: OtherIncomeSource, ne
   }
 }
 
+// Helper to apply Depot-auf-Kind defaults
+function applyDepotAufKindDefaults(source: OtherIncomeSource): void {
+  const currentYear = new Date().getFullYear()
+  source.depotAufKindConfig = createDefaultDepotAufKindConfig('Kind', currentYear - 10)
+  source.amountType = 'net'
+  source.taxRate = 0 // Tax is handled within the depot config
+  source.inflationRate = 0 // Returns handled within the config
+  source.monthlyAmount = 0 // Not used for depot strategy
+}
+
+// Helper to configure Depot-auf-Kind settings based on income type
+function configureDepotAufKindSettings(source: OtherIncomeSource, newType: IncomeType): void {
+  if (newType === 'depot_auf_kind' && !source.depotAufKindConfig) {
+    applyDepotAufKindDefaults(source)
+  } else if (newType !== 'depot_auf_kind' && source.depotAufKindConfig) {
+    delete source.depotAufKindConfig
+  }
+}
+
 // Helper to handle income type change
 function handleIncomeTypeChange(
   newType: IncomeType,
@@ -157,6 +177,7 @@ function handleIncomeTypeChange(
   configureKapitallebensversicherungSettings(updatedSource, newType)
   configurePflegezusatzversicherungSettings(updatedSource, newType)
   configureRisikolebensversicherungSettings(updatedSource, newType)
+  configureDepotAufKindSettings(updatedSource, newType)
   onUpdate(updatedSource)
 }
 
@@ -180,6 +201,7 @@ export function OtherIncomeSourceFormEditor({
   const isKapitallebensversicherung = editingSource.type === 'kapitallebensversicherung'
   const isPflegezusatzversicherung = editingSource.type === 'pflegezusatzversicherung'
   const isRisikolebensversicherung = editingSource.type === 'risikolebensversicherung'
+  const isDepotAufKind = editingSource.type === 'depot_auf_kind'
   const isGrossIncome = editingSource.amountType === 'gross'
 
   const handleTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -205,6 +227,7 @@ export function OtherIncomeSourceFormEditor({
           isKapitallebensversicherung={isKapitallebensversicherung}
           isPflegezusatzversicherung={isPflegezusatzversicherung}
           isRisikolebensversicherung={isRisikolebensversicherung}
+          isDepotAufKind={isDepotAufKind}
           isGrossIncome={isGrossIncome}
           onUpdate={onUpdate}
         />
