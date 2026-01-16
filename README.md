@@ -1589,6 +1589,28 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Altersbasierte Berechnung**: Automatische Zuordnung zu Bildungsphasen basierend auf Geburtsjahr
     - **Geschätzte Gesamtkosten**: Echtzeit-Berechnung der erwarteten Gesamtkosten über alle Bildungsphasen
     - **Netto-Kosten-Berechnung**: Bildungskosten minus BAföG-Unterstützung für realistische Finanzplanung
+  - **Depot-auf-Kind-Strategie** - Steueroptimierte Kapitalanlage zur Finanzierung der Ausbildung
+    - **Steuervorteile**: Nutzung persönlicher Freibeträge des Kindes
+      - **Sparerpauschbetrag**: 1.000€ jährlich steuerfrei für Kapitalerträge
+      - **Grundfreibetrag**: 11.604€ auf alle Einkünfte (Stand 2024)
+      - **Niedrigere Steuersätze**: Progressiver Steuersatz bei geringem Einkommen des Kindes
+    - **Vergleichsrechnung**: Automatischer Vergleich Kinder-Depot vs. Eltern-Depot
+      - Side-by-side Darstellung der Endkapital-Werte
+      - Berechnung der effektiven Steuersätze (Kind vs. Eltern)
+      - Visualisierung der Steuerersparnis über die Laufzeit
+    - **Flexible Anlagekonfiguration**:
+      - Auswahl zwischen Aktienfonds (30% Teilfreistellung), Mischfonds (15%), Rentenfonds und Sparkonto
+      - Konfigurierbare Anfangsinvestition und erwartete Rendite
+      - Simulation über beliebigen Zeitraum (typisch bis Studienbeginn oder -ende)
+    - **Elterliche Steuersituation**: Berücksichtigung des Grenzsteuersatzes der Eltern für realistischen Vergleich
+    - **Kinder mit eigenem Einkommen**: Optional konfigurierbar (z.B. Ausbildungsvergütung, Nebenjob)
+    - **Vorabpauschale-Berechnung**: Vollständige Integration deutscher Investmentsteuer mit Basiszins
+    - **Optimaler Übertragungszeitpunkt**: Empfehlung basierend auf Alter und Studienbeginn
+      - Maximierung steuerfreies Wachstum
+      - Berücksichtigung Volljährigkeit (18 Jahre)
+      - 2 Jahre vor Studienbeginn für optimale Liquidität
+    - **Realistische Szenarien**: Vergleich verschiedener Einkommensklassen und Anlagestrategien
+    - **Helper-Funktionen verfügbar**: `simulateDepotAufKind()`, `calculateOptimalTransferTiming()`, `validateDepotAufKindConfig()`, `createDefaultDepotAufKindConfig()`
   - **Immobilien-Cashflow Integration** - Umfassende Immobilienertragsberechnung mit deutschen Steuerregeln
     - **Realistische Kostenfaktoren**: Instandhaltungskosten (0-30%), Leerstandsquote (0-20%), Finanzierungskosten
     - **Wertsteigerungsberechnung**: Optionale Berücksichtigung der Immobilienwertsteigerung als zusätzliches Einkommen

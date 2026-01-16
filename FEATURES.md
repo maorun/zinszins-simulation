@@ -39,9 +39,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
     - Eigenfinanzierung aus Kapitalvermögen
   - **Steuersparmodell Ausbildungsfreibetrag**: § 33a Abs. 2 EStG (1.200€/Jahr bei auswärtiger Unterbringung)
   - **Kindergeld-Optimierung**: Berücksichtigung bis Studienabschluss (max. 25 Jahre)
-  - **Depot-auf-Kind-Strategie**: Steueroptimierte Kapitalanlage auf Namen des Kindes
-    - Nutzung des Kinder-Freibetrags (1.000€ Sparerpauschbetrag)
-    - Berechnung der Steuerersparnis durch niedrigeren Steuersatz
   - **529-Plan-Alternative (Deutschland)**: Vergleich mit deutschen Bildungssparplänen
   - **Timing-Optimierung**: Optimaler Zeitpunkt für Vermögensübertragungen (vor/während Studium)
   - **Rückzahlungssimulation**: Planung der Studienkredit-Rückzahlung nach Berufseinstieg
