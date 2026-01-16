@@ -143,10 +143,7 @@ All improvements follow the principle of **minimal, surgical changes** focused o
 - Component is stable, well-tested, and functionally correct
 - Further extraction would hurt readability and maintainability
 
-## Previous Changes (January 2026 - Refactoring Round 1)
-
-### 4. ESLint-Disable Comment Removal (First Round)
-## Previous Changes
+## Previous Changes (Earlier in 2026)
 
 ### 1. Locale and Currency Constants Extraction
 
