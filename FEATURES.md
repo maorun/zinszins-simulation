@@ -28,23 +28,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Familie & Generationen
 
-- **Ausbildungsfinanzierungs-Strategie (Kinder-Studium)** ⭐⭐⭐
-  - **BAföG-Optimierung**: Berechnung optimaler Vermögensübertragungen zur Maximierung des BAföG-Anspruchs
-    - **Freibeträge**: Berücksichtigung der Vermögensfreibeträge für Studierende (15.000€ ab 2024)
-    - **Elterneinkommen**: Berechnung des Einflusses des Elterneinkommens auf BAföG-Berechtigung
-    - **Geschwister-Berücksichtigung**: Anpassung bei mehreren studierenden Kindern
-  - **Bildungskredit vs. Eigenfinanzierung**: Vergleich verschiedener Finanzierungsoptionen
-    - KfW-Studienkredit (0,01% - 5,5% variabel)
-    - Studienkredit der KfW-Bildungsbank
-    - Eigenfinanzierung aus Kapitalvermögen
-  - **Steuersparmodell Ausbildungsfreibetrag**: § 33a Abs. 2 EStG (1.200€/Jahr bei auswärtiger Unterbringung)
-  - **Kindergeld-Optimierung**: Berücksichtigung bis Studienabschluss (max. 25 Jahre)
-  - **529-Plan-Alternative (Deutschland)**: Vergleich mit deutschen Bildungssparplänen
-  - **Timing-Optimierung**: Optimaler Zeitpunkt für Vermögensübertragungen (vor/während Studium)
-  - **Rückzahlungssimulation**: Planung der Studienkredit-Rückzahlung nach Berufseinstieg
-  - **Mehrere Kinder**: Optimierung bei gestaffelten Studienzeiten
-  - **Realistische Kosten**: Durchschnittliche Studienkosten nach Stadt und Studienform
-
 (Generationenübergreifende Vermögensplanung inkl. Großeltern-Enkel bereits vollständig implementiert)
 
 ### Technische Verbesserungen
