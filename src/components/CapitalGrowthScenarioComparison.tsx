@@ -196,7 +196,10 @@ export function CapitalGrowthScenarioComparison() {
             </div>
 
             {/* Statistics and Table */}
-            <ComparisonResults comparison={comparison} />
+            <ComparisonResults 
+              comparison={comparison} 
+              baselineScenarioId={comparison.scenarios[0]?.id} 
+            />
           </>
         )}
       </CardContent>
