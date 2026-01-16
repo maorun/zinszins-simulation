@@ -100,6 +100,23 @@ export interface BafoegConfig {
 }
 
 /**
+ * § 33a EStG Ausbildungsfreibetrag configuration
+ */
+export interface AusbildungsfreibetragConfig {
+  /** Whether to apply the Ausbildungsfreibetrag */
+  enabled: boolean
+
+  /** Whether the child lives away from parents (required for § 33a Abs. 2) */
+  livingAwayFromParents: boolean
+
+  /** Starting year for Ausbildungsfreibetrag eligibility */
+  startYear: number
+
+  /** Ending year for Ausbildungsfreibetrag eligibility */
+  endYear: number
+}
+
+/**
  * Configuration for children's education financial planning
  */
 export interface ChildrenEducationConfig {
@@ -117,6 +134,9 @@ export interface ChildrenEducationConfig {
 
   /** BAföG configuration (only applicable for university studies) */
   bafoegConfig?: BafoegConfig
+
+  /** § 33a EStG Ausbildungsfreibetrag configuration */
+  ausbildungsfreibetragConfig?: AusbildungsfreibetragConfig
 
   /** Whether to account for Kindergeld (this is already handled separately) */
   includeKindergeld: boolean
@@ -169,6 +189,24 @@ export const BAFOEG_CONSTANTS = {
   maxDurationMonthsBachelor: 48,
   /** Maximum BAföG duration in months for standard Master's degree */
   maxDurationMonthsMaster: 24,
+} as const
+
+/**
+ * § 33a EStG Ausbildungsfreibetrag constants (2024)
+ * Tax deduction for children in vocational training or university education
+ * living away from parents
+ */
+export const AUSBILDUNGSFREIBETRAG_CONSTANTS = {
+  /** Annual tax deduction amount per child in education living away from home */
+  annualDeduction: 1200,
+  /** Minimum age for eligibility (typically 18, but can be younger for vocational training) */
+  minAge: 18,
+  /** Maximum age for eligibility (max 25 years for children in education as per § 32 Abs. 4 EStG) */
+  maxAge: 25,
+  /** Child must be living away from parents to qualify */
+  requiresLivingAway: true,
+  /** Applies to vocational training (Ausbildung) and university (Studium) */
+  applicablePhases: ['ausbildung', 'studium'] as EducationPhase[],
 } as const
 
 /**
@@ -261,6 +299,98 @@ export function calculateBafoegAmount(config: BafoegConfig): number {
 }
 
 /**
+ * Create default Ausbildungsfreibetrag configuration
+ */
+export function createDefaultAusbildungsfreibetragConfig(
+  childBirthYear: number,
+  currentYear: number = new Date().getFullYear(),
+): AusbildungsfreibetragConfig {
+  const startAge = AUSBILDUNGSFREIBETRAG_CONSTANTS.minAge
+  const startYear = Math.max(currentYear, childBirthYear + startAge)
+  const endYear = childBirthYear + AUSBILDUNGSFREIBETRAG_CONSTANTS.maxAge
+
+  return {
+    enabled: false,
+    livingAwayFromParents: true, // Required for § 33a Abs. 2
+    startYear,
+    endYear,
+  }
+}
+
+/**
+ * Check if the year is within the configured Ausbildungsfreibetrag range
+ */
+function isWithinConfiguredRange(
+  config: AusbildungsfreibetragConfig,
+  year: number,
+): boolean {
+  return year >= config.startYear && year <= config.endYear
+}
+
+/**
+ * Check if child is in an applicable education phase for Ausbildungsfreibetrag
+ */
+function isInApplicableEducationPhase(
+  phases: EducationPhaseConfig[],
+  year: number,
+): boolean {
+  const activePhases = phases.filter((phase) => year >= phase.startYear && year <= phase.endYear)
+  return activePhases.some((phase) =>
+    AUSBILDUNGSFREIBETRAG_CONSTANTS.applicablePhases.includes(phase.phase)
+  )
+}
+
+/**
+ * Check if child's age meets Ausbildungsfreibetrag requirements
+ */
+function meetsAgeRequirements(
+  birthYear: number,
+  year: number,
+): boolean {
+  const childAge = year - birthYear
+  return childAge >= AUSBILDUNGSFREIBETRAG_CONSTANTS.minAge && 
+         childAge <= AUSBILDUNGSFREIBETRAG_CONSTANTS.maxAge
+}
+
+/**
+ * Check if a child is eligible for Ausbildungsfreibetrag in a given year
+ */
+export function isEligibleForAusbildungsfreibetrag(
+  config: ChildrenEducationConfig,
+  year: number,
+): boolean {
+  // Check if Ausbildungsfreibetrag is enabled and configured
+  if (!config.ausbildungsfreibetragConfig || !config.ausbildungsfreibetragConfig.enabled) {
+    return false
+  }
+
+  const afConfig = config.ausbildungsfreibetragConfig
+
+  // Check all eligibility criteria
+  return (
+    afConfig.livingAwayFromParents &&
+    isWithinConfiguredRange(afConfig, year) &&
+    isInApplicableEducationPhase(config.phases, year) &&
+    meetsAgeRequirements(config.birthYear, year)
+  )
+}
+
+/**
+ * Calculate the annual Ausbildungsfreibetrag amount for a given year
+ * Returns the tax deduction amount according to § 33a Abs. 2 EStG
+ */
+export function calculateAusbildungsfreibetrag(
+  config: ChildrenEducationConfig,
+  year: number,
+): number {
+  if (!isEligibleForAusbildungsfreibetrag(config, year)) {
+    return 0
+  }
+
+  return AUSBILDUNGSFREIBETRAG_CONSTANTS.annualDeduction
+}
+
+/**
  * Calculate education costs for a specific year
  */
 export function calculateEducationCostsForYear(
@@ -273,6 +403,7 @@ export function calculateEducationCostsForYear(
   netAnnualCost: number
   activePhases: EducationPhaseConfig[]
   taxDeduction: number
+  ausbildungsfreibetrag: number
 } {
   // Find active phases for this year
   const activePhases = config.phases.filter((phase) => year >= phase.startYear && year <= phase.endYear)
@@ -307,6 +438,10 @@ export function calculateEducationCostsForYear(
     }
   }
 
+  // Add Ausbildungsfreibetrag to tax deduction (§ 33a Abs. 2 EStG)
+  const ausbildungsfreibetrag = calculateAusbildungsfreibetrag(config, year)
+  taxDeduction += ausbildungsfreibetrag
+
   // Net cost is total cost minus BAföG support (BAföG reduces out-of-pocket expenses)
   const netAnnualCost = Math.max(0, totalAnnualCost - bafoegSupport)
 
@@ -317,6 +452,7 @@ export function calculateEducationCostsForYear(
     netAnnualCost,
     activePhases,
     taxDeduction,
+    ausbildungsfreibetrag,
   }
 }
 
@@ -466,6 +602,7 @@ export function createStandardEducationPath(
       createDefaultPhaseConfig('studium', childBirthYear, currentYear),
     ],
     bafoegConfig: createDefaultBafoegConfig(childBirthYear, currentYear),
+    ausbildungsfreibetragConfig: createDefaultAusbildungsfreibetragConfig(childBirthYear, currentYear),
     includeKindergeld: true,
     notes: '',
   }
@@ -489,6 +626,7 @@ export function createVocationalEducationPath(
       createDefaultPhaseConfig('weiterfuehrend', childBirthYear, currentYear),
       createDefaultPhaseConfig('ausbildung', childBirthYear, currentYear),
     ],
+    ausbildungsfreibetragConfig: createDefaultAusbildungsfreibetragConfig(childBirthYear, currentYear),
     includeKindergeld: true,
     notes: '',
   }

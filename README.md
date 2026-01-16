@@ -1584,6 +1584,12 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
       - Unterscheidung zwischen Wohnen bei Eltern (max. 633€) und eigenem Haushalt (max. 934€)
       - 50% Zuschuss, 50% zinsloses Darlehen gemäß BAföG-Regelungen 2024
       - Einkommensabhängige Berechnung mit konfigurierbarem Elterneinkommen
+    - **§ 33a Ausbildungsfreibetrag**: Zusätzliche steuerliche Entlastung für Eltern
+      - 1.200€ jährlicher Freibetrag bei auswärtiger Unterbringung des Kindes
+      - Gültig für volljährige Kinder (18-25 Jahre) in Berufsausbildung oder Studium
+      - Automatische Prüfung der Anspruchsvoraussetzungen (Alter, Bildungsphase, Wohnsituation)
+      - Separate Darstellung in Steuerberechnung neben Sonderausgabenabzug (§ 10 Abs. 1 Nr. 7 EStG)
+      - Integration in Gesamtsteuerberechnung zur realistischen Kostenplanung
     - **Inflationsanpassung**: Automatische Anpassung der Bildungskosten über die Zeit (Standard: 2% p.a.)
     - **Steuerliche Absetzbarkeit**: Berufsausbildung und Studium als Sonderausgaben (max. 6.000€ p.a. nach § 10 Abs. 1 Nr. 7 EStG)
     - **Altersbasierte Berechnung**: Automatische Zuordnung zu Bildungsphasen basierend auf Geburtsjahr
