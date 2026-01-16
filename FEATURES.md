@@ -34,6 +34,72 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### User Experience & Visualisierung
 
+- **📊 Erweiterte Visualisierungsoptionen** - Interaktive Diagramme zur besseren Datenanalyse ⭐⭐⭐
+  - **Mehrjahres-Vergleichsdiagramme** - Visuelle Gegenüberstellung verschiedener Szenarien
+    - Line Chart zum Vergleich von 2-5 Szenarien gleichzeitig
+    - Farbcodierte Linien für verschiedene Strategien
+    - Tooltip mit detaillierten Werten für jedes Jahr
+    - Togglebare Anzeige einzelner Szenarien
+  - **Area Chart für Kapitalentwicklung** - Gestapelte Darstellung von Einzahlungen, Gewinnen und Steuern
+    - Visualisierung der Zusammensetzung des Endkapitals
+    - Separate Bereiche für Beiträge, Gewinne vor Steuern und gezahlte Steuern
+    - Interaktive Legende zum Ein-/Ausblenden einzelner Bereiche
+  - **Bar Chart für Jahr-zu-Jahr Vergleiche** - Balkendiagramme für jährliche Entwicklung
+    - Vergleich von Einzahlungen, Gewinnen und Steuern pro Jahr
+    - Gruppierte oder gestapelte Darstellung
+  - **Exportfunktion** - PNG/SVG-Export aller Diagramme für Präsentationen
+  - **Responsive Design** - Optimierte Darstellung für mobile Geräte
+  - **shadcn/ui Charts Integration** - Moderne, barrierefreie Chart-Komponenten
+  - **Anwendungsfälle**:
+    - Vergleich konservativer vs. aggressiver Anlagestrategien
+    - Visualisierung des Steuereffekts über die Zeit
+    - Präsentation für Finanzberater oder Familie
+
+- **📈 Portfolio-Performance Dashboard** - Übersichtliches Dashboard mit Key Performance Indicators ⭐⭐
+  - **KPIs auf einen Blick** - Wichtigste Kennzahlen prominent dargestellt
+    - Aktuelle Portfoliogröße und Entwicklung
+    - Gesamtrendite (absolut und annualisiert)
+    - Sharpe Ratio und Risiko-Metriken
+    - Steuereffizienz-Score
+  - **Zeitreihen-Analysen** - Entwicklung über verschiedene Zeiträume
+    - 1 Monat, 3 Monate, 1 Jahr, 3 Jahre, 5 Jahre, seit Beginn
+    - Vergleich mit Benchmarks (DAX, MSCI World)
+  - **Risiko-Metriken** - Umfassende Risikobewertung
+    - Maximum Drawdown (größter Verlust vom Höchststand)
+    - Volatilität und Beta
+    - Value at Risk (VaR) für verschiedene Konfidenzniveaus
+  - **Kostenanalyse** - Transparente Darstellung aller Kosten
+    - TER und Transaktionskosten
+    - Steuerliche Belastung
+    - Gesamtkostenquote (Total Cost of Ownership)
+  - **Personalisierte Empfehlungen** - Intelligente Vorschläge basierend auf Portfolio-Analyse
+    - Hinweise zu Rebalancing-Bedarf
+    - Steueroptimierungsmöglichkeiten
+    - Risikoadjustierungsvorschläge
+
+- **🎯 Zielverfolgung und Meilenstein-Benachrichtigungen** - Motivierendes Tracking von Sparzielen ⭐⭐
+  - **Benutzerdefinierte Sparziele** - Flexible Definition eigener Ziele
+    - Sparziel-Name und Zielbetrag
+    - Zieldatum (optional)
+    - Priorität (Hoch/Mittel/Niedrig)
+  - **Automatische Fortschrittsberechnung** - Echtzeitaktualisierung basierend auf Simulation
+    - Prozentuale Zielerreichung
+    - Geschätztes Erreichungsdatum
+    - Erforderliche zusätzliche Sparrate für früheres Erreichen
+  - **Visuelle Fortschrittsanzeige** - Motivierende Darstellung
+    - Farbcodierte Fortschrittsbalken
+    - Icons für verschiedene Zieltypen (Haus, Auto, Ruhestand, etc.)
+    - Konfetti-Animation bei Zielerreichung
+  - **Mehrere Ziele parallel** - Verwaltung verschiedener Sparziele gleichzeitig
+    - Priorisierung von Zielen
+    - Automatische Allokation der Sparrate auf mehrere Ziele
+  - **Lokale Speicherung** - Ziele werden in localStorage gespeichert
+  - **Anwendungsfälle**:
+    - Eigenheim-Anzahlung (50.000 €)
+    - Weltreise (15.000 €)
+    - Ruhestands-Kapital (500.000 €)
+    - Notgroschen-Aufbau (20.000 €)
+
 #### Datenintegration
 
 - **Makroökonomische Indikatoren** - Inflation, Zinsen, BIP-Wachstum
@@ -47,9 +113,100 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Reporting & Visualisierung
 
+- **📄 PDF-Report-Generator für Finanzplanung** - Professioneller PDF-Export der Finanzplanung ⭐⭐
+  - **Umfassender Finanzplan als PDF** - Multi-Seiten-Dokument mit allen relevanten Informationen
+    - **Executive Summary** - Zusammenfassung der wichtigsten Kennzahlen auf einen Blick
+    - **Eingabeparameter** - Dokumentation aller Annahmen und Konfigurationen
+    - **Kapitalentwicklung** - Detaillierte Tabellen und Diagramme
+    - **Steueranalyse** - Aufschlüsselung der Steuerlast über die Jahre
+    - **Szenario-Vergleiche** - Gegenüberstellung verschiedener Strategien
+  - **Professionelles Design** - Hochwertige Formatierung
+    - Firmenlook mit Logo-Upload-Möglichkeit (optional)
+    - Farbcodierte Diagramme und Tabellen
+    - Seitenzahlen und Inhaltsverzeichnis
+  - **Mehrere Vorlagen** - Verschiedene Report-Stile
+    - **Kompakt** - 2-3 Seiten Übersicht für schnellen Überblick
+    - **Standard** - 5-7 Seiten mit allen wichtigen Details
+    - **Ausführlich** - 10+ Seiten mit vollständiger Dokumentation
+  - **Customization** - Anpassbare Elemente
+    - Auswahl der inkludierten Abschnitte
+    - Hinzufügen persönlicher Notizen
+    - Fußzeilen mit Disclaimer und Erstellungsdatum
+  - **Browser-basierte Generierung** - Keine Server-Abhängigkeit
+    - Verwendung von jsPDF oder ähnlicher Client-Side Library
+    - Schnelle Generierung ohne Upload sensibler Daten
+  - **Anwendungsfälle**:
+    - Dokumentation für persönliche Unterlagen
+    - Präsentation für Ehepartner/Familie
+    - Besprechungsunterlage für Finanzberater
+    - Archivierung verschiedener Planungsstände
+  - **Privacy-First** - Alle Berechnungen und PDF-Generierung erfolgen lokal im Browser
+
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
 
 #### Steueroptimierung & Strategien
+
+- **🔄 Rebalancing-Strategie-Vergleichstool** - Vergleich verschiedener Rebalancing-Ansätze ⭐⭐
+  - **5 Rebalancing-Strategien zum Vergleich**:
+    - **Kalenderbasiert** - Feste Intervalle (monatlich, quartalsweise, jährlich)
+    - **Schwellenwertbasiert** - Rebalancing bei Abweichung > X% von Zielallokation
+    - **Hybridansatz** - Kombination aus Kalender und Schwellenwert
+    - **Steueroptimiert** - Minimierung der Steuerlast beim Rebalancing
+    - **Opportunistisch** - Rebalancing nur bei extremen Marktbewegungen
+  - **Langzeit-Simulation** - 10-20 Jahre Backtesting mit historischen Daten
+  - **Metrikenvergleich**:
+    - Portfoliorendite nach Steuern und Kosten
+    - Anzahl der Rebalancing-Transaktionen
+    - Gesamte Transaktionskosten
+    - Steuerbelastung durch Rebalancing
+    - Tracking Error zur Zielallokation
+    - Sharpe Ratio der verschiedenen Strategien
+  - **Visuelle Darstellung** - Diagramme zur Strategiegegenüberstellung
+    - Kapitalentwicklung über Zeit
+    - Kumulative Kosten
+    - Allokations-Drift-Visualisierung
+  - **Empfehlung** - Automatische Identifikation der optimalen Strategie für das Portfolio
+  - **Integration mit Multi-Asset Portfolio** - Nutzung der bestehenden Portfolio-Konfiguration
+  - **Deutsche Steuerkonformität** - Vollständige Berücksichtigung von Teilfreistellung und Freibeträgen
+
+- **💰 Ausgaben-Tracker für Ruhestandsplanung** - Detaillierte Ausgabenplanung für die Entnahmephase ⭐⭐⭐
+  - **Kategorisierte Ausgaben** - Verwaltung verschiedener Ausgabenkategorien
+    - **Fixkosten** - Miete/Kredit, Versicherungen, Abonnements (monatlich)
+    - **Lebenshaltung** - Lebensmittel, Kleidung, Haushalt (monatlich)
+    - **Gesundheit** - Medikamente, Zuzahlungen, Therapien (monatlich/jährlich)
+    - **Freizeit** - Hobbys, Sport, Kultur (monatlich)
+    - **Reisen** - Urlaubsbudget (jährlich)
+    - **Einmalige Ausgaben** - Auto, Renovierung, Geschenke (sporadisch)
+  - **Lebensabschnitts-basierte Anpassungen** - Automatische Änderung der Ausgaben nach Alter
+    - **Aktiver Ruhestand (65-75)** - Höhere Reise- und Freizeitausgaben
+    - **Eingeschränkte Mobilität (75-85)** - Reduzierte Reisen, erhöhte Gesundheitskosten
+    - **Pflegebedarf (85+)** - Deutlich erhöhte Gesundheits- und Pflegekosten
+  - **Inflationsanpassung pro Kategorie** - Verschiedene Inflationsraten für unterschiedliche Kategorien
+    - Gesundheit: 3-5% p.a. (historisch höher)
+    - Lebensmittel: 2-3% p.a.
+    - Miete: 1,5-2,5% p.a.
+  - **Entnahmebedarfs-Berechnung** - Automatische Berechnung der erforderlichen Entnahmen
+    - Gesamtausgaben pro Jahr inklusive Inflation
+    - Abzüglich anderer Einkommensquellen (Rente, Mieteinnahmen)
+    - Ergibt erforderliche Kapitalentnahme
+  - **Integration mit Entnahmestrategien** - Nahtlose Verbindung zu bestehenden Entnahme-Features
+    - Automatische Übernahme in Entnahmesimulation
+    - Validierung ob Kapital für geplante Ausgaben ausreicht
+  - **Szenario-Analysen** - Was-wäre-wenn Analysen für verschiedene Ausgabenniveaus
+    - Konservativ (minimale Ausgaben)
+    - Standard (geplante Ausgaben)
+    - Komfortabel (erhöhter Lebensstandard)
+  - **Visualisierung** - Grafische Darstellung der Ausgabenentwicklung
+    - Gestapeltes Area Chart nach Kategorien
+    - Zeitachse mit Lebensabschnitten
+  - **Warnhinweise** - Proaktive Hinweise bei Finanzierungslücken
+    - Warnung wenn Kapital nicht für gewünschte Ausgaben ausreicht
+    - Vorschläge zur Ausgabenreduktion oder Sparraten-Erhöhung
+  - **Export-Funktionalität** - CSV-Export für externe Analysen
+  - **Anwendungsfälle**:
+    - Realistische Ruhestandsplanung mit detaillierter Ausgabenprojektion
+    - Identifikation von Deckungslücken frühzeitig
+    - Planung verschiedener Ruhestandsszenarien (Frugal vs. Komfortabel)
 
 ### Beratungs- & Bildungsfeatures
 
