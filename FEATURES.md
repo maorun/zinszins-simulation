@@ -34,17 +34,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### User Experience & Visualisierung
 
-- **Interaktive Szenario-Vergleichstabelle** ⭐⭐
-  - **Side-by-Side Vergleich**: Gleichzeitiger Vergleich von bis zu 4 verschiedenen Anlagestrategien
-  - **Parametrierte Szenarien**: Speicherung und Benennung verschiedener Konfigurationen
-  - **Delta-Hervorhebung**: Visuelle Darstellung der Unterschiede zwischen Szenarien
-  - **Best-Case/Worst-Case/Base-Case**: Vordefinierte Szenario-Templates
-  - **Export-Funktion**: PDF-Export der Vergleichstabelle für Beratungsgespräche
-  - **Mobile-optimierte Darstellung**: Responsive Design mit horizontalem Scrolling
-  - **Kennzahlen-Fokus**: Direkter Vergleich von Endkapital, Steuern, Kosten, ROI
-  - **Farbcodierung**: Grün für beste, Rot für schlechteste Option pro Kennzahl
-  - **Prozentuale Abweichungen**: Automatische Berechnung relativer Unterschiede
-
 #### Datenintegration
 
 - **Makroökonomische Indikatoren** - Inflation, Zinsen, BIP-Wachstum

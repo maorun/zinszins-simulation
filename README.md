@@ -1663,6 +1663,9 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Bis zu 5 Szenarien gleichzeitig** - Parallele Simulation unterschiedlicher Anlagestrategien (z.B. konservativ, ausgewogen, aggressiv)
   - **Flexible Parametervariation** - Individuelle Konfiguration von Sparrate, Rendite, Entnahmestrategie und Steuersituation pro Szenario
   - **Farbcodierte Visualisierung** - Überlagertes Liniendiagramm mit eindeutiger Szenario-Zuordnung
+  - **Delta-Hervorhebung** - Farbcodierte Tabellenzellen mit grüner Markierung für beste und roter Markierung für schlechteste Werte pro Kennzahl
+  - **Prozentuale Abweichungen** - Automatische Berechnung und Anzeige relativer Unterschiede vom Basis-Szenario mit +/- Vorzeichen
+  - **Intelligente Vergleichslogik** - Invertierte Bewertung für Kostenmetriken (niedrigere Steuern = besser)
   - **Statistischer Vergleich**:
     - Identifikation des besten und schlechtesten Szenarios
     - Durchschnittswerte und Median-Berechnung
@@ -1670,7 +1673,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Standardabweichung und Spannweite der Ergebnisse
   - **Echtzeit-Metriken** - Anzeige von Endkapital, annualisierter Rendite, Gesamtertrag und Steuerlast pro Szenario
   - **Nominal vs. Real** - Umschaltbare Ansicht zwischen nominalen und inflationsbereinigten Werten
-  - **Vergleichstabelle** - Detaillierte Gegenüberstellung aller Szenarien mit wichtigsten Kennzahlen
+  - **Vergleichstabelle** - Detaillierte Gegenüberstellung aller Szenarien mit wichtigsten Kennzahlen und visueller Hervorhebung
   - **Integration mit Hauptkonfiguration** - Neue Szenarien basieren automatisch auf aktuellen Simulationseinstellungen
   - **Ergänzung zu Monte Carlo** - Deterministische Szenario-Vergleiche als Gegenstück zur stochastischen Monte Carlo Analyse
 - **Sensitivitätsanalyse** - Analyse der Auswirkungen von Parameteränderungen
