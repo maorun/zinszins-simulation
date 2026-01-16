@@ -2,7 +2,9 @@ import { useState, useMemo } from 'react'
 import { Card, CardContent } from './ui/card'
 import { Collapsible, CollapsibleContent } from './ui/collapsible'
 import { CollapsibleCardHeader } from './ui/collapsible-card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { TaxLossHarvestingSection } from './tax-config/TaxLossHarvestingSection'
+import { PortfolioTrackerSection } from './tax-config/PortfolioTrackerSection'
 import { calculateTaxLossHarvesting, getDefaultTaxLossHarvestingConfig } from '../../helpers/tax-loss-harvesting'
 import { useSimulation } from '../contexts/useSimulation'
 import { formatCurrency } from '../utils/currency'
@@ -85,19 +87,39 @@ export function TaxLossHarvestingCard() {
     return calculateTaxLossHarvesting({ ...config, year: currentYear }, 10000, 500, effectiveTaxRate)
   }, [config, currentYear, steuerlast, teilfreistellungsquote])
 
+  const effectiveTaxRate = (steuerlast / 100) * (1 - teilfreistellungsquote / 100)
+
   return (
     <Card nestingLevel={1}>
       <Collapsible defaultOpen={false}>
         <CollapsibleCardHeader titleClassName="text-left" simplifiedPadding>
-          📉 Verlustverrechnungs-Rechner
+          📉 Tax Loss Harvesting (Verlustverrechnung)
         </CollapsibleCardHeader>
         <CollapsibleContent>
           <CardContent nestingLevel={1}>
-            <div className="space-y-4">
-              <InfoMessage />
-              <TaxLossHarvestingSection config={config} onConfigChange={setConfig} />
-              {result && <ResultsDisplay result={result} />}
-            </div>
+            <Tabs defaultValue="calculator" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="calculator">Einfacher Rechner</TabsTrigger>
+                <TabsTrigger value="tracker">Portfolio Tracker</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="calculator" className="space-y-4" forceMount>
+                <InfoMessage />
+                <TaxLossHarvestingSection config={config} onConfigChange={setConfig} />
+                {result && <ResultsDisplay result={result} />}
+              </TabsContent>
+
+              <TabsContent value="tracker" className="space-y-4" forceMount>
+                <div className="text-sm text-muted-foreground bg-purple-50 border border-purple-200 rounded-lg p-3">
+                  <p className="font-medium text-purple-900 mb-1">🚀 Portfolio Tax Loss Harvesting Tracker</p>
+                  <p className="text-xs text-purple-800">
+                    Verwalten Sie Ihre Portfolio-Positionen und erhalten Sie automatisch priorisierte
+                    Verlustrealisierungs-Empfehlungen mit Wash-Sale-Regel-Prüfung und Ersatz-Investment-Vorschlägen.
+                  </p>
+                </div>
+                <PortfolioTrackerSection taxRate={effectiveTaxRate} teilfreistellungsquote={teilfreistellungsquote} />
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </CollapsibleContent>
       </Collapsible>

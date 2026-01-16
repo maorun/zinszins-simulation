@@ -8,18 +8,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
-- **Steuerverlust-Offsetting-Strategie (Tax Loss Harvesting Tracker)** ⭐⭐⭐
-  - **Automatische Verlust-Opportunitäts-Erkennung**: Identifikation von Positionen mit unrealisierten Verlusten zur Steueroptimierung
-  - **Wash-Sale-Regel-Berücksichtigung**: Einhaltung der 30-Tage-Regel zur Vermeidung von Wash Sales
-  - **Ersatz-Investment-Vorschläge**: Empfehlung ähnlicher Investments zur Aufrechterhaltung der Asset Allocation
-  - **Jährliche Verlustnutzungs-Planung**: Optimale Timing-Strategie für Verlustrealisierung
-  - **Verlusttopf-Integration**: Berücksichtigung bestehender Verlustverrechnungstöpfe nach deutschem Steuerrecht
-  - **Steuerersparnis-Kalkulation**: Berechnung der konkreten Steuerersparnisse durch Tax Loss Harvesting
-  - **Multi-Jahres-Verlustvortrags-Planung**: Strategische Nutzung von Verlustvorträgen über mehrere Jahre
-  - **Priorisierung nach Steuereffizienz**: Automatisches Ranking der Harvesting-Opportunitäten
-  - **Transaktionskosten-Berücksichtigung**: Kosten-Nutzen-Analyse vor Verkauf
-
-(Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation, Sozialversicherungs-Optimierung für Grenzfälle bereits implementiert)
+(Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation, Sozialversicherungs-Optimierung für Grenzfälle, Tax Loss Harvesting Tracker bereits implementiert)
 
 ### Erweiterte Finanzplanung
 
