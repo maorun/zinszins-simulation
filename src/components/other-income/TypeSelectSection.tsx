@@ -27,6 +27,10 @@ export function TypeSelectSection({ editingSource, onTypeChange }: TypeSelectSec
         <option value="kapitallebensversicherung">Kapitallebensversicherung</option>
         <option value="pflegezusatzversicherung">Pflegezusatzversicherung</option>
         <option value="risikolebensversicherung">Risikolebensversicherung</option>
+        <option value="kinder_bildung">Kinder-Bildung</option>
+        <option value="depot_auf_kind">Depot-auf-Kind-Strategie</option>
+        <option value="ruerup_rente">Rürup-Rente</option>
+        <option value="riester_rente">Riester-Rente</option>
         <option value="other">Sonstige Einkünfte</option>
       </select>
     </div>
