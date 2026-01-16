@@ -2,8 +2,11 @@ import { describe, it, expect } from 'vitest'
 import {
   createDefaultPhaseConfig,
   createDefaultBafoegConfig,
+  createDefaultAusbildungsfreibetragConfig,
   calculateBafoegEligibility,
   calculateBafoegAmount,
+  isEligibleForAusbildungsfreibetrag,
+  calculateAusbildungsfreibetrag,
   calculateEducationCostsForYear,
   calculateTotalEducationCosts,
   createStandardEducationPath,
@@ -13,6 +16,7 @@ import {
   validateChildrenEducationConfig,
   DEFAULT_EDUCATION_COSTS,
   BAFOEG_CONSTANTS,
+  AUSBILDUNGSFREIBETRAG_CONSTANTS,
   type ChildrenEducationConfig,
   type BafoegConfig,
 } from './children-education'
@@ -743,6 +747,386 @@ describe('children-education', () => {
       }
       const errors = validateChildrenEducationConfig(config)
       expect(errors.some((e) => e.includes('Elterneinkommen'))).toBe(true)
+    })
+  })
+
+  describe('§ 33a Ausbildungsfreibetrag', () => {
+    describe('createDefaultAusbildungsfreibetragConfig', () => {
+      it('should create default configuration with correct year ranges', () => {
+        const config = createDefaultAusbildungsfreibetragConfig(2005, 2024)
+
+        expect(config.enabled).toBe(false)
+        expect(config.livingAwayFromParents).toBe(true)
+        expect(config.startYear).toBe(2024) // max(2024, 2005+18=2023) = 2024
+        expect(config.endYear).toBe(2030) // 2005+25
+      })
+
+      it('should handle future start year correctly', () => {
+        const config = createDefaultAusbildungsfreibetragConfig(2010, 2024)
+
+        expect(config.startYear).toBe(2028) // 2010+18
+        expect(config.endYear).toBe(2035) // 2010+25
+      })
+
+      it('should respect minimum age requirement', () => {
+        const config = createDefaultAusbildungsfreibetragConfig(2006, 2024)
+
+        expect(config.startYear).toBe(2024) // 2006+18=2024
+        expect(config.endYear).toBe(2031) // 2006+25
+      })
+    })
+
+    describe('isEligibleForAusbildungsfreibetrag', () => {
+      const baseConfig: ChildrenEducationConfig = {
+        childName: 'Anna',
+        birthYear: 2005,
+        educationPath: 'regelweg',
+        phases: [
+          {
+            phase: 'studium',
+            monthlyCost: 850,
+            startYear: 2024,
+            endYear: 2027,
+            inflationRate: 2.0,
+            taxDeductible: true,
+            maxAnnualTaxDeduction: 6000,
+          },
+        ],
+        ausbildungsfreibetragConfig: {
+          enabled: true,
+          livingAwayFromParents: true,
+          startYear: 2023,
+          endYear: 2030,
+        },
+        includeKindergeld: true,
+      }
+
+      it('should return true when all conditions are met', () => {
+        expect(isEligibleForAusbildungsfreibetrag(baseConfig, 2024)).toBe(true)
+      })
+
+      it('should return false when disabled', () => {
+        const config = {
+          ...baseConfig,
+          ausbildungsfreibetragConfig: {
+            ...baseConfig.ausbildungsfreibetragConfig!,
+            enabled: false,
+          },
+        }
+        expect(isEligibleForAusbildungsfreibetrag(config, 2024)).toBe(false)
+      })
+
+      it('should return false when not living away from parents', () => {
+        const config = {
+          ...baseConfig,
+          ausbildungsfreibetragConfig: {
+            ...baseConfig.ausbildungsfreibetragConfig!,
+            livingAwayFromParents: false,
+          },
+        }
+        expect(isEligibleForAusbildungsfreibetrag(config, 2024)).toBe(false)
+      })
+
+      it('should return false when year is before start year', () => {
+        expect(isEligibleForAusbildungsfreibetrag(baseConfig, 2022)).toBe(false)
+      })
+
+      it('should return false when year is after end year', () => {
+        expect(isEligibleForAusbildungsfreibetrag(baseConfig, 2031)).toBe(false)
+      })
+
+      it('should return false when not in applicable phase', () => {
+        const config = {
+          ...baseConfig,
+          phases: [
+            {
+              phase: 'kita' as const,
+              monthlyCost: 300,
+              startYear: 2024,
+              endYear: 2027,
+              inflationRate: 2.0,
+              taxDeductible: false,
+              maxAnnualTaxDeduction: 0,
+            },
+          ],
+        }
+        expect(isEligibleForAusbildungsfreibetrag(config, 2024)).toBe(false)
+      })
+
+      it('should return true for Ausbildung phase', () => {
+        const config = {
+          ...baseConfig,
+          phases: [
+            {
+              phase: 'ausbildung' as const,
+              monthlyCost: 150,
+              startYear: 2024,
+              endYear: 2027,
+              inflationRate: 2.0,
+              taxDeductible: true,
+              maxAnnualTaxDeduction: 6000,
+            },
+          ],
+        }
+        expect(isEligibleForAusbildungsfreibetrag(config, 2024)).toBe(true)
+      })
+
+      it('should return false when child is too young', () => {
+        const config = {
+          ...baseConfig,
+          birthYear: 2010, // 14 years old in 2024
+        }
+        expect(isEligibleForAusbildungsfreibetrag(config, 2024)).toBe(false)
+      })
+
+      it('should return false when child is too old', () => {
+        const config = {
+          ...baseConfig,
+          birthYear: 1998, // 26 years old in 2024
+        }
+        expect(isEligibleForAusbildungsfreibetrag(config, 2024)).toBe(false)
+      })
+
+      it('should return true when child is exactly 18', () => {
+        const config = {
+          ...baseConfig,
+          birthYear: 2006, // 18 years old in 2024
+        }
+        expect(isEligibleForAusbildungsfreibetrag(config, 2024)).toBe(true)
+      })
+
+      it('should return true when child is exactly 25', () => {
+        const config = {
+          ...baseConfig,
+          birthYear: 1999, // 25 years old in 2024
+        }
+        expect(isEligibleForAusbildungsfreibetrag(config, 2024)).toBe(true)
+      })
+
+      it('should return false when config is undefined', () => {
+        const config = {
+          ...baseConfig,
+          ausbildungsfreibetragConfig: undefined,
+        }
+        expect(isEligibleForAusbildungsfreibetrag(config, 2024)).toBe(false)
+      })
+    })
+
+    describe('calculateAusbildungsfreibetrag', () => {
+      const baseConfig: ChildrenEducationConfig = {
+        childName: 'Max',
+        birthYear: 2005,
+        educationPath: 'regelweg',
+        phases: [
+          {
+            phase: 'studium',
+            monthlyCost: 850,
+            startYear: 2024,
+            endYear: 2027,
+            inflationRate: 2.0,
+            taxDeductible: true,
+            maxAnnualTaxDeduction: 6000,
+          },
+        ],
+        ausbildungsfreibetragConfig: {
+          enabled: true,
+          livingAwayFromParents: true,
+          startYear: 2023,
+          endYear: 2030,
+        },
+        includeKindergeld: true,
+      }
+
+      it('should return correct annual deduction when eligible', () => {
+        const result = calculateAusbildungsfreibetrag(baseConfig, 2024)
+        expect(result).toBe(AUSBILDUNGSFREIBETRAG_CONSTANTS.annualDeduction)
+        expect(result).toBe(1200)
+      })
+
+      it('should return 0 when not eligible', () => {
+        const config = {
+          ...baseConfig,
+          ausbildungsfreibetragConfig: {
+            ...baseConfig.ausbildungsfreibetragConfig!,
+            enabled: false,
+          },
+        }
+        expect(calculateAusbildungsfreibetrag(config, 2024)).toBe(0)
+      })
+
+      it('should return 0 when living with parents', () => {
+        const config = {
+          ...baseConfig,
+          ausbildungsfreibetragConfig: {
+            ...baseConfig.ausbildungsfreibetragConfig!,
+            livingAwayFromParents: false,
+          },
+        }
+        expect(calculateAusbildungsfreibetrag(config, 2024)).toBe(0)
+      })
+
+      it('should return 0 for years outside range', () => {
+        expect(calculateAusbildungsfreibetrag(baseConfig, 2022)).toBe(0)
+        expect(calculateAusbildungsfreibetrag(baseConfig, 2031)).toBe(0)
+      })
+
+      it('should work for Ausbildung phase', () => {
+        const config = {
+          ...baseConfig,
+          phases: [
+            {
+              phase: 'ausbildung' as const,
+              monthlyCost: 150,
+              startYear: 2024,
+              endYear: 2027,
+              inflationRate: 2.0,
+              taxDeductible: true,
+              maxAnnualTaxDeduction: 6000,
+            },
+          ],
+        }
+        expect(calculateAusbildungsfreibetrag(config, 2024)).toBe(1200)
+      })
+    })
+
+    describe('calculateEducationCostsForYear with Ausbildungsfreibetrag', () => {
+      it('should include Ausbildungsfreibetrag in tax deduction', () => {
+        const config: ChildrenEducationConfig = {
+          childName: 'Lisa',
+          birthYear: 2005,
+          educationPath: 'regelweg',
+          phases: [
+            {
+              phase: 'studium',
+              monthlyCost: 850,
+              startYear: 2024,
+              endYear: 2027,
+              inflationRate: 0,
+              taxDeductible: true,
+              maxAnnualTaxDeduction: 6000,
+            },
+          ],
+          ausbildungsfreibetragConfig: {
+            enabled: true,
+            livingAwayFromParents: true,
+            startYear: 2023,
+            endYear: 2030,
+          },
+          includeKindergeld: true,
+        }
+
+        const result = calculateEducationCostsForYear(config, 2024)
+
+        // Tax deduction should be phase deduction (6000) + Ausbildungsfreibetrag (1200)
+        expect(result.taxDeduction).toBe(6000 + 1200)
+        expect(result.ausbildungsfreibetrag).toBe(1200)
+      })
+
+      it('should return separate ausbildungsfreibetrag value', () => {
+        const config: ChildrenEducationConfig = {
+          childName: 'Tom',
+          birthYear: 2005,
+          educationPath: 'regelweg',
+          phases: [
+            {
+              phase: 'studium',
+              monthlyCost: 850,
+              startYear: 2024,
+              endYear: 2027,
+              inflationRate: 0,
+              taxDeductible: true,
+              maxAnnualTaxDeduction: 6000,
+            },
+          ],
+          ausbildungsfreibetragConfig: {
+            enabled: true,
+            livingAwayFromParents: true,
+            startYear: 2023,
+            endYear: 2030,
+          },
+          includeKindergeld: true,
+        }
+
+        const result = calculateEducationCostsForYear(config, 2024)
+
+        expect(result).toHaveProperty('ausbildungsfreibetrag')
+        expect(result.ausbildungsfreibetrag).toBe(1200)
+      })
+
+      it('should not add Ausbildungsfreibetrag when disabled', () => {
+        const config: ChildrenEducationConfig = {
+          childName: 'Anna',
+          birthYear: 2005,
+          educationPath: 'regelweg',
+          phases: [
+            {
+              phase: 'studium',
+              monthlyCost: 850,
+              startYear: 2024,
+              endYear: 2027,
+              inflationRate: 0,
+              taxDeductible: true,
+              maxAnnualTaxDeduction: 6000,
+            },
+          ],
+          ausbildungsfreibetragConfig: {
+            enabled: false,
+            livingAwayFromParents: true,
+            startYear: 2023,
+            endYear: 2030,
+          },
+          includeKindergeld: true,
+        }
+
+        const result = calculateEducationCostsForYear(config, 2024)
+
+        expect(result.taxDeduction).toBe(6000) // Only phase deduction, no Ausbildungsfreibetrag
+        expect(result.ausbildungsfreibetrag).toBe(0)
+      })
+
+      it('should work without ausbildungsfreibetragConfig', () => {
+        const config: ChildrenEducationConfig = {
+          childName: 'Max',
+          birthYear: 2005,
+          educationPath: 'regelweg',
+          phases: [
+            {
+              phase: 'studium',
+              monthlyCost: 850,
+              startYear: 2024,
+              endYear: 2027,
+              inflationRate: 0,
+              taxDeductible: true,
+              maxAnnualTaxDeduction: 6000,
+            },
+          ],
+          includeKindergeld: true,
+        }
+
+        const result = calculateEducationCostsForYear(config, 2024)
+
+        expect(result.taxDeduction).toBe(6000)
+        expect(result.ausbildungsfreibetrag).toBe(0)
+      })
+    })
+
+    describe('AUSBILDUNGSFREIBETRAG_CONSTANTS', () => {
+      it('should have correct annual deduction amount', () => {
+        expect(AUSBILDUNGSFREIBETRAG_CONSTANTS.annualDeduction).toBe(1200)
+      })
+
+      it('should have correct age limits', () => {
+        expect(AUSBILDUNGSFREIBETRAG_CONSTANTS.minAge).toBe(18)
+        expect(AUSBILDUNGSFREIBETRAG_CONSTANTS.maxAge).toBe(25)
+      })
+
+      it('should require living away from parents', () => {
+        expect(AUSBILDUNGSFREIBETRAG_CONSTANTS.requiresLivingAway).toBe(true)
+      })
+
+      it('should have correct applicable phases', () => {
+        expect(AUSBILDUNGSFREIBETRAG_CONSTANTS.applicablePhases).toEqual(['ausbildung', 'studium'])
+      })
     })
   })
 })

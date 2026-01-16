@@ -318,46 +318,61 @@ export function createDefaultAusbildungsfreibetragConfig(
 }
 
 /**
+ * Check if the year is within the configured Ausbildungsfreibetrag range
+ */
+function isWithinConfiguredRange(
+  config: AusbildungsfreibetragConfig,
+  year: number,
+): boolean {
+  return year >= config.startYear && year <= config.endYear
+}
+
+/**
+ * Check if child is in an applicable education phase for Ausbildungsfreibetrag
+ */
+function isInApplicableEducationPhase(
+  phases: EducationPhaseConfig[],
+  year: number,
+): boolean {
+  const activePhases = phases.filter((phase) => year >= phase.startYear && year <= phase.endYear)
+  return activePhases.some((phase) =>
+    AUSBILDUNGSFREIBETRAG_CONSTANTS.applicablePhases.includes(phase.phase)
+  )
+}
+
+/**
+ * Check if child's age meets Ausbildungsfreibetrag requirements
+ */
+function meetsAgeRequirements(
+  birthYear: number,
+  year: number,
+): boolean {
+  const childAge = year - birthYear
+  return childAge >= AUSBILDUNGSFREIBETRAG_CONSTANTS.minAge && 
+         childAge <= AUSBILDUNGSFREIBETRAG_CONSTANTS.maxAge
+}
+
+/**
  * Check if a child is eligible for Ausbildungsfreibetrag in a given year
  */
 export function isEligibleForAusbildungsfreibetrag(
   config: ChildrenEducationConfig,
   year: number,
 ): boolean {
-  // Check if Ausbildungsfreibetrag is enabled
+  // Check if Ausbildungsfreibetrag is enabled and configured
   if (!config.ausbildungsfreibetragConfig || !config.ausbildungsfreibetragConfig.enabled) {
     return false
   }
 
   const afConfig = config.ausbildungsfreibetragConfig
 
-  // Check if year is within configured range
-  if (year < afConfig.startYear || year > afConfig.endYear) {
-    return false
-  }
-
-  // Check if living away from parents (required by § 33a Abs. 2)
-  if (!afConfig.livingAwayFromParents) {
-    return false
-  }
-
-  // Check if child is in an applicable education phase (Ausbildung or Studium)
-  const activePhases = config.phases.filter((phase) => year >= phase.startYear && year <= phase.endYear)
-  const hasApplicablePhase = activePhases.some((phase) =>
-    AUSBILDUNGSFREIBETRAG_CONSTANTS.applicablePhases.includes(phase.phase)
+  // Check all eligibility criteria
+  return (
+    afConfig.livingAwayFromParents &&
+    isWithinConfiguredRange(afConfig, year) &&
+    isInApplicableEducationPhase(config.phases, year) &&
+    meetsAgeRequirements(config.birthYear, year)
   )
-
-  if (!hasApplicablePhase) {
-    return false
-  }
-
-  // Check age requirements
-  const childAge = year - config.birthYear
-  if (childAge < AUSBILDUNGSFREIBETRAG_CONSTANTS.minAge || childAge > AUSBILDUNGSFREIBETRAG_CONSTANTS.maxAge) {
-    return false
-  }
-
-  return true
 }
 
 /**
