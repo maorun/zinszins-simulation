@@ -602,6 +602,7 @@ export function createStandardEducationPath(
       createDefaultPhaseConfig('studium', childBirthYear, currentYear),
     ],
     bafoegConfig: createDefaultBafoegConfig(childBirthYear, currentYear),
+    ausbildungsfreibetragConfig: createDefaultAusbildungsfreibetragConfig(childBirthYear, currentYear),
     includeKindergeld: true,
     notes: '',
   }
@@ -625,6 +626,7 @@ export function createVocationalEducationPath(
       createDefaultPhaseConfig('weiterfuehrend', childBirthYear, currentYear),
       createDefaultPhaseConfig('ausbildung', childBirthYear, currentYear),
     ],
+    ausbildungsfreibetragConfig: createDefaultAusbildungsfreibetragConfig(childBirthYear, currentYear),
     includeKindergeld: true,
     notes: '',
   }

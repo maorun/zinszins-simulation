@@ -172,7 +172,52 @@ function InfoNotesCard() {
         <strong>📚 Steuerlich absetzbar:</strong> Berufsausbildung und Studium können als Sonderausgaben geltend gemacht
         werden (max. 6.000 € pro Jahr nach § 10 Abs. 1 Nr. 7 EStG).
       </p>
+      <p className="text-xs text-purple-700 mt-1">
+        <strong>🏠 § 33a Ausbildungsfreibetrag:</strong> Zusätzlich 1.200 € pro Jahr, wenn das Kind auswärtig untergebracht ist
+        (18-25 Jahre, bei Berufsausbildung oder Studium).
+      </p>
     </div>
+  )
+}
+
+function AusbildungsfreibetragInfoCard({ config }: { config: ChildrenEducationConfig }) {
+  if (!config.ausbildungsfreibetragConfig?.enabled) return null
+
+  const afConfig = config.ausbildungsfreibetragConfig
+  const currentAge = new Date().getFullYear() - config.birthYear
+
+  return (
+    <Card className="bg-green-50 border-green-300">
+      <div className="p-3 space-y-2">
+        <h5 className="text-sm font-semibold text-green-900 mb-2">
+          🏠 § 33a Ausbildungsfreibetrag
+        </h5>
+        <div className="space-y-1 text-xs text-green-800">
+          <div className="flex justify-between">
+            <span>Jährlicher Freibetrag:</span>
+            <span className="font-semibold">1.200 €</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Zeitraum:</span>
+            <span>
+              {afConfig.startYear} - {afConfig.endYear}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>Auswärtig untergebracht:</span>
+            <span>{afConfig.livingAwayFromParents ? 'Ja ✓' : 'Nein'}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Aktuelles Alter:</span>
+            <span>{currentAge} Jahre</span>
+          </div>
+        </div>
+        <p className="mt-2 text-xs text-green-700 italic">
+          ℹ️ Der Ausbildungsfreibetrag reduziert das zu versteuernde Einkommen der Eltern um bis zu 1.200 € pro Jahr.
+          Gültig für volljährige Kinder (18-25 Jahre) in Berufsausbildung oder Studium, die auswärtig untergebracht sind.
+        </p>
+      </div>
+    </Card>
   )
 }
 
@@ -223,6 +268,7 @@ export function ChildrenEducationConfigSection({
       <EducationPathSelector config={config} onEducationPathChange={handleEducationPathChange} />
       <PhasesOverviewCard config={config} />
       <BafoegInfoCard config={config} />
+      <AusbildungsfreibetragInfoCard config={config} />
       <InfoNotesCard />
     </div>
   )
