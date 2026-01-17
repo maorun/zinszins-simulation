@@ -34,27 +34,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### User Experience & Visualisierung
 
-- **📊 Erweiterte Visualisierungsoptionen** - Interaktive Diagramme zur besseren Datenanalyse ⭐⭐⭐
-  - **Mehrjahres-Vergleichsdiagramme** - Visuelle Gegenüberstellung verschiedener Szenarien
-    - Line Chart zum Vergleich von 2-5 Szenarien gleichzeitig
-    - Farbcodierte Linien für verschiedene Strategien
-    - Tooltip mit detaillierten Werten für jedes Jahr
-    - Togglebare Anzeige einzelner Szenarien
-  - **Area Chart für Kapitalentwicklung** - Gestapelte Darstellung von Einzahlungen, Gewinnen und Steuern
-    - Visualisierung der Zusammensetzung des Endkapitals
-    - Separate Bereiche für Beiträge, Gewinne vor Steuern und gezahlte Steuern
-    - Interaktive Legende zum Ein-/Ausblenden einzelner Bereiche
-  - **Bar Chart für Jahr-zu-Jahr Vergleiche** - Balkendiagramme für jährliche Entwicklung
-    - Vergleich von Einzahlungen, Gewinnen und Steuern pro Jahr
-    - Gruppierte oder gestapelte Darstellung
-  - **Exportfunktion** - PNG/SVG-Export aller Diagramme für Präsentationen
-  - **Responsive Design** - Optimierte Darstellung für mobile Geräte
-  - **shadcn/ui Charts Integration** - Moderne, barrierefreie Chart-Komponenten
-  - **Anwendungsfälle**:
-    - Vergleich konservativer vs. aggressiver Anlagestrategien
-    - Visualisierung des Steuereffekts über die Zeit
-    - Präsentation für Finanzberater oder Familie
-
 - **📈 Portfolio-Performance Dashboard** - Übersichtliches Dashboard mit Key Performance Indicators ⭐⭐
   - **KPIs auf einen Blick** - Wichtigste Kennzahlen prominent dargestellt
     - Aktuelle Portfoliogröße und Entwicklung
