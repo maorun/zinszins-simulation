@@ -1409,6 +1409,27 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Integration in Entnahmeplanung**: Nahtlose Verknüpfung mit bestehenden Entnahmestrategien für realistische Ruhestandsplanung
   - **Forschungsbasis**: Basierend auf Studien zu Ausgabenmustern im Ruhestand (typisch ~1-2% realer Rückgang pro Jahr)
   - **Vollständig getestet**: 117 Tests mit 100% Pass-Rate (58 Helper-Tests + 59 UI-Component-Tests)
+- **Ausgaben-Tracker für Ruhestandsplanung** - Detaillierte Ausgabenplanung mit kategorisierten Ausgaben ⭐⭐⭐
+  - **6 Ausgabenkategorien**: Fixkosten, Lebenshaltung, Gesundheit, Freizeit, Reisen, Einmalige Ausgaben
+  - **Individuelle Inflationsraten**: Jede Kategorie hat eigene Inflationsrate basierend auf historischen Daten
+    - Fixkosten (2,0% p.a.), Lebenshaltung (2,5% p.a.), Gesundheit (4,0% p.a.)
+    - Freizeit (2,0% p.a.), Reisen (3,0% p.a.), Einmalige Ausgaben (2,0% p.a.)
+  - **Lebensabschnitts-basierte Anpassungen**: Automatische Ausgabenanpassung nach Alter
+    - **Aktiver Ruhestand (65-74 Jahre)**: Höhere Reise- und Freizeitausgaben
+    - **Eingeschränkte Mobilität (75-84 Jahre)**: Reduzierte Reisen, erhöhte Gesundheitskosten
+    - **Pflegebedarf (85+ Jahre)**: Deutlich erhöhte Gesundheits- und Pflegekosten
+  - **Kategorie-spezifische Multiplikatoren**: Realistische Anpassung je Lebensabschnitt
+    - Reisen: 100% → 50% → 20% (vom aktiven Ruhestand bis Pflegebedarf)
+    - Gesundheit: 100% → 150% → 200% (steigende Gesundheitskosten im Alter)
+  - **Interaktive Konfiguration**: Monatliche Beträge und Inflationsraten pro Kategorie anpassbar
+  - **Live-Vorschau mit Statistiken**: 
+    - Gesamtausgaben über gesamten Ruhestandszeitraum
+    - Durchschnittliche Jahresausgaben
+    - Höchstes und niedrigstes Ausgabenjahr
+  - **Jahr-für-Jahr Übersicht**: Detaillierte Tabelle mit Ausgaben, Lebensabschnitt und Alter
+  - **Validierung**: Automatische Prüfung der Konfiguration mit deutschen Fehlermeldungen
+  - **Integration**: Nahtlose Integration in Entnahmeplanung (WithdrawalVariablesCard)
+  - **Vollständig getestet**: 52 Tests mit 100% Pass-Rate (35 Helper-Tests + 17 UI-Component-Tests)
 - **Steueroptimierte Entnahme** - Automatische Optimierung zur Minimierung der Steuerlast
   - **Drei Optimierungsmodi**: Steuerminimierung, Netto-Maximierung oder ausgewogener Ansatz
   - **Freibetrag-Optimierung**: Intelligente Nutzung des Sparerpauschbetrags (85% Zielnutzung)

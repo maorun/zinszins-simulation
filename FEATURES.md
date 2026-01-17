@@ -144,8 +144,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
 
-#### Steueroptimierung & Strategien
-
 - **🔄 Rebalancing-Strategie-Vergleichstool** - Vergleich verschiedener Rebalancing-Ansätze ⭐⭐
   - **5 Rebalancing-Strategien zum Vergleich**:
     - **Kalenderbasiert** - Feste Intervalle (monatlich, quartalsweise, jährlich)
@@ -168,45 +166,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - **Empfehlung** - Automatische Identifikation der optimalen Strategie für das Portfolio
   - **Integration mit Multi-Asset Portfolio** - Nutzung der bestehenden Portfolio-Konfiguration
   - **Deutsche Steuerkonformität** - Vollständige Berücksichtigung von Teilfreistellung und Freibeträgen
-
-- **💰 Ausgaben-Tracker für Ruhestandsplanung** - Detaillierte Ausgabenplanung für die Entnahmephase ⭐⭐⭐
-  - **Kategorisierte Ausgaben** - Verwaltung verschiedener Ausgabenkategorien
-    - **Fixkosten** - Miete/Kredit, Versicherungen, Abonnements (monatlich)
-    - **Lebenshaltung** - Lebensmittel, Kleidung, Haushalt (monatlich)
-    - **Gesundheit** - Medikamente, Zuzahlungen, Therapien (monatlich/jährlich)
-    - **Freizeit** - Hobbys, Sport, Kultur (monatlich)
-    - **Reisen** - Urlaubsbudget (jährlich)
-    - **Einmalige Ausgaben** - Auto, Renovierung, Geschenke (sporadisch)
-  - **Lebensabschnitts-basierte Anpassungen** - Automatische Änderung der Ausgaben nach Alter
-    - **Aktiver Ruhestand (65-75)** - Höhere Reise- und Freizeitausgaben
-    - **Eingeschränkte Mobilität (75-85)** - Reduzierte Reisen, erhöhte Gesundheitskosten
-    - **Pflegebedarf (85+)** - Deutlich erhöhte Gesundheits- und Pflegekosten
-  - **Inflationsanpassung pro Kategorie** - Verschiedene Inflationsraten für unterschiedliche Kategorien
-    - Gesundheit: 3-5% p.a. (historisch höher)
-    - Lebensmittel: 2-3% p.a.
-    - Miete: 1,5-2,5% p.a.
-  - **Entnahmebedarfs-Berechnung** - Automatische Berechnung der erforderlichen Entnahmen
-    - Gesamtausgaben pro Jahr inklusive Inflation
-    - Abzüglich anderer Einkommensquellen (Rente, Mieteinnahmen)
-    - Ergibt erforderliche Kapitalentnahme
-  - **Integration mit Entnahmestrategien** - Nahtlose Verbindung zu bestehenden Entnahme-Features
-    - Automatische Übernahme in Entnahmesimulation
-    - Validierung ob Kapital für geplante Ausgaben ausreicht
-  - **Szenario-Analysen** - Was-wäre-wenn Analysen für verschiedene Ausgabenniveaus
-    - Konservativ (minimale Ausgaben)
-    - Standard (geplante Ausgaben)
-    - Komfortabel (erhöhter Lebensstandard)
-  - **Visualisierung** - Grafische Darstellung der Ausgabenentwicklung
-    - Gestapeltes Area Chart nach Kategorien
-    - Zeitachse mit Lebensabschnitten
-  - **Warnhinweise** - Proaktive Hinweise bei Finanzierungslücken
-    - Warnung wenn Kapital nicht für gewünschte Ausgaben ausreicht
-    - Vorschläge zur Ausgabenreduktion oder Sparraten-Erhöhung
-  - **Export-Funktionalität** - CSV-Export für externe Analysen
-  - **Anwendungsfälle**:
-    - Realistische Ruhestandsplanung mit detaillierter Ausgabenprojektion
-    - Identifikation von Deckungslücken frühzeitig
-    - Planung verschiedener Ruhestandsszenarien (Frugal vs. Komfortabel)
 
 ### Beratungs- & Bildungsfeatures
 
