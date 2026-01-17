@@ -1,5 +1,9 @@
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { EnhancedSummary } from './summary-utils'
+import {
+  RETIREMENT_INCOME_THRESHOLDS,
+  SAFE_WITHDRAWAL_RULE,
+} from './business-constants'
 
 /**
  * Retirement-Readiness Score metrics for German retirement planning
@@ -28,7 +32,7 @@ export type RetirementReadinessMetrics = {
  * Based on the 4% safe withdrawal rule: capital should be at least 25x annual expenses
  */
 function calculateCapitalCoverage(totalCapital: number, yearlyWithdrawal: number): number {
-  const idealCapital = yearlyWithdrawal * 25
+  const idealCapital = yearlyWithdrawal * SAFE_WITHDRAWAL_RULE.CAPITAL_MULTIPLIER
   const capitalCoverageRatio = idealCapital > 0 ? (totalCapital / idealCapital) * 100 : 100
   return Math.min(capitalCoverageRatio, 100)
 }
@@ -38,15 +42,14 @@ function calculateCapitalCoverage(totalCapital: number, yearlyWithdrawal: number
  * Based on whether monthly withdrawal provides adequate income
  */
 function calculateIncomeReplacement(monthlyWithdrawal: number): number {
-  const minMonthlyIncome = 2000
-  const goodMonthlyIncome = 3000
+  const { MIN_MONTHLY_INCOME, GOOD_MONTHLY_INCOME } = RETIREMENT_INCOME_THRESHOLDS
   
-  if (monthlyWithdrawal >= goodMonthlyIncome) {
+  if (monthlyWithdrawal >= GOOD_MONTHLY_INCOME) {
     return 100
-  } else if (monthlyWithdrawal >= minMonthlyIncome) {
-    return 50 + ((monthlyWithdrawal - minMonthlyIncome) / (goodMonthlyIncome - minMonthlyIncome)) * 50
+  } else if (monthlyWithdrawal >= MIN_MONTHLY_INCOME) {
+    return 50 + ((monthlyWithdrawal - MIN_MONTHLY_INCOME) / (GOOD_MONTHLY_INCOME - MIN_MONTHLY_INCOME)) * 50
   } else if (monthlyWithdrawal > 0) {
-    return (monthlyWithdrawal / minMonthlyIncome) * 50
+    return (monthlyWithdrawal / MIN_MONTHLY_INCOME) * 50
   }
   return 0
 }
