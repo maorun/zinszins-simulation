@@ -21,6 +21,7 @@ import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from '
 import { CoupleStatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
 import { PartTimeRetirementWorkConfiguration } from './PartTimeRetirementWorkConfiguration'
 import { useWithdrawalModeChange } from './useWithdrawalModeChange'
+import { AusgabenTrackerCard } from './AusgabenTrackerCard'
 
 interface WithdrawalVariablesCardProps {
   // Other income config
@@ -169,6 +170,15 @@ export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
         />
         <WithdrawalModeContent {...props} />
         <HealthCareInsuranceContent {...props} />
+        {props.birthYear && (
+          <div className="mt-6">
+            <AusgabenTrackerCard
+              startjahr={props.startOfIndependence}
+              endjahr={props.globalEndOfLife}
+              geburtsjahr={props.birthYear}
+            />
+          </div>
+        )}
       </CollapsibleCardContent>
     </CollapsibleCard>
   )
