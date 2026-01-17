@@ -65,3 +65,34 @@ export const CURRENCY_FORMAT_THRESHOLDS = {
    */
   THOUSAND_DECIMAL_PLACES: 0,
 } as const
+
+/**
+ * General numeric precision constants used throughout the application
+ * These constants ensure consistent formatting of numbers in various contexts
+ */
+export const NUMERIC_PRECISION = {
+  /**
+   * Standard decimal places for general numeric values (e.g., 1234.5678)
+   */
+  GENERAL: 4,
+
+  /**
+   * Decimal places for high-precision calculations (e.g., interest rates, factors)
+   */
+  HIGH_PRECISION: 6,
+
+  /**
+   * Decimal places for rates and factors (e.g., growth rates, multipliers)
+   */
+  RATE: 4,
+
+  /**
+   * Decimal places for inflation-adjusted values
+   */
+  INFLATION_ADJUSTED: 2,
+
+  /**
+   * Decimal places for tax calculations
+   */
+  TAX_CALCULATION: 2,
+} as const

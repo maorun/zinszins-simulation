@@ -7,6 +7,7 @@ import {
   PERCENTAGE_DECIMAL_PLACES,
   PERCENTAGE_COMPACT_DECIMAL_PLACES,
   CURRENCY_FORMAT_THRESHOLDS,
+  NUMERIC_PRECISION,
 } from './locale-constants'
 
 describe('locale-constants', () => {
@@ -77,6 +78,37 @@ describe('locale-constants', () => {
     })
   })
 
+  describe('NUMERIC_PRECISION', () => {
+    it('should define general precision as 4 decimal places', () => {
+      expect(NUMERIC_PRECISION.GENERAL).toBe(4)
+    })
+
+    it('should define high precision as 6 decimal places', () => {
+      expect(NUMERIC_PRECISION.HIGH_PRECISION).toBe(6)
+    })
+
+    it('should define rate precision as 4 decimal places', () => {
+      expect(NUMERIC_PRECISION.RATE).toBe(4)
+    })
+
+    it('should define inflation-adjusted precision as 2 decimal places', () => {
+      expect(NUMERIC_PRECISION.INFLATION_ADJUSTED).toBe(2)
+    })
+
+    it('should define tax calculation precision as 2 decimal places', () => {
+      expect(NUMERIC_PRECISION.TAX_CALCULATION).toBe(2)
+    })
+
+    it('should have high precision greater than general precision', () => {
+      expect(NUMERIC_PRECISION.HIGH_PRECISION).toBeGreaterThan(NUMERIC_PRECISION.GENERAL)
+    })
+
+    it('should have general precision greater than or equal to other precisions', () => {
+      expect(NUMERIC_PRECISION.GENERAL).toBeGreaterThanOrEqual(NUMERIC_PRECISION.INFLATION_ADJUSTED)
+      expect(NUMERIC_PRECISION.GENERAL).toBeGreaterThanOrEqual(NUMERIC_PRECISION.TAX_CALCULATION)
+    })
+  })
+
   describe('constants immutability', () => {
     it('should have all constants as const values', () => {
       // This is a compile-time check enforced by TypeScript's "as const"
@@ -89,6 +121,11 @@ describe('locale-constants', () => {
       expect(PERCENTAGE_COMPACT_DECIMAL_PLACES).toEqual(1)
       expect(CURRENCY_FORMAT_THRESHOLDS.MILLION).toEqual(1_000_000)
       expect(CURRENCY_FORMAT_THRESHOLDS.THOUSAND).toEqual(1_000)
+      expect(NUMERIC_PRECISION.GENERAL).toEqual(4)
+      expect(NUMERIC_PRECISION.HIGH_PRECISION).toEqual(6)
+      expect(NUMERIC_PRECISION.RATE).toEqual(4)
+      expect(NUMERIC_PRECISION.INFLATION_ADJUSTED).toEqual(2)
+      expect(NUMERIC_PRECISION.TAX_CALCULATION).toEqual(2)
     })
   })
 })

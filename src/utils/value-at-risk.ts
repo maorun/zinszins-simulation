@@ -14,6 +14,8 @@
  * 3. Monte Carlo VaR: Uses simulation results
  */
 
+import { PERCENTILE_CONSTANTS } from './business-constants'
+
 /**
  * VaR confidence levels commonly used in finance
  */
@@ -150,8 +152,8 @@ export function calculateHistoricalVaR(
   const results: VaRResult[] = confidenceLevels.map(confidenceLevel => {
     // Find the percentile value
     // For 95% confidence, we want the 5th percentile (worst 5% of outcomes)
-    const percentile = 100 - confidenceLevel
-    const index = Math.floor((percentile / 100) * adjustedReturns.length)
+    const percentile = PERCENTILE_CONSTANTS.BASE - confidenceLevel
+    const index = Math.floor((percentile / PERCENTILE_CONSTANTS.BASE) * adjustedReturns.length)
     const percentileReturn = adjustedReturns[Math.max(0, index)]
 
     // Calculate loss at this percentile
@@ -209,8 +211,8 @@ export function calculateMonteCarloVaR(
   const results: VaRResult[] = confidenceLevels.map(confidenceLevel => {
     // Find the percentile value
     // For 95% confidence, we want the 5th percentile (worst 5% of outcomes)
-    const percentile = 100 - confidenceLevel
-    const index = Math.floor((percentile / 100) * sortedValues.length)
+    const percentile = PERCENTILE_CONSTANTS.BASE - confidenceLevel
+    const index = Math.floor((percentile / PERCENTILE_CONSTANTS.BASE) * sortedValues.length)
     const percentileValue = sortedValues[Math.max(0, index)]
 
     // Calculate loss relative to current portfolio value
@@ -251,7 +253,7 @@ export function getVaRDescription(result: VaRResult): string {
   const { confidenceLevel, maxExpectedLossEur, maxExpectedLossPercent } = result
 
   const confidence = `${confidenceLevel}%`
-  const tailProbability = `${100 - confidenceLevel}%`
+  const tailProbability = `${PERCENTILE_CONSTANTS.BASE - confidenceLevel}%`
 
   return `Mit ${confidence} Wahrscheinlichkeit wird der Verlust ${maxExpectedLossEur.toLocaleString('de-DE', { 
     style: 'currency', 

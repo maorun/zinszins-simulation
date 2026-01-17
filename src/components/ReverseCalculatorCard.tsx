@@ -13,6 +13,7 @@ import {
 } from '../../helpers/reverse-calculator'
 import { useSimulation } from '../contexts/useSimulation'
 import { formatCurrency } from '../utils/currency'
+import { logError } from '../utils/logger'
 import { Info, Calculator } from 'lucide-react'
 import { useFormId } from '../utils/unique-id'
 
@@ -322,7 +323,7 @@ function calculateResults(config: ReverseCalculatorConfig) {
 
     return { calculatedResult, sensitivityAnalysis }
   } catch (error) {
-    console.error('Error calculating reverse savings rate:', error)
+    logError('Error calculating reverse savings rate:', 'ReverseCalculatorCard', error instanceof Error ? error : undefined)
     throw error
   }
 }
