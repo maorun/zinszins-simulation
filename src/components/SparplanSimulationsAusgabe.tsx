@@ -13,6 +13,7 @@ import {
   type CalculationExplanation,
 } from './calculationHelpers'
 import InteractiveChart from './InteractiveChart'
+import { EnhancedVisualizationSection } from './chart/EnhancedVisualizationSection'
 import { convertSparplanElementsToSimulationResult, hasInflationAdjustedValues } from '../utils/chart-data-converter'
 import { TooltipProvider } from './ui/tooltip'
 import type { SimulationResultElement, VorabpauschaleDetails } from '../utils/simulate'
@@ -239,11 +240,18 @@ function ChartSection({ elemente }: { elemente?: SparplanElement[] }) {
   return (
     <div className="mb-6 space-y-4">
       {elemente && elemente.length > 0 && (
-        <InteractiveChart
-          simulationData={simulationData}
-          showRealValues={hasInflationAdjustedValues(simulationData)}
-          className="mb-4"
-        />
+        <>
+          <InteractiveChart
+            simulationData={simulationData}
+            showRealValues={hasInflationAdjustedValues(simulationData)}
+            className="mb-4"
+          />
+          <EnhancedVisualizationSection
+            simulationData={simulationData}
+            showRealValues={hasInflationAdjustedValues(simulationData)}
+            className="mb-4"
+          />
+        </>
       )}
       <PortfolioTimeline simulationData={simulationData} yearlyContributions={yearlyContributions} />
     </div>
