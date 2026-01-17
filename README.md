@@ -1422,7 +1422,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Reisen: 100% → 50% → 20% (vom aktiven Ruhestand bis Pflegebedarf)
     - Gesundheit: 100% → 150% → 200% (steigende Gesundheitskosten im Alter)
   - **Interaktive Konfiguration**: Monatliche Beträge und Inflationsraten pro Kategorie anpassbar
-  - **Live-Vorschau mit Statistiken**: 
+  - **Live-Vorschau mit Statistiken**:
     - Gesamtausgaben über gesamten Ruhestandszeitraum
     - Durchschnittliche Jahresausgaben
     - Höchstes und niedrigstes Ausgabenjahr
