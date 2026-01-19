@@ -63,6 +63,45 @@ const emptyForm: GoalFormData = {
 }
 
 /**
+ * Helper to get progress color based on completion
+ */
+function getProgressColor(isComplete: boolean, percentComplete: number): string {
+  if (isComplete) return 'bg-green-600'
+  if (percentComplete >= 75) return 'bg-blue-600'
+  if (percentComplete >= 50) return 'bg-yellow-600'
+  return 'bg-gray-500'
+}
+
+/**
+ * Helper to get priority color classes
+ */
+function getPriorityColor(priority: GoalPriority): string {
+  const colorMap: Record<GoalPriority, string> = {
+    high: 'bg-red-100 text-red-800 border-red-200',
+    medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    low: 'bg-gray-100 text-gray-800 border-gray-200',
+  }
+  return colorMap[priority]
+}
+
+/**
+ * Helper to format estimated completion year
+ */
+function formatEstimatedYear(year: number, yearsRemaining: number) {
+  if (yearsRemaining === 0) {
+    return <span className="text-green-600 font-medium">Dieses Jahr ({year})</span>
+  }
+  if (yearsRemaining === 1) {
+    return <span className="text-blue-600 font-medium">Nächstes Jahr ({year})</span>
+  }
+  return (
+    <span>
+      In ca. {yearsRemaining} Jahren ({year})
+    </span>
+  )
+}
+
+/**
  * Individual goal progress item
  */
 function GoalItem({
@@ -76,24 +115,8 @@ function GoalItem({
 }) {
   const { goal, percentComplete, isComplete, remainingAmount, estimatedYearToComplete, yearsRemaining, requiredMonthlySavings, requiredYearlySavings } = progress
 
-  // Get appropriate color based on completion status
-  const progressColor = useMemo(() => {
-    if (isComplete) return 'bg-green-600'
-    if (percentComplete >= 75) return 'bg-blue-600'
-    if (percentComplete >= 50) return 'bg-yellow-600'
-    return 'bg-gray-500'
-  }, [isComplete, percentComplete])
-
-  const priorityColor = useMemo(() => {
-    switch (goal.priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800 border-red-200'
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-      case 'low':
-        return 'bg-gray-100 text-gray-800 border-gray-200'
-    }
-  }, [goal.priority])
+  const progressColor = getProgressColor(isComplete, percentComplete)
+  const priorityColor = getPriorityColor(goal.priority)
 
   return (
     <div className="space-y-3 p-4 border rounded-lg">
@@ -148,16 +171,7 @@ function GoalItem({
 
           {estimatedYearToComplete && yearsRemaining !== undefined && (
             <div>
-              <span className="font-medium">Geschätzte Erreichung:</span>{' '}
-              {yearsRemaining === 0 ? (
-                <span className="text-green-600 font-medium">Dieses Jahr ({estimatedYearToComplete})</span>
-              ) : yearsRemaining === 1 ? (
-                <span className="text-blue-600 font-medium">Nächstes Jahr ({estimatedYearToComplete})</span>
-              ) : (
-                <span>
-                  In ca. {yearsRemaining} Jahren ({estimatedYearToComplete})
-                </span>
-              )}
+              <span className="font-medium">Geschätzte Erreichung:</span> {formatEstimatedYear(estimatedYearToComplete, yearsRemaining)}
             </div>
           )}
         </div>
@@ -194,44 +208,69 @@ export function CustomGoalTrackerCard({ simulationData, nestingLevel = 0, expect
 
   // Handle form submission
   const handleSubmit = () => {
-    if (!formData.name || !formData.targetAmount) {
-      alert('Bitte geben Sie mindestens einen Namen und einen Zielbetrag ein.')
+    const validation = validateForm()
+    if (validation.error) {
       return
+    }
+
+    if (editingGoal) {
+      updateExistingGoal()
+    } else {
+      createNewGoal()
+    }
+
+    resetForm()
+  }
+
+  const validateForm = (): { error: boolean } => {
+    if (!formData.name || !formData.targetAmount) {
+      // TODO: Replace with toast notification in future
+      return { error: true }
     }
 
     const targetAmount = parseFloat(formData.targetAmount)
     if (isNaN(targetAmount) || targetAmount <= 0) {
-      alert('Bitte geben Sie einen gültigen Zielbetrag ein.')
-      return
+      // TODO: Replace with toast notification in future
+      return { error: true }
     }
 
+    return { error: false }
+  }
+
+  const updateExistingGoal = () => {
+    if (!editingGoal) return
+
+    const targetAmount = parseFloat(formData.targetAmount)
     const targetDate = formData.targetDate ? new Date(formData.targetDate) : undefined
 
-    if (editingGoal) {
-      // Update existing goal
-      const updated = updateCustomGoalInStorage(editingGoal.id, {
-        name: formData.name,
-        targetAmount,
-        targetDate,
-        priority: formData.priority,
-        category: formData.category,
-        description: formData.description || undefined,
-      })
-      setGoals(updated)
-      setEditingGoal(null)
-    } else {
-      // Create new goal
-      const newGoal = createCustomGoal(formData.name, targetAmount, {
-        description: formData.description || undefined,
-        targetDate,
-        priority: formData.priority,
-        category: formData.category,
-      })
-      const updated = addCustomGoal(newGoal)
-      setGoals(updated)
-      setIsCreating(false)
-    }
+    const updated = updateCustomGoalInStorage(editingGoal.id, {
+      name: formData.name,
+      targetAmount,
+      targetDate,
+      priority: formData.priority,
+      category: formData.category,
+      description: formData.description || undefined,
+    })
+    setGoals(updated)
+    setEditingGoal(null)
+  }
 
+  const createNewGoal = () => {
+    const targetAmount = parseFloat(formData.targetAmount)
+    const targetDate = formData.targetDate ? new Date(formData.targetDate) : undefined
+
+    const newGoal = createCustomGoal(formData.name, targetAmount, {
+      description: formData.description || undefined,
+      targetDate,
+      priority: formData.priority,
+      category: formData.category,
+    })
+    const updated = addCustomGoal(newGoal)
+    setGoals(updated)
+    setIsCreating(false)
+  }
+
+  const resetForm = () => {
     setFormData(emptyForm)
   }
 
@@ -254,7 +293,10 @@ export function CustomGoalTrackerCard({ simulationData, nestingLevel = 0, expect
   }
 
   const handleDelete = (goalId: string) => {
-    if (confirm('Möchten Sie dieses Ziel wirklich löschen?')) {
+    // TODO: Replace with proper modal confirmation in future
+    // Using a simple approach for now to avoid additional dependencies
+    const shouldDelete = window.confirm('Möchten Sie dieses Ziel wirklich löschen?')
+    if (shouldDelete) {
       const updated = deleteCustomGoal(goalId)
       setGoals(updated)
     }

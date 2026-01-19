@@ -35,49 +35,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### User Experience & Visualisierung
 
 - **📈 Portfolio-Performance Dashboard** - Übersichtliches Dashboard mit Key Performance Indicators ⭐⭐
-  - **KPIs auf einen Blick** - Wichtigste Kennzahlen prominent dargestellt
-    - Aktuelle Portfoliogröße und Entwicklung
-    - Gesamtrendite (absolut und annualisiert)
-    - Sharpe Ratio und Risiko-Metriken
-    - Steuereffizienz-Score
-  - **Zeitreihen-Analysen** - Entwicklung über verschiedene Zeiträume
-    - 1 Monat, 3 Monate, 1 Jahr, 3 Jahre, 5 Jahre, seit Beginn
-    - Vergleich mit Benchmarks (DAX, MSCI World)
-  - **Risiko-Metriken** - Umfassende Risikobewertung
-    - Maximum Drawdown (größter Verlust vom Höchststand)
-    - Volatilität und Beta
-    - Value at Risk (VaR) für verschiedene Konfidenzniveaus
-  - **Kostenanalyse** - Transparente Darstellung aller Kosten
-    - TER und Transaktionskosten
-    - Steuerliche Belastung
-    - Gesamtkostenquote (Total Cost of Ownership)
-  - **Personalisierte Empfehlungen** - Intelligente Vorschläge basierend auf Portfolio-Analyse
-    - Hinweise zu Rebalancing-Bedarf
-    - Steueroptimierungsmöglichkeiten
-    - Risikoadjustierungsvorschläge
-
-- **🎯 Zielverfolgung und Meilenstein-Benachrichtigungen** - Motivierendes Tracking von Sparzielen ⭐⭐
-  - **Benutzerdefinierte Sparziele** - Flexible Definition eigener Ziele
-    - Sparziel-Name und Zielbetrag
-    - Zieldatum (optional)
-    - Priorität (Hoch/Mittel/Niedrig)
-  - **Automatische Fortschrittsberechnung** - Echtzeitaktualisierung basierend auf Simulation
-    - Prozentuale Zielerreichung
-    - Geschätztes Erreichungsdatum
-    - Erforderliche zusätzliche Sparrate für früheres Erreichen
-  - **Visuelle Fortschrittsanzeige** - Motivierende Darstellung
-    - Farbcodierte Fortschrittsbalken
-    - Icons für verschiedene Zieltypen (Haus, Auto, Ruhestand, etc.)
-    - Konfetti-Animation bei Zielerreichung
-  - **Mehrere Ziele parallel** - Verwaltung verschiedener Sparziele gleichzeitig
-    - Priorisierung von Zielen
-    - Automatische Allokation der Sparrate auf mehrere Ziele
-  - **Lokale Speicherung** - Ziele werden in localStorage gespeichert
-  - **Anwendungsfälle**:
-    - Eigenheim-Anzahlung (50.000 €)
-    - Weltreise (15.000 €)
-    - Ruhestands-Kapital (500.000 €)
-    - Notgroschen-Aufbau (20.000 €)
 
 #### Datenintegration
 
