@@ -144,7 +144,7 @@ export function calculateRequiredSavings(
   targetAmount: number,
   targetDate: Date | undefined,
   currentYear: number,
-  annualReturn: number = 0.05 // Default 5% annual return
+  annualReturn = 0.05 // Default 5% annual return
 ): { monthly?: number; yearly?: number } {
   if (!targetDate) {
     return {}
@@ -170,27 +170,8 @@ export function calculateRequiredSavings(
   const monthlyReturn = Math.pow(1 + annualReturn, 1 / 12) - 1
   const monthsRemaining = yearsRemaining * 12
 
-  let requiredMonthlySavings = 0
-  if (monthsRemaining > 0) {
-    if (monthlyReturn > 0.0001) {
-      // Use formula for non-zero interest
-      requiredMonthlySavings = (remainingAmount * monthlyReturn) / (Math.pow(1 + monthlyReturn, monthsRemaining) - 1)
-    } else {
-      // Simple division for near-zero interest
-      requiredMonthlySavings = remainingAmount / monthsRemaining
-    }
-  }
-
-  let requiredYearlySavings = 0
-  if (yearsRemaining > 0) {
-    if (annualReturn > 0.0001) {
-      // Use formula for non-zero interest
-      requiredYearlySavings = (remainingAmount * annualReturn) / (Math.pow(1 + annualReturn, yearsRemaining) - 1)
-    } else {
-      // Simple division for near-zero interest
-      requiredYearlySavings = remainingAmount / yearsRemaining
-    }
-  }
+  const requiredMonthlySavings = calculateMonthlySavings(remainingAmount, monthlyReturn, monthsRemaining)
+  const requiredYearlySavings = calculateYearlySavings(remainingAmount, annualReturn, yearsRemaining)
 
   return {
     monthly: requiredMonthlySavings,
@@ -199,12 +180,46 @@ export function calculateRequiredSavings(
 }
 
 /**
+ * Helper to calculate monthly savings
+ */
+function calculateMonthlySavings(remainingAmount: number, monthlyReturn: number, monthsRemaining: number): number {
+  if (monthsRemaining <= 0) {
+    return 0
+  }
+
+  if (monthlyReturn > 0.0001) {
+    // Use formula for non-zero interest
+    return (remainingAmount * monthlyReturn) / (Math.pow(1 + monthlyReturn, monthsRemaining) - 1)
+  }
+
+  // Simple division for near-zero interest
+  return remainingAmount / monthsRemaining
+}
+
+/**
+ * Helper to calculate yearly savings
+ */
+function calculateYearlySavings(remainingAmount: number, annualReturn: number, yearsRemaining: number): number {
+  if (yearsRemaining <= 0) {
+    return 0
+  }
+
+  if (annualReturn > 0.0001) {
+    // Use formula for non-zero interest
+    return (remainingAmount * annualReturn) / (Math.pow(1 + annualReturn, yearsRemaining) - 1)
+  }
+
+  // Simple division for near-zero interest
+  return remainingAmount / yearsRemaining
+}
+
+/**
  * Calculate progress for a custom goal
  */
 export function calculateCustomGoalProgress(
   goal: CustomGoal,
   simulationData: SimulationData | null,
-  annualReturn: number = 0.05
+  annualReturn = 0.05
 ): CustomGoalProgress {
   const currentAmount = getCurrentCapital(simulationData)
   const remainingAmount = Math.max(0, goal.targetAmount - currentAmount)
@@ -265,7 +280,7 @@ export function calculateCustomGoalProgress(
 export function calculateAllCustomGoalProgress(
   goals: CustomGoal[],
   simulationData: SimulationData | null,
-  annualReturn: number = 0.05
+  annualReturn = 0.05
 ): CustomGoalProgress[] {
   return goals
     .map((goal) => calculateCustomGoalProgress(goal, simulationData, annualReturn))
@@ -331,7 +346,7 @@ export function loadCustomGoals(): CustomGoal[] {
       return []
     }
 
-    const parsed = JSON.parse(stored) as Record<string, unknown>[]
+    const parsed = JSON.parse(stored) as Array<Record<string, unknown>>
     return parsed.map(deserializeGoal)
   } catch (error) {
     console.error('Failed to load custom goals from localStorage:', error)
