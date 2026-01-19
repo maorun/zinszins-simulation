@@ -4,7 +4,7 @@
  * This file demonstrates the EM-Rente (Erwerbsminderungsrente) calculation functionality
  * with realistic scenarios. Run this file to verify calculations work correctly.
  * 
- * To run: node helpers/em-rente-examples.js (requires TypeScript compilation or ts-node)
+ * To run: npx ts-node demos/em-rente-examples.ts
  */
 
 import {
@@ -12,7 +12,7 @@ import {
   calculateEMRente,
   estimatePensionPointsFromMonthlyPension,
   type EMRenteConfig,
-} from './em-rente'
+} from '../helpers/em-rente'
 
 console.log('='.repeat(80))
 console.log('EM-Rente (Erwerbsminderungsrente) Calculation Examples')

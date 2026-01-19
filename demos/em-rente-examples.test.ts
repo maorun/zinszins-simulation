@@ -9,7 +9,7 @@ import {
   calculateEMRente,
   estimatePensionPointsFromMonthlyPension,
   type EMRenteConfig,
-} from './em-rente'
+} from '../helpers/em-rente'
 
 describe('em-rente-examples', () => {
   describe('Example 1: 45-year-old with full disability', () => {
