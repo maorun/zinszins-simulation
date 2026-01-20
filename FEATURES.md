@@ -49,35 +49,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Reporting & Visualisierung
 
-- **📄 PDF-Report-Generator für Finanzplanung** - Professioneller PDF-Export der Finanzplanung ⭐⭐
-  - **Umfassender Finanzplan als PDF** - Multi-Seiten-Dokument mit allen relevanten Informationen
-    - **Executive Summary** - Zusammenfassung der wichtigsten Kennzahlen auf einen Blick
-    - **Eingabeparameter** - Dokumentation aller Annahmen und Konfigurationen
-    - **Kapitalentwicklung** - Detaillierte Tabellen und Diagramme
-    - **Steueranalyse** - Aufschlüsselung der Steuerlast über die Jahre
-    - **Szenario-Vergleiche** - Gegenüberstellung verschiedener Strategien
-  - **Professionelles Design** - Hochwertige Formatierung
-    - Firmenlook mit Logo-Upload-Möglichkeit (optional)
-    - Farbcodierte Diagramme und Tabellen
-    - Seitenzahlen und Inhaltsverzeichnis
-  - **Mehrere Vorlagen** - Verschiedene Report-Stile
-    - **Kompakt** - 2-3 Seiten Übersicht für schnellen Überblick
-    - **Standard** - 5-7 Seiten mit allen wichtigen Details
-    - **Ausführlich** - 10+ Seiten mit vollständiger Dokumentation
-  - **Customization** - Anpassbare Elemente
-    - Auswahl der inkludierten Abschnitte
-    - Hinzufügen persönlicher Notizen
-    - Fußzeilen mit Disclaimer und Erstellungsdatum
-  - **Browser-basierte Generierung** - Keine Server-Abhängigkeit
-    - Verwendung von jsPDF oder ähnlicher Client-Side Library
-    - Schnelle Generierung ohne Upload sensibler Daten
-  - **Anwendungsfälle**:
-    - Dokumentation für persönliche Unterlagen
-    - Präsentation für Ehepartner/Familie
-    - Besprechungsunterlage für Finanzberater
-    - Archivierung verschiedener Planungsstände
-  - **Privacy-First** - Alle Berechnungen und PDF-Generierung erfolgen lokal im Browser
-
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
 
 - **🔄 Rebalancing-Strategie-Vergleichstool** - Vergleich verschiedener Rebalancing-Ansätze ⭐⭐
