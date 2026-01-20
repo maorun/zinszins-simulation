@@ -330,6 +330,63 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Echtzeit-Aktualisierung** - Automatische Anpassung bei Änderung der Sparplanung
   - **Mobile-optimiert** - Responsive Design für alle Bildschirmgrößen
 
+- **Benutzerdefinierte Zielverfolgung** - Personalisierte Sparziele mit individueller Konfiguration
+  - **Flexible Zielerstellung** - Vollständig anpassbare Finanzziele
+    - Individueller Zielname (z.B. "Eigenheim-Anzahlung", "Weltreise")
+    - Frei wählbarer Zielbetrag
+    - Optionales Zieldatum für zeitgebundene Planung
+    - Beschreibungsfeld für zusätzliche Details
+  - **Prioritätsstufen** - Drei Prioritätsstufen zur Priorisierung
+    - Hoch - Dringende finanzielle Ziele
+    - Mittel - Wichtige mittelfristige Ziele
+    - Niedrig - Wünschenswerte langfristige Ziele
+  - **Kategorisierung mit Icons** - 7 vordefinierte Kategorien mit passenden Icons
+    - 🏠 Eigenheim - Immobilienerwerb und Anzahlungen
+    - 🚗 Auto - Fahrzeugkauf und Mobilität
+    - 🏖️ Ruhestand - Altersvorsorge und Pensionsplanung
+    - ✈️ Reise - Urlaubsplanung und Weltreisen
+    - 🛡️ Notfallfonds - Sicherheitsreserven und Liquidität
+    - 🎓 Bildung - Ausbildung und Weiterbildung
+    - 🎯 Sonstiges - Individuelle andere Ziele
+  - **Intelligente Fortschrittsberechnung** - Automatische Analyse basierend auf Simulation
+    - Aktuelle Kapitalstand vs. Zielbetrag
+    - Prozentuale Zielerreichung mit visueller Anzeige
+    - Verbleibender Betrag bis zur Zielerreichung
+    - Geschätzte Erreichung basierend auf Sparplan-Simulation
+  - **Erforderliche Sparrate-Berechnung** - Berechnung für zeitgebundene Ziele
+    - Automatische Berechnung der erforderlichen monatlichen Sparrate
+    - Berücksichtigung erwarteter Rendite (Zinseszins-Effekt)
+    - Jahres- und Monatssparrate für flexible Planung
+    - Realistische Einschätzung der Machbarkeit
+  - **Visuelle Darstellung** - Motivierende Fortschrittsanzeige
+    - Farbcodierte Fortschrittsbalken je nach Status
+    - Icons für intuitive Kategoriezuordnung
+    - Badge-System für Priorität und Completion-Status
+    - Responsive Layouts für alle Bildschirmgrößen
+  - **Vollständige Zielverwaltung** - CRUD-Operationen (Create, Read, Update, Delete)
+    - Erstellen neuer Ziele mit Formular
+    - Bearbeiten bestehender Ziele
+    - Löschen nicht mehr benötigter Ziele
+    - Benutzerfreundliche Formularvalidierung
+  - **Mehrere Ziele parallel** - Unbegrenzte Anzahl gleichzeitiger Ziele
+    - Automatische Sortierung nach Priorität und Betrag
+    - Übersichtliche Darstellung aller Ziele
+    - Zusammenfassende Statistiken (erreichte vs. laufende Ziele)
+  - **localStorage Persistierung** - Privacy-first Datenhaltung
+    - Lokale Speicherung im Browser ohne Server
+    - Automatische Synchronisation bei Änderungen
+    - Keine Cloud-Uploads sensibler Finanzdaten
+    - Volle Kontrolle über eigene Daten
+  - **Integration mit Simulationen** - Nahtlose Verknüpfung mit Sparplan
+    - Nutzung der Simulationsdaten für Fortschrittsberechnung
+    - Automatische Updates bei Änderung der Sparplan-Parameter
+    - Konsistente Berechnungen mit restlicher Anwendung
+  - **Anwendungsbeispiele**:
+    - Eigenheim-Anzahlung: 50.000 € in 5 Jahren (Hoch, Eigenheim)
+    - Weltreise: 15.000 € in 3 Jahren (Mittel, Reise)
+    - Notgroschen-Aufbau: 20.000 € ohne Datum (Hoch, Notfallfonds)
+    - Neues Auto: 30.000 € in 2 Jahren (Mittel, Auto)
+
 ### Kostenfaktoren
 
 - **TER (Total Expense Ratio)** - Jährliche Verwaltungskosten in Prozent

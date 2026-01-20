@@ -3,6 +3,7 @@ import SavingsPlan from './SavingsPlan'
 import { EmergencyFundSection } from './emergency-fund/EmergencyFundSection'
 import { ScenarioManagement } from './ScenarioManagement'
 import { MilestoneTrackerCard } from './MilestoneTrackerCard'
+import { CustomGoalTrackerCard } from './CustomGoalTrackerCard'
 import { useCurrentConfiguration } from '../hooks/useCurrentConfiguration'
 import { useLoadSavedScenario } from '../hooks/useLoadSavedScenario'
 import { useSimulation } from '../contexts/useSimulation'
@@ -26,6 +27,9 @@ export function SparenView() {
 
       {/* Financial Milestone Tracker */}
       <MilestoneTrackerCard simulationData={simulationData} />
+
+      {/* Custom Goal Tracker - User-defined savings goals */}
+      <CustomGoalTrackerCard simulationData={simulationData} />
 
       {/* Emergency Fund & Liquidity Planning */}
       <EmergencyFundSection />
