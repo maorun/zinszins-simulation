@@ -51,29 +51,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
 
-- **🔄 Rebalancing-Strategie-Vergleichstool** - Vergleich verschiedener Rebalancing-Ansätze ⭐⭐
-  - **5 Rebalancing-Strategien zum Vergleich**:
-    - **Kalenderbasiert** - Feste Intervalle (monatlich, quartalsweise, jährlich)
-    - **Schwellenwertbasiert** - Rebalancing bei Abweichung > X% von Zielallokation
-    - **Hybridansatz** - Kombination aus Kalender und Schwellenwert
-    - **Steueroptimiert** - Minimierung der Steuerlast beim Rebalancing
-    - **Opportunistisch** - Rebalancing nur bei extremen Marktbewegungen
-  - **Langzeit-Simulation** - 10-20 Jahre Backtesting mit historischen Daten
-  - **Metrikenvergleich**:
-    - Portfoliorendite nach Steuern und Kosten
-    - Anzahl der Rebalancing-Transaktionen
-    - Gesamte Transaktionskosten
-    - Steuerbelastung durch Rebalancing
-    - Tracking Error zur Zielallokation
-    - Sharpe Ratio der verschiedenen Strategien
-  - **Visuelle Darstellung** - Diagramme zur Strategiegegenüberstellung
-    - Kapitalentwicklung über Zeit
-    - Kumulative Kosten
-    - Allokations-Drift-Visualisierung
-  - **Empfehlung** - Automatische Identifikation der optimalen Strategie für das Portfolio
-  - **Integration mit Multi-Asset Portfolio** - Nutzung der bestehenden Portfolio-Konfiguration
-  - **Deutsche Steuerkonformität** - Vollständige Berücksichtigung von Teilfreistellung und Freibeträgen
-
 ### Beratungs- & Bildungsfeatures
 
 #### Finanzbildung
