@@ -178,6 +178,20 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Kumulativer Wertverlauf** - Vergleich der Kapitalentwicklung (normiert auf 1,0)
   - **Detaillierte jährliche Aufschlüsselung** - Transparente Darstellung aller Berechnungen
   - **Bildungsfunktion** - Hilft Anlegern zu verstehen, ob ihre Strategie besser/schlechter als der Markt abschneidet
+- **Portfolio-Performance Dashboard** - Umfassende Analyse mit Key Performance Indicators
+  - **Annualisierte Rendite** - CAGR (Compound Annual Growth Rate) über den gesamten Anlagezeitraum
+  - **Sharpe Ratio** - Risikoadjustierte Rendite (Überrendite pro Risikoeinheit)
+  - **Sortino Ratio** - Downside-risikoadjustierte Rendite (berücksichtigt nur negative Volatilität)
+  - **Volatilität** - Standardabweichung der jährlichen Renditen als Risikomaß
+  - **Maximum Drawdown** - Größter Wertverlust vom Höchststand zum Tiefpunkt mit Zeitangabe
+  - **Erfolgsquote** - Prozentsatz der Jahre mit positiven Renditen
+  - **Beste/Schlechteste Jahre** - Identifikation der extremen Performance-Jahre
+  - **Gesamtrendite** - Absolute Wertentwicklung über den kompletten Zeitraum
+  - **Kumulativer Gewinn** - Absoluter Wertzuwachs in Euro
+  - **Durchschnittliche Rendite** - Arithmetisches Mittel der jährlichen Renditen
+  - **Farbcodierte Badges** - Visuelle Performance-Indikatoren mit Schwellenwerten
+  - **Interpretationshilfe** - Deutsche Erklärungen aller Metriken für besseres Verständnis
+  - **Responsive Design** - Optimale Darstellung auf allen Bildschirmgrößen
 
 ### Sparplan, Einmalzahlungen und Sonderereignisse
 
