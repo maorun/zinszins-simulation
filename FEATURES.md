@@ -32,10 +32,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Technische Verbesserungen
 
-#### User Experience & Visualisierung
-
-- **📈 Portfolio-Performance Dashboard** - Übersichtliches Dashboard mit Key Performance Indicators ⭐⭐
-
 #### Datenintegration
 
 - **Makroökonomische Indikatoren** - Inflation, Zinsen, BIP-Wachstum
