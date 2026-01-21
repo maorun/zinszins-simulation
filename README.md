@@ -97,6 +97,18 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Deutsche Steueraspekte** - Teilfreistellung, Sparerpauschbetrag, Tax Loss Harvesting
     - **Performance-Attribution** - Verständnis wie Core vs. Satellites zur Rendite beitragen
     - **Bildungsfunktion** - Hilft Anlegern professionelle Portfolio-Konstruktion zu verstehen
+  - **Rebalancing-Strategie-Vergleichstool** - Interaktiver Vergleich verschiedener Rebalancing-Ansätze
+    - **5 Rebalancing-Strategien** - Kalenderbasiert (jährlich/quartalsweise), Schwellenwertbasiert (5%), Hybridansatz, Steueroptimiert, Opportunistisch (bei extremen Marktbewegungen >15%)
+    - **Langzeit-Backtesting** - Simulation über 5-20 Jahre mit synthetischen oder historischen Renditen
+    - **Umfassende Metrikenanalyse** - Portfoliorendite nach Steuern und Kosten, Anzahl der Transaktionen, Gesamte Transaktionskosten, Steuerbelastung, Tracking Error zur Zielallokation, Sharpe Ratio
+    - **Automatische Empfehlung** - Gewichteter Score aus Rendite (40%), Kosten (30%), Sharpe Ratio (20%) und Tracking Error (10%)
+    - **Best-by-Criteria** - Zeigt beste Strategie für jedes Kriterium (höchste Rendite, niedrigste Kosten, bester Sharpe, bestes Tracking)
+    - **Konfigurierbare Parameter** - Startkapital (10.000€ - 1.000.000€), Simulationszeitraum (5-20 Jahre), Durchschnittsrendite (0-15%), Volatilität (5-30%)
+    - **Portfolio-Allokation** - Flexible Verteilung auf deutsche Aktien, internationale Aktien und Anleihen
+    - **Deutsche Steuerkonformität** - Vollständige Berücksichtigung von Teilfreistellung und Freibeträgen
+    - **Visuelle Darstellung** - Übersichtliche Vergleichstabelle mit farbcodierter Empfehlung
+    - **Echtzeit-Validierung** - Automatische Prüfung der Allokationssumme (muss 100% ergeben)
+    - **Integration** - Nahtlos eingebunden in Steuer-Konfiguration für ganzheitliche Finanzplanung
 - **Währungsrisiko-Management** - Analyse und Verwaltung von Währungsrisiken bei internationalen Investments
   - **8 Unterstützte Währungen** - EUR, USD, GBP, CHF, JPY, CNY, AUD, CAD
   - **Währungsallokation** - Flexible Konfiguration der Portfolio-Aufteilung nach Währungen

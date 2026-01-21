@@ -33,6 +33,7 @@ import { ImmobilienSteueroptimierungCard } from './ImmobilienSteueroptimierungCa
 import { SellingStrategyCard } from './SellingStrategyCard'
 import { MultiYearFreibetragOptimizationCard } from './MultiYearFreibetragOptimizationCard'
 import { FinancialEducationQuiz } from './FinancialEducationQuiz'
+import { RebalancingComparisonCard } from './RebalancingComparisonCard'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -142,6 +143,7 @@ function TaxOptimizationCards({ simulation }: { simulation: ReturnType<typeof us
   return (
     <>
       <PortfolioTeilfreistellungCard />
+      <RebalancingComparisonCard />
       <TaxDeferralCalculatorCard />
       <MultiYearFreibetragOptimizationCard />
       <ImmobilienSteueroptimierungCard />
