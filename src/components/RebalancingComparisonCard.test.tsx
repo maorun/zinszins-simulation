@@ -118,19 +118,12 @@ describe('RebalancingComparisonCard', () => {
     const header = screen.getByText('Rebalancing-Strategie-Vergleichstool')
     fireEvent.click(header)
     
-    await waitFor(() => {
-      const button = screen.getByText('Vergleich starten')
-      fireEvent.click(button)
-    })
+    const button = screen.getByText('Vergleich starten')
+    fireEvent.click(button)
     
-    // Should show loading state
+    // Wait for comparison to complete and results to appear
     await waitFor(() => {
-      expect(screen.getByText('Vergleiche...')).toBeInTheDocument()
-    })
-    
-    // Wait for completion
-    await waitFor(() => {
-      expect(screen.getByText('Vergleich starten')).toBeInTheDocument()
+      expect(screen.getByText('Vergleichsergebnisse')).toBeInTheDocument()
     }, { timeout: 3000 })
     
     alertSpy.mockRestore()
@@ -247,9 +240,9 @@ describe('RebalancingComparisonCard', () => {
       fireEvent.click(button)
     })
     
-    // Should show error alert
+    // Should show error message in UI
     await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalled()
+      expect(screen.getByText(/Die Summe der Allokationen muss 100% ergeben/)).toBeInTheDocument()
     })
     
     consoleSpy.mockRestore()
