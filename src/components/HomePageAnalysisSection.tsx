@@ -6,6 +6,7 @@ import { Card, CardContent } from './ui/card'
 const DataExport = lazy(() => import('./DataExport'))
 const SimulationModeSelector = lazy(() => import('./SimulationModeSelector'))
 const SensitivityAnalysisDisplay = lazy(() => import('./SensitivityAnalysisDisplay'))
+const PortfolioPerformanceDashboard = lazy(() => import('./PortfolioPerformanceDashboard').then(m => ({ default: m.PortfolioPerformanceDashboard })))
 
 /**
  * Loading fallback component
@@ -30,6 +31,13 @@ export function HomePageAnalysisSection() {
       <Suspense fallback={<LoadingCard />}>
         <SimulationModeSelector />
       </Suspense>
+
+      {/* Portfolio Performance Dashboard */}
+      {simulationData && sparplanElemente && sparplanElemente.length > 0 && (
+        <Suspense fallback={<LoadingCard />}>
+          <PortfolioPerformanceDashboard />
+        </Suspense>
+      )}
 
       <Suspense fallback={<LoadingCard />}>
         <DataExport />
