@@ -18,6 +18,7 @@ import { TypeSelectSection } from './TypeSelectSection'
 import { NotesSection } from './NotesSection'
 import { ActionButtonsSection } from './ActionButtonsSection'
 import { FormConfigurationSections } from './FormConfigurationSections'
+import { DEFAULT_TAX_RATES } from '../../utils/business-constants'
 
 interface OtherIncomeSourceFormEditorProps {
   editingSource: OtherIncomeSource
@@ -94,7 +95,7 @@ function configureBURenteSettings(source: OtherIncomeSource, newType: IncomeType
 function applyKapitallebensversicherungDefaults(source: OtherIncomeSource): void {
   source.kapitallebensversicherungConfig = createDefaultKapitallebensversicherungConfig()
   source.amountType = 'gross'
-  source.taxRate = 26.375 // Abgeltungsteuer
+  source.taxRate = DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT // Abgeltungsteuer
   source.inflationRate = 0 // Lump sum, no inflation
   source.monthlyAmount = 0 // Will be calculated from total payout
 }

@@ -9,6 +9,7 @@ import type {
   WithdrawalConfiguration,
 } from '../utils/config-storage'
 import { createDefaultHealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
+import { DEFAULT_TAX_RATES } from '../utils/business-constants'
 
 /**
  * Hook for basic config update operations
@@ -204,7 +205,7 @@ function createDefaultFormValue(): WithdrawalFormValue {
     kapitalerhaltInflationRate: 2, // Default inflation rate 2%
     // Steueroptimierte Entnahme strategy specific settings
     steueroptimierteEntnahmeBaseWithdrawalRate: 0.04, // Default base withdrawal rate 4%
-    steueroptimierteEntnahmeTargetTaxRate: 0.26375, // Default target tax rate 26.375%
+    steueroptimierteEntnahmeTargetTaxRate: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER, // Default target tax rate
     steueroptimierteEntnahmeOptimizationMode: 'balanced' as const, // Default optimization mode
     steueroptimierteEntnahmeFreibetragUtilizationTarget: 0.85, // Default Freibetrag utilization 85%
     steueroptimierteEntnahmeRebalanceFrequency: 'yearly' as const, // Default rebalance frequency

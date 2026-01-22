@@ -8,6 +8,7 @@
 import { simulate, type SimulationAnnualType } from './simulate'
 import type { SparplanElement } from './sparplan-utils'
 import type { ReturnConfiguration } from './random-returns'
+import { DEFAULT_TAX_RATES } from './business-constants'
 
 export interface SensitivityParameter {
   name: string
@@ -70,7 +71,7 @@ export const SENSITIVITY_PARAMETERS: { [key: string]: SensitivityParameter } = {
   taxRate: {
     name: 'taxRate',
     displayName: 'Steuerlast',
-    baseValue: 26.375,
+    baseValue: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
     unit: '%',
     min: 0,
     max: 45,

@@ -2,6 +2,7 @@ import { type BasiszinsConfiguration } from '../../services/bundesbank-api'
 import { SimulationAnnual } from '../../utils/simulate'
 import { initialSparplan } from '../../utils/sparplan-utils'
 import type { ReturnMode } from '../../utils/random-returns'
+import { DEFAULT_TAX_RATES } from '../../utils/business-constants'
 
 export interface DefaultConfigType {
   rendite: number
@@ -44,7 +45,7 @@ export interface DefaultConfigType {
 export function createDefaultConfiguration(): DefaultConfigType {
   return {
     rendite: 5,
-    steuerlast: 26.375,
+    steuerlast: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
     teilfreistellungsquote: 30,
     freibetragPerYear: { 2023: 2000 },
     // Default Basiszins configuration with historical rates
