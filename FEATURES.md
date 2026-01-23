@@ -21,14 +21,8 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - Freibetragsaufteilung zwischen Konten (Freistellungsauftrag-Management)
   - Verlusttopf-Strategien über mehrere Depots hinweg
   - Ertrags- und Verlustquellen intelligent auf Depots verteilen
-  
-- **Kirchensteuer-Optimierung** - Transparente Berechnung und Optimierungshinweise (Mittel ⭐⭐)
-  - Automatische Berechnung der Kirchensteuer auf Kapitalerträge (8-9% je nach Bundesland)
-  - Vergleich mit und ohne Kirchensteuer
-  - Sperrvermerk-Simulation und deren Auswirkungen
-  - Langfristige Finanzplanung unter Berücksichtigung der Kirchensteuer
 
-(Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation, Sozialversicherungs-Optimierung für Grenzfälle, Tax Loss Harvesting Tracker bereits implementiert)
+(Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation, Sozialversicherungs-Optimierung für Grenzfälle, Tax Loss Harvesting Tracker, Kirchensteuer-Optimierung bereits implementiert)
 
 ### Erweiterte Finanzplanung
 
