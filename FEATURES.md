@@ -8,6 +8,26 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
+- **Kapitalertragsteuer-Vorauszahlungen** - Quartalsmäßige Vorauszahlungsplanung bei hohen Kapitalerträgen (Hoch ⭐⭐⭐)
+  - Automatische Berechnung der erforderlichen Vorauszahlungen nach § 37 EStG
+  - Vermeidung von Nachzahlungszinsen (6% p.a. nach § 233a AO)
+  - Detaillierte Liquiditätsplanung für Vorauszahlungstermine
+  - Berücksichtigung bereits gezahlter Abgeltungsteuer
+  - Optimierung der Steuerliquidität über das Jahr
+  
+- **Abgeltungsteuer-Optimierung bei Kontoaufteilung** - Intelligente Depot-Strukturierung zur Steuerminimierung (Hoch ⭐⭐⭐)
+  - Vergleich von Einzel- vs. Gemeinschaftsdepot für Ehepaare
+  - Optimale Nutzung mehrerer Depots bei verschiedenen Banken
+  - Freibetragsaufteilung zwischen Konten (Freistellungsauftrag-Management)
+  - Verlusttopf-Strategien über mehrere Depots hinweg
+  - Ertrags- und Verlustquellen intelligent auf Depots verteilen
+  
+- **Kirchensteuer-Optimierung** - Transparente Berechnung und Optimierungshinweise (Mittel ⭐⭐)
+  - Automatische Berechnung der Kirchensteuer auf Kapitalerträge (8-9% je nach Bundesland)
+  - Vergleich mit und ohne Kirchensteuer
+  - Sperrvermerk-Simulation und deren Auswirkungen
+  - Langfristige Finanzplanung unter Berücksichtigung der Kirchensteuer
+
 (Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation, Sozialversicherungs-Optimierung für Grenzfälle, Tax Loss Harvesting Tracker bereits implementiert)
 
 ### Erweiterte Finanzplanung
@@ -17,6 +37,20 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 (Faktor-Investing/Smart Beta Strategien bereits vollständig implementiert)
 
 #### Entnahmestrategien & Kapitalplanung
+
+- **Rürup/Basisrente Integration** - Schicht-1-Altersvorsorge in Finanzplanung (Hoch ⭐⭐⭐)
+  - Steuerliche Behandlung der Einzahlungen (2024: 100% absetzbar bis 27.566€ für Ledige)
+  - Nachgelagerte Besteuerung der Auszahlungen im Ruhestand
+  - Vergleich Rürup vs. privater ETF-Sparplan nach Steuern
+  - Optimierung der Beitragshöhe unter Berücksichtigung des Steuersatzes
+  - Lebenslange Rente vs. Kapitalentnahmeplan
+  
+- **Riester-Rente Rechner** - Schicht-2-Altersvorsorge mit Zulagen (Mittel ⭐⭐)
+  - Berechnung der staatlichen Zulagen (Grundzulage + Kinderzulagen)
+  - Mindesteigenbeitrag-Berechnung für volle Zulagenausschöpfung
+  - Vergleich Riester vs. ungeförderte Anlage
+  - Steuerliche Behandlung bei Auszahlung
+  - Wohnriester-Variante (Eigenheimrente)
 
 (Dynamische Ausgabenanpassung im Ruhestand bereits implementiert)
 
@@ -45,6 +79,13 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Reporting & Visualisierung
 
+- **Interaktive Sankey-Diagramme** - Visualisierung von Geldflüssen (Hoch ⭐⭐⭐)
+  - Einnahmen → Ausgaben → Sparen → Investieren → Steuern Flussdiagramm
+  - Jahr-für-Jahr Animation der Vermögensströme
+  - Detaillierte Aufschlüsselung von Steuerabflüssen
+  - Vergleich verschiedener Szenarien nebeneinander
+  - Deutsche Labels und interaktive Tooltips
+  
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
 
 ### Beratungs- & Bildungsfeatures
