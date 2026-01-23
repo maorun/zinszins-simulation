@@ -187,15 +187,55 @@ function exportChartAsPNG(chartId: string, filename: string) {
 }
 
 /**
+ * Chart header with title and controls
+ */
+function ChartHeader({
+  isStacked,
+  onStackedChange,
+  onExport,
+}: {
+  isStacked: boolean
+  onStackedChange: (checked: boolean) => void
+  onExport: () => void
+}) {
+  return (
+    <div className="flex justify-between items-center mb-4">
+      <div>
+        <h3 className="text-lg font-semibold">Jahr-zu-Jahr Vergleich</h3>
+        <p className="text-sm text-muted-foreground">
+          Jährliche Entwicklung von Einzahlungen, Gewinnen und Steuern
+        </p>
+      </div>
+      <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-2">
+          <Switch
+            id="stacked-mode"
+            checked={isStacked}
+            onCheckedChange={onStackedChange}
+          />
+          <Label htmlFor="stacked-mode" className="text-sm cursor-pointer">
+            {isStacked ? 'Gestapelt' : 'Gruppiert'}
+          </Label>
+        </div>
+        <Button variant="outline" size="sm" onClick={onExport}>
+          <Download className="h-4 w-4 mr-2" />
+          PNG Export
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+/**
  * Main Year-over-Year Bar Chart component
  */
-// eslint-disable-next-line max-lines-per-function -- Main component requires comprehensive rendering and state management
 export function YearOverYearBarChart({
   data,
   showRealValues = false,
   className = '',
 }: YearOverYearBarChartProps) {
   const [isStacked, setIsStacked] = useState(true)
+  const chartId = 'year-over-year-bar-chart'
 
   const chartData = useMemo(
     () => createChartData(data, showRealValues, isStacked),
@@ -205,7 +245,6 @@ export function YearOverYearBarChart({
     () => createChartOptions(showRealValues, isStacked),
     [showRealValues, isStacked]
   )
-  const chartId = 'year-over-year-bar-chart'
 
   const handleExport = () => {
     const timestamp = new Date().toISOString().split('T')[0]
@@ -215,30 +254,11 @@ export function YearOverYearBarChart({
 
   return (
     <div className={className}>
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h3 className="text-lg font-semibold">Jahr-zu-Jahr Vergleich</h3>
-          <p className="text-sm text-muted-foreground">
-            Jährliche Entwicklung von Einzahlungen, Gewinnen und Steuern
-          </p>
-        </div>
-        <div className="flex gap-4 items-center">
-          <div className="flex items-center gap-2">
-            <Switch
-              id="stacked-mode"
-              checked={isStacked}
-              onCheckedChange={setIsStacked}
-            />
-            <Label htmlFor="stacked-mode" className="text-sm cursor-pointer">
-              {isStacked ? 'Gestapelt' : 'Gruppiert'}
-            </Label>
-          </div>
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            PNG Export
-          </Button>
-        </div>
-      </div>
+      <ChartHeader
+        isStacked={isStacked}
+        onStackedChange={setIsStacked}
+        onExport={handleExport}
+      />
       <div style={{ height: '400px' }}>
         <Bar id={chartId} data={chartData} options={chartOptions} />
       </div>

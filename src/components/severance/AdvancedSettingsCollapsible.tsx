@@ -1,6 +1,7 @@
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import type { SeveranceConfig } from '../../../helpers/abfindung'
+import { DEFAULT_TAX_RATES } from '../../utils/business-constants'
 
 interface AdvancedSettingsCollapsibleProps {
   config: SeveranceConfig
@@ -22,6 +23,8 @@ export function AdvancedSettingsCollapsible({ config, onConfigChange }: Advanced
 }
 
 function TaxRateField({ config, onConfigChange }: AdvancedSettingsCollapsibleProps) {
+  const defaultTaxRate = DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT
+
   return (
     <div className="space-y-2">
       <Label className="text-sm">
@@ -33,8 +36,8 @@ function TaxRateField({ config, onConfigChange }: AdvancedSettingsCollapsiblePro
           min="0"
           max="100"
           step="0.01"
-          value={config.capitalGainsTaxRate || 26.375}
-          onChange={e => onConfigChange({ capitalGainsTaxRate: parseFloat(e.target.value) || 26.375 })}
+          value={config.capitalGainsTaxRate || defaultTaxRate}
+          onChange={e => onConfigChange({ capitalGainsTaxRate: parseFloat(e.target.value) || defaultTaxRate })}
           className="flex-1"
         />
         <span className="text-sm text-muted-foreground">%</span>

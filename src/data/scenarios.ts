@@ -3,6 +3,7 @@
 
 import type { ReturnMode } from '../utils/random-returns'
 import type { WithdrawalStrategy } from '../../helpers/withdrawal'
+import { DEFAULT_TAX_RATES } from '../utils/business-constants'
 
 export interface FinancialScenario {
   id: string
@@ -62,7 +63,7 @@ export const predefinedScenarios: FinancialScenario[] = [
       initialInvestment: 5000,
       returnMode: 'fixed',
       expectedReturn: 3.5,
-      steuerlast: 26.375,
+      steuerlast: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
       teilfreistellungsquote: 30,
       freibetrag: 2000,
       withdrawalStrategy: '3prozent',
@@ -99,7 +100,7 @@ export const predefinedScenarios: FinancialScenario[] = [
       initialInvestment: 400000,
       returnMode: 'fixed',
       expectedReturn: 2.5,
-      steuerlast: 26.375,
+      steuerlast: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
       teilfreistellungsquote: 30,
       freibetrag: 2000,
       withdrawalStrategy: 'kapitalerhalt',
@@ -139,7 +140,7 @@ export const predefinedScenarios: FinancialScenario[] = [
       returnMode: 'random',
       expectedReturn: 6.0,
       volatility: 12,
-      steuerlast: 26.375,
+      steuerlast: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
       teilfreistellungsquote: 30,
       freibetrag: 2000,
       withdrawalStrategy: '4prozent',
@@ -177,7 +178,7 @@ export const predefinedScenarios: FinancialScenario[] = [
       returnMode: 'random',
       expectedReturn: 6.5,
       volatility: 14,
-      steuerlast: 26.375,
+      steuerlast: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
       teilfreistellungsquote: 30,
       freibetrag: 4000, // Doubled for couples
       withdrawalStrategy: '4prozent',
@@ -218,7 +219,7 @@ export const predefinedScenarios: FinancialScenario[] = [
       returnMode: 'random',
       expectedReturn: 8.0,
       volatility: 18,
-      steuerlast: 26.375,
+      steuerlast: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
       teilfreistellungsquote: 30,
       freibetrag: 2000,
       withdrawalStrategy: 'dynamisch',
@@ -258,7 +259,7 @@ export const predefinedScenarios: FinancialScenario[] = [
       returnMode: 'random',
       expectedReturn: 7.5,
       volatility: 16,
-      steuerlast: 26.375,
+      steuerlast: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
       teilfreistellungsquote: 30,
       freibetrag: 2000,
       withdrawalStrategy: '3prozent',
@@ -299,7 +300,7 @@ export const predefinedScenarios: FinancialScenario[] = [
       returnMode: 'random',
       expectedReturn: 6.5,
       volatility: 13,
-      steuerlast: 26.375,
+      steuerlast: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
       teilfreistellungsquote: 30,
       freibetrag: 2000,
       withdrawalStrategy: '4prozent',
@@ -337,7 +338,7 @@ export const predefinedScenarios: FinancialScenario[] = [
       initialInvestment: 10000,
       returnMode: 'fixed',
       expectedReturn: 4.0, // Conservative for short timeframe
-      steuerlast: 26.375,
+      steuerlast: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
       teilfreistellungsquote: 30,
       freibetrag: 2000,
       withdrawalStrategy: 'monatlich_fest',
@@ -377,7 +378,7 @@ export const predefinedScenarios: FinancialScenario[] = [
       returnMode: 'random',
       expectedReturn: 6.0,
       volatility: 12,
-      steuerlast: 26.375,
+      steuerlast: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
       teilfreistellungsquote: 30,
       freibetrag: 2000,
       withdrawalStrategy: 'monatlich_fest',
@@ -416,7 +417,7 @@ export const predefinedScenarios: FinancialScenario[] = [
       returnMode: 'random',
       expectedReturn: 7.0,
       volatility: 15,
-      steuerlast: 26.375,
+      steuerlast: DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT,
       teilfreistellungsquote: 30,
       freibetrag: 2000,
       withdrawalStrategy: 'bucket_strategie',

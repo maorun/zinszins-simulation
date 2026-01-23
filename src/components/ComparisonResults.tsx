@@ -152,14 +152,249 @@ function TableCell({
 }
 
 /**
+ * Renders scenario name with color indicator
+ */
+function ScenarioNameCell({
+  scenario,
+  isBaseline,
+}: {
+  scenario: CapitalGrowthComparison['scenarios'][number]
+  isBaseline: boolean
+}) {
+  return (
+    <td className="p-2">
+      <div className="flex items-center gap-2">
+        <div
+          className="w-3 h-3 rounded-full"
+          style={{ backgroundColor: scenario.color }}
+        />
+        {scenario.name}
+        {isBaseline && (
+          <span className="text-xs text-muted-foreground ml-1">(Basis)</span>
+        )}
+      </div>
+    </td>
+  )
+}
+
+/**
+ * Renders capital-related metric cells
+ */
+function CapitalMetricCells({
+  result,
+  metricValues,
+  baselineResult,
+  showDeviation,
+}: {
+  result: NonNullable<CapitalGrowthComparison['results']>[number]
+  metricValues: {
+    endCapital: number[]
+    annualizedReturn: number[]
+    totalContributions: number[]
+  }
+  baselineResult: NonNullable<CapitalGrowthComparison['results']>[number]
+  showDeviation: boolean
+}) {
+  return (
+    <>
+      <TableCell
+        value={result.metrics.endCapital}
+        formatter={formatCurrency}
+        allValues={metricValues.endCapital}
+        baseline={baselineResult.metrics.endCapital}
+        showDeviation={showDeviation}
+      />
+      <TableCell
+        value={result.metrics.annualizedReturn}
+        formatter={(v) => `${v.toFixed(2)}%`}
+        allValues={metricValues.annualizedReturn}
+        baseline={baselineResult.metrics.annualizedReturn}
+        showDeviation={showDeviation}
+      />
+      <td className="text-right p-2">
+        {formatCurrency(result.metrics.totalContributions)}
+      </td>
+    </>
+  )
+}
+
+/**
+ * Renders return and tax metric cells
+ */
+function ReturnAndTaxCells({
+  result,
+  metricValues,
+  baselineResult,
+  showDeviation,
+}: {
+  result: NonNullable<CapitalGrowthComparison['results']>[number]
+  metricValues: {
+    totalReturns: number[]
+    totalTaxes: number[]
+  }
+  baselineResult: NonNullable<CapitalGrowthComparison['results']>[number]
+  showDeviation: boolean
+}) {
+  return (
+    <>
+      <TableCell
+        value={result.metrics.totalReturns}
+        formatter={formatCurrency}
+        allValues={metricValues.totalReturns}
+        baseline={baselineResult.metrics.totalReturns}
+        showDeviation={showDeviation}
+      />
+      <TableCell
+        value={result.metrics.totalTaxes}
+        formatter={formatCurrency}
+        allValues={metricValues.totalTaxes}
+        baseline={baselineResult.metrics.totalTaxes}
+        showDeviation={showDeviation}
+        lowerIsBetter={true}
+      />
+    </>
+  )
+}
+
+/**
+ * Renders metric cells for a table row
+ */
+function MetricCells({
+  result,
+  metricValues,
+  baselineResult,
+  showDeviation,
+}: {
+  result: NonNullable<CapitalGrowthComparison['results']>[number]
+  metricValues: {
+    endCapital: number[]
+    annualizedReturn: number[]
+    totalContributions: number[]
+    totalReturns: number[]
+    totalTaxes: number[]
+  }
+  baselineResult: NonNullable<CapitalGrowthComparison['results']>[number]
+  showDeviation: boolean
+}) {
+  return (
+    <>
+      <CapitalMetricCells
+        result={result}
+        metricValues={metricValues}
+        baselineResult={baselineResult}
+        showDeviation={showDeviation}
+      />
+      <ReturnAndTaxCells
+        result={result}
+        metricValues={metricValues}
+        baselineResult={baselineResult}
+        showDeviation={showDeviation}
+      />
+    </>
+  )
+}
+
+/**
+ * Renders a single row in the comparison table
+ */
+function ComparisonTableRow({
+  result,
+  scenario,
+  metricValues,
+  baselineResult,
+  baselineScenarioId,
+}: {
+  result: NonNullable<CapitalGrowthComparison['results']>[number]
+  scenario: CapitalGrowthComparison['scenarios'][number]
+  metricValues: {
+    endCapital: number[]
+    annualizedReturn: number[]
+    totalContributions: number[]
+    totalReturns: number[]
+    totalTaxes: number[]
+  }
+  baselineResult: NonNullable<CapitalGrowthComparison['results']>[number]
+  baselineScenarioId?: string
+}) {
+  const isBaseline = result.scenarioId === baselineScenarioId
+  const showDeviation = baselineScenarioId !== undefined && !isBaseline
+
+  return (
+    <tr key={result.scenarioId} className="border-b hover:bg-muted/50">
+      <ScenarioNameCell scenario={scenario} isBaseline={isBaseline} />
+      <MetricCells
+        result={result}
+        metricValues={metricValues}
+        baselineResult={baselineResult}
+        showDeviation={showDeviation}
+      />
+    </tr>
+  )
+}
+
+/**
+ * Renders table header with optional deviation column labels
+ */
+function ComparisonTableHeader({ baselineScenarioId }: { baselineScenarioId?: string }) {
+  return (
+    <thead>
+      <tr className="border-b">
+        <th className="text-left p-2">Szenario</th>
+        <th className="text-right p-2">
+          Endkapital
+          {baselineScenarioId && (
+            <div className="text-xs font-normal text-muted-foreground">(Abweichung)</div>
+          )}
+        </th>
+        <th className="text-right p-2">
+          Rendite p.a.
+          {baselineScenarioId && (
+            <div className="text-xs font-normal text-muted-foreground">(Abweichung)</div>
+          )}
+        </th>
+        <th className="text-right p-2">Gesamtbeiträge</th>
+        <th className="text-right p-2">
+          Gesamtertrag
+          {baselineScenarioId && (
+            <div className="text-xs font-normal text-muted-foreground">(Abweichung)</div>
+          )}
+        </th>
+        <th className="text-right p-2">
+          Steuern
+          {baselineScenarioId && (
+            <div className="text-xs font-normal text-muted-foreground">(Abweichung)</div>
+          )}
+        </th>
+      </tr>
+    </thead>
+  )
+}
+
+/**
+ * Renders the legend for color-coded best/worst values
+ */
+function ComparisonTableLegend() {
+  return (
+    <div className="flex gap-4 mt-3 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2">
+        <div className="w-4 h-4 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded" />
+        <span>Beste Option</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="w-4 h-4 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded" />
+        <span>Schlechteste Option</span>
+      </div>
+    </div>
+  )
+}
+
+/**
  * Displays a detailed table of all scenario results with delta highlighting
  */
-// eslint-disable-next-line max-lines-per-function -- Table component requires rendering logic for multiple columns with highlighting
 function DetailedResultsTable({ comparison, baselineScenarioId }: ComparisonResultsProps) {
   const { results, scenarios } = comparison
 
   // Compute all values for each metric to determine best/worst
-  // This must be at the top level, not inside a conditional
   const metricValues = useMemo(() => {
     if (!results || results.length === 0) {
       return {
@@ -184,113 +419,29 @@ function DetailedResultsTable({ comparison, baselineScenarioId }: ComparisonResu
   // Find baseline result for percentage comparisons
   const baselineResult = results.find((r) => r.scenarioId === baselineScenarioId) || results[0]
 
-  // eslint-disable-next-line max-lines-per-function -- Table row rendering requires conditional logic for each metric cell
-  const renderTableRows = () => {
-    // eslint-disable-next-line max-lines-per-function -- Table row rendering needs comprehensive JSX for all columns
-    return results.map((result) => {
-      const scenario = scenarios.find((s) => s.id === result.scenarioId)
-      if (!scenario) return null
-
-      const isBaseline = result.scenarioId === baselineScenarioId
-
-      return (
-        <tr key={result.scenarioId} className="border-b hover:bg-muted/50">
-          <td className="p-2">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: scenario.color }}
-              />
-              {scenario.name}
-              {isBaseline && (
-                <span className="text-xs text-muted-foreground ml-1">(Basis)</span>
-              )}
-            </div>
-          </td>
-          <TableCell
-            value={result.metrics.endCapital}
-            formatter={formatCurrency}
-            allValues={metricValues.endCapital}
-            baseline={baselineResult!.metrics.endCapital}
-            showDeviation={baselineScenarioId !== undefined && !isBaseline}
-          />
-          <TableCell
-            value={result.metrics.annualizedReturn}
-            formatter={(v) => `${v.toFixed(2)}%`}
-            allValues={metricValues.annualizedReturn}
-            baseline={baselineResult!.metrics.annualizedReturn}
-            showDeviation={baselineScenarioId !== undefined && !isBaseline}
-          />
-          <td className="text-right p-2">
-            {formatCurrency(result.metrics.totalContributions)}
-          </td>
-          <TableCell
-            value={result.metrics.totalReturns}
-            formatter={formatCurrency}
-            allValues={metricValues.totalReturns}
-            baseline={baselineResult!.metrics.totalReturns}
-            showDeviation={baselineScenarioId !== undefined && !isBaseline}
-          />
-          <TableCell
-            value={result.metrics.totalTaxes}
-            formatter={formatCurrency}
-            allValues={metricValues.totalTaxes}
-            baseline={baselineResult!.metrics.totalTaxes}
-            showDeviation={baselineScenarioId !== undefined && !isBaseline}
-            lowerIsBetter={true}
-          />
-        </tr>
-      )
-    })
-  }
-
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="text-left p-2">Szenario</th>
-            <th className="text-right p-2">
-              Endkapital
-              {baselineScenarioId && (
-                <div className="text-xs font-normal text-muted-foreground">(Abweichung)</div>
-              )}
-            </th>
-            <th className="text-right p-2">
-              Rendite p.a.
-              {baselineScenarioId && (
-                <div className="text-xs font-normal text-muted-foreground">(Abweichung)</div>
-              )}
-            </th>
-            <th className="text-right p-2">Gesamtbeiträge</th>
-            <th className="text-right p-2">
-              Gesamtertrag
-              {baselineScenarioId && (
-                <div className="text-xs font-normal text-muted-foreground">(Abweichung)</div>
-              )}
-            </th>
-            <th className="text-right p-2">
-              Steuern
-              {baselineScenarioId && (
-                <div className="text-xs font-normal text-muted-foreground">(Abweichung)</div>
-              )}
-            </th>
-          </tr>
-        </thead>
-        <tbody>{renderTableRows()}</tbody>
-      </table>
+        <ComparisonTableHeader baselineScenarioId={baselineScenarioId} />
+        <tbody>
+          {results.map((result) => {
+            const scenario = scenarios.find((s) => s.id === result.scenarioId)
+            if (!scenario) return null
 
-      {/* Legend for color coding */}
-      <div className="flex gap-4 mt-3 text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded" />
-          <span>Beste Option</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded" />
-          <span>Schlechteste Option</span>
-        </div>
-      </div>
+            return (
+              <ComparisonTableRow
+                key={result.scenarioId}
+                result={result}
+                scenario={scenario}
+                metricValues={metricValues}
+                baselineResult={baselineResult}
+                baselineScenarioId={baselineScenarioId}
+              />
+            )
+          })}
+        </tbody>
+      </table>
+      <ComparisonTableLegend />
     </div>
   )
 }

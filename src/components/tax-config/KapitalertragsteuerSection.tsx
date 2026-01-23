@@ -2,6 +2,7 @@ import { Slider } from '../ui/slider'
 import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { GlossaryTerm } from '../GlossaryTerm'
+import { DEFAULT_TAX_RATES } from '../../utils/business-constants'
 
 interface KapitalertragsteuerSectionProps {
   steuerlast: number
@@ -15,7 +16,7 @@ export function KapitalertragsteuerSection({ steuerlast, onSteuerlastChange }: K
         <Label htmlFor="steuerlast">
           <GlossaryTerm term="kapitalertragsteuer">Kapitalertragsteuer</GlossaryTerm> (%)
         </Label>
-        <Button variant="outline" size="sm" onClick={() => onSteuerlastChange(26.375)} className="text-xs">
+        <Button variant="outline" size="sm" onClick={() => onSteuerlastChange(DEFAULT_TAX_RATES.KAPITALERTRAGSTEUER_PERCENT)} className="text-xs">
           Reset
         </Button>
       </div>

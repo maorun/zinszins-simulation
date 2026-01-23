@@ -52,6 +52,12 @@ export const DEFAULT_TAX_RATES = {
   KAPITALERTRAGSTEUER: 0.26375,
 
   /**
+   * Default Kapitalertragsteuer as percentage (for UI display and percentage-based calculations)
+   * 26.375%
+   */
+  KAPITALERTRAGSTEUER_PERCENT: 26.375,
+
+  /**
    * Default Teilfreistellungsquote (partial exemption) for equity funds
    * 30% for stock funds (Aktienfonds)
    */
