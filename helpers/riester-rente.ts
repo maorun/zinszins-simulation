@@ -350,3 +350,216 @@ export function createDefaultRiesterConfig(): RiesterRenteConfig {
     useWohnRiester: false,
   }
 }
+
+/**
+ * Wohn-Riester specific configuration and types
+ */
+
+/**
+ * Configuration for Wohnförderkonto (home ownership subsidy account)
+ */
+export interface WohnfoerderkontoConfig {
+  /** Initial withdrawal amount for home purchase in EUR */
+  initialWithdrawal: number
+
+  /** Year of withdrawal for home purchase */
+  withdrawalYear: number
+
+  /** Annual interest rate for Wohnförderkonto (fixed at 2% by law) */
+  annualInterestRate: number
+
+  /** Retirement start year (when taxation begins) */
+  retirementYear: number
+
+  /** Age at retirement (for calculating taxation period) */
+  retirementAge: number
+}
+
+/**
+ * Result of Wohnförderkonto balance calculation
+ */
+export interface WohnfoerderkontoBalanceResult {
+  /** Balance at retirement after compound interest */
+  balanceAtRetirement: number
+
+  /** Number of years of compounding */
+  compoundingYears: number
+
+  /** Whether single-payment taxation option is available */
+  canUseSinglePayment: boolean
+}
+
+/**
+ * Taxation method for Wohn-Riester
+ */
+export type WohnRiesterTaxationMethod = 'installments' | 'single-payment'
+
+/**
+ * Result of Wohn-Riester taxation calculation
+ */
+export interface WohnRiesterTaxationResult {
+  /** Balance in Wohnförderkonto at retirement */
+  wohnfoerderkontoBalance: number
+
+  /** Taxation method used */
+  taxationMethod: WohnRiesterTaxationMethod
+
+  /** For installments: Annual taxable amount */
+  annualTaxableAmount?: number
+
+  /** For installments: Number of years for taxation (until age 85) */
+  taxationYears?: number
+
+  /** For single payment: Reduced taxable amount (70% of balance) */
+  singlePaymentTaxableAmount?: number
+
+  /** For single payment: Tax discount (30% reduction) */
+  singlePaymentDiscount?: number
+
+  /** Annual income tax on taxable amount */
+  annualIncomeTax: number
+
+  /** Total tax burden over entire taxation period */
+  totalTaxBurden: number
+}
+
+/**
+ * Calculate Wohnförderkonto balance at retirement
+ * 
+ * @param config - Wohnförderkonto configuration
+ * @returns Balance calculation result
+ * 
+ * @remarks
+ * According to § 92b EStG, the Wohnförderkonto is compounded annually
+ * at 2% interest rate until retirement begins.
+ */
+export function calculateWohnfoerderkontoBalance(
+  config: WohnfoerderkontoConfig
+): WohnfoerderkontoBalanceResult {
+  const compoundingYears = config.retirementYear - config.withdrawalYear
+  
+  if (compoundingYears < 0) {
+    return {
+      balanceAtRetirement: 0,
+      compoundingYears: 0,
+      canUseSinglePayment: false,
+    }
+  }
+
+  // Compound interest at 2% per year (§ 92b EStG)
+  const balanceAtRetirement = 
+    config.initialWithdrawal * Math.pow(1 + config.annualInterestRate, compoundingYears)
+
+  return {
+    balanceAtRetirement,
+    compoundingYears,
+    canUseSinglePayment: true,
+  }
+}
+
+/**
+ * Calculate taxation of Wohn-Riester
+ * 
+ * @param wohnfoerderkontoBalance - Balance in Wohnförderkonto at retirement
+ * @param retirementAge - Age at retirement start
+ * @param taxationMethod - Taxation method: 'installments' or 'single-payment'
+ * @param personalTaxRate - Personal income tax rate (0-1)
+ * @returns Taxation calculation result
+ * 
+ * @remarks
+ * Two taxation methods according to § 92a EStG:
+ * 1. Installments: Balance distributed until age 85, taxed annually
+ * 2. Single payment: 70% of balance taxed immediately (30% discount)
+ */
+export function calculateWohnRiesterTaxation(
+  wohnfoerderkontoBalance: number,
+  retirementAge: number,
+  taxationMethod: WohnRiesterTaxationMethod,
+  personalTaxRate: number
+): WohnRiesterTaxationResult {
+  if (taxationMethod === 'single-payment') {
+    // Single payment with 30% discount
+    const singlePaymentDiscount = wohnfoerderkontoBalance * 0.30
+    const singlePaymentTaxableAmount = wohnfoerderkontoBalance * 0.70
+    const annualIncomeTax = singlePaymentTaxableAmount * personalTaxRate
+    
+    return {
+      wohnfoerderkontoBalance,
+      taxationMethod: 'single-payment',
+      singlePaymentTaxableAmount,
+      singlePaymentDiscount,
+      annualIncomeTax,
+      totalTaxBurden: annualIncomeTax,
+    }
+  } else {
+    // Installment taxation until age 85
+    const taxationYears = Math.max(1, 85 - retirementAge)
+    const annualTaxableAmount = wohnfoerderkontoBalance / taxationYears
+    const annualIncomeTax = annualTaxableAmount * personalTaxRate
+    const totalTaxBurden = annualIncomeTax * taxationYears
+    
+    return {
+      wohnfoerderkontoBalance,
+      taxationMethod: 'installments',
+      annualTaxableAmount,
+      taxationYears,
+      annualIncomeTax,
+      totalTaxBurden,
+    }
+  }
+}
+
+/**
+ * Compare Wohn-Riester taxation methods
+ * 
+ * @param wohnfoerderkontoBalance - Balance in Wohnförderkonto at retirement
+ * @param retirementAge - Age at retirement start
+ * @param personalTaxRate - Personal income tax rate (0-1)
+ * @returns Comparison of both taxation methods
+ * 
+ * @remarks
+ * Helps users decide which taxation method is more favorable for their situation.
+ * Generally, single payment is better when:
+ * - Personal tax rate is low
+ * - Other income in retirement is low
+ * - Life expectancy considerations
+ */
+export function compareWohnRiesterTaxationMethods(
+  wohnfoerderkontoBalance: number,
+  retirementAge: number,
+  personalTaxRate: number
+): {
+  installments: WohnRiesterTaxationResult
+  singlePayment: WohnRiesterTaxationResult
+  recommendation: WohnRiesterTaxationMethod
+  savingsFromBetterMethod: number
+} {
+  const installments = calculateWohnRiesterTaxation(
+    wohnfoerderkontoBalance,
+    retirementAge,
+    'installments',
+    personalTaxRate
+  )
+
+  const singlePayment = calculateWohnRiesterTaxation(
+    wohnfoerderkontoBalance,
+    retirementAge,
+    'single-payment',
+    personalTaxRate
+  )
+
+  const recommendation = singlePayment.totalTaxBurden < installments.totalTaxBurden
+    ? 'single-payment'
+    : 'installments'
+
+  const savingsFromBetterMethod = Math.abs(
+    installments.totalTaxBurden - singlePayment.totalTaxBurden
+  )
+
+  return {
+    installments,
+    singlePayment,
+    recommendation,
+    savingsFromBetterMethod,
+  }
+}
