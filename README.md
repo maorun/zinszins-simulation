@@ -711,6 +711,19 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Automatische Integration**: Wird bei Günstigerprüfung und Einkommensteuerberechnung berücksichtigt
   - **Konfigurierbar**: Ein-/Ausschaltbar mit präziser Prozentsatz-Einstellung (8-9%)
   - **Transparente Berechnung**: Kirchensteuer wird als Prozentsatz der Einkommensteuer berechnet
+  - **Kirchensteuer-Optimierung** - Langfristige Finanzplanung unter Berücksichtigung der Kirchensteuer
+    - **Langfristvergleich**: Vergleich der Steuerbelastung mit und ohne Kirchensteuer über mehrere Jahre (1-50 Jahre)
+    - **Effektiver Steuersatz**: Berechnung des tatsächlichen Gesamtsteuersatzes (Abgeltungsteuer + Soli + Kirchensteuer)
+    - **Mehrbelastungs-Transparenz**: Klare Darstellung der zusätzlichen Steuerbelastung durch Kirchensteuer in Euro und Prozent
+    - **Sperrvermerk-Simulation**: Vergleich zwischen automatischer Kirchensteuer-Abführung und Sperrvermerk
+      - Zeigt dass Steuerschuld gleich bleibt, nur Zahlungsmodalität ändert sich
+      - Transparente Darstellung der manuell über Steuererklärung zu zahlenden Beträge
+      - Erklärung der Liquiditätsvorteile bei Sperrvermerk
+    - **Teilfreistellungs-Integration**: Berücksichtigung der Teilfreistellung (30% für Aktienfonds) vor Kirchensteuer-Berechnung
+    - **Kapitalertragsteuer-Basis**: Kirchensteuer wird korrekt auf die Abgeltungsteuer (25%), nicht auf den vollen Kapitalertrag, berechnet
+    - **Planbare Szenarien**: Flexible Eingabe von durchschnittlichen jährlichen Kapitalerträgen und Planungszeitraum
+    - **Bildungsinhalte**: Wichtige Hinweise zu Kirchensteuer-Berechnung, Austritt und steuerlichen Auswirkungen
+    - **Bundesland-Hinweise**: Erklärung der unterschiedlichen Kirchensteuersätze in Deutschland
 - **Solidaritätszuschlag (Soli)** - Informations-Tool zur Berechnung des Solidaritätszuschlags nach 2021 Reform
   - **Freigrenze**: Etwa 90% der Steuerzahler zahlen keinen Soli mehr (Einzelperson: 16.956 €, Ehepaar: 33.912 € Einkommensteuer)
   - **Gleitzone**: Schrittweise Einführung des Soli zwischen Freigrenze und Obergrenze (Einzelperson: 31.527 €, Ehepaar: 63.054 €)

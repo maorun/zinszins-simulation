@@ -25,6 +25,7 @@ import { QuellensteuerconfigCard } from './QuellensteuerconfigCard'
 import { FreistellungsauftragOptimizer } from './FreistellungsauftragOptimizer'
 import { PortfolioTeilfreistellungCard } from './tax-config/PortfolioTeilfreistellungCard'
 import { SozialversicherungsOptimierungCard } from './SozialversicherungsOptimierungCard'
+import { KirchensteuerOptimizationCard } from './KirchensteuerOptimizationCard'
 
 import { TaxDeferralCalculatorCard } from './TaxDeferralCalculatorCard'
 import { MultiYearLossTrackingDashboard } from './MultiYearLossTrackingDashboard'
@@ -142,6 +143,12 @@ function FreistellungsauftragSection({
 function TaxOptimizationCards({ simulation }: { simulation: ReturnType<typeof useSimulation> }) {
   return (
     <>
+      <KirchensteuerOptimizationCard
+        kirchensteuerAktiv={simulation.kirchensteuerAktiv}
+        kirchensteuersatz={simulation.kirchensteuersatz}
+        kapitalertragsteuer={simulation.steuerlast}
+        teilfreistellungsquote={simulation.teilfreistellungsquote}
+      />
       <PortfolioTeilfreistellungCard />
       <RebalancingComparisonCard />
       <TaxDeferralCalculatorCard />
