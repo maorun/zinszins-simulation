@@ -8,13 +8,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
-- **Kapitalertragsteuer-Vorauszahlungen** - Quartalsmäßige Vorauszahlungsplanung bei hohen Kapitalerträgen (Hoch ⭐⭐⭐)
-  - Automatische Berechnung der erforderlichen Vorauszahlungen nach § 37 EStG
-  - Vermeidung von Nachzahlungszinsen (6% p.a. nach § 233a AO)
-  - Detaillierte Liquiditätsplanung für Vorauszahlungstermine
-  - Berücksichtigung bereits gezahlter Abgeltungsteuer
-  - Optimierung der Steuerliquidität über das Jahr
-  
 - **Abgeltungsteuer-Optimierung bei Kontoaufteilung** - Intelligente Depot-Strukturierung zur Steuerminimierung (Hoch ⭐⭐⭐)
   - Vergleich von Einzel- vs. Gemeinschaftsdepot für Ehepaare
   - Optimale Nutzung mehrerer Depots bei verschiedenen Banken
@@ -22,7 +15,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - Verlusttopf-Strategien über mehrere Depots hinweg
   - Ertrags- und Verlustquellen intelligent auf Depots verteilen
 
-(Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation, Sozialversicherungs-Optimierung für Grenzfälle, Tax Loss Harvesting Tracker, Kirchensteuer-Optimierung bereits implementiert)
+(Kapitalertragsteuer-Vorauszahlungen, Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation, Sozialversicherungs-Optimierung für Grenzfälle, Tax Loss Harvesting Tracker, Kirchensteuer-Optimierung bereits implementiert)
 
 ### Erweiterte Finanzplanung
 
