@@ -460,6 +460,41 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Berechnungsparameter-Übersicht**: Transparente Darstellung aller verwendeten Steuersätze und Parameter
   - **Echtzeit-Aktualisierung**: Automatische Anpassung an globale Steuereinstellungen
   - **Bildungsfunktion**: Hilft Anlegern die Vorteile thesaurierender Fonds zu verstehen
+- **Rürup vs. ETF Vergleichstool** - Umfassender Vergleich zwischen Rürup-Rente und privatem ETF-Sparplan
+  - **Vollständige Lebenszyklusanalyse**: Vergleich von Anspar- und Entnahmephase mit allen steuerlichen Auswirkungen
+  - **Steuervorteile Beitragsphase**: Berechnung der Steuerentlastung durch Sonderausgabenabzug (§10 EStG)
+    - 2024: 98% absetzbar bis 27.566€ (Ledige) / 55.132€ (Verheiratete)
+    - Ab 2025: 100% absetzbar
+    - Berücksichtigung des persönlichen Steuersatzes (20-50%)
+  - **Nachgelagerte Besteuerung**: Präzise Berechnung der Rentenbesteuerung im Ruhestand (§22 EStG)
+    - Abhängig vom Renteneintritts jahr (2040: 100% steuerpflichtig)
+    - Berücksichtigung niedrigerer Steuersätze im Ruhestand
+  - **ETF-Vergleichsberechnung**: Vollständige Simulation des ETF-Sparplans
+    - Vorabpauschale-Besteuerung während Ansparphase
+    - Teilfreistellung für Aktienfonds (30%)
+    - Kapitalentnahme mit Restkapital für Vererbung
+  - **Konfigurierbare Parameter**:
+    - Jährlicher Beitrag (10.000-50.000€)
+    - Ansparphase (5-40 Jahre)
+    - Erwartete Rendite (0-15%)
+    - Steuersätze für Arbeits- und Rentenphase
+    - Familienstand (Ledige/Verheiratete)
+    - Entnahmephase (10-40 Jahre)
+  - **Side-by-Side Vergleich**:
+    - **Ansparphase**: Endkapital, Steuereffekte, Nettoeinzahlungen
+    - **Entnahmephase**: Gesamtauszahlungen, Steuerlast, Nettobeträge
+    - **Gesamtbilanz**: Nettonutzen, effektive Rendite, Vorteilsanalyse
+  - **Intelligente Empfehlung**: Automatische Bewertung mit Prozentangabe
+    - "Rürup" - Bei hohem Steuersatz in Arbeitsphase und niedrigem im Ruhestand
+    - "ETF" - Bei niedriger Steuerbelastung oder Bedarf an Kapitalerhalt
+    - "Ähnlich" - Bei vernachlässigbarem Unterschied (<5%)
+  - **Schlüsselfaktoren-Analyse**: Identifikation der entscheidenden Einflussfaktoren
+    - Höhe des Steuersatzes in Beitrags- und Rentenphase
+    - Teilfreistellungsquote bei ETFs
+    - Kapitalerhalt vs. Rente (Vererbung möglich bei ETF)
+  - **Integration mit globalem Kontext**: Nutzt Kapitalertragsteuer, Teilfreistellung und Freibetrag aus Hauptkonfiguration
+  - **Realistische Szenarien**: Optimiert für deutsche Steuerverhältnisse und typische Lebenssituationen
+  - **Bildungsfunktion**: Hilft bei fundierter Entscheidung zwischen steuergeförderter Rürup und flexiblem ETF-Sparplan
 - **Reverse-Rechner (Zielkapital-Planer)** - Berechnung der erforderlichen Sparrate für ein Zielkapital
   - **Zielorientierte Planung**: Eingabe des gewünschten Ruhestands-Zielkapitals (z.B. 500.000 €)
   - **Zeitraum-Flexibilität**: Konfigurierbare Ansparphase (1-100 Jahre)
