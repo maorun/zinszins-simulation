@@ -300,6 +300,8 @@ describe('Rürup vs. ETF Comparison', () => {
         freibetrag: 1000,
         retirementYears: 30,
         ter: 0.002,
+        ruerupAnnualCosts: 0.015,
+        ruerupUpfrontCosts: 0.04,
       }
       
       const comparison = compareRuerupVsEtf(config)
@@ -323,6 +325,8 @@ describe('Rürup vs. ETF Comparison', () => {
         freibetrag: 1000,
         retirementYears: 25,
         ter: 0.0015, // Low-cost ETF
+        ruerupAnnualCosts: 0.015,
+        ruerupUpfrontCosts: 0.04,
       }
       
       const comparison = compareRuerupVsEtf(config)
@@ -346,12 +350,41 @@ describe('Rürup vs. ETF Comparison', () => {
         freibetrag: 2000, // Married
         retirementYears: 25,
         ter: 0.002,
+        ruerupAnnualCosts: 0.015,
+        ruerupUpfrontCosts: 0.04,
       }
       
       const comparison = compareRuerupVsEtf(config)
       
       // Should show substantial tax savings for Rürup
       expect(Math.abs(comparison.ruerup.accumulation.totalTaxEffect)).toBeGreaterThan(50000)
+    })
+
+    it('should account for Rürup costs in calculations', () => {
+      const configLowCost: RuerupVsEtfComparisonConfig = {
+        ...createDefaultRuerupVsEtfConfig(),
+        ruerupAnnualCosts: 0.005, // 0.5% annual costs
+        ruerupUpfrontCosts: 0.01, // 1% upfront costs
+      }
+      
+      const configHighCost: RuerupVsEtfComparisonConfig = {
+        ...createDefaultRuerupVsEtfConfig(),
+        ruerupAnnualCosts: 0.025, // 2.5% annual costs
+        ruerupUpfrontCosts: 0.06, // 6% upfront costs
+      }
+      
+      const comparisonLowCost = compareRuerupVsEtf(configLowCost)
+      const comparisonHighCost = compareRuerupVsEtf(configHighCost)
+      
+      // Lower costs should result in higher final value for Rürup
+      expect(comparisonLowCost.ruerup.accumulation.finalValue).toBeGreaterThan(
+        comparisonHighCost.ruerup.accumulation.finalValue
+      )
+      
+      // High costs should be mentioned in key factors
+      expect(comparisonHighCost.comparison.keyFactors.some(f => 
+        f.includes('Hohe Rürup-Kosten')
+      )).toBe(true)
     })
   })
 })

@@ -55,6 +55,12 @@ export interface RuerupVsEtfComparisonConfig {
   
   /** Annual TER (Total Expense Ratio) for ETF (e.g., 0.002 for 0.2%) */
   ter: number
+  
+  /** Annual management costs for Rürup (Verwaltungskosten, e.g., 0.015 for 1.5%) */
+  ruerupAnnualCosts: number
+  
+  /** Upfront costs for Rürup as percentage of total contributions (Abschlusskosten, e.g., 0.04 for 4%) */
+  ruerupUpfrontCosts: number
 }
 
 /**
@@ -160,6 +166,11 @@ function calculateRuerupAccumulation(
   let portfolioValue = 0
   let cumulativeContributions = 0
   let cumulativeTaxSavings = 0
+  
+  // Calculate total upfront costs (amortized over all years)
+  const totalExpectedContributions = config.annualContribution * config.contributionYears
+  const totalUpfrontCosts = totalExpectedContributions * config.ruerupUpfrontCosts
+  const annualUpfrontCost = totalUpfrontCosts / config.contributionYears
 
   for (let i = 0; i < config.contributionYears; i++) {
     const year = config.startYear + i
@@ -175,9 +186,11 @@ function calculateRuerupAccumulation(
     
     const taxSavings = taxDeduction.estimatedTaxSavings
     
-    // Add contribution and calculate return
-    portfolioValue += config.annualContribution
-    const grossReturn = portfolioValue * config.expectedReturn
+    // Add contribution and deduct upfront costs
+    portfolioValue += config.annualContribution - annualUpfrontCost
+    
+    // Calculate return after annual management costs
+    const grossReturn = portfolioValue * (config.expectedReturn - config.ruerupAnnualCosts)
     portfolioValue += grossReturn
     
     cumulativeContributions += config.annualContribution
@@ -528,6 +541,10 @@ export function compareRuerupVsEtf(config: RuerupVsEtfComparisonConfig): RuerupV
     keyFactors.push('Hohe Teilfreistellung begünstigt ETF')
   }
   
+  if (config.ruerupAnnualCosts + config.ruerupUpfrontCosts > 0.05) {
+    keyFactors.push('Hohe Rürup-Kosten (Verwaltung + Abschluss) begünstigen ETF')
+  }
+  
   if (etfResult.retirement.finalRemainingValue > 0) {
     keyFactors.push('ETF bietet Kapitalerhalt für Vererbung')
   }
@@ -562,5 +579,7 @@ export function createDefaultRuerupVsEtfConfig(): RuerupVsEtfComparisonConfig {
     freibetrag: 1000,
     retirementYears: 25,
     ter: 0.002,
+    ruerupAnnualCosts: 0.015, // 1.5% typical annual management costs
+    ruerupUpfrontCosts: 0.04, // 4% typical upfront/acquisition costs
   }
 }

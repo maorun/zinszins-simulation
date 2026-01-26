@@ -132,6 +132,49 @@ function ReturnAndTaxFields({ config, onConfigChange }: ConfigFormProps) {
   )
 }
 
+function CostFields({ config, onConfigChange }: ConfigFormProps) {
+  const ruerupAnnualCostsId = useFormId('ruerup-vs-etf', 'ruerup-annual-costs')
+  const ruerupUpfrontCostsId = useFormId('ruerup-vs-etf', 'ruerup-upfront-costs')
+
+  return (
+    <>
+      <div className="space-y-2">
+        <Label htmlFor={ruerupAnnualCostsId}>
+          Rürup Verwaltungskosten (p.a.): {(config.ruerupAnnualCosts * 100).toFixed(1)}%
+        </Label>
+        <Slider
+          id={ruerupAnnualCostsId}
+          min={0}
+          max={3}
+          step={0.1}
+          value={[config.ruerupAnnualCosts * 100]}
+          onValueChange={([value]) => onConfigChange({ ruerupAnnualCosts: value / 100 })}
+        />
+        <p className="text-xs text-muted-foreground">
+          Typische Verwaltungskosten für Rürup-Produkte: 1-2% p.a.
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={ruerupUpfrontCostsId}>
+          Rürup Abschlusskosten: {(config.ruerupUpfrontCosts * 100).toFixed(1)}%
+        </Label>
+        <Slider
+          id={ruerupUpfrontCostsId}
+          min={0}
+          max={10}
+          step={0.5}
+          value={[config.ruerupUpfrontCosts * 100]}
+          onValueChange={([value]) => onConfigChange({ ruerupUpfrontCosts: value / 100 })}
+        />
+        <p className="text-xs text-muted-foreground">
+          Typische Abschluss-/Vertriebskosten: 3-5% der Gesamtbeiträge
+        </p>
+      </div>
+    </>
+  )
+}
+
 function CivilStatusAndRetirementFields({ config, onConfigChange }: ConfigFormProps) {
   const civilStatusSingleId = useFormId('ruerup-vs-etf', 'civil-status-single')
   const civilStatusMarriedId = useFormId('ruerup-vs-etf', 'civil-status-married')
@@ -180,6 +223,7 @@ function ConfigForm({ config, onConfigChange }: ConfigFormProps) {
     <div className="space-y-4">
       <ContributionFields config={config} onConfigChange={onConfigChange} />
       <ReturnAndTaxFields config={config} onConfigChange={onConfigChange} />
+      <CostFields config={config} onConfigChange={onConfigChange} />
       <CivilStatusAndRetirementFields config={config} onConfigChange={onConfigChange} />
     </div>
   )
@@ -490,6 +534,8 @@ function useRuerupVsEtfConfig() {
       retirementPhaseTaxRate: defaultConfig.retirementPhaseTaxRate,
       civilStatus: defaultConfig.civilStatus,
       retirementYears: defaultConfig.retirementYears,
+      ruerupAnnualCosts: defaultConfig.ruerupAnnualCosts,
+      ruerupUpfrontCosts: defaultConfig.ruerupUpfrontCosts,
     }
   })
 
