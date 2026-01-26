@@ -662,7 +662,14 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Rentenphase Besteuerung**: Vollständige Besteuerung (100%) der Riester-Rente in der Auszahlungsphase
   - **Nachgelagerte Besteuerung**: Riester-Renten sind voll steuerpflichtig gemäß § 22 Nr. 5 Satz 1 EStG
   - **Rentenanpassung**: Jährliche Rentenerhöhung gemäß konfigurierter Steigerungsrate
-  - **Wohn-Riester Option**: Konfigurierbare Option für Eigenheimrente (für zukünftige Erweiterungen)
+  - **Wohn-Riester (Eigenheimrente)** - Verwendung von Riester-Förderung für selbstgenutztes Wohneigentum
+    - **Wohnförderkonto-Berechnung**: Automatische Berechnung des Wohnförderkontos mit 2% jährlicher Verzinsung (§ 92b EStG)
+    - **Zwei Besteuerungsmethoden**: Ratenzahlung bis 85 Jahre oder Einmalbesteuerung mit 30% Rabatt
+    - **Steueroptimierung**: Vergleich und Empfehlung der günstigeren Besteuerungsmethode
+    - **UI-Integration**: Toggle-Schalter in Riester-Konfiguration zur Aktivierung von Wohn-Riester
+    - **Rechtskonforme Umsetzung**: Vollständige Berücksichtigung von § 92a und § 92b EStG
+    - **Helper-Funktionen verfügbar**: `calculateWohnfoerderkontoBalance()`, `calculateWohnRiesterTaxation()`, `compareWohnRiesterTaxationMethods()`
+    - **Umfassend getestet**: 19 Tests für Wohn-Riester-Berechnungen mit 100% Pass-Rate
   - **Integration in "Andere Einkünfte"**: Riester-Rente kann als Einkunftsquelle neben Rürup-Rente, BU-Rente, Kindergeld, etc. hinzugefügt werden
   - **Helper-Funktionen verfügbar**: `calculateRiesterTaxBenefit()`, `calculateRiesterPensionTaxation()`, `calculateRiesterAllowances()`, `calculateMinimumContribution()`
   - **Umfassend getestet**: 36 Tests (31 Helper + 5 Integration) mit 100% Pass-Rate

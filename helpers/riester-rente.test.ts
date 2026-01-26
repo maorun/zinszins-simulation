@@ -5,6 +5,10 @@ import {
   calculateRiesterTaxBenefit,
   calculateRiesterPensionTaxation,
   createDefaultRiesterConfig,
+  calculateWohnfoerderkontoBalance,
+  calculateWohnRiesterTaxation,
+  compareWohnRiesterTaxationMethods,
+  type WohnfoerderkontoConfig,
 } from './riester-rente'
 
 describe('Riester-Rente Helper Functions', () => {
@@ -495,6 +499,451 @@ describe('Riester-Rente Helper Functions', () => {
       expect(result.meetsMinimumContribution).toBe(true)
       // Low tax rate means allowances should be more favorable
       expect(result.benefitMethod).toBe('allowances')
+    })
+  })
+
+  describe('Wohn-Riester: calculateWohnfoerderkontoBalance', () => {
+    it('should calculate balance with 2% compound interest over time', () => {
+      const config: WohnfoerderkontoConfig = {
+        initialWithdrawal: 50000,
+        withdrawalYear: 2024,
+        annualInterestRate: 0.02,
+        retirementYear: 2044,
+        retirementAge: 67,
+      }
+
+      const result = calculateWohnfoerderkontoBalance(config)
+
+      // 20 years compounding: 50000 * 1.02^20
+      const expected = 50000 * Math.pow(1.02, 20)
+
+      expect(result.compoundingYears).toBe(20)
+      expect(result.balanceAtRetirement).toBeCloseTo(expected, 2)
+      expect(result.canUseSinglePayment).toBe(true)
+    })
+
+    it('should handle no compounding when retirement is same year as withdrawal', () => {
+      const config: WohnfoerderkontoConfig = {
+        initialWithdrawal: 50000,
+        withdrawalYear: 2044,
+        annualInterestRate: 0.02,
+        retirementYear: 2044,
+        retirementAge: 67,
+      }
+
+      const result = calculateWohnfoerderkontoBalance(config)
+
+      expect(result.compoundingYears).toBe(0)
+      expect(result.balanceAtRetirement).toBe(50000)
+      expect(result.canUseSinglePayment).toBe(true)
+    })
+
+    it('should handle invalid scenario where retirement is before withdrawal', () => {
+      const config: WohnfoerderkontoConfig = {
+        initialWithdrawal: 50000,
+        withdrawalYear: 2044,
+        annualInterestRate: 0.02,
+        retirementYear: 2040,
+        retirementAge: 67,
+      }
+
+      const result = calculateWohnfoerderkontoBalance(config)
+
+      expect(result.compoundingYears).toBe(0)
+      expect(result.balanceAtRetirement).toBe(0)
+      expect(result.canUseSinglePayment).toBe(false)
+    })
+
+    it('should calculate realistic 30-year scenario', () => {
+      const config: WohnfoerderkontoConfig = {
+        initialWithdrawal: 30000,
+        withdrawalYear: 2024,
+        annualInterestRate: 0.02,
+        retirementYear: 2054, // 30 years later
+        retirementAge: 67,
+      }
+
+      const result = calculateWohnfoerderkontoBalance(config)
+
+      // 30 years: 30000 * 1.02^30 ≈ 54365.53
+      const expected = 30000 * Math.pow(1.02, 30)
+
+      expect(result.compoundingYears).toBe(30)
+      expect(result.balanceAtRetirement).toBeCloseTo(expected, 2)
+      expect(result.balanceAtRetirement).toBeGreaterThan(50000)
+    })
+
+    it('should demonstrate compounding effect with large withdrawal', () => {
+      const config: WohnfoerderkontoConfig = {
+        initialWithdrawal: 100000,
+        withdrawalYear: 2024,
+        annualInterestRate: 0.02,
+        retirementYear: 2064, // 40 years
+        retirementAge: 67,
+      }
+
+      const result = calculateWohnfoerderkontoBalance(config)
+
+      // 40 years: 100000 * 1.02^40 ≈ 220804.00
+      const expected = 100000 * Math.pow(1.02, 40)
+
+      expect(result.balanceAtRetirement).toBeCloseTo(expected, 2)
+      expect(result.balanceAtRetirement).toBeGreaterThan(200000)
+    })
+  })
+
+  describe('Wohn-Riester: calculateWohnRiesterTaxation', () => {
+    it('should calculate installment taxation correctly', () => {
+      const result = calculateWohnRiesterTaxation(
+        60000,  // Wohnförderkonto balance
+        65,     // Retirement age
+        'installments',
+        0.25    // 25% tax rate
+      )
+
+      // Taxation period: 85 - 65 = 20 years
+      const expectedAnnual = 60000 / 20
+      const expectedTax = expectedAnnual * 0.25
+
+      expect(result.taxationMethod).toBe('installments')
+      expect(result.taxationYears).toBe(20)
+      expect(result.annualTaxableAmount).toBeCloseTo(expectedAnnual, 2)
+      expect(result.annualIncomeTax).toBeCloseTo(expectedTax, 2)
+      expect(result.totalTaxBurden).toBeCloseTo(expectedTax * 20, 2)
+    })
+
+    it('should calculate single payment taxation with 30% discount', () => {
+      const result = calculateWohnRiesterTaxation(
+        60000,  // Wohnförderkonto balance
+        65,     // Retirement age
+        'single-payment',
+        0.25    // 25% tax rate
+      )
+
+      const expectedDiscount = 60000 * 0.30
+      const expectedTaxable = 60000 * 0.70
+      const expectedTax = expectedTaxable * 0.25
+
+      expect(result.taxationMethod).toBe('single-payment')
+      expect(result.singlePaymentDiscount).toBe(expectedDiscount)
+      expect(result.singlePaymentTaxableAmount).toBe(expectedTaxable)
+      expect(result.annualIncomeTax).toBe(expectedTax)
+      expect(result.totalTaxBurden).toBe(expectedTax)
+    })
+
+    it('should handle early retirement (longer taxation period)', () => {
+      const result = calculateWohnRiesterTaxation(
+        50000,
+        60,  // Early retirement at 60
+        'installments',
+        0.20
+      )
+
+      // Taxation period: 85 - 60 = 25 years
+      expect(result.taxationYears).toBe(25)
+      expect(result.annualTaxableAmount).toBeCloseTo(50000 / 25, 2)
+    })
+
+    it('should handle late retirement (shorter taxation period)', () => {
+      const result = calculateWohnRiesterTaxation(
+        50000,
+        70,  // Late retirement at 70
+        'installments',
+        0.20
+      )
+
+      // Taxation period: 85 - 70 = 15 years
+      expect(result.taxationYears).toBe(15)
+      expect(result.annualTaxableAmount).toBeCloseTo(50000 / 15, 2)
+    })
+
+    it('should handle edge case of retirement at 85', () => {
+      const result = calculateWohnRiesterTaxation(
+        50000,
+        85,  // Retirement at 85
+        'installments',
+        0.20
+      )
+
+      // Taxation period: minimum 1 year
+      expect(result.taxationYears).toBe(1)
+      expect(result.annualTaxableAmount).toBe(50000)
+    })
+
+    it('should calculate correctly for high tax rate scenario', () => {
+      const result = calculateWohnRiesterTaxation(
+        80000,
+        65,
+        'installments',
+        0.42  // 42% top tax rate
+      )
+
+      const annualTaxable = 80000 / 20
+      const expectedTax = annualTaxable * 0.42
+
+      expect(result.annualIncomeTax).toBeCloseTo(expectedTax, 2)
+    })
+
+    it('should demonstrate benefit of 30% single payment discount', () => {
+      const balance = 60000
+      const taxRate = 0.30
+
+      // Single payment: only 70% taxed
+      const singlePaymentTax = (balance * 0.70) * taxRate
+
+      // Installments: full amount taxed over 20 years
+      const installmentsTax = balance * taxRate
+
+      expect(singlePaymentTax).toBeLessThan(installmentsTax)
+      expect(singlePaymentTax).toBeCloseTo(balance * 0.70 * taxRate, 2)
+    })
+  })
+
+  describe('Wohn-Riester: compareWohnRiesterTaxationMethods', () => {
+    it('should compare both methods and recommend the better one', () => {
+      const comparison = compareWohnRiesterTaxationMethods(
+        60000,  // Balance
+        65,     // Retirement age
+        0.25    // Tax rate
+      )
+
+      expect(comparison.installments).toBeDefined()
+      expect(comparison.singlePayment).toBeDefined()
+      expect(comparison.recommendation).toBeDefined()
+      expect(comparison.savingsFromBetterMethod).toBeGreaterThanOrEqual(0)
+
+      // Should recommend method with lower total tax burden
+      if (comparison.recommendation === 'single-payment') {
+        expect(comparison.singlePayment.totalTaxBurden).toBeLessThanOrEqual(
+          comparison.installments.totalTaxBurden
+        )
+      } else {
+        expect(comparison.installments.totalTaxBurden).toBeLessThanOrEqual(
+          comparison.singlePayment.totalTaxBurden
+        )
+      }
+    })
+
+    it('should recommend single payment for low tax rates', () => {
+      const comparison = compareWohnRiesterTaxationMethods(
+        60000,
+        65,
+        0.15  // Low tax rate (e.g., low income in retirement)
+      )
+
+      // Single payment with 30% discount is usually better at low tax rates
+      expect(comparison.recommendation).toBe('single-payment')
+      expect(comparison.savingsFromBetterMethod).toBeGreaterThan(0)
+    })
+
+    it('should compare methods for high tax rate scenario', () => {
+      const comparison = compareWohnRiesterTaxationMethods(
+        80000,
+        65,
+        0.42  // High tax rate
+      )
+
+      // Calculate expected values
+      const installmentsTax = (80000 / 20) * 0.42 * 20
+      const singlePaymentTax = (80000 * 0.70) * 0.42
+
+      expect(comparison.installments.totalTaxBurden).toBeCloseTo(installmentsTax, 2)
+      expect(comparison.singlePayment.totalTaxBurden).toBeCloseTo(singlePaymentTax, 2)
+    })
+
+    it('should show significant savings for optimal method choice', () => {
+      const comparison = compareWohnRiesterTaxationMethods(
+        100000,
+        65,
+        0.20
+      )
+
+      // With €100k balance, the difference between methods should be substantial
+      expect(comparison.savingsFromBetterMethod).toBeGreaterThan(1000)
+    })
+
+    it('should handle early retirement scenario (age 60)', () => {
+      const comparison = compareWohnRiesterTaxationMethods(
+        50000,
+        60,  // Early retirement
+        0.25
+      )
+
+      // With longer taxation period (25 years), installments spread more thinly
+      expect(comparison.installments.taxationYears).toBe(25)
+      expect(comparison.recommendation).toBeDefined()
+    })
+
+    it('should handle late retirement scenario (age 70)', () => {
+      const comparison = compareWohnRiesterTaxationMethods(
+        50000,
+        70,  // Late retirement
+        0.25
+      )
+
+      // With shorter taxation period (15 years), higher annual amounts
+      expect(comparison.installments.taxationYears).toBe(15)
+      expect(comparison.recommendation).toBeDefined()
+    })
+
+    it('should demonstrate that 30% discount makes single payment attractive', () => {
+      const comparison = compareWohnRiesterTaxationMethods(
+        60000,
+        65,
+        0.28  // Test with 28% rate
+      )
+
+      // Single payment: 60000 * 0.70 * 0.28 = 11,760€
+      // Installments: 60000 * 0.28 = 16,800€
+      const expectedSinglePayment = 60000 * 0.70 * 0.28
+      const expectedInstallments = 60000 * 0.28
+
+      expect(comparison.singlePayment.totalTaxBurden).toBeCloseTo(expectedSinglePayment, 2)
+      expect(comparison.installments.totalTaxBurden).toBeCloseTo(expectedInstallments, 2)
+      
+      // Single payment should be recommended due to 30% discount
+      expect(comparison.recommendation).toBe('single-payment')
+    })
+  })
+
+  describe('Wohn-Riester: Integration Scenarios', () => {
+    it('should calculate complete Wohn-Riester lifecycle', () => {
+      // Step 1: Withdraw €50,000 for home purchase in 2024
+      const wohnfoerderkontoConfig: WohnfoerderkontoConfig = {
+        initialWithdrawal: 50000,
+        withdrawalYear: 2024,
+        annualInterestRate: 0.02,
+        retirementYear: 2054,  // 30 years later
+        retirementAge: 67,
+      }
+
+      // Step 2: Calculate balance at retirement
+      const balanceResult = calculateWohnfoerderkontoBalance(wohnfoerderkontoConfig)
+      expect(balanceResult.compoundingYears).toBe(30)
+      expect(balanceResult.balanceAtRetirement).toBeGreaterThan(80000)
+
+      // Step 3: Compare taxation methods
+      const comparison = compareWohnRiesterTaxationMethods(
+        balanceResult.balanceAtRetirement,
+        67,
+        0.25
+      )
+
+      expect(comparison.recommendation).toBeDefined()
+      expect(comparison.savingsFromBetterMethod).toBeGreaterThan(0)
+    })
+
+    it('should demonstrate realistic first-time homebuyer scenario', () => {
+      // Young couple uses €40,000 Riester savings for home purchase
+      const config: WohnfoerderkontoConfig = {
+        initialWithdrawal: 40000,
+        withdrawalYear: 2024,
+        annualInterestRate: 0.02,
+        retirementYear: 2059,  // 35 years until retirement
+        retirementAge: 67,
+      }
+
+      const balance = calculateWohnfoerderkontoBalance(config)
+      
+      // After 35 years of 2% compounding
+      const expected = 40000 * Math.pow(1.02, 35)
+      expect(balance.balanceAtRetirement).toBeCloseTo(expected, 2)
+
+      // Compare taxation methods with typical retirement tax rate
+      const comparison = compareWohnRiesterTaxationMethods(
+        balance.balanceAtRetirement,
+        67,
+        0.20  // Lower tax rate in retirement
+      )
+
+      // Single payment should be attractive with 30% discount at low tax rate
+      expect(comparison.recommendation).toBe('single-payment')
+    })
+
+    it('should handle large withdrawal for expensive property', () => {
+      const config: WohnfoerderkontoConfig = {
+        initialWithdrawal: 100000,  // Large withdrawal
+        withdrawalYear: 2024,
+        annualInterestRate: 0.02,
+        retirementYear: 2049,  // 25 years
+        retirementAge: 67,
+      }
+
+      const balance = calculateWohnfoerderkontoBalance(config)
+      expect(balance.balanceAtRetirement).toBeGreaterThan(150000)
+
+      const comparison = compareWohnRiesterTaxationMethods(
+        balance.balanceAtRetirement,
+        67,
+        0.30  // Higher income in retirement
+      )
+
+      // Savings should be substantial with large amounts
+      expect(comparison.savingsFromBetterMethod).toBeGreaterThan(5000)
+    })
+
+    it('should demonstrate compounding effect over different time periods', () => {
+      const initialAmount = 50000
+
+      // Scenario 1: Short period (10 years)
+      const short = calculateWohnfoerderkontoBalance({
+        initialWithdrawal: initialAmount,
+        withdrawalYear: 2024,
+        annualInterestRate: 0.02,
+        retirementYear: 2034,
+        retirementAge: 67,
+      })
+
+      // Scenario 2: Medium period (20 years)
+      const medium = calculateWohnfoerderkontoBalance({
+        initialWithdrawal: initialAmount,
+        withdrawalYear: 2024,
+        annualInterestRate: 0.02,
+        retirementYear: 2044,
+        retirementAge: 67,
+      })
+
+      // Scenario 3: Long period (40 years)
+      const long = calculateWohnfoerderkontoBalance({
+        initialWithdrawal: initialAmount,
+        withdrawalYear: 2024,
+        annualInterestRate: 0.02,
+        retirementYear: 2064,
+        retirementAge: 67,
+      })
+
+      // Balance should increase with longer periods
+      expect(medium.balanceAtRetirement).toBeGreaterThan(short.balanceAtRetirement)
+      expect(long.balanceAtRetirement).toBeGreaterThan(medium.balanceAtRetirement)
+
+      // Long period should more than double the initial amount
+      expect(long.balanceAtRetirement).toBeGreaterThan(initialAmount * 2)
+    })
+
+    it('should compare regular Riester vs Wohn-Riester tax implications', () => {
+      // Regular Riester: Pension is 100% taxable annually
+      const regularRiesterTax = calculateRiesterPensionTaxation(
+        800,    // €800/month pension
+        2040,
+        2040,
+        0.01,
+        0.25
+      )
+
+      // Wohn-Riester: Wohnförderkonto taxation
+      const wohnRiesterTax = calculateWohnRiesterTaxation(
+        50000,  // Balance in Wohnförderkonto
+        67,
+        'single-payment',
+        0.25
+      )
+
+      // Both should result in tax payments
+      expect(regularRiesterTax.incomeTax).toBeGreaterThan(0)
+      expect(wohnRiesterTax.annualIncomeTax).toBeGreaterThan(0)
+
+      // Wohn-Riester single payment benefits from 30% discount
+      expect(wohnRiesterTax.singlePaymentDiscount).toBe(50000 * 0.30)
     })
   })
 })

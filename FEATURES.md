@@ -38,13 +38,8 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - Vergleich Rürup vs. privater ETF-Sparplan nach Steuern
   - Optimierung der Beitragshöhe unter Berücksichtigung des Steuersatzes
   - Lebenslange Rente vs. Kapitalentnahmeplan
-  
-- **Riester-Rente Rechner** - Schicht-2-Altersvorsorge mit Zulagen (Mittel ⭐⭐)
-  - Berechnung der staatlichen Zulagen (Grundzulage + Kinderzulagen)
-  - Mindesteigenbeitrag-Berechnung für volle Zulagenausschöpfung
-  - Vergleich Riester vs. ungeförderte Anlage
-  - Steuerliche Behandlung bei Auszahlung
-  - Wohnriester-Variante (Eigenheimrente)
+
+(Riester-Rente Rechner inkl. Wohn-Riester/Eigenheimrente bereits implementiert)
 
 (Dynamische Ausgabenanpassung im Ruhestand bereits implementiert)
 

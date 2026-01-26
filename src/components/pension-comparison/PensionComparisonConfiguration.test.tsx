@@ -236,4 +236,203 @@ describe('PensionComparisonConfiguration', () => {
     const uniqueIds = new Set(ids)
     expect(uniqueIds.size).toBe(ids.length)
   })
+
+  describe('Wohn-Riester Integration', () => {
+    it('should show Wohn-Riester switch in Riester configuration', () => {
+      const onConfigChange = vi.fn()
+      const configWithRiester = {
+        ...defaultConfig,
+        riesterRente: {
+          enabled: true,
+          annualGrossIncome: 50000,
+          annualContribution: 2100,
+          numberOfChildren: 0,
+          childrenBirthYears: [],
+          pensionStartYear: 2056,
+          expectedMonthlyPension: 800,
+          pensionIncreaseRate: 0.01,
+          useWohnRiester: false,
+        },
+      }
+      
+      render(<PensionComparisonConfiguration config={configWithRiester} onConfigChange={onConfigChange} />)
+      
+      expect(screen.getByText(/Wohn-Riester \(Eigenheimrente\)/i)).toBeInTheDocument()
+    })
+
+    it('should enable Wohn-Riester when switch is clicked', async () => {
+      const user = userEvent.setup()
+      const onConfigChange = vi.fn()
+      const configWithRiester = {
+        ...defaultConfig,
+        riesterRente: {
+          enabled: true,
+          annualGrossIncome: 50000,
+          annualContribution: 2100,
+          numberOfChildren: 0,
+          childrenBirthYears: [],
+          pensionStartYear: 2056,
+          expectedMonthlyPension: 800,
+          pensionIncreaseRate: 0.01,
+          useWohnRiester: false,
+        },
+      }
+      
+      render(<PensionComparisonConfiguration config={configWithRiester} onConfigChange={onConfigChange} />)
+      
+      const wohnRiesterLabel = screen.getByText(/Wohn-Riester \(Eigenheimrente\)/i)
+      const wohnRiesterSwitch = wohnRiesterLabel.previousElementSibling as HTMLElement
+      await user.click(wohnRiesterSwitch)
+      
+      expect(onConfigChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          riesterRente: expect.objectContaining({
+            useWohnRiester: true,
+          }),
+        })
+      )
+    })
+
+    it('should show info text when Wohn-Riester is enabled', () => {
+      const onConfigChange = vi.fn()
+      const configWithWohnRiester = {
+        ...defaultConfig,
+        riesterRente: {
+          enabled: true,
+          annualGrossIncome: 50000,
+          annualContribution: 2100,
+          numberOfChildren: 0,
+          childrenBirthYears: [],
+          pensionStartYear: 2056,
+          expectedMonthlyPension: 800,
+          pensionIncreaseRate: 0.01,
+          useWohnRiester: true,
+        },
+      }
+      
+      render(<PensionComparisonConfiguration config={configWithWohnRiester} onConfigChange={onConfigChange} />)
+      
+      expect(screen.getByText(/ℹ️ Wohn-Riester/i)).toBeInTheDocument()
+      expect(screen.getByText(/Wohnförderkonto/i)).toBeInTheDocument()
+      expect(screen.getByText(/§ 92a\/92b EStG/i)).toBeInTheDocument()
+    })
+
+    it('should hide monthly pension field when Wohn-Riester is enabled', () => {
+      const onConfigChange = vi.fn()
+      const configWithWohnRiester = {
+        ...defaultConfig,
+        riesterRente: {
+          enabled: true,
+          annualGrossIncome: 50000,
+          annualContribution: 2100,
+          numberOfChildren: 0,
+          childrenBirthYears: [],
+          pensionStartYear: 2056,
+          expectedMonthlyPension: 800,
+          pensionIncreaseRate: 0.01,
+          useWohnRiester: true,
+        },
+      }
+      
+      render(<PensionComparisonConfiguration config={configWithWohnRiester} onConfigChange={onConfigChange} />)
+      
+      // Monthly pension field should not be visible for Wohn-Riester
+      expect(screen.queryByLabelText(/Erwartete monatliche Rente/i)).not.toBeInTheDocument()
+    })
+
+    it('should show monthly pension field when Wohn-Riester is disabled', () => {
+      const onConfigChange = vi.fn()
+      const configWithRegularRiester = {
+        ...defaultConfig,
+        riesterRente: {
+          enabled: true,
+          annualGrossIncome: 50000,
+          annualContribution: 2100,
+          numberOfChildren: 0,
+          childrenBirthYears: [],
+          pensionStartYear: 2056,
+          expectedMonthlyPension: 800,
+          pensionIncreaseRate: 0.01,
+          useWohnRiester: false,
+        },
+      }
+      
+      render(<PensionComparisonConfiguration config={configWithRegularRiester} onConfigChange={onConfigChange} />)
+      
+      // Monthly pension field should be visible for regular Riester
+      expect(screen.getByLabelText(/Erwartete monatliche Rente/i)).toBeInTheDocument()
+    })
+
+    it('should maintain other Riester fields when toggling Wohn-Riester', async () => {
+      const user = userEvent.setup()
+      const onConfigChange = vi.fn()
+      const configWithRiester = {
+        ...defaultConfig,
+        riesterRente: {
+          enabled: true,
+          annualGrossIncome: 50000,
+          annualContribution: 2100,
+          numberOfChildren: 2,
+          childrenBirthYears: [2015, 2018],
+          pensionStartYear: 2056,
+          expectedMonthlyPension: 800,
+          pensionIncreaseRate: 0.01,
+          useWohnRiester: false,
+        },
+      }
+      
+      render(<PensionComparisonConfiguration config={configWithRiester} onConfigChange={onConfigChange} />)
+      
+      // Annual contribution should still be visible
+      expect(screen.getByLabelText(/Jährlicher Beitrag/i)).toBeInTheDocument()
+      
+      // Number of children should still be visible
+      expect(screen.getByLabelText(/Anzahl Kinder/i)).toBeInTheDocument()
+      
+      // Toggle Wohn-Riester
+      const wohnRiesterLabel = screen.getByText(/Wohn-Riester \(Eigenheimrente\)/i)
+      const wohnRiesterSwitch = wohnRiesterLabel.previousElementSibling as HTMLElement
+      await user.click(wohnRiesterSwitch)
+      
+      // Config change should preserve other fields
+      expect(onConfigChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          riesterRente: expect.objectContaining({
+            annualContribution: 2100,
+            numberOfChildren: 2,
+            useWohnRiester: true,
+          }),
+        })
+      )
+    })
+
+    it('should use unique ID for Wohn-Riester switch', () => {
+      const onConfigChange = vi.fn()
+      const configWithRiester = {
+        ...defaultConfig,
+        riesterRente: {
+          enabled: true,
+          annualGrossIncome: 50000,
+          annualContribution: 2100,
+          numberOfChildren: 0,
+          childrenBirthYears: [],
+          pensionStartYear: 2056,
+          expectedMonthlyPension: 800,
+          pensionIncreaseRate: 0.01,
+          useWohnRiester: false,
+        },
+      }
+      
+      const { container } = render(
+        <PensionComparisonConfiguration config={configWithRiester} onConfigChange={onConfigChange} />
+      )
+      
+      const switches = container.querySelectorAll('button[role="switch"]')
+      const ids = Array.from(switches).map((sw) => sw.id).filter(Boolean)
+      
+      // All switch IDs should be unique
+      const uniqueIds = new Set(ids)
+      expect(uniqueIds.size).toBe(ids.length)
+    })
+  })
 })
