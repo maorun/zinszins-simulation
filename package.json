@@ -33,6 +33,7 @@
     "@testing-library/dom": "^10.4.1",
     "@vercel/analytics": "^1.5.0",
     "chart.js": "^4.4.8",
+    "chartjs-chart-sankey": "^0.14.0",
     "chartjs-plugin-zoom": "^2.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
