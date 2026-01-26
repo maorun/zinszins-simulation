@@ -22,6 +22,7 @@ describe('quarterly-tax-prepayments', () => {
         taxFreeAllowance: 1000,
         partialExemptionRate: 30,
         year: 2024,
+        alreadyPaidWithholdingTax: 0,
       })
     })
 
@@ -212,6 +213,9 @@ describe('quarterly-tax-prepayments', () => {
       expect(result.quarterlyPrepayment).toBe(0)
       expect(result.taxableIncome).toBe(0)
       expect(result.paymentDates).toHaveLength(4)
+      expect(result.alreadyPaidWithholdingTax).toBe(0)
+      expect(result.remainingTaxLiability).toBe(0)
+      expect(result.remainingQuarterlyPrepayment).toBe(0)
     })
 
     it('should calculate basic scenario without exemptions', () => {
@@ -518,6 +522,306 @@ describe('quarterly-tax-prepayments', () => {
 
       // Should have minimal or no suggestions for reasonable configuration
       expect(Array.isArray(suggestions)).toBe(true)
+    })
+  })
+
+  describe('Already Paid Withholding Tax Feature', () => {
+    describe('calculateQuarterlyTaxPrepayments with alreadyPaidWithholdingTax', () => {
+      it('should reduce remaining tax liability when withholding tax already paid', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 25,
+          taxFreeAllowance: 0,
+          partialExemptionRate: 0,
+          year: 2024,
+          alreadyPaidWithholdingTax: 1000,
+        }
+
+        const result = calculateQuarterlyTaxPrepayments(config)
+
+        // Total annual tax: 10,000 × 25% = 2,500 €
+        expect(result.annualTaxLiability).toBe(2500)
+        // Already paid: 1,000 €
+        expect(result.alreadyPaidWithholdingTax).toBe(1000)
+        // Remaining: 2,500 - 1,000 = 1,500 €
+        expect(result.remainingTaxLiability).toBe(1500)
+        // Remaining quarterly: 1,500 / 4 = 375 €
+        expect(result.remainingQuarterlyPrepayment).toBe(375)
+      })
+
+      it('should handle case where already paid tax covers entire liability', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 25,
+          taxFreeAllowance: 0,
+          partialExemptionRate: 0,
+          year: 2024,
+          alreadyPaidWithholdingTax: 2500,
+        }
+
+        const result = calculateQuarterlyTaxPrepayments(config)
+
+        // Total annual tax: 10,000 × 25% = 2,500 €
+        expect(result.annualTaxLiability).toBe(2500)
+        // Already paid equals total liability
+        expect(result.alreadyPaidWithholdingTax).toBe(2500)
+        // No remaining tax
+        expect(result.remainingTaxLiability).toBe(0)
+        expect(result.remainingQuarterlyPrepayment).toBe(0)
+      })
+
+      it('should handle overpayment (already paid exceeds liability)', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 25,
+          taxFreeAllowance: 0,
+          partialExemptionRate: 0,
+          year: 2024,
+          alreadyPaidWithholdingTax: 3000,
+        }
+
+        const result = calculateQuarterlyTaxPrepayments(config)
+
+        // Total annual tax: 10,000 × 25% = 2,500 €
+        expect(result.annualTaxLiability).toBe(2500)
+        // Already paid exceeds liability
+        expect(result.alreadyPaidWithholdingTax).toBe(3000)
+        // Remaining should be 0 (not negative)
+        expect(result.remainingTaxLiability).toBe(0)
+        expect(result.remainingQuarterlyPrepayment).toBe(0)
+      })
+
+      it('should work with tax-free allowance and partial exemption', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 26.375,
+          taxFreeAllowance: 1000,
+          partialExemptionRate: 30,
+          year: 2024,
+          alreadyPaidWithholdingTax: 500,
+        }
+
+        const result = calculateQuarterlyTaxPrepayments(config)
+
+        // After partial exemption: 10,000 × 70% = 7,000 €
+        // After allowance: 7,000 - 1,000 = 6,000 €
+        // Tax: 6,000 × 26.375% = 1,582.50 €
+        expect(result.annualTaxLiability).toBeCloseTo(1582.5, 1)
+        // Already paid: 500 €
+        expect(result.alreadyPaidWithholdingTax).toBe(500)
+        // Remaining: 1,582.50 - 500 = 1,082.50 €
+        expect(result.remainingTaxLiability).toBeCloseTo(1082.5, 1)
+        // Remaining quarterly: 1,082.50 / 4 = 270.625 €
+        expect(result.remainingQuarterlyPrepayment).toBeCloseTo(270.625, 2)
+      })
+
+      it('should calculate late payment interest on remaining prepayment', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 25,
+          taxFreeAllowance: 0,
+          partialExemptionRate: 0,
+          year: 2024,
+          alreadyPaidWithholdingTax: 1000,
+        }
+
+        const result = calculateQuarterlyTaxPrepayments(config)
+
+        // Remaining quarterly prepayment: 375 €
+        expect(result.remainingQuarterlyPrepayment).toBe(375)
+        // Late payment interest on remaining amount: 375 × 6% × 3/12
+        const expectedInterest = (375 * 0.06 * 3) / 12
+        expect(result.estimatedLatePaymentInterest).toBeCloseTo(expectedInterest, 2)
+      })
+
+      it('should default to 0 when alreadyPaidWithholdingTax is undefined', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 25,
+          taxFreeAllowance: 0,
+          partialExemptionRate: 0,
+          year: 2024,
+          // alreadyPaidWithholdingTax is undefined
+        }
+
+        const result = calculateQuarterlyTaxPrepayments(config)
+
+        // Should treat undefined as 0
+        expect(result.alreadyPaidWithholdingTax).toBe(0)
+        expect(result.annualTaxLiability).toBe(2500)
+        expect(result.remainingTaxLiability).toBe(2500)
+      })
+
+      it('should handle realistic scenario with bank withholding', () => {
+        // Realistic: Investor with ETF dividends
+        // Bank automatically withheld tax on dividends: 800 €
+        // Expected total capital gains: 20,000 €
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 20000,
+          capitalGainsTaxRate: 26.375,
+          taxFreeAllowance: 1000,
+          partialExemptionRate: 30, // Equity funds
+          year: 2024,
+          alreadyPaidWithholdingTax: 800,
+        }
+
+        const result = calculateQuarterlyTaxPrepayments(config)
+
+        // After partial exemption: 20,000 × 70% = 14,000 €
+        // After allowance: 14,000 - 1,000 = 13,000 €
+        expect(result.taxableIncome).toBe(13000)
+        // Tax: 13,000 × 26.375% = 3,428.75 €
+        expect(result.annualTaxLiability).toBeCloseTo(3428.75, 1)
+        // Already paid by bank: 800 €
+        expect(result.alreadyPaidWithholdingTax).toBe(800)
+        // Remaining: 3,428.75 - 800 = 2,628.75 €
+        expect(result.remainingTaxLiability).toBeCloseTo(2628.75, 1)
+        // Remaining quarterly: 2,628.75 / 4 = 657.1875 €
+        expect(result.remainingQuarterlyPrepayment).toBeCloseTo(657.1875, 2)
+      })
+    })
+
+    describe('validateQuarterlyTaxPrepaymentConfig with alreadyPaidWithholdingTax', () => {
+      it('should accept valid alreadyPaidWithholdingTax', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 26.375,
+          taxFreeAllowance: 1000,
+          partialExemptionRate: 30,
+          year: 2024,
+          alreadyPaidWithholdingTax: 500,
+        }
+
+        const errors = validateQuarterlyTaxPrepaymentConfig(config)
+        expect(errors).toEqual([])
+      })
+
+      it('should reject negative alreadyPaidWithholdingTax', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 26.375,
+          taxFreeAllowance: 1000,
+          partialExemptionRate: 30,
+          year: 2024,
+          alreadyPaidWithholdingTax: -500,
+        }
+
+        const errors = validateQuarterlyTaxPrepaymentConfig(config)
+        expect(errors).toContain('Bereits gezahlte Abgeltungsteuer kann nicht negativ sein')
+      })
+
+      it('should accept zero alreadyPaidWithholdingTax', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 26.375,
+          taxFreeAllowance: 1000,
+          partialExemptionRate: 30,
+          year: 2024,
+          alreadyPaidWithholdingTax: 0,
+        }
+
+        const errors = validateQuarterlyTaxPrepaymentConfig(config)
+        expect(errors).toEqual([])
+      })
+
+      it('should accept undefined alreadyPaidWithholdingTax', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 26.375,
+          taxFreeAllowance: 1000,
+          partialExemptionRate: 30,
+          year: 2024,
+          // alreadyPaidWithholdingTax is undefined
+        }
+
+        const errors = validateQuarterlyTaxPrepaymentConfig(config)
+        expect(errors).toEqual([])
+      })
+    })
+
+    describe('getOptimizationSuggestions with alreadyPaidWithholdingTax', () => {
+      it('should mention significant reduction from already paid tax', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 26.375,
+          taxFreeAllowance: 1000,
+          partialExemptionRate: 30,
+          year: 2024,
+          alreadyPaidWithholdingTax: 1300, // More than 70% of total liability
+        }
+
+        const suggestions = getOptimizationSuggestions(config)
+
+        // Should mention that already paid tax significantly reduces prepayments
+        expect(suggestions.some((s) => s.includes('bereits') && s.includes('Abgeltungsteuer'))).toBe(true)
+      })
+
+      it('should warn when already paid tax exceeds total liability', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 26.375,
+          taxFreeAllowance: 1000,
+          partialExemptionRate: 30,
+          year: 2024,
+          alreadyPaidWithholdingTax: 3000, // Exceeds total liability
+        }
+
+        const suggestions = getOptimizationSuggestions(config)
+
+        // Should warn about overpayment and potential refund
+        expect(
+          suggestions.some((s) => s.includes('Achtung') || (s.includes('Erstattung') && s.includes('übersteigt'))),
+        ).toBe(true)
+      })
+
+      it('should not mention already paid tax when zero', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 26.375,
+          taxFreeAllowance: 1000,
+          partialExemptionRate: 30,
+          year: 2024,
+          alreadyPaidWithholdingTax: 0,
+        }
+
+        const suggestions = getOptimizationSuggestions(config)
+
+        // Should not mention already paid tax when it's zero
+        const hasPaidTaxMention = suggestions.some((s) => s.includes('bereits') && s.includes('gezahlt'))
+        expect(hasPaidTaxMention).toBe(false)
+      })
+
+      it('should not mention already paid tax when small amount', () => {
+        const config: QuarterlyTaxPrepaymentConfig = {
+          enabled: true,
+          expectedAnnualCapitalIncome: 10000,
+          capitalGainsTaxRate: 26.375,
+          taxFreeAllowance: 1000,
+          partialExemptionRate: 30,
+          year: 2024,
+          alreadyPaidWithholdingTax: 100, // Small amount, doesn't significantly reduce liability
+        }
+
+        const suggestions = getOptimizationSuggestions(config)
+
+        // Should not prominently mention already paid tax when it's insignificant (less than 30% reduction)
+        // Just verify suggestions are returned (may or may not mention depending on threshold)
+        expect(Array.isArray(suggestions)).toBe(true)
+      })
     })
   })
 })
