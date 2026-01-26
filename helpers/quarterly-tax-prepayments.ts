@@ -27,6 +27,8 @@ export interface QuarterlyTaxPrepaymentConfig {
   partialExemptionRate: number
   /** Year for which prepayments are calculated */
   year: number
+  /** Already paid withholding tax (Bereits gezahlte Abgeltungsteuer) in EUR */
+  alreadyPaidWithholdingTax?: number
 }
 
 /**
@@ -61,6 +63,12 @@ export interface QuarterlyTaxPrepaymentResult {
   latePaymentInterestRate: number
   /** Estimated late payment interest if a quarter is missed (for 3 months) */
   estimatedLatePaymentInterest: number
+  /** Already paid withholding tax (by banks) in EUR */
+  alreadyPaidWithholdingTax: number
+  /** Remaining tax liability after already paid withholding tax */
+  remainingTaxLiability: number
+  /** Remaining quarterly prepayment after considering already paid tax */
+  remainingQuarterlyPrepayment: number
 }
 
 /**
@@ -111,6 +119,8 @@ export function calculatePaymentDates(year: number): PaymentDate[] {
 export function calculateQuarterlyTaxPrepayments(
   config: QuarterlyTaxPrepaymentConfig,
 ): QuarterlyTaxPrepaymentResult {
+  const alreadyPaidWithholdingTax = config.alreadyPaidWithholdingTax ?? 0
+
   if (!config.enabled) {
     return {
       annualTaxLiability: 0,
@@ -121,6 +131,9 @@ export function calculateQuarterlyTaxPrepayments(
       partialExemptionSavings: 0,
       latePaymentInterestRate: LATE_PAYMENT_INTEREST_RATE,
       estimatedLatePaymentInterest: 0,
+      alreadyPaidWithholdingTax,
+      remainingTaxLiability: 0,
+      remainingQuarterlyPrepayment: 0,
     }
   }
 
@@ -137,11 +150,17 @@ export function calculateQuarterlyTaxPrepayments(
   // Step 3: Calculate annual tax liability
   const annualTaxLiability = taxableIncome * (config.capitalGainsTaxRate / 100)
 
-  // Step 4: Calculate quarterly prepayment (1/4 of annual tax)
+  // Step 4: Subtract already paid withholding tax (from banks) from total liability
+  const remainingTaxLiability = Math.max(0, annualTaxLiability - alreadyPaidWithholdingTax)
+
+  // Step 5: Calculate quarterly prepayment (1/4 of remaining tax liability)
+  const remainingQuarterlyPrepayment = remainingTaxLiability / 4
+
+  // Step 6: Calculate quarterly prepayment without considering already paid tax (for comparison)
   const quarterlyPrepayment = annualTaxLiability / 4
 
-  // Step 5: Calculate estimated late payment interest for one quarter (3 months)
-  const estimatedLatePaymentInterest = (quarterlyPrepayment * LATE_PAYMENT_INTEREST_RATE * 3) / 12
+  // Step 7: Calculate estimated late payment interest for one quarter (3 months)
+  const estimatedLatePaymentInterest = (remainingQuarterlyPrepayment * LATE_PAYMENT_INTEREST_RATE * 3) / 12
 
   return {
     annualTaxLiability,
@@ -152,6 +171,9 @@ export function calculateQuarterlyTaxPrepayments(
     partialExemptionSavings,
     latePaymentInterestRate: LATE_PAYMENT_INTEREST_RATE,
     estimatedLatePaymentInterest,
+    alreadyPaidWithholdingTax,
+    remainingTaxLiability,
+    remainingQuarterlyPrepayment,
   }
 }
 
@@ -176,6 +198,7 @@ export function getDefaultQuarterlyTaxPrepaymentConfig(year: number): QuarterlyT
     taxFreeAllowance: 1000, // Standard Sparer-Pauschbetrag (single person)
     partialExemptionRate: 30, // Standard for equity funds (Aktienfonds)
     year,
+    alreadyPaidWithholdingTax: 0, // No withholding tax paid by default
   }
 }
 
@@ -207,6 +230,10 @@ export function validateQuarterlyTaxPrepaymentConfig(config: QuarterlyTaxPrepaym
     {
       condition: config.year < 2000 || config.year > 2100,
       message: 'Jahr muss zwischen 2000 und 2100 liegen',
+    },
+    {
+      condition: (config.alreadyPaidWithholdingTax ?? 0) < 0,
+      message: 'Bereits gezahlte Abgeltungsteuer kann nicht negativ sein',
     },
   ]
 
@@ -259,5 +286,34 @@ export function getOptimizationSuggestions(config: QuarterlyTaxPrepaymentConfig)
     )
   }
 
+  // Check if already paid withholding tax significantly reduces prepayments
+  const alreadyPaid = config.alreadyPaidWithholdingTax ?? 0
+  if (alreadyPaid > 0 && result.remainingTaxLiability < result.annualTaxLiability * 0.3) {
+    suggestions.push(
+      `Die bereits von Ihrer Bank einbehaltene Abgeltungsteuer (${formatCurrency(alreadyPaid)}) reduziert Ihre Vorauszahlungspflicht erheblich.`,
+    )
+  }
+
+  // Warn if already paid tax exceeds total liability
+  if (alreadyPaid > result.annualTaxLiability) {
+    suggestions.push(
+      'Achtung: Die bereits gezahlte Abgeltungsteuer übersteigt Ihre Gesamtsteuerlast. Sie können eine Erstattung bei Ihrer Steuererklärung beantragen.',
+    )
+  }
+
   return suggestions
+}
+
+/**
+ * Format currency amount in German format
+ * @param amount - Amount to format
+ * @returns Formatted currency string
+ */
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount)
 }

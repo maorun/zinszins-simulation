@@ -493,6 +493,11 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Optimierungsvorschläge**: Automatische Empfehlungen zur Steueroptimierung
   - **Zahlungsplan**: Detaillierte Übersicht aller vierteljährlichen Vorauszahlungen
   - **Schwellenwert-Prüfung**: Hinweis ob Vorauszahlungen erforderlich sind (ab 400 € Jahressteuerlast)
+  - **Berücksichtigung bereits gezahlter Abgeltungsteuer**: Reduzierung der Vorauszahlungen um bereits von Banken einbehaltene Steuern
+    - Automatische Berechnung der verbleibenden Steuerlast nach Abzug bereits gezahlter Steuern
+    - Optimierung der Steuerliquidität durch Berücksichtigung automatischer Steuerabzüge auf Dividenden und Zinsen
+    - Transparente Darstellung: Gesamtsteuerlast minus bereits gezahlte Steuern = verbleibende vierteljährliche Vorauszahlung
+    - Intelligente Vorschläge bei Überzahlung mit Hinweis auf Erstattungsmöglichkeit
 - **Pfändungsschutz-Rechner** - Berechnung geschützter Beträge bei Pfändung
   - **Einkommensschutz (§ 850c ZPO)**: Berechnung pfändungsfreier Beträge nach deutschem Zivilprozessrecht
     - **Grundbetrag**: 1.491,75 € monatlich (gültig ab 01.07.2024)

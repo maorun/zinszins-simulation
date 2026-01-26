@@ -91,20 +91,41 @@ interface PaymentScheduleProps {
 }
 
 function PaymentSchedule({ result }: PaymentScheduleProps) {
+  const hasAlreadyPaidTax = result.alreadyPaidWithholdingTax > 0
+  const quarterlyAmount = hasAlreadyPaidTax ? result.remainingQuarterlyPrepayment : result.quarterlyPrepayment
+
   return (
     <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
       <div className="flex gap-2 items-center mb-3">
         <Calendar className="h-4 w-4 text-purple-600" />
-        <h4 className="font-medium text-purple-900">📅 Zahlungstermine</h4>
+        <h4 className="font-medium text-purple-900">
+          📅 Zahlungstermine{hasAlreadyPaidTax ? ' (nach Abzug bereits gezahlter Steuern)' : ''}
+        </h4>
       </div>
       <div className="space-y-2">
         {result.paymentDates.map((payment) => (
           <div key={payment.quarter} className="flex justify-between items-center text-sm">
             <span className="text-purple-800">Q{payment.quarter} - {payment.deadlineFormatted}</span>
-            <span className="font-medium text-purple-900">{formatCurrency(result.quarterlyPrepayment)}</span>
+            <span className="font-medium text-purple-900">{formatCurrency(quarterlyAmount)}</span>
           </div>
         ))}
       </div>
+      {hasAlreadyPaidTax && quarterlyAmount > 0 && (
+        <div className="mt-3 pt-3 border-t border-purple-300 text-xs text-purple-800">
+          <p>
+            💡 Ihre Bank hat bereits {formatCurrency(result.alreadyPaidWithholdingTax)} an Steuern einbehalten. Die
+            verbleibenden Vorauszahlungen wurden entsprechend reduziert.
+          </p>
+        </div>
+      )}
+      {hasAlreadyPaidTax && quarterlyAmount === 0 && (
+        <div className="mt-3 pt-3 border-t border-purple-300 text-xs text-purple-800">
+          <p>
+            ✅ Die von Ihrer Bank bereits einbehaltenen Steuern ({formatCurrency(result.alreadyPaidWithholdingTax)})
+            decken Ihre gesamte Steuerlast ab. Keine zusätzlichen Vorauszahlungen erforderlich.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -114,6 +135,8 @@ interface TaxSavingsDisplayProps {
 }
 
 function TaxSavingsDisplay({ result }: TaxSavingsDisplayProps) {
+  const hasAlreadyPaidTax = result.alreadyPaidWithholdingTax > 0
+
   return (
     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
       <h4 className="font-medium text-green-900 mb-3">💰 Berechnete Steuerlast</h4>
@@ -131,12 +154,28 @@ function TaxSavingsDisplay({ result }: TaxSavingsDisplayProps) {
           <span className="font-medium text-green-900">{formatCurrency(result.partialExemptionSavings)}</span>
         </div>
         <div className="flex justify-between pt-2 border-t border-green-300">
-          <span className="font-medium text-green-900">Jährliche Steuerlast:</span>
+          <span className="font-medium text-green-900">Jährliche Gesamtsteuerlast:</span>
           <span className="font-bold text-green-900 text-lg">{formatCurrency(result.annualTaxLiability)}</span>
         </div>
+        {hasAlreadyPaidTax && (
+          <>
+            <div className="flex justify-between bg-blue-100 -mx-2 px-2 py-1 rounded">
+              <span className="text-blue-800">Bereits gezahlte Steuern (Bank):</span>
+              <span className="font-medium text-blue-900">- {formatCurrency(result.alreadyPaidWithholdingTax)}</span>
+            </div>
+            <div className="flex justify-between pt-2 border-t border-green-300 bg-yellow-50 -mx-2 px-2 py-1 rounded">
+              <span className="font-medium text-yellow-900">Verbleibende Steuerlast:</span>
+              <span className="font-bold text-yellow-900 text-lg">{formatCurrency(result.remainingTaxLiability)}</span>
+            </div>
+          </>
+        )}
         <div className="flex justify-between">
-          <span className="font-medium text-green-900">Vierteljährliche Vorauszahlung:</span>
-          <span className="font-bold text-green-900 text-lg">{formatCurrency(result.quarterlyPrepayment)}</span>
+          <span className="font-medium text-green-900">
+            {hasAlreadyPaidTax ? 'Verbleibende ' : ''}Vierteljährliche Vorauszahlung:
+          </span>
+          <span className="font-bold text-green-900 text-lg">
+            {formatCurrency(hasAlreadyPaidTax ? result.remainingQuarterlyPrepayment : result.quarterlyPrepayment)}
+          </span>
         </div>
       </div>
     </div>
@@ -221,9 +260,10 @@ interface ConfigurationFieldsProps {
   taxRateId: string
   allowanceId: string
   exemptionId: string
+  alreadyPaidId: string
 }
 
-function ConfigurationFields({ config, setConfig, incomeId, taxRateId, allowanceId, exemptionId }: ConfigurationFieldsProps) {
+function ConfigurationFields({ config, setConfig, incomeId, taxRateId, allowanceId, exemptionId, alreadyPaidId }: ConfigurationFieldsProps) {
   return (
     <div className="space-y-4 pt-2">
       <InputField
@@ -263,6 +303,15 @@ function ConfigurationFields({ config, setConfig, incomeId, taxRateId, allowance
         step="1"
         suffix="%"
       />
+
+      <InputField
+        id={alreadyPaidId}
+        label="Bereits gezahlte Abgeltungsteuer (€)"
+        description="Von Ihrer Bank bereits einbehaltene Steuern auf Dividenden und Zinsen"
+        value={config.alreadyPaidWithholdingTax ?? 0}
+        onChange={(value) => setConfig({ ...config, alreadyPaidWithholdingTax: Math.max(0, value) })}
+        step="100"
+      />
     </div>
   )
 }
@@ -294,6 +343,7 @@ interface ConfigurationContentProps {
   taxRateId: string
   allowanceId: string
   exemptionId: string
+  alreadyPaidId: string
   result: ReturnType<typeof calculateQuarterlyTaxPrepayments> | null
 }
 
@@ -304,6 +354,7 @@ function ConfigurationContent({
   taxRateId,
   allowanceId,
   exemptionId,
+  alreadyPaidId,
   result,
 }: ConfigurationContentProps) {
   return (
@@ -316,6 +367,7 @@ function ConfigurationContent({
         taxRateId={taxRateId}
         allowanceId={allowanceId}
         exemptionId={exemptionId}
+        alreadyPaidId={alreadyPaidId}
       />
       {result && <ResultsDisplay result={result} />}
       {result && <OptimizationSuggestions config={config} />}
@@ -338,6 +390,7 @@ export function QuarterlyTaxPrepaymentCard() {
   const taxRateId = useMemo(() => generateFormId('quarterly-tax-prepayment', 'tax-rate'), [])
   const allowanceId = useMemo(() => generateFormId('quarterly-tax-prepayment', 'allowance'), [])
   const exemptionId = useMemo(() => generateFormId('quarterly-tax-prepayment', 'exemption'), [])
+  const alreadyPaidId = useMemo(() => generateFormId('quarterly-tax-prepayment', 'already-paid'), [])
 
   const result = useMemo(() => {
     if (!config.enabled) return null
@@ -367,6 +420,7 @@ export function QuarterlyTaxPrepaymentCard() {
                   taxRateId={taxRateId}
                   allowanceId={allowanceId}
                   exemptionId={exemptionId}
+                  alreadyPaidId={alreadyPaidId}
                   result={result}
                 />
               )}

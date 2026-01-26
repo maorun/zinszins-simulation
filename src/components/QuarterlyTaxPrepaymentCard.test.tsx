@@ -75,7 +75,7 @@ describe('QuarterlyTaxPrepaymentCard', () => {
 
     // Results should be displayed - wait for them to appear
     await screen.findByText(/Berechnete Steuerlast/i)
-    expect(screen.getAllByText(/Jährliche Steuerlast/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Gesamtsteuerlast/i).length).toBeGreaterThan(0)
   })
 
   it('should show payment schedule for high tax liability', async () => {
@@ -205,5 +205,69 @@ describe('QuarterlyTaxPrepaymentCard', () => {
 
     // Don't enable the switch
     expect(screen.queryByText(/Berechnete Steuerlast/i)).not.toBeInTheDocument()
+  })
+
+  it('should show already paid withholding tax input field', async () => {
+    const user = userEvent.setup()
+    render(<QuarterlyTaxPrepaymentCard />)
+
+    const header = screen.getByText(/Vorauszahlungsrechner für Selbstständige/i)
+    await user.click(header)
+
+    const enableSwitch = screen.getByRole('switch')
+    await user.click(enableSwitch)
+
+    // Should show the new field for already paid withholding tax
+    expect(screen.getByLabelText(/Bereits gezahlte Abgeltungsteuer/i)).toBeInTheDocument()
+  })
+
+  it('should calculate remaining tax liability when already paid tax is entered', async () => {
+    const user = userEvent.setup()
+    render(<QuarterlyTaxPrepaymentCard />)
+
+    const header = screen.getByText(/Vorauszahlungsrechner für Selbstständige/i)
+    await user.click(header)
+
+    const enableSwitch = screen.getByRole('switch')
+    await user.click(enableSwitch)
+
+    // Enter capital income
+    const incomeInput = screen.getByLabelText(/Erwartete jährliche Kapitalerträge/i)
+    await user.clear(incomeInput)
+    await user.type(incomeInput, '10000')
+
+    // Enter already paid withholding tax
+    const alreadyPaidInput = screen.getByLabelText(/Bereits gezahlte Abgeltungsteuer/i)
+    await user.clear(alreadyPaidInput)
+    await user.type(alreadyPaidInput, '500')
+
+    // Results should show remaining tax liability
+    await screen.findByText(/Berechnete Steuerlast/i)
+    expect(screen.getByText(/Verbleibende Steuerlast/i)).toBeInTheDocument()
+    expect(screen.getByText(/Bereits gezahlte Steuern \(Bank\)/i)).toBeInTheDocument()
+  })
+
+  it('should show message when already paid tax covers entire liability', async () => {
+    const user = userEvent.setup()
+    render(<QuarterlyTaxPrepaymentCard />)
+
+    const header = screen.getByText(/Vorauszahlungsrechner für Selbstständige/i)
+    await user.click(header)
+
+    const enableSwitch = screen.getByRole('switch')
+    await user.click(enableSwitch)
+
+    // Enter low capital income
+    const incomeInput = screen.getByLabelText(/Erwartete jährliche Kapitalerträge/i)
+    await user.clear(incomeInput)
+    await user.type(incomeInput, '5000')
+
+    // Enter high already paid tax that covers everything
+    const alreadyPaidInput = screen.getByLabelText(/Bereits gezahlte Abgeltungsteuer/i)
+    await user.clear(alreadyPaidInput)
+    await user.type(alreadyPaidInput, '2000')
+
+    // Should show message about no additional prepayments required
+    await screen.findByText(/Keine zusätzlichen Vorauszahlungen erforderlich/i)
   })
 })
