@@ -14,6 +14,7 @@ import {
 } from './calculationHelpers'
 import InteractiveChart from './InteractiveChart'
 import { EnhancedVisualizationSection } from './chart/EnhancedVisualizationSection'
+import { SankeyDiagram } from './SankeyDiagram'
 import { convertSparplanElementsToSimulationResult, hasInflationAdjustedValues } from '../utils/chart-data-converter'
 import { TooltipProvider } from './ui/tooltip'
 import type { SimulationResultElement, VorabpauschaleDetails } from '../utils/simulate'
@@ -249,6 +250,12 @@ function ChartSection({ elemente }: { elemente?: SparplanElement[] }) {
           <EnhancedVisualizationSection
             simulationData={simulationData}
             showRealValues={hasInflationAdjustedValues(simulationData)}
+            className="mb-4"
+          />
+          <SankeyDiagram
+            simulationData={simulationData}
+            title="Geldfluss-Diagramm: Ansparphase"
+            mode="savings"
             className="mb-4"
           />
         </>
