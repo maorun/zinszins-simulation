@@ -68,13 +68,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Reporting & Visualisierung
 
-- **Interaktive Sankey-Diagramme** - Visualisierung von Geldflüssen (Hoch ⭐⭐⭐)
-  - Einnahmen → Ausgaben → Sparen → Investieren → Steuern Flussdiagramm
-  - Jahr-für-Jahr Animation der Vermögensströme
-  - Detaillierte Aufschlüsselung von Steuerabflüssen
-  - Vergleich verschiedener Szenarien nebeneinander
-  - Deutsche Labels und interaktive Tooltips
-  
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
 
 ### Beratungs- & Bildungsfeatures

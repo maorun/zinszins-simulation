@@ -1782,6 +1782,14 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 ### Analyse und Simulation
 
 - **Finanzübersicht** - Kompakte Übersicht aller wichtigen Kennzahlen mit Sticky Navigation
+- **Interaktive Sankey-Diagramme** - Visualisierung von Geldflüssen in der Ansparphase
+  - **Geldfluss-Visualisierung** - Intuitive Darstellung wie Beiträge, Gewinne und Steuern durch das Portfolio fließen
+  - **Jahr-für-Jahr Navigation** - Interaktiver Slider zur Exploration der Vermögensströme über Zeit
+  - **Deutsche Labels** - Vollständig lokalisierte Beschriftungen (Beiträge, Kapital, Gewinne, Steuern, Endkapital)
+  - **Farbcodierte Flows** - Klare Unterscheidung verschiedener Geldströme durch Farben
+  - **Interaktive Tooltips** - Detaillierte Informationen zu jedem Geldfluss mit Währungsformatierung
+  - **Responsive Design** - Optimale Darstellung auf Desktop und mobilen Geräten
+  - **Integration in Sparplan-Verlauf** - Nahtlos eingebunden in bestehende Visualisierungen
 - **Strategievergleich** - Umfassende Vergleichsmöglichkeiten für Entnahmestrategien
 - **Historisches Backtesting** - Test mit 24 Jahren Marktdaten (DAX, S&P 500, MSCI World)
 - **Sequenz-Risiko-Analyse** - Detaillierte Analyse des Einflusses der Rendite-Reihenfolge auf die Portfolio-Nachhaltigkeit im Ruhestand
