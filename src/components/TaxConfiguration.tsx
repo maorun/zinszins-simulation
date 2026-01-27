@@ -28,6 +28,7 @@ import { SozialversicherungsOptimierungCard } from './SozialversicherungsOptimie
 import { KirchensteuerOptimizationCard } from './KirchensteuerOptimizationCard'
 
 import { TaxDeferralCalculatorCard } from './TaxDeferralCalculatorCard'
+import { RuerupVsEtfComparisonCard } from './RuerupVsEtfComparisonCard'
 import { MultiYearLossTrackingDashboard } from './MultiYearLossTrackingDashboard'
 import { LossCarryforwardSimulator } from './tax-config/LossCarryforwardSimulator'
 import { ImmobilienSteueroptimierungCard } from './ImmobilienSteueroptimierungCard'
@@ -152,6 +153,7 @@ function TaxOptimizationCards({ simulation }: { simulation: ReturnType<typeof us
       <PortfolioTeilfreistellungCard />
       <RebalancingComparisonCard />
       <TaxDeferralCalculatorCard />
+      <RuerupVsEtfComparisonCard />
       <MultiYearFreibetragOptimizationCard />
       <ImmobilienSteueroptimierungCard />
       <SellingStrategyCard />

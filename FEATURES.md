@@ -25,14 +25,9 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Entnahmestrategien & Kapitalplanung
 
-- **Rürup/Basisrente Integration** - Schicht-1-Altersvorsorge in Finanzplanung (Hoch ⭐⭐⭐)
-  - Steuerliche Behandlung der Einzahlungen (2024: 100% absetzbar bis 27.566€ für Ledige)
-  - Nachgelagerte Besteuerung der Auszahlungen im Ruhestand
-  - Vergleich Rürup vs. privater ETF-Sparplan nach Steuern
-  - Optimierung der Beitragshöhe unter Berücksichtigung des Steuersatzes
-  - Lebenslange Rente vs. Kapitalentnahmeplan
-
 (Riester-Rente Rechner inkl. Wohn-Riester/Eigenheimrente bereits implementiert)
+
+(Rürup/Basisrente Integration inkl. Vergleich mit ETF-Sparplan bereits implementiert)
 
 (Dynamische Ausgabenanpassung im Ruhestand bereits implementiert)
 
