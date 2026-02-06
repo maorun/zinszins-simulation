@@ -26,6 +26,7 @@ import { FreistellungsauftragOptimizer } from './FreistellungsauftragOptimizer'
 import { PortfolioTeilfreistellungCard } from './tax-config/PortfolioTeilfreistellungCard'
 import { SozialversicherungsOptimierungCard } from './SozialversicherungsOptimierungCard'
 import { KirchensteuerOptimizationCard } from './KirchensteuerOptimizationCard'
+import { AccountTypeComparisonCard } from './AccountTypeComparisonCard'
 
 import { TaxDeferralCalculatorCard } from './TaxDeferralCalculatorCard'
 import { RuerupVsEtfComparisonCard } from './RuerupVsEtfComparisonCard'
@@ -144,6 +145,10 @@ function FreistellungsauftragSection({
 function TaxOptimizationCards({ simulation }: { simulation: ReturnType<typeof useSimulation> }) {
   return (
     <>
+      <AccountTypeComparisonCard
+        kapitalertragsteuer={simulation.steuerlast}
+        teilfreistellungsquote={simulation.teilfreistellungsquote}
+      />
       <KirchensteuerOptimizationCard
         kirchensteuerAktiv={simulation.kirchensteuerAktiv}
         kirchensteuersatz={simulation.kirchensteuersatz}
