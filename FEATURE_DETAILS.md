@@ -1,0 +1,1942 @@
+# Zinseszins-Rechner - Detaillierte Feature-Beschreibungen
+
+Dieses Dokument enthält die detaillierten Beschreibungen aller implementierten Features des Zinseszins-Rechners. Für eine Übersicht siehe [README.md](README.md).
+
+**Live-Version:** https://zinszins-simulation.vercel.app/
+
+---
+
+## Implementierte Features
+
+### Zeitspanne und Berechnungsmodus
+
+- Flexibler Zeitraum-Selektor
+- Monatliche und jährliche Berechnungen
+
+### Rendite-Konfigurationen
+
+- **Feste Rendite** - Konstante jährliche Rendite
+- **Zufällige Rendite** - Monte Carlo Simulation mit Volatilität
+- **Variable Rendite** - Jahr-für-Jahr konfigurierbare Renditen
+- **Historische Daten** - Backtesting mit DAX, S&P 500, MSCI World (2000-2023)
+- **Multi-Asset Portfolio** - Diversifiziertes Portfolio mit automatischem Rebalancing
+  - **7 Anlageklassen** - Deutsche/Europäische Aktien, Internationale Aktien, Staatsanleihen, Unternehmensanleihen, REITs, Rohstoffe, Liquidität
+  - **Alternative Investments Informationen** - Integrierte Bildungsinhalte zu REITs und Rohstoffen
+    - **REITs (Real Estate Investment Trusts)** - Erklärung von Immobilienfonds, Vorteilen und deutscher Steuerbehandlung
+    - **Rohstoffe (Commodities)** - Information zu Gold, Öl, Industriemetalle mit Risiko- und Steuerhinweisen
+    - **Risikohinweise** - Transparente Darstellung von Volatilität, Komplexität und empfohlener Portfolio-Allokation (5-15%)
+    - **Anwendungsempfehlungen** - Klare Hinweise wann alternative Investments sinnvoll sind (Diversifikation, Inflationsschutz, langfristiger Horizont)
+  - **Individuelle Konfiguration** - Separate Einstellung von erwarteter Rendite, Volatilität und Zielallokation für jede Anlageklasse
+  - **Portfolio-Übersicht** - Real-time Berechnung der erwarteten Portfolio-Rendite und des Portfolio-Risikos
+  - **Portfolio-Optimierung** - Automatische Optimierung der Asset Allocation
+    - **3 Optimierungsziele** - Maximale Sharpe Ratio, Minimales Risiko, Maximale Rendite
+    - **Korrelationsberücksichtigend** - Nutzt Korrelationsmatrix für realistische Portfolio-Varianz-Berechnung
+    - **Gradient-basierte Optimierung** - Effiziente Optimierung mit finiten Differenzen
+    - **Ergebnisanzeige** - Erwartete Rendite, Risiko, Sharpe Ratio und optimierte Allokationen
+    - **Ein-Klick-Anwendung** - Optimierte Allokationen können direkt übernommen werden
+  - **Automatisches Rebalancing** - Konfigurierbare Rebalancing-Häufigkeit (jährlich, quartalsweise, monatlich) mit Schwellenwert-basiertem Rebalancing
+    - **Kostenbasierte Rebalancing-Strategie** - Intelligentes Rebalancing mit umfassender Kosten- und Steuerbetrachtung
+      - **Transaktionskosten-Konfiguration** - Prozentuale (0-10%) und fixe Kosten pro Trade konfigurierbar
+      - **Kosten-Nutzen-Analyse** - Automatische Bewertung ob Rebalancing lohnenswert ist
+      - **Steueroptimiertes Rebalancing** - Priorisiert Verkauf von Verlustpositionen (Tax Loss Harvesting)
+      - **Freibetrag-Nutzung** - Optimale Nutzung des jährlichen Steuerfreibetrags
+      - **Teilfreistellungs-Berücksichtigung** - Unterschiedliche Teilfreistellung je Anlageklasse (30% Aktien, 20% REITs)
+      - **Minimale Transaktionsgröße** - Vermeidung unwirtschaftlicher Kleintransaktionen
+      - **Kostenschwellenwert** - Rebalancing nur wenn Kosten unter konfigurierbarem Schwellenwert liegen
+    - **Rebalancing-Protokoll** - Detaillierte Dokumentation aller Rebalancing-Transaktionen
+      - **Transaktionshistorie** - Vollständige Aufzeichnung aller Käufe und Verkäufe bei jedem Rebalancing
+      - **Steuerberechnung** - Automatische Berechnung von Kapitalerträgen und Steuern (Kapitalertragsteuer + Solidaritätszuschlag)
+      - **Teilfreistellung** - Berücksichtigung der deutschen Teilfreistellung (30% für Aktienfonds, 60% für Immobilienfonds)
+      - **Kosten-Transparenz** - Darstellung der steuerlichen Kosten jeder Rebalancing-Aktion
+      - **Allokations-Tracking** - Dokumentation der Portfolio-Allokationen vor und nach dem Rebalancing
+  - **Korrelationsmatrix** - Berücksichtigung historischer Korrelationen zwischen Anlageklassen für realistische Simulationen
+  - **Korrelations-Heatmap** - Visuelle Darstellung der Korrelationsmatrix mit farbcodierter Heatmap
+    - **Interaktive Visualisierung** - Zeigt Korrelationen zwischen allen aktivierten Anlageklassen
+    - **Farbcodierung** - Positive Korrelationen in Blau, negative in Rot mit Intensität basierend auf Stärke
+    - **Tooltips** - Detaillierte Informationen zu jeder Korrelation beim Hover
+    - **Responsive Design** - Automatische Anpassung an Bildschirmgröße mit horizontalem Scrolling
+    - **Dynamische Anzeige** - Nur sichtbar wenn Korrelationen aktiviert sind und mindestens 2 Anlageklassen gewählt
+  - **Deutsche Steuerregeln** - Vollständige Integration der Teilfreistellung für Aktien und REITs
+  - **Portfolio-Validierung** - Automatische Validierung der Allokationen mit deutschen Fehlermeldungen
+  - **Normalisierungsfunktion** - Ein-Klick Normalisierung der Allokationen auf 100%
+  - **Volatilitäts-Targeting** - Dynamische Allokationsanpassung basierend auf realisierter Volatilität
+    - **4 Strategien** - Keine, Einfache Skalierung, Inverse Volatilitätsgewichtung, Risk Parity
+    - **Ziel-Volatilität** - Konfigurierbar zwischen 1% und 50% jährlich
+    - **Lookback-Periode** - 1-10 Jahre zur Berechnung der realisierten Volatilität
+    - **Allokationsgrenzen** - Minimale und maximale Risikoallokation konfigurierbar
+    - **Glättungsfaktor** - Exponentiell gewichtete Volatilitätsschätzung für stabilere Anpassungen
+    - **Automatische Anpassung** - Reduziert Risikoexposition bei hoher Volatilität, erhöht bei niedriger
+  - **Dynamische Asset Allocation (Gleitpfad)** - Altersbasierte automatische Portfolioanpassung
+    - **Lebensalter-Faustformel** - Deutsche Regel: Aktienquote = 100 - Lebensalter
+    - **Benutzerdefinierter Gleitpfad** - Flexible Konfiguration von Start- und Zielallokation
+    - **3 Anpassungskurven** - Linear, Konvex (vorsichtig), Konkav (aggressiv)
+    - **Altersbereich-Konfiguration** - Startalter und Rentenalter frei wählbar
+    - **Automatische Allokationsanpassung** - Portfolio wird während der Simulation altersgerecht angepasst
+    - **Schrittweise Risikoreduzierung** - Kontinuierliche Umschichtung von Aktien zu Anleihen mit zunehmendem Alter
+    - **Integration mit Rebalancing** - Gleitpfad-Anpassungen werden bei jedem Rebalancing berücksichtigt
+    - **Validierung** - Automatische Prüfung der Konfiguration mit deutschen Fehlermeldungen
+  - **Faktor-Investing** - Wissenschaftlich fundierte Faktor-Strategien zur Portfolio-Optimierung
+    - **4 Investment-Faktoren** - Value, Growth, Small-Cap, Momentum basierend auf akademischer Forschung (Fama-French, Carhart)
+    - **Konfigurierbare Factor-Exposure** - Individuelle Steuerung der Faktor-Gewichtung (0-100%)
+    - **Historische Prämien** - Basierend auf langfristigen europäischen Marktdaten
+      - Value: +2,5% jährliche Prämie (niedrige Bewertungskennzahlen)
+      - Growth: +1,5% jährliche Prämie (hohes Gewinnwachstum)
+      - Small-Cap: +3,0% jährliche Prämie (kleinere Marktkapitalisierung)
+      - Momentum: +4,0% jährliche Prämie (positive Kursentwicklung)
+    - **Risiko-Berücksichtigung** - Zusätzliche Volatilität je Faktor wird transparent dargestellt
+    - **Portfolio-Statistiken** - Echtzeit-Berechnung von erwarteter Rendite, Risiko und Sharpe Ratio
+    - **Validierung** - Automatische Prüfung auf konfliktäre Faktor-Kombinationen (z.B. Value vs. Growth)
+    - **Akademische Grundlage** - Fama-French Three-Factor Model, Carhart Four-Factor Model
+    - **Langfristiger Ansatz** - Faktoren funktionieren am besten über Anlagehorizonte von 10+ Jahren
+  - **Core-Satellite Strategie** - Bildungs-Feature für kostenoptimierte Portfolio-Konstruktion
+    - **Portfolio-Konzept** - Kombination aus passivem Kern (70-90%) und aktiven Satelliten (10-30%)
+    - **Kostenoptimierung** - Durchschnittliche Kosten bleiben niedrig durch günstigen Core
+    - **Kontrolliertes Risiko** - Aktive Positionen begrenzt auf 10-30% des Portfolios
+    - **Satelliten-Strategien** - Informationen zu Sektor-Übergewichtungen, Regional Tilts, Themeninvestments, Einzelaktien, Faktor-Strategien
+    - **Umsetzungshinweise** - Integration mit bestehendem Multi-Asset Portfolio Feature möglich
+    - **Deutsche Steueraspekte** - Teilfreistellung, Sparerpauschbetrag, Tax Loss Harvesting
+    - **Performance-Attribution** - Verständnis wie Core vs. Satellites zur Rendite beitragen
+    - **Bildungsfunktion** - Hilft Anlegern professionelle Portfolio-Konstruktion zu verstehen
+  - **Rebalancing-Strategie-Vergleichstool** - Interaktiver Vergleich verschiedener Rebalancing-Ansätze
+    - **5 Rebalancing-Strategien** - Kalenderbasiert (jährlich/quartalsweise), Schwellenwertbasiert (5%), Hybridansatz, Steueroptimiert, Opportunistisch (bei extremen Marktbewegungen >15%)
+    - **Langzeit-Backtesting** - Simulation über 5-20 Jahre mit synthetischen oder historischen Renditen
+    - **Umfassende Metrikenanalyse** - Portfoliorendite nach Steuern und Kosten, Anzahl der Transaktionen, Gesamte Transaktionskosten, Steuerbelastung, Tracking Error zur Zielallokation, Sharpe Ratio
+    - **Automatische Empfehlung** - Gewichteter Score aus Rendite (40%), Kosten (30%), Sharpe Ratio (20%) und Tracking Error (10%)
+    - **Best-by-Criteria** - Zeigt beste Strategie für jedes Kriterium (höchste Rendite, niedrigste Kosten, bester Sharpe, bestes Tracking)
+    - **Konfigurierbare Parameter** - Startkapital (10.000€ - 1.000.000€), Simulationszeitraum (5-20 Jahre), Durchschnittsrendite (0-15%), Volatilität (5-30%)
+    - **Portfolio-Allokation** - Flexible Verteilung auf deutsche Aktien, internationale Aktien und Anleihen
+    - **Deutsche Steuerkonformität** - Vollständige Berücksichtigung von Teilfreistellung und Freibeträgen
+    - **Visuelle Darstellung** - Übersichtliche Vergleichstabelle mit farbcodierter Empfehlung
+    - **Echtzeit-Validierung** - Automatische Prüfung der Allokationssumme (muss 100% ergeben)
+    - **Integration** - Nahtlos eingebunden in Steuer-Konfiguration für ganzheitliche Finanzplanung
+- **Währungsrisiko-Management** - Analyse und Verwaltung von Währungsrisiken bei internationalen Investments
+  - **8 Unterstützte Währungen** - EUR, USD, GBP, CHF, JPY, CNY, AUD, CAD
+  - **Währungsallokation** - Flexible Konfiguration der Portfolio-Aufteilung nach Währungen
+  - **Historische Volatilitäten** - Basierend auf langfristigen Wechselkursdaten gegen EUR
+    - USD: ~10% jährliche Volatilität
+    - GBP: ~8% jährliche Volatilität
+    - CHF: ~6% jährliche Volatilität (historisch stabil)
+    - JPY: ~12% jährliche Volatilität
+    - CNY: ~5% jährliche Volatilität (managed float)
+    - AUD: ~14% jährliche Volatilität (Rohstoffwährung)
+    - CAD: ~11% jährliche Volatilität (Rohstoffwährung)
+  - **3 Absicherungsstrategien**:
+    - **Ungesichert** - Volles Währungsrisiko, langfristig kann sich das Risiko ausgleichen
+    - **Teilweise gesichert** - Ausgewogenes Verhältnis zwischen Risiko und Kosten (z.B. 50% Absicherung)
+    - **Vollständig gesichert** - Maximale Sicherheit, aber mit laufenden Absicherungskosten
+  - **Kostenberechnung** - Transparente Darstellung der jährlichen Absicherungskosten (typisch 1-2% p.a.)
+  - **Risikokennzahlen**:
+    - Gesamtes Währungsexposure nach Währung
+    - Portfolio-Währungsrisiko (gewichtete Volatilität)
+    - Währungsrisiko nach Absicherung
+    - Effektiver Absicherungsgrad
+  - **Auswirkung auf Rendite** - Automatische Berücksichtigung von Absicherungskosten und Variance Drag
+  - **Deutsche Steuerkonformität** - Korrekte steuerliche Behandlung von Währungsgewinnen/-verlusten nach deutschem Recht
+  - **Bildungsfunktion** - Detaillierte Erklärungen zu Absicherungsstrategien und deren Vor-/Nachteilen
+- **Geografische Diversifikation** - Regionale Aufteilung internationaler Aktieninvestments mit automatischer Quellensteuerberechnung
+  - **4 Geografische Regionen**:
+    - **Nordamerika** - USA, Kanada (55% Standard-Allokation) - 15% Quellensteuer, 1,7% Dividendenrendite
+    - **Europa (ex-Deutschland)** - UK, Frankreich, Schweiz (28% Standard-Allokation) - 12% gewichtete Quellensteuer, 2,8% Dividendenrendite
+    - **Asien-Pazifik** - Japan, Australien, Südkorea, Hongkong (17% Standard-Allokation) - 15% Quellensteuer, 2,3% Dividendenrendite
+    - **Schwellenländer** - China, Indien, Brasilien, Südafrika (0% Standard-Allokation) - 10% Quellensteuer, 2,6% Dividendenrendite
+  - **Individuelle Regionskonfiguration** - Separate Einstellung von Allokation, erwarteter Rendite, Volatilität und Quellensteuer für jede Region
+  - **Portfolio-Statistiken** - Echtzeit-Berechnung der gewichteten Portfolio-Rendite und des Portfolio-Risikos
+  - **Automatische Quellensteuer-Anrechnung** - Berechnung nach deutschem Steuerrecht (§ 32d EStG)
+    - Berücksichtigung von Teilfreistellung (30% für Aktienfonds)
+    - Anrechnung ausländischer Quellensteuer auf deutsche Kapitalertragsteuer
+    - Begrenzung der Anrechnung auf die deutsche Steuerlast
+  - **Regionale Steuerbesonderheiten** - Quellensteuer basierend auf Doppelbesteuerungsabkommen (DBA)
+  - **Dividendenerträge-Simulation** - Automatische Berechnung der Dividenden und Steuerlast pro Region
+  - **Normalisierungsfunktion** - Ein-Klick Normalisierung der regionalen Allokationen auf 100%
+  - **Validierung** - Automatische Prüfung dass Summe der regionalen Allokationen 100% ergibt
+  - **Quellensteuer-Vorschau** - Transparente Darstellung der geschätzten Steuerauswirkung basierend auf dem internationalen Kapital
+- **ESG-Integration** - Nachhaltigkeitsfilter und ESG-Scoring für ethisch ausgerichtete Portfolios
+  - **3 ESG-Pfeiler** - Environmental (Umwelt), Social (Soziales), Governance (Unternehmensführung)
+  - **Asset-Class-Level Scoring** - ESG-Scores (1-10 Skala) für alle Anlageklassen basierend auf EU-Standards
+  - **Flexible Filterkriterien** - Konfigurierbare Mindest-Scores für Gesamt-ESG und einzelne Pfeiler
+  - **Anpassbare Gewichtungen** - Individuelle Priorisierung der ESG-Aspekte nach persönlichen Werten
+  - **EU-Taxonomie-konform** - Berücksichtigung von SFDR (Sustainable Finance Disclosure Regulation)
+  - **Trade-off-Transparenz** - Klare Darstellung der Auswirkungen von ESG-Filtern auf Diversifikation und Rendite
+  - **Deutsche ESG-Standards** - Fokus auf EU-regulierte und deutsche Nachhaltigkeitskriterien
+  - **Portfolio-ESG-Score** - Gewichteter Gesamt-ESG-Score des konfigurierten Portfolios
+  - **Ausschluss-Management** - Automatische Filterung von Anlageklassen, die ESG-Kriterien nicht erfüllen
+- **Inflation** - Berücksichtigung während der Ansparphase mit automatischer Anpassung
+  - **Inflationsbereinigte Werte** - Zusätzliche Anzeige der realen Kaufkraft (inflationsbereinigt) neben Nominalwerten
+  - **Sparphase**: Alle Kapitalwerte werden sowohl nominal als auch real angezeigt (z.B. "793.512,75 € / 589.591,66 € real")
+  - **Entnahmephase**: Entnahmebeträge und Kapitalwerte zeigen sowohl nominale als auch reale Kaufkraft
+- **Benchmark-Integration** - Vergleich der Portfolio-Performance gegen bekannte Marktindizes
+  - **6 Standard-Benchmarks** - DAX, MSCI World, MSCI ACWI, S&P 500, STOXX Europe 600, MSCI Emerging Markets
+  - **Historische Renditen** - Verwendung historischer Indexrenditen für Jahre 2000-2023
+  - **Langfristige Durchschnitte** - Automatische Verwendung von Durchschnittsrenditen für zukünftige Jahre
+  - **Benutzerdefinierte Benchmarks** - Individuelle Benchmarks mit eigener erwarteter Rendite
+  - **Performance-Metriken**:
+    - Durchschnittliche Portfolio-Rendite vs. Benchmark-Rendite
+    - Outperformance/Underperformance in Prozentpunkten
+    - Jahr-für-Jahr Vergleich der Renditen
+    - Tracking Error (Volatilität der Renditedifferenzen)
+    - Anzahl der Jahre mit Over-/Underperformance
+  - **Kumulativer Wertverlauf** - Vergleich der Kapitalentwicklung (normiert auf 1,0)
+  - **Detaillierte jährliche Aufschlüsselung** - Transparente Darstellung aller Berechnungen
+  - **Bildungsfunktion** - Hilft Anlegern zu verstehen, ob ihre Strategie besser/schlechter als der Markt abschneidet
+- **Portfolio-Performance Dashboard** - Umfassende Analyse mit Key Performance Indicators
+  - **Annualisierte Rendite** - CAGR (Compound Annual Growth Rate) über den gesamten Anlagezeitraum
+  - **Sharpe Ratio** - Risikoadjustierte Rendite (Überrendite pro Risikoeinheit)
+  - **Sortino Ratio** - Downside-risikoadjustierte Rendite (berücksichtigt nur negative Volatilität)
+  - **Volatilität** - Standardabweichung der jährlichen Renditen als Risikomaß
+  - **Maximum Drawdown** - Größter Wertverlust vom Höchststand zum Tiefpunkt mit Zeitangabe
+  - **Erfolgsquote** - Prozentsatz der Jahre mit positiven Renditen
+  - **Beste/Schlechteste Jahre** - Identifikation der extremen Performance-Jahre
+  - **Gesamtrendite** - Absolute Wertentwicklung über den kompletten Zeitraum
+  - **Kumulativer Gewinn** - Absoluter Wertzuwachs in Euro
+  - **Durchschnittliche Rendite** - Arithmetisches Mittel der jährlichen Renditen
+  - **Farbcodierte Badges** - Visuelle Performance-Indikatoren mit Schwellenwerten
+  - **Interpretationshilfe** - Deutsche Erklärungen aller Metriken für besseres Verständnis
+  - **Responsive Design** - Optimale Darstellung auf allen Bildschirmgrößen
+
+### Sparplan, Einmalzahlungen und Sonderereignisse
+
+- **Dynamische Sparraten** - Automatische Anpassung der Sparrate an Lebensumstände
+  - **Lebensabschnitt-basierte Anpassungen** - Sparrate passt sich automatisch an Lebensphase an
+    - Berufsstart (25-29 Jahre): 60% der Basis-Sparrate (geringeres Einkommen)
+    - Karrieremitte (30-49 Jahre): 100% der Basis-Sparrate (höheres Einkommen)
+    - Pre-Retirement (50-67 Jahre): 130% der Basis-Sparrate (maximale Sparleistung vor Ruhestand)
+  - **Einkommensentwicklung** - Automatische Erhöhung der Sparrate bei Gehaltssteigerungen
+    - Konfigurierbare Sparquote der Gehaltserhöhung (z.B. 50% jeder Erhöhung zusätzlich sparen)
+    - Altersabhängige Gehaltsent wicklung (4% Berufsstart, 2.5% Karrieremitte, 1.5% Pre-Retirement)
+    - Kumulative Anpassungen über die Jahre
+  - **Lebensereignis-getriggerte Anpassungen** - Sparrate reagiert auf einmalige Ereignisse
+    - Geburt: Reduktion der Sparrate (z.B. -500€/Jahr)
+    - Auszug der Kinder: Erhöhung der Sparrate (z.B. +800€/Jahr)
+    - Kreditabbezahlung: Umleitung der Raten in Sparplan (z.B. +500€/Jahr)
+    - Erbschaft: Einmalige oder dauerhafte Sparraten-Anpassung
+  - **Transparente Berechnung** - Detaillierte Aufschlüsselung aller Anpassungsfaktoren
+  - **Validierung** - Automatische Prüfung der Konfiguration mit deutschen Fehlermeldungen
+  - **Realistische Modellierung** - Ermöglicht präzise Planung mit sich ändernden Lebensumständen
+- **Notgroschen & Liquiditätsplanung** - Intelligente Verwaltung des Notfallfonds
+  - **Bedarfsberechnung** - Automatische Ermittlung des optimalen Notgroschens basierend auf monatlichen Ausgaben
+  - **Beschäftigungsstatus** - Anpassung nach Angestellter (3-6 Monate), Selbstständig (6-12 Monate), Rentner (1-3 Monate)
+  - **Reserve-Strategien** - Drei Strategien: Konservativ (maximale Liquidität), Ausgewogen (Balance), Aggressiv (optimierte Rendite)
+  - **Status-Tracking** - Echtzeit-Anzeige des Fortschritts zum Ziel-Notfallfonds mit abgedeckten Monaten
+  - **Drei-Stufen-Liquiditätssystem** - Empfohlene Aufteilung über drei Liquiditätsstufen:
+    - **Stufe 1: Girokonto** - Sofort verfügbar für tägliche Ausgaben (0% Rendite)
+    - **Stufe 2: Tagesgeldkonto** - Hohe Verfügbarkeit mit aktuellen Tagesgeld-Zinsen (~3-4%)
+    - **Stufe 3: Kurzfristige Anlagen** - Geldmarkt-ETF oder kurzfristige Anleihen (~4-5%)
+  - **Investitionsschutz** - Option zum Ausschluss des Notfallfonds von risikobehafteten Investitionen
+  - **Visuelle Darstellung** - Farbcodierte Drei-Tier-Visualisierung mit Allokationsempfehlungen
+  - **Warnhinweise** - Proaktive Empfehlungen zum Aufbau des Notgroschens vor Investitionen
+  - **Bildungsinhalte** - Erklärung der Notwendigkeit und optimalen Verwaltung von Liquiditätsreserven
+- **Sparpläne** - Regelmäßige monatliche oder jährliche Einzahlungen
+- **Schwankende Einkommen (Selbstständige)** - Unregelmäßige Einkommensmuster für Selbstständige
+  - **Monatliche Muster** - Definition individueller Multiplikatoren für jeden Monat des Jahres
+  - **Quartalsweise Muster** - Vereinfachte Konfiguration auf Quartalsbasis
+  - **Vorlagen** - Vordefinierte Muster (saisonales Geschäft, Quartalszyklus)
+  - **Flexible Anpassung** - Multiplikatoren von 0 bis 3 (z.B. 1.5 = +50%, 0.5 = -50%)
+  - **Nur monatliche Berechnung** - Feature nur verfügbar bei monatlicher Berechnung
+  - **Realistische Modellierung** - Ermöglicht präzise Planung bei unregelmäßigem Einkommen
+- **Geschäftsrisiko-Integration für Selbstständige** - Umfassende Risikomodellierung für selbstständige Einkommen
+  - **Einkommensvolatilität** - Simulation schwankender Geschäftseinkünfte mit 4 Volatilitätsstufen (Niedrig ±10%, Mittel ±20%, Hoch ±35%, Sehr hoch ±50%)
+  - **Saisonale Geschäftszyklen** - Vordefinierte Muster für Frühjahr/Sommer, Herbst/Winter, Quartalszyklen oder benutzerdefinierte Saisonalität
+  - **Erweiterte Notfallreserven** - Empfohlene 12-18 Monate Liquiditätsreserve für Selbstständige (vs. 3-6 Monate für Angestellte)
+  - **Krankentagegeld-Versicherung** - Integration der Krankentagegeld-Absicherung mit:
+    - Konfigurierbare Tagessätze und Karenzzeit (typisch 42 Tage)
+    - Einkommensabsicherung bis 80-100% des Durchschnittseinkommens
+    - Automatische Leistungsberechnung bei Einkommensausfall
+    - Prämienberücksichtigung in der Finanzplanung
+  - **Einkommensausfallszenarien** - Modellierung von Geschäftsausfällen:
+    - Konfigurierbare Ausfalldauer und Verlustprozentsatz
+    - Krankheitsbedingte Ausfälle mit Krankentagegeld-Abdeckung
+    - Saisonale oder marktbedingte Einkommensrückgänge
+    - Automatische Berücksichtigung in Jahresplanung
+  - **Beschäftigungsstatus-spezifisch** - Unterschiedliche Risikoprofile für Selbstständige, Freiberufler und Angestellte
+  - **Jährliche Risikoanalyse** - Detaillierte Auswertung mit:
+    - Gesamteinkommen und durchschnittliches monatliches Einkommen
+    - Min/Max-Einkommen und Volatilitätsmaße (Standardabweichung)
+    - Monate unter Durchschnittseinkommen
+    - Krankentagegeld-Leistungen vs. gezahlte Prämien
+    - Notfallreserve-Status und Zielerreichung
+  - **Validierung** - Automatische Prüfung aller Konfigurationen mit deutschen Fehlermeldungen
+  - **Helper-Funktionen verfügbar**: `calculateMonthlyBusinessIncome()`, `calculateYearlyBusinessRisk()`, `validateBusinessRiskConfig()`
+  - **Umfassend getestet**: 39 Tests mit 100% Pass-Rate
+- **Einmalzahlungen** - Einmalige Zahlungen mit Datum und Betrag
+- **Sonderereignisse** - Besondere finanzielle Ereignisse im Lebensverlauf
+  - **💰 Erbschaften** - Berücksichtigung deutscher Erbschaftsteuer nach Verwandtschaftsgrad
+    - Steuerklassen und Freibeträge (Ehegatte €500k, Kind €400k, Enkelkind €200k, etc.)
+    - Echtzeit-Berechnung der Erbschaftsteuer nach ErbStG
+    - Automatische Netto/Brutto-Umrechnung
+  - **🎁 Schenkungssteuer-Planung** - Optimierung lebzeitiger Vermögensübertragungen
+    - **10-Jahres-Zyklen** - Strategische Nutzung der Freibeträge alle 10 Jahre zur gleichen Person
+    - **Optimierungsalgorithmus** - Automatische Berechnung der steueroptimalen Schenkungsplanung
+    - **Steuerersparnis-Vergleich** - Transparenter Vergleich zwischen Einmalübertragung und optimierter Strategie
+    - **Freibetragsübersicht** - Darstellung der verfügbaren Freibeträge je Verwandtschaftsgrad
+    - **Zeitliche Planung** - Empfohlene Schenkungszeitpunkte über konfigurierbaren Planungszeitraum
+    - **Netto-Berechnung** - Exakte Ermittlung der beim Beschenkten ankommenden Beträge
+    - **Bildungsinhalte** - Integrierte Hinweise zu Dokumentation, Meldepflichten und rechtlichen Anforderungen
+    - **Visualisierung** - Übersichtliche Darstellung des empfohlenen Schenkungsplans mit Zeitstrahl
+  - **👨‍👩‍👧‍👦 Generationenübergreifende Vermögensplanung** - Intelligente Planung der Vermögensübertragung über mehrere Generationen
+    - **Multi-Generationen-Modellierung** - Verwaltung von Familienmitgliedern über bis zu 3 Generationen (Kinder, Enkelkinder, Urenkelkinder)
+    - **Flexible Familienkonfiguration** - Individuelle Erfassung von Name, Geburtsjahr, Generation und Verwandtschaftsverhältnis pro Person
+    - **3 Optimierungsstrategien**:
+      - **Steueroptimiert** - Minimiert die Gesamtsteuerbelastung durch intelligente Nutzung der Freibeträge über mehrere 10-Jahres-Perioden
+      - **Gleichmäßige Verteilung** - Verteilt das Vermögen gerecht auf alle Familienmitglieder
+      - **Individuelle Gewichtung** - Ermöglicht benutzerdefinierte Verteilungsschlüssel
+    - **Intelligente Freibetragsnutzung** - Automatische Berücksichtigung von Alter, verfügbaren Zeiträumen und relationalen Freibeträgen
+    - **Umfassende Steuerberechnung** - Präzise Berechnung von Schenkungssteuer unter Berücksichtigung von:
+      - Progressiver Besteuerung nach deutschem Erbschafts- und Schenkungssteuergesetz
+      - Steuerklassen je nach Verwandtschaftsverhältnis
+      - Kumulierung von Schenkungen innerhalb 10-Jahres-Perioden
+    - **Detaillierte Ergebnisdarstellung**:
+      - **Zusammenfassung** - Gesamtvermögen, Gesamtsteuern, Nettovermögen mit Steuerbelastung in Prozent
+      - **Nach Generation** - Aufschlüsselung der Vermögensverteilung pro Generation mit Anzahl Begünstigter
+      - **Nach Person** - Individuelle Beträge (Brutto, Steuer, Netto) mit Anzahl Schenkungen pro Familienmitglied
+      - **Zeitplan** - Chronologischer Übertragungsplan mit Jahr, Betrag und Steuer pro Schenkung
+    - **Echtzeit-Visualisierung** - Live-Aktualisierung aller Berechnungen bei Änderung von Parametern
+    - **Mehrperioden-Planung** - Automatische Verteilung von Schenkungen über mehrere 10-Jahres-Perioden zur Freibetragsoptimierung
+    - **Steuerfreiheits-Indikator** - Klare Kennzeichnung steuerfreier Übertragungen durch optimale Freibetragsausnutzung
+    - **Validierung** - Automatische Prüfung der Familienkonfiguration mit deutschen Fehlermeldungen
+    - **Helper-Funktionen verfügbar**: `createGenerationalTransferPlan()`, `compareTransferStrategies()`, `getFamilyMembersByGeneration()`, `validateFamilyStructure()`
+    - **Umfassend getestet**: 23 Tests mit 100% Pass-Rate
+  - **💸 Ausgaben** - Größere Ausgaben mit optionaler Kreditfinanzierung
+    - Kategorien: Autokauf, Immobilie, Bildung, Medizin, Sonstiges
+    - Kreditberechnung mit Standard-Zinssätzen je Kategorie
+    - Monatliche Ratenzahlung und Gesamtkosten-Aufstellung
+  - **🏥 Pflegekosten-Planung** - Umfassende Pflegekostenplanung basierend auf deutschem Pflegesystem
+    - **5 Pflegegrade** - Pflegegrad 1-5 nach deutschem Pflegeversicherungsgesetz
+    - **Typische Kosten** - Realistische Standardkosten je Pflegegrad (200-3.500 €/Monat)
+    - **Individuelle Anpassung** - Optionale Eingabe individueller monatlicher Pflegekosten
+    - **Gesetzliche Leistungen** - Automatische Berücksichtigung von Pflegegeld (0-947 €/Monat je nach Pflegegrad)
+    - **Pflegedauer** - Konfigurierbare Dauer (fest oder bis Lebensende)
+    - **Pflegeinflation** - Separate Inflationsrate für Pflegekosten (typisch 3-5% p.a.)
+    - **Steuerliche Absetzbarkeit** - Berücksichtigung als außergewöhnliche Belastung (bis 20.000 € p.a.)
+    - **Transparente Berechnung** - Detaillierte Aufschlüsselung von Brutto-Kosten, Leistungen und Netto-Belastung
+    - **Integration in Finanzplanung** - Automatische Berücksichtigung in Spar- und Entnahmephasen
+  - **🏢 Unternehmensverkauf-Simulation** - Exit-Strategien und Steueroptimierung für Selbstständige
+    - **§16 EStG Freibetrag** - Bis zu 45.000 € steuerfrei bei Verkauf ab 55 Jahren oder dauerhafter Erwerbsminderung
+    - **Freibetragskurve** - Volle 45.000 € bis 136.000 € Gewinn, dann schrittweiser Abbau bis 181.000 €
+    - **Fünftelregelung (§34 EStG)** - Ermäßigte Besteuerung durch steuerliche Verteilung auf 5 Jahre
+    - **Solidaritätszuschlag** - Automatische Berechnung des Solidaritätszuschlags (5,5% der Einkommensteuer)
+    - **Vergleichsrechnung** - Gegenüberstellung mit und ohne Fünftelregelung zur Steuerersparnis-Analyse
+    - **Timing-Optimierung** - Analyse des optimalen Verkaufszeitpunkts unter Berücksichtigung von Alter und sonstigem Einkommen
+    - **Reinvestitions-Planung** - Berechnung des Wachstums reinvestierter Verkaufserlöse
+    - **Umfassende Eingaben** - Verkaufspreis, Buchwert, Verkäuferalter, Erwerbsminderung, sonstiges Einkommen
+    - **Transparente Steuerberechnung** - Detaillierte Aufschlüsselung von Kapitalgewinn, Freibetrag, Steuern und Nettoprozeeds
+    - **Helper-Funktionen verfügbar**: `calculateBusinessSaleTax()`, `compareBusinessSaleTaxMethods()`, `calculateOptimalSaleTiming()`, `calculateReinvestmentStrategy()`
+    - **Umfassend getestet**: 40 Tests mit 100% Pass-Rate
+
+### Finanzielle Meilensteine
+
+- **Meilenstein-Tracker** - Visuelles Tracking von Sparzielen mit Fortschrittsanzeige
+  - **9 Vordefinierte Meilensteine** - Von Notgroschen (9.000 €) bis zur ersten Million (1.000.000 €)
+    - Notgroschen: 3 Monate (9.000 €)
+    - Erste 10.000 €
+    - Notgroschen: 6 Monate (18.000 €)
+    - Erste 25.000 €
+    - Erste 50.000 €
+    - Erste 100.000 €
+    - Erste 250.000 €
+    - Erste 500.000 €
+    - Erste Million (1.000.000 €)
+  - **Nächster Meilenstein Hervorhebung** - Prominente Anzeige des nächsten zu erreichenden Ziels
+    - Aktuelle Kapitalstand
+    - Noch benötigter Betrag
+    - Prozentuale Fortschrittsanzeige
+    - Geschätzte Erreichung (Jahr und verbleibende Jahre)
+  - **Farbcodierte Fortschrittsbalken** - Visuelle Motivation durch farbliche Darstellung
+    - Grau: < 50% des Ziels erreicht
+    - Gelb: 50-75% des Ziels erreicht
+    - Blau: 75-99% des Ziels erreicht
+    - Grün: 100% des Ziels erreicht
+  - **Zeitschätzung** - Automatische Berechnung wann Meilensteine erreicht werden
+    - Basierend auf aktueller Simulation und Sparrate
+    - Deutsche Zeitangaben ("Dieses Jahr", "Nächstes Jahr", "In ca. X Jahren")
+  - **Relevante Meilensteine** - Intelligente Auswahl der anzuzeigenden Ziele
+    - Letzter erreichter Meilenstein
+    - Aktuelles Ziel
+    - Nächste 2-3 kommende Meilensteine
+  - **Erfolgsmeldung** - Motivierende Glückwunsch-Nachricht bei Erreichen aller Ziele
+  - **Echtzeit-Aktualisierung** - Automatische Anpassung bei Änderung der Sparplanung
+  - **Mobile-optimiert** - Responsive Design für alle Bildschirmgrößen
+
+- **Benutzerdefinierte Zielverfolgung** - Personalisierte Sparziele mit individueller Konfiguration
+  - **Flexible Zielerstellung** - Vollständig anpassbare Finanzziele
+    - Individueller Zielname (z.B. "Eigenheim-Anzahlung", "Weltreise")
+    - Frei wählbarer Zielbetrag
+    - Optionales Zieldatum für zeitgebundene Planung
+    - Beschreibungsfeld für zusätzliche Details
+  - **Prioritätsstufen** - Drei Prioritätsstufen zur Priorisierung
+    - Hoch - Dringende finanzielle Ziele
+    - Mittel - Wichtige mittelfristige Ziele
+    - Niedrig - Wünschenswerte langfristige Ziele
+  - **Kategorisierung mit Icons** - 7 vordefinierte Kategorien mit passenden Icons
+    - 🏠 Eigenheim - Immobilienerwerb und Anzahlungen
+    - 🚗 Auto - Fahrzeugkauf und Mobilität
+    - 🏖️ Ruhestand - Altersvorsorge und Pensionsplanung
+    - ✈️ Reise - Urlaubsplanung und Weltreisen
+    - 🛡️ Notfallfonds - Sicherheitsreserven und Liquidität
+    - 🎓 Bildung - Ausbildung und Weiterbildung
+    - 🎯 Sonstiges - Individuelle andere Ziele
+  - **Intelligente Fortschrittsberechnung** - Automatische Analyse basierend auf Simulation
+    - Aktuelle Kapitalstand vs. Zielbetrag
+    - Prozentuale Zielerreichung mit visueller Anzeige
+    - Verbleibender Betrag bis zur Zielerreichung
+    - Geschätzte Erreichung basierend auf Sparplan-Simulation
+  - **Erforderliche Sparrate-Berechnung** - Berechnung für zeitgebundene Ziele
+    - Automatische Berechnung der erforderlichen monatlichen Sparrate
+    - Berücksichtigung erwarteter Rendite (Zinseszins-Effekt)
+    - Jahres- und Monatssparrate für flexible Planung
+    - Realistische Einschätzung der Machbarkeit
+  - **Visuelle Darstellung** - Motivierende Fortschrittsanzeige
+    - Farbcodierte Fortschrittsbalken je nach Status
+    - Icons für intuitive Kategoriezuordnung
+    - Badge-System für Priorität und Completion-Status
+    - Responsive Layouts für alle Bildschirmgrößen
+  - **Vollständige Zielverwaltung** - CRUD-Operationen (Create, Read, Update, Delete)
+    - Erstellen neuer Ziele mit Formular
+    - Bearbeiten bestehender Ziele
+    - Löschen nicht mehr benötigter Ziele
+    - Benutzerfreundliche Formularvalidierung
+  - **Mehrere Ziele parallel** - Unbegrenzte Anzahl gleichzeitiger Ziele
+    - Automatische Sortierung nach Priorität und Betrag
+    - Übersichtliche Darstellung aller Ziele
+    - Zusammenfassende Statistiken (erreichte vs. laufende Ziele)
+  - **localStorage Persistierung** - Privacy-first Datenhaltung
+    - Lokale Speicherung im Browser ohne Server
+    - Automatische Synchronisation bei Änderungen
+    - Keine Cloud-Uploads sensibler Finanzdaten
+    - Volle Kontrolle über eigene Daten
+  - **Integration mit Simulationen** - Nahtlose Verknüpfung mit Sparplan
+    - Nutzung der Simulationsdaten für Fortschrittsberechnung
+    - Automatische Updates bei Änderung der Sparplan-Parameter
+    - Konsistente Berechnungen mit restlicher Anwendung
+  - **Anwendungsbeispiele**:
+    - Eigenheim-Anzahlung: 50.000 € in 5 Jahren (Hoch, Eigenheim)
+    - Weltreise: 15.000 € in 3 Jahren (Mittel, Reise)
+    - Notgroschen-Aufbau: 20.000 € ohne Datum (Hoch, Notfallfonds)
+    - Neues Auto: 30.000 € in 2 Jahren (Mittel, Auto)
+
+### Kostenfaktoren
+
+- **TER (Total Expense Ratio)** - Jährliche Verwaltungskosten in Prozent
+- **Transaktionskosten** - Einmalige Kosten beim Kauf (prozentual oder absolut)
+- **Kostenaufschlüsselung** - Detaillierte Darstellung aller Kostenfaktoren in der Simulation
+
+### Steuerberechnung
+
+- **Portfolio-Teilfreistellungsquoten-Rechner** - Berechnung der gewichteten Teilfreistellungsquote für komplexe Fonds-Portfolios
+  - **Multi-Asset-Portfolio-Unterstützung**: Verwaltung mehrerer Fondstypen mit unterschiedlichen Teilfreistellungsquoten
+  - **Gewichtete Berechnung**: Automatische Berechnung der portfolioweiten Teilfreistellungsquote basierend auf Allokationen
+  - **7 Fondstypen**: Aktienfonds (30%), Mischfonds (15%), Rentenfonds (0%), Immobilienfonds (60%), REITs (0%), Rohstoffe (0%), Kryptowährungen (0%)
+  - **Interaktive Allokation**: Einfache Anpassung der Portfolioallokation per Slider (5%-Schritte)
+  - **Echtzeit-Steuerberechnung**: Live-Berechnung des effektiven Steuersatzes basierend auf Portfolio-Struktur
+  - **Optimierungsempfehlungen**: Automatische Vorschläge zur Verbesserung der steuerlichen Effizienz
+    - Reduzierung von Anlageklassen mit niedriger Teilfreistellung
+    - Erhöhung des Aktienfonds-Anteils für maximale Teilfreistellung
+    - Hinweis auf bereits optimierte Portfolios
+  - **Detaillierte Aufschlüsselung**: Tabellarische Darstellung jeder Position mit Beitrag zur Gesamtquote
+  - **Validierung**: Automatische Prüfung der Allokation (muss 100% ergeben)
+  - **Normalisierungsfunktion**: Ein-Klick-Anpassung auf 100% bei Allokationsfehlern
+  - **Verbesserungspotenzial**: Anzeige des maximalen Optimierungspotenzials (bis zu 30% TFS)
+  - **Steuerersparnis-Transparenz**: Klare Darstellung der Steuervorteile durch optimale Portfolio-Struktur
+  - **§ 20 InvStG konform**: Vollständige Berücksichtigung des deutschen Investmentsteuergesetzes
+- **Freistellungsauftrag-Optimierung** - Optimale Verteilung der Freistellungsaufträge auf mehrere Depots
+  - **Multi-Depot-Verwaltung**: Verwaltung mehrerer Bankkonten/Depots mit jeweiligen erwarteten Kapitalerträgen
+  - **Automatische Optimierung**: Intelligente Verteilung des Sparerpauschbetrags (1.000€/2.000€) zur Steuerminimierung
+  - **Priorisierung**: Automatische Zuweisung zu Konten mit höchsten erwarteten Kapitalerträgen
+  - **Teilfreistellungs-Integration**: Berücksichtigung der Teilfreistellung für Aktienfonds bei der Optimierung
+  - **Echtzeit-Berechnung**: Live-Berechnung der Steuerersparnisse und effektiven Steuersätze pro Konto
+  - **Validierung**: Automatische Prüfung der Freibetrags-Aufteilung mit deutschen Fehlermeldungen
+  - **Optimierungsempfehlungen**: Hinweise bei ungenutztem Freibetrag oder suboptimaler Verteilung
+  - **Ein-Klick-Anwendung**: Optimale Verteilung kann direkt übernommen werden
+  - **Planungsmodus-abhängig**: Automatische Anpassung des Gesamtfreibetrags (Einzelperson: 1.000€, Ehepaar: 2.000€)
+- **Steuerstundungs-Kalkulator (Thesaurierung vs. Ausschüttung)** - Vergleich zwischen thesaurierenden und ausschüttenden Fonds
+  - **Fondstypen-Vergleich**: Gegenüberstellung von thesaurierenden (Vorabpauschale) und ausschüttenden Fonds (volle Besteuerung)
+  - **Investitionsplanung**: Konfigurierbare Anfangsinvestition, Anlagedauer (1-40 Jahre) und erwartete Rendite (0-15%)
+  - **Steuerberechnung**: Vollständige Berücksichtigung von Kapitalertragsteuer, Teilfreistellungsquote und Freibetrag
+  - **Vorabpauschale-Simulation**: Präzise Berechnung der Vorabpauschale basierend auf aktuellem Basiszins
+  - **Detaillierter Vergleich**:
+    - Endkapital beider Fondstypen
+    - Gezahlte Steuern über die gesamte Laufzeit
+    - Steuerstundungsvorteil in Euro und Prozent
+  - **Zinseszinseffekt-Analyse**: Demonstration wie Steuerstundung durch Wiederanlage nicht versteuerter Erträge wirkt
+  - **Berechnungsparameter-Übersicht**: Transparente Darstellung aller verwendeten Steuersätze und Parameter
+  - **Echtzeit-Aktualisierung**: Automatische Anpassung an globale Steuereinstellungen
+  - **Bildungsfunktion**: Hilft Anlegern die Vorteile thesaurierender Fonds zu verstehen
+- **Rürup vs. ETF Vergleichstool** - Umfassender Vergleich zwischen Rürup-Rente und privatem ETF-Sparplan
+  - **Vollständige Lebenszyklusanalyse**: Vergleich von Anspar- und Entnahmephase mit allen steuerlichen Auswirkungen
+  - **Steuervorteile Beitragsphase**: Berechnung der Steuerentlastung durch Sonderausgabenabzug (§10 EStG)
+    - 2024: 98% absetzbar bis 27.566€ (Ledige) / 55.132€ (Verheiratete)
+    - Ab 2025: 100% absetzbar
+    - Berücksichtigung des persönlichen Steuersatzes (20-50%)
+  - **Nachgelagerte Besteuerung**: Präzise Berechnung der Rentenbesteuerung im Ruhestand (§22 EStG)
+    - Abhängig vom Renteneintritts jahr (2040: 100% steuerpflichtig)
+    - Berücksichtigung niedrigerer Steuersätze im Ruhestand
+  - **ETF-Vergleichsberechnung**: Vollständige Simulation des ETF-Sparplans
+    - Vorabpauschale-Besteuerung während Ansparphase
+    - Teilfreistellung für Aktienfonds (30%)
+    - Kapitalentnahme mit Restkapital für Vererbung
+  - **Konfigurierbare Parameter**:
+    - Jährlicher Beitrag (10.000-50.000€)
+    - Ansparphase (5-40 Jahre)
+    - Erwartete Rendite (0-15%)
+    - Steuersätze für Arbeits- und Rentenphase
+    - Familienstand (Ledige/Verheiratete)
+    - Entnahmephase (10-40 Jahre)
+  - **Side-by-Side Vergleich**:
+    - **Ansparphase**: Endkapital, Steuereffekte, Nettoeinzahlungen
+    - **Entnahmephase**: Gesamtauszahlungen, Steuerlast, Nettobeträge
+    - **Gesamtbilanz**: Nettonutzen, effektive Rendite, Vorteilsanalyse
+  - **Intelligente Empfehlung**: Automatische Bewertung mit Prozentangabe
+    - "Rürup" - Bei hohem Steuersatz in Arbeitsphase und niedrigem im Ruhestand
+    - "ETF" - Bei niedriger Steuerbelastung oder Bedarf an Kapitalerhalt
+    - "Ähnlich" - Bei vernachlässigbarem Unterschied (<5%)
+  - **Schlüsselfaktoren-Analyse**: Identifikation der entscheidenden Einflussfaktoren
+    - Höhe des Steuersatzes in Beitrags- und Rentenphase
+    - Teilfreistellungsquote bei ETFs
+    - Kapitalerhalt vs. Rente (Vererbung möglich bei ETF)
+  - **Integration mit globalem Kontext**: Nutzt Kapitalertragsteuer, Teilfreistellung und Freibetrag aus Hauptkonfiguration
+  - **Realistische Szenarien**: Optimiert für deutsche Steuerverhältnisse und typische Lebenssituationen
+  - **Bildungsfunktion**: Hilft bei fundierter Entscheidung zwischen steuergeförderter Rürup und flexiblem ETF-Sparplan
+- **Reverse-Rechner (Zielkapital-Planer)** - Berechnung der erforderlichen Sparrate für ein Zielkapital
+  - **Zielorientierte Planung**: Eingabe des gewünschten Ruhestands-Zielkapitals (z.B. 500.000 €)
+  - **Zeitraum-Flexibilität**: Konfigurierbare Ansparphase (1-100 Jahre)
+  - **Rendite-Szenarien**: Variable Renditeerwartungen mit Sensitivitätsanalyse
+  - **Berechnungsmodi**: Monatliche oder jährliche Sparraten-Berechnung
+  - **Steuerberücksichtigung**: Vollständige Integration von Vorabpauschale, Teilfreistellung und Freibetrag
+  - **Kosteneinberechnung**: Berücksichtigung von TER (Total Expense Ratio)
+  - **Iterativer Algorithmus**: Präzise Berechnung durch Bisection-Methode (Konvergenz innerhalb 0,1%)
+  - **Sensitivitätsanalyse**: Automatische Berechnung für verschiedene Rendite-Szenarien (Pessimistisch bis Sehr optimistisch)
+  - **Transparente Ergebnisse**: Detaillierte Aufschlüsselung von Gesamtbeiträgen, Endkapital, Nettogewinn, Steuern und Kosten
+  - **Realistische Planung**: Hilft bei der Beantwortung "Wie viel muss ich sparen für X Euro im Ruhestand?"
+- **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds mit detaillierter Erklärung
+- **Steuerbelastungs-Verlaufsanalyse** - Umfassende Analyse und Visualisierung der Steuerlast über den Anlagezeitraum
+  - **Jahr-für-Jahr Aufschlüsselung**: Detaillierte Tabelle mit jährlicher Steuerbelastung, Vorabpauschale und genutztem Freibetrag
+  - **Kennzahlen-Übersicht**: Gesamtsteuerlast, durchschnittlicher Steuersatz, genutzte Freibeträge und Vorabpauschale auf einen Blick
+  - **Spitzenjahr-Identifikation**: Automatische Erkennung des Jahres mit höchster Steuerbelastung
+  - **Optimierungspotenziale**: Warnung bei überdurchschnittlich hoher Steuerbelastung (>20% über Durchschnitt)
+  - **Optimierungsempfehlungen**: Konkrete Hinweise auf Tax Loss Harvesting und Entnahmezeitpunkt-Optimierung
+  - **Visuelle Hervorhebung**: Farbcodierte Darstellung von Spitzenjahren (rot) und Jahren mit hoher Steuerlast (gelb)
+  - **Effektiver Steuersatz**: Berechnung des tatsächlichen Steuersatzes auf Gewinne (Steuern / Gewinne × 100%)
+  - **Integration**: Vollständige Berücksichtigung aller Steuerfeatures (Kapitalertragsteuer, Vorabpauschale, Freibetrag, Teilfreistellung)
+  - **Collapsible Interface**: Platzsparende Darstellung mit ausklappbarem Detailbereich
+  - **Legende und Erklärungen**: Verständliche Erläuterungen aller Kennzahlen und Symbole
+- **Vierteljährliche Steuervorauszahlungen** - Vorauszahlungsrechner für Selbstständige und Freiberufler
+  - **Quartalstermine**: Automatische Berechnung der Zahlungstermine (10.03., 10.06., 10.09., 10.12.)
+  - **Erwartete Kapitalerträge**: Planung basierend auf geschätzten jährlichen Kapitalerträgen
+  - **Teilfreistellung**: Berücksichtigung der Teilfreistellungsquote (30% für Aktienfonds, 15% für Mischfonds)
+  - **Sparer-Pauschbetrag**: Integration des Freibetrags (1.000 € Singles, 2.000 € Paare)
+  - **Nachzahlungszinsen**: Warnung vor 6% p.a. Nachzahlungszinsen bei Verzug (§ 233a AO)
+  - **Steuerersparnis-Kalkulation**: Transparente Darstellung der Steuerersparnisse durch Freibetrag und Teilfreistellung
+  - **Optimierungsvorschläge**: Automatische Empfehlungen zur Steueroptimierung
+  - **Zahlungsplan**: Detaillierte Übersicht aller vierteljährlichen Vorauszahlungen
+  - **Schwellenwert-Prüfung**: Hinweis ob Vorauszahlungen erforderlich sind (ab 400 € Jahressteuerlast)
+  - **Berücksichtigung bereits gezahlter Abgeltungsteuer**: Reduzierung der Vorauszahlungen um bereits von Banken einbehaltene Steuern
+    - Automatische Berechnung der verbleibenden Steuerlast nach Abzug bereits gezahlter Steuern
+    - Optimierung der Steuerliquidität durch Berücksichtigung automatischer Steuerabzüge auf Dividenden und Zinsen
+    - Transparente Darstellung: Gesamtsteuerlast minus bereits gezahlte Steuern = verbleibende vierteljährliche Vorauszahlung
+    - Intelligente Vorschläge bei Überzahlung mit Hinweis auf Erstattungsmöglichkeit
+- **Pfändungsschutz-Rechner** - Berechnung geschützter Beträge bei Pfändung
+  - **Einkommensschutz (§ 850c ZPO)**: Berechnung pfändungsfreier Beträge nach deutschem Zivilprozessrecht
+    - **Grundbetrag**: 1.491,75 € monatlich (gültig ab 01.07.2024)
+    - **Unterhaltspflicht-Zuschlag**: +561,43 € für ersten Unterhaltsberechtigten, +312,78 € für weitere
+    - **Progressive Pfändung**: Automatische Berechnung der pfändbaren Beträge zwischen Grundbetrag und Vollpfändungsgrenze (4.573,10 €)
+    - **Familienberücksichtigung**: Schutz erhöht sich mit Anzahl der Unterhaltsberechtigten
+  - **Vermögensschutz (§ 851c ZPO)**: Bewertung geschützter Altersvorsorge
+    - **Rürup-Rente**: Geschützt bis 340.000 €, teilweiser Schutz bis 1.020.000 € (30% des Überschusses)
+    - **Riester-Rente**: Vollständig geschützt in der Ansparphase
+    - **Sonstige Altersvorsorge**: Meist nicht geschützt bei Pfändung
+  - **Interaktive Berechnung**: Eingabe von Nettoeinkommen, Unterhaltspflichten und Vermögenswerten
+  - **Visualisierung**: Prozentuale Darstellung geschützter vs. pfändbarer Beträge
+  - **Optimierungsempfehlungen**: Automatische Vorschläge zur Vermögensabsicherung bei Schuldenrisiko
+    - Empfehlungen für Umschichtung in pfändungssichere Anlageformen
+    - Hinweise auf Rürup/Riester-Optionen bei hohen pfändbaren Vermögenswerten
+    - Tipps zur Registrierung von Unterhaltsberechtigten für erhöhten Schutz
+  - **Realistische Szenarien**: Hilft bei der Bewertung des Schutzes in Schuldensituationen
+  - **Aktuelle Rechtslage**: Basierend auf Pfändungsfreigrenzen gültig ab Juli 2024
+- **Immobilien-Steueroptimierung (AfA & Werbungskosten)** - Berechnung der steuerlichen Behandlung von Mietimmobilien
+  - **AfA-Berechnung (Absetzung für Abnutzung)**: Lineare Abschreibung nach § 7 Abs. 4 EStG
+    - Gebäude vor 1925: 2,5% jährliche Abschreibung
+    - Gebäude 1925-2022: 2% jährliche Abschreibung
+    - Gebäude ab 2023: 3% jährliche Abschreibung
+  - **Denkmal-AfA (§ 7i EStG)** - Erhöhte Abschreibung für denkmalgeschützte Immobilien ⭐ NEU
+    - **Vermietung**: 9% AfA für 8 Jahre, dann 7% AfA für 4 Jahre (statt 2-3% bei normalen Immobilien)
+    - **Eigennutzung**: 9% Sonderausgabenabzug über 10 Jahre nach § 10f EStG
+    - **Sanierungskosten**: Separate erhöhte Abschreibung für denkmalgerechte Renovierungskosten
+    - **ROI-Kalkulation**: Vollständige Wirtschaftlichkeitsberechnung inkl. Steuervorteile
+    - **Vergleichsrechner**: Automatischer Vergleich Denkmal-AfA vs. Standard-AfA
+    - **Break-Even-Analyse**: Berechnung der Amortisationsdauer des Denkmal-Aufschlags
+    - **Helper-Funktionen verfügbar**: `calculateDenkmalAfaForYear()`, `analyzeDenkmalAfa()`, `compareDenkmalWithStandardAfa()`, `calculateDenkmalRoi()`, `getDefaultDenkmalConfig()`, `validateDenkmalConfig()`
+    - **Umfassend getestet**: 42 Tests mit 100% Pass-Rate
+  - **Werbungskosten**: Vollständige Berücksichtigung aller steuerlich absetzbaren Ausgaben nach § 9 EStG
+    - Instandhaltungskosten, Verwaltungskosten, Darlehenszinsen
+    - Grundsteuer, Gebäudeversicherung, sonstige Ausgaben
+  - **Automatische Kostenschätzung**: Realistische Schätzung basierend auf deutschen Marktdaten
+    - Instandhaltung: ~10% der Jahresmiete
+    - Verwaltung: ~15% der Jahresmiete
+    - Grundsteuer: ~20% der Jahresmiete
+    - Versicherung: ~8% der Jahresmiete
+  - **Steuerersparnis-Berechnung**: Verrechnung mit persönlichem Einkommensteuersatz
+    - Berücksichtigung der Günstigerprüfung
+    - Darstellung des steuermindernden Effekts bei Verlusten
+  - **Renditekennzahlen**:
+    - Brutto-Mietrendite
+    - Cash-on-Cash Return (vor und nach Steuern)
+    - Effektive Rendite nach allen Kosten und Steuern
+  - **Detaillierte Aufschlüsselung**: Transparente Darstellung aller Berechnungen
+    - Übersicht: Gesamtinvestition, Mieteinnahmen, Brutto-Rendite
+    - Werbungskosten: Itemisierte Auflistung aller Posten
+    - Steuerergebnis: Zu versteuerndes Einkommen oder steuerlicher Verlust
+    - Renditekennzahlen: Netto-Cashflow und effektive Rendite
+  - **Validierung**: Eingabeprüfung mit deutschen Fehlermeldungen
+  - **Realistische Szenarien**: Hilft bei der Bewertung von Mietimmobilien-Investments
+- **Multi-Jahres Freibetrags-Optimierung** - Strategische Verteilung von Kapitalgewinnen zur Steueroptimierung ⭐⭐⭐
+  - **Zeitraum-Optimierung**: Verteilung von Kapitalgewinnen über 5/10/20 Jahre zur maximalen Freibetrag-Nutzung
+  - **Intelligente Planung**: Berücksichtigt Vorabpauschale, Teilfreistellung und jährliche Freibeträge
+  - **Steuerersparnis-Berechnung**: Vergleich zwischen naiver Strategie (sofortige Realisierung) und optimierter Strategie
+  - **Konkrete Handlungsempfehlungen**: Jahr-für-Jahr Empfehlungen mit exakten Beträgen zur Realisierung
+    - "2024: Realisieren Sie 2.857€ an Kapitalgewinnen, um 375€ Steuern zu sparen"
+    - Automatische Warnung bei nicht verteilbaren Restgewinnen
+  - **Zeitraum-Vergleich**: Gegenüberstellung verschiedener Optimierungshorizonte (5/10/20 Jahre)
+  - **Freibetrag-Nutzungsquote**: Durchschnittliche Auslastung der jährlichen Freibeträge in Prozent
+  - **Flexible Konfiguration**:
+    - Zu realisierende Kapitalgewinne (Gesamtsumme)
+    - Optimierungszeitraum (1-20 Jahre)
+    - Aktueller Portfoliowert (für Vorabpauschale-Berechnung)
+    - Portfolio-Rendite (0% für Entnahmephase, >0% für Ansparphase)
+  - **Anwendungsfälle**:
+    - Entnahmephase: Planbare Verkäufe zur Finanzierung des Ruhestands
+    - Portfolioanpassung: Strategischer Verkauf von Positionen
+    - Rebalancing: Steueroptimierte Umschichtung
+  - **Jahr-für-Jahr Optimierungsplan**: Detaillierte Tabelle mit Realisierungen, verfügbarem Freibetrag und Steuerersparnis pro Jahr
+- **Renten-Auffüll-Strategie** - Optimierung freiwilliger Rentenbeiträge ⭐⭐⭐
+  - **Nachkauf von Rentenpunkten**: Berechnung der Kosten für zusätzliche Rentenpunkte
+    - Individuelle Kosten pro Rentenpunkt basierend auf aktuellem Durchschnittseinkommen
+    - Zusätzliche monatliche Rente durch Nachkauf
+    - Break-Even-Analyse für Investitionsentscheidung
+  - **Ausgleich von Rentenabschlägen**: Kalkulation für vorzeitigen Renteneintritt ohne Abschläge
+    - Automatische Berechnung der Regelaltersgrenze nach Geburtsjahr (§ 35 SGB VI)
+    - Rentenabschlag: 0,3% pro Monat vorzeitiger Renteneintritt
+    - Kosten für vollständigen Ausgleich der Rentenabschläge
+    - Monatlicher Rentenverlust bei vorzeitigem Eintritt
+  - **Steuervorteile**: 100% steuerlich absetzbar als Vorsorgeaufwendungen (ab 2024)
+    - Reduziert Einkommensteuerlast im Zahlungsjahr
+    - Erhöht spätere Rente dauerhaft
+  - **Break-Even-Analyse**: Berechnung ab wann sich freiwillige Beiträge amortisieren
+  - **Rechtliche Basis**: § 187a SGB VI (Sozialgesetzbuch)
+  - **Flexible Konfiguration**:
+    - Geburtsjahr (1940-2020)
+    - Gewünschtes Renteneintrittsalter (50-75 Jahre)
+    - Aktuelle Rentenpunkte (aus Renteninformation)
+    - Optional: Ziel-Rentenpunkte für Nachkauf
+  - **Detaillierte Ergebnisdarstellung**:
+    - Regelaltersgrenze und vorzeitiger Eintritt in Jahren und Monaten
+    - Gesamter Rentenabschlag in Prozent
+    - Ausgleichskosten und monatlicher Rentenverlust
+    - Bei Nachkauf: Zusätzliche Punkte, Gesamtkosten, zusätzliche Monatsrente
+  - **Validierung**: Automatische Prüfung der Eingaben mit deutschen Fehlermeldungen
+- **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
+- **Steuerprogression-Visualisierung** - Interaktive Visualisierung des deutschen progressiven Steuersystems
+  - **Interaktives Diagramm**: Zeigt Durchschnittssteuersatz und Grenzsteuersatz über verschiedene Einkommensniveaus
+  - **Drei Ansichtsmodi**:
+    - Beide (Steuersätze und Beträge kombiniert)
+    - Nur Steuersätze (Durchschnitts- und Grenzsteuersatz)
+    - Nur Steuerbeträge (absolute Euro-Werte)
+  - **Beispielberechnung**: Eingabe eines Beispiel-Einkommens zur detaillierten Steuerberechnung
+    - Zeigt Steuerzone, Steuerbetrag, Durchschnittssteuersatz, Grenzsteuersatz und Nettoeinkommen
+    - Erklärt den Unterschied zwischen Durchschnitts- und Grenzsteuersatz
+  - **Steuerzonen-Übersicht**: Farbkodierte Legende der 5 deutschen Steuerzonen
+  - **Konfigurierbarer Bereich**: Einstellbarer maximaler Einkommensbereich (50.000€ - 1.000.000€)
+  - **Grundfreibetrag-Anpassung**: Automatische Berücksichtigung des Grundfreibetrags je nach Planungsmodus (Einzelperson/Paar)
+  - **Bildungszweck**: Hilft zu verstehen, wie das progressive Steuersystem funktioniert und wie sich zusätzliches Einkommen auf die Steuerlast auswirkt
+- **Konfigurierbare Parameter**: Kapitalertragsteuer, Teilfreistellungsquote, Freibetrag pro Jahr
+- **Rürup-Rente (Basis-Rente)** - Als "andere Einkünfte" konfigurierbar
+  - **Beitragsphase Steuervorteile**: Berechnung der steuerlichen Absetzbarkeit von Rürup-Beiträgen (74% in 2012 → 100% ab 2025)
+  - **Höchstbeiträge**: Berücksichtigung der jährlichen Beitragsgrenzen (€27.566 Ledige / €55.132 Verheiratete in 2024)
+  - **Progressive Absetzbarkeit**: Jährlich steigende Absetzbarkeit der Beiträge gemäß § 10 Abs. 1 Nr. 2 Buchst. b EStG
+  - **Rentenphase Besteuerung**: Berechnung der Steuerbelastung auf Rürup-Renten mit nachgelagerter Besteuerung
+  - **Besteuerungsanteil**: Jahr des Rentenbeginns bestimmt steuerpflichtigen Anteil (50% in 2005 → 100% ab 2040)
+  - **Rentenanpassung**: Jährliche Rentenerhöhung gemäß konfigurierter Steigerungsrate
+  - **Integration in "Andere Einkünfte"**: Rürup-Rente kann als Einkunftsquelle neben BU-Rente, Kindergeld, etc. hinzugefügt werden
+  - **Helper-Funktionen verfügbar**: `calculateRuerupTaxDeduction()`, `calculateRuerupPensionTaxation()`, `getRuerupDeductibilityLimits()`, `getRuerupPensionTaxablePercentage()`
+  - **Umfassend getestet**: 36 Tests (32 Helper + 4 Integration) mit 100% Pass-Rate
+- **Betriebliche Altersvorsorge (bAV)** - Calculation helper für Betriebsrente (§ 3 Nr. 63 EStG)
+  - **5 Durchführungswege**: Direktzusage, Unterstützungskasse, Direktversicherung, Pensionskasse, Pensionsfonds
+  - **Beitragsphase Steuervorteile**: Steuer- und sozialversicherungsfreie Beiträge bis BBG-Grenzen
+    - **Arbeitgeberanteil steuerfrei**: Bis 8% der BBG West (7.248€ in 2024)
+    - **Arbeitnehmeranteil sozialversicherungsfrei**: Bis 4% der BBG West (3.624€ in 2024)
+    - **Automatische Grenzwertprüfung**: Warnung bei Überschreitung der Freibeträge
+  - **Rentenphase Besteuerung**: Nachgelagerte Besteuerung mit voller Steuer- und Sozialversicherungspflicht
+    - **100% steuerpflichtig**: Komplette Versteuerung der Betriebsrente
+    - **Krankenversicherung**: ~7,3% Beitragssatz bei gesetzlicher Krankenversicherung
+    - **Pflegeversicherung**: ~3-4% Beitragssatz (abhängig von Kinderzahl)
+  - **Lifetime Benefit Analysis**: ROI, Nettorentenhöhe, Gesamtsteuervorteile
+  - **BBG-Werte**: Historische und projizierte Werte (2020-2025+) mit 3% jährlichem Wachstum
+  - **Helper-Funktionen verfügbar**: `calculateBetriebsrenteTaxBenefit()`, `calculateBetriebsrentePensionTaxation()`, `calculateBetriebsrenteLifetimeBenefit()`, `getBetriebsrenteTaxLimits()`
+  - **Umfassend getestet**: 23 Tests mit 100% Pass-Rate, vollständige Abdeckung aller Berechnungsszenarien
+- **Rentenversicherungs-Vergleichstool** - Vergleich deutscher Altersvorsorgeartengenüberstellung
+  - **4 Rentenarten**: Gesetzliche Rente, Riester-Rente, Rürup-Rente, Betriebsrente (bAV)
+  - **Interaktive UI-Komponente**: Benutzerfreundliche Oberfläche in der Steuer-Konfiguration
+    - Konfigurierbare Rentenparameter für jede Rentenart
+    - Echtzeit-Berechnungen bei Eingabeänderungen
+    - Toggle-Switches zum Aktivieren/Deaktivieren einzelner Rentenarten
+    - Detaillierte Aufschlüsselung mit Erklärungen aller Metriken
+  - **Side-by-Side Analyse**: Direkter Vergleich aller aktivierten Rentenarten
+  - **Berechnung pro Rentenart**:
+    - Jährliche Beiträge und Steuervorteile während Ansparphase
+    - Erwartete Brutto- und Netto-Monatsrente
+    - Return on Investment (ROI)
+    - Netto-Lebenszeitleistung (Gesamtrente minus Beiträge plus Steuervorteile)
+  - **Zusammenfassung**:
+    - Gesamte jährliche Beiträge über alle Rentenarten
+    - Gesamte monatliche Netto-Rente aus allen Quellen
+    - Kombinierte ROI und Lebenszeitleistung
+  - **Empfehlungen**: Identifizierung der Rentenart mit höchstem ROI und höchster Netto-Lebenszeitleistung
+  - **Vergleichstabelle**: Übersichtliche Darstellung aller Kennzahlen in einer Tabelle
+  - **Helper-Funktionen verfügbar**: `comparePensionTypes()`
+  - **Umfassend getestet**: 14 Helper-Tests + 38 UI-Tests mit 100% Pass-Rate, realistische Szenarien und Edge Cases
+- **Riester-Rente** - Als "andere Einkünfte" konfigurierbar mit staatlicher Förderung
+  - **Zulagenberechnung**: Automatische Berechnung von Grundzulage (175€) und Kinderzulagen (185€/300€)
+  - **Mindesteigenbeitrag**: Berechnung des erforderlichen Eigenbeitrags (4% des Bruttoeinkommens minus Zulagen, mindestens 60€)
+  - **Günstigerprüfung**: Automatische Wahl zwischen Zulagen und Sonderausgabenabzug (max. 2.100€)
+  - **Kinderzulagen**: 185€ für vor 2008 geborene Kinder, 300€ für ab 2008 geborene Kinder
+  - **Altersgrenzen**: Kinderzulagen bis 25 Jahre bei Kindergeldberechtigung
+  - **Beitragsphase**: Berechnung der staatlichen Förderung durch Zulagen oder Steuerersparnis (je nachdem was günstiger ist)
+  - **Rentenphase Besteuerung**: Vollständige Besteuerung (100%) der Riester-Rente in der Auszahlungsphase
+  - **Nachgelagerte Besteuerung**: Riester-Renten sind voll steuerpflichtig gemäß § 22 Nr. 5 Satz 1 EStG
+  - **Rentenanpassung**: Jährliche Rentenerhöhung gemäß konfigurierter Steigerungsrate
+  - **Wohn-Riester (Eigenheimrente)** - Verwendung von Riester-Förderung für selbstgenutztes Wohneigentum
+    - **Wohnförderkonto-Berechnung**: Automatische Berechnung des Wohnförderkontos mit 2% jährlicher Verzinsung (§ 92b EStG)
+    - **Zwei Besteuerungsmethoden**: Ratenzahlung bis 85 Jahre oder Einmalbesteuerung mit 30% Rabatt
+    - **Steueroptimierung**: Vergleich und Empfehlung der günstigeren Besteuerungsmethode
+    - **UI-Integration**: Toggle-Schalter in Riester-Konfiguration zur Aktivierung von Wohn-Riester
+    - **Rechtskonforme Umsetzung**: Vollständige Berücksichtigung von § 92a und § 92b EStG
+    - **Helper-Funktionen verfügbar**: `calculateWohnfoerderkontoBalance()`, `calculateWohnRiesterTaxation()`, `compareWohnRiesterTaxationMethods()`
+    - **Umfassend getestet**: 19 Tests für Wohn-Riester-Berechnungen mit 100% Pass-Rate
+  - **Integration in "Andere Einkünfte"**: Riester-Rente kann als Einkunftsquelle neben Rürup-Rente, BU-Rente, Kindergeld, etc. hinzugefügt werden
+  - **Helper-Funktionen verfügbar**: `calculateRiesterTaxBenefit()`, `calculateRiesterPensionTaxation()`, `calculateRiesterAllowances()`, `calculateMinimumContribution()`
+  - **Umfassend getestet**: 36 Tests (31 Helper + 5 Integration) mit 100% Pass-Rate
+- **Günstigerprüfung** - Automatische Wahl zwischen Abgeltungssteuer und persönlichem Steuersatz
+  - **Automatische Optimierung**: System vergleicht Abgeltungssteuer (26,375%) vs. individueller Einkommensteuersatz
+  - **Progressiver Steuertarif**: Bei aktivierter Günstigerprüfung wird der deutsche progressive Einkommensteuertarif berücksichtigt
+  - **Sowohl Spar- als auch Entnahmephase**: Optimierung in beiden Phasen für maximale Steuerersparnis
+  - **Transparente Darstellung**: Anzeige beider Berechnungen und Erklärung der gewählten Variante
+  - **Konfigurierbare Aktivierung**: Ein-/Ausschaltbar je nach individueller Steuersituation
+- **Progressives Steuersystem (2024)**
+  - **5 Steuerzonen** nach deutschem Einkommensteuergesetz (EStG §32a)
+    - Zone 1: 0 - 11.604€: 0% (Grundfreibetrag)
+    - Zone 2: 11.605€ - 17.005€: 14% - 24% (progressiv)
+    - Zone 3: 17.006€ - 66.760€: 24% - 42% (progressiv)
+    - Zone 4: 66.761€ - 277.825€: 42% (Spitzensteuersatz)
+    - Zone 5: Ab 277.826€: 45% (Reichensteuer)
+  - **Automatische Anwendung**: Wird bei Günstigerprüfung automatisch verwendet
+  - **Effektiver Steuersatz**: Zeigt den tatsächlich angewendeten Steuersatz nach progressiver Berechnung
+  - **Besonders vorteilhaft**: Bei niedrigeren Einkommen oft günstiger als Abgeltungssteuer
+- **Sozialversicherungs-Optimierung für Grenzfälle** - Umfassende Rechner für deutsche Sozialversicherungsoptimierung
+  - **Midijob/Gleitzone (§ 20 SGB IV)**: Berechnung optimaler Gehälter im Übergangsbereich (538€ - 2.000€ monatlich)
+    - **Gleitzonenfaktor**: Automatische Berechnung des reduzierten Arbeitnehmeranteils zur Sozialversicherung
+    - **Bemessungsentgelt**: Präzise Berechnung der reduzierten Beitragsgrundlage in der Gleitzone
+    - **Optimales Einkommen**: Identifikation der besten Netto-Quote innerhalb der Gleitzone
+    - **Interaktive Konfiguration**: Anpassung für Kinderlose (Pflegeversicherungs-Kinderlosenzuschlag)
+  - **Minijob-Optimierung (Geringfügigkeitsgrenze)**: Berechnung bei 538€-Jobs mit pauschalen Abgaben
+    - **Rentenversicherungspflicht**: Vergleich mit und ohne Rentenversicherung
+    - **Rentenpunkte-Kalkulation**: Berechnung der jährlich erworbenen Rentenpunkte
+    - **Break-Even-Analyse**: Abwägung zwischen sofortigem Netto-Vorteil und späterer Rente
+    - **Langfristige Planung**: Entscheidungshilfe für oder gegen Rentenversicherungsbefreiung
+  - **Brutto-Netto-Rechner**: Präzise Berechnung aller Sozialversicherungsbeiträge
+    - **Krankenversicherung**: 7,3% + durchschnittlich 0,9% Zusatzbeitrag
+    - **Pflegeversicherung**: 1,525% (+ 0,6% Kinderlosenzuschlag für kinderlose Personen über 23 Jahre)
+    - **Rentenversicherung**: 9,3% mit automatischer Rentenpunkte-Berechnung
+    - **Arbeitslosenversicherung**: 1,2%
+    - **Arbeitgeberkosten**: Vollständige Berechnung der Gesamtkosten inkl. Arbeitgeberbeiträge
+  - **Versicherungspflichtgrenze**: Optimierung für privat versicherte Arbeitnehmer (2024: 69.300€ jährlich)
+    - **PKV-Berechtigung**: Prüfung ob Jahreseinkommen Grenze überschreitet
+    - **Gehaltsoptimierung**: Berechnung des benötigten Mehrverdienstes für PKV-Berechtigung
+    - **Empfehlungen**: Intelligente Vorschläge basierend auf Abstand zur Grenze
+    - **Wichtige Hinweise**: Umfassende Information zu PKV-Vor- und Nachteilen
+  - **Helper-Funktionen verfügbar**: `calculateMidijobBeitraege()`, `calculateOptimalGleitzoneIncome()`, `compareMinijobRentenversicherung()`, `calculateVersicherungspflichtgrenzeOptimization()`
+  - **Umfassend getestet**: 41 Tests mit 100% Pass-Rate
+- **Kirchensteuer** - Berücksichtigung der deutschen Kirchensteuer
+  - **Bundesländerspezifisch**: 8% für Bayern/Baden-Württemberg, 9% für andere Bundesländer
+  - **Automatische Integration**: Wird bei Günstigerprüfung und Einkommensteuerberechnung berücksichtigt
+  - **Konfigurierbar**: Ein-/Ausschaltbar mit präziser Prozentsatz-Einstellung (8-9%)
+  - **Transparente Berechnung**: Kirchensteuer wird als Prozentsatz der Einkommensteuer berechnet
+  - **Kirchensteuer-Optimierung** - Langfristige Finanzplanung unter Berücksichtigung der Kirchensteuer
+    - **Langfristvergleich**: Vergleich der Steuerbelastung mit und ohne Kirchensteuer über mehrere Jahre (1-50 Jahre)
+    - **Effektiver Steuersatz**: Berechnung des tatsächlichen Gesamtsteuersatzes (Abgeltungsteuer + Soli + Kirchensteuer)
+    - **Mehrbelastungs-Transparenz**: Klare Darstellung der zusätzlichen Steuerbelastung durch Kirchensteuer in Euro und Prozent
+    - **Sperrvermerk-Simulation**: Vergleich zwischen automatischer Kirchensteuer-Abführung und Sperrvermerk
+      - Zeigt dass Steuerschuld gleich bleibt, nur Zahlungsmodalität ändert sich
+      - Transparente Darstellung der manuell über Steuererklärung zu zahlenden Beträge
+      - Erklärung der Liquiditätsvorteile bei Sperrvermerk
+    - **Teilfreistellungs-Integration**: Berücksichtigung der Teilfreistellung (30% für Aktienfonds) vor Kirchensteuer-Berechnung
+    - **Kapitalertragsteuer-Basis**: Kirchensteuer wird korrekt auf die Abgeltungsteuer (25%), nicht auf den vollen Kapitalertrag, berechnet
+    - **Planbare Szenarien**: Flexible Eingabe von durchschnittlichen jährlichen Kapitalerträgen und Planungszeitraum
+    - **Bildungsinhalte**: Wichtige Hinweise zu Kirchensteuer-Berechnung, Austritt und steuerlichen Auswirkungen
+    - **Bundesland-Hinweise**: Erklärung der unterschiedlichen Kirchensteuersätze in Deutschland
+- **Solidaritätszuschlag (Soli)** - Informations-Tool zur Berechnung des Solidaritätszuschlags nach 2021 Reform
+  - **Freigrenze**: Etwa 90% der Steuerzahler zahlen keinen Soli mehr (Einzelperson: 16.956 €, Ehepaar: 33.912 € Einkommensteuer)
+  - **Gleitzone**: Schrittweise Einführung des Soli zwischen Freigrenze und Obergrenze (Einzelperson: 31.527 €, Ehepaar: 63.054 €)
+  - **Voller Soli**: 5,5% der Einkommensteuer oberhalb der Gleitzone
+  - **Planungsmodus-abhängig**: Unterschiedliche Freigrenzen für Einzelpersonen und Ehepaare/Partner
+  - **Interaktive Berechnung**: Slider zur Simulation verschiedener Einkommensteuerhöhen
+  - **Transparente Darstellung**:
+    - Anzeige der aktuellen Zone (unter Freigrenze, in Gleitzone, über Gleitzone)
+    - Berechnung des effektiven Soli-Satzes
+    - Ersparnis durch 2021 Reform im Vergleich zu früherem Soli (5,5% auf alle)
+    - Detaillierte Erklärung der Berechnungsgrundlage
+  - **Bildungsinhalte**: Hintergrundinformationen zur 2021 Reform und den Berechnungsregeln
+  - **Helper-Funktionen verfügbar**: `calculateSolidaritaetszuschlag()`, `calculateYearlySoli()`, `calculateSoliSavings()`, `getSoliFreigrenze()`, `getSoliGleitzoneUpper()`
+  - **Umfassend getestet**: 62 Tests mit 100% Pass-Rate
+- **Quellensteueranrechnung** - Informations-Tool zur Anrechnung ausländischer Quellensteuer (§ 32d Abs. 5 EStG)
+  - **8 Länder mit DBA-Sätzen**: USA (15%), Schweiz (15%), Österreich (15%), Frankreich (15%), UK (0%), Japan (15%), Kanada (15%), Australien (15%)
+  - **Doppelbesteuerungsabkommen (DBA)**: Berücksichtigung reduzierter Quellensteuersätze nach deutschen DBAs
+  - **Anrechnungslimit**: Begrenzung auf deutsche Steuer, die auf ausländische Einkünfte entfällt
+  - **Länderwahl**: RadioGroup-Auswahl mit allen unterstützten Ländern
+  - **Benutzerdefinierte Sätze**: Option für abweichende Quellensteuersätze
+  - **Echtzeit-Berechnung**:
+    - Ausländische Einkünfte und gezahlte Quellensteuer
+    - Deutsche Kapitalertragsteuer vor Anrechnung
+    - Anrechenbare Quellensteuer (begrenzt)
+    - Verbleibende deutsche Steuer
+  - **Transparente Aufschlüsselung**: Detaillierte Erklärung aller Berechnungsschritte
+  - **Warnhinweise**: Automatische Warnung bei Anrechnungsbegrenzung
+  - **Bildungsinhalte**:
+    - Hinweise zur Quellensteueranrechnung
+    - Schweizer Besonderheit (35% einbehalten, 20% rückforderbar mit DA-1 Formular)
+    - Teilfreistellung wird berücksichtigt
+  - **Helper-Funktionen verfügbar**: `calculateQuellensteuerconfigCredit()`, `calculateTotalQuellensteuerconfigCredit()`, `getWithholdingTaxRateForCountry()`, `validateQuellensteuerconfigConfiguration()`
+  - **Umfassend getestet**: 51 Tests (33 Helper + 16 Component + 2 Card) mit 100% Pass-Rate
+- **Versicherungskostenübersicht** - Aggregierte Übersicht aller Versicherungskosten zur Optimierung
+  - **Zusammenfassung**: Durchschnittliche jährliche Kosten, höchste jährliche Kosten und Gesamtkosten über den Planungszeitraum
+  - **Kategorisierung**: Aufschlüsselung nach Versicherungsarten (Krankenversicherung, Risikolebensversicherung, Pflegeversicherung, etc.)
+  - **Integrierte Berechnung**:
+    - Krankenversicherung (gesetzlich und privat) mit realistischen Kosteneinschätzungen
+    - Risikolebensversicherung mit alters-, geschlechts- und gesundheitsabhängigen Prämien
+    - Zukünftige Erweiterbarkeit für weitere Versicherungstypen
+  - **Optimierungsempfehlungen**: Automatische Identifikation von Optimierungspotenzial
+    - Warnung bei hohen Versicherungskosten (>30% der Entnahmen)
+    - PKV-Kostenprüfung bei hohen Beiträgen im Alter
+    - Hinweise zur Risikolebensversicherung im Ruhestand
+    - Information bei fehlenden Versicherungskonfigurationen
+  - **Helper-Funktionen verfügbar**: `calculateInsuranceCostSummary()`, `generateOptimizationRecommendations()`, `calculateHealthCareInsuranceCost()`, `calculateTermLifeInsuranceCost()`, `calculateCareInsuranceCost()`
+  - **Umfassend getestet**: 40 Tests (29 Helper + 10 Component + 1 Integration) mit 100% Pass-Rate
+- **Pflegezusatzversicherung (Long-term Care Insurance)** - Umfassende Pflegeversicherungsplanung zur Schließung der Versorgungslücke
+  - **3 Versicherungstypen**: Pflegetagegeld, Pflegekostenversicherung, Pflege-Bahr (staatlich gefördert)
+  - **Pflege-Bahr Förderung**: 5 EUR/Monat Staatszuschuss (60 EUR/Jahr) bei mind. 10 EUR Monatsbeitrag
+  - **Steuerfreie Leistungen**: Pflegeleistungen sind steuerfrei nach § 3 Nr. 1a EStG
+  - **Pflegegrade 1-5**: Gestaffelte Leistungen nach deutschem Pflegegrad-System
+    - Pflegegrad 1: 20% der maximalen Leistung
+    - Pflegegrad 2: 40% der maximalen Leistung
+    - Pflegegrad 3: 60% der maximalen Leistung
+    - Pflegegrad 4: 80% der maximalen Leistung
+    - Pflegegrad 5: 100% der maximalen Leistung (volle Absicherung)
+  - **Altersabhängiges Pflegefallrisiko**: Berücksichtigung statistischer Pflegewahrscheinlichkeiten nach Alter
+  - **Empfohlener Leistungsumfang**: Berechnung basierend auf Versorgungslücke zwischen gesetzlicher Pflegeversicherung und tatsächlichen Kosten
+  - **Realistische Kostenkalkulation**: Pflegekosten von 2.000-4.500 EUR/Monat, gesetzliche Versicherung deckt nur 50-70%
+  - **Flexible Konfiguration**: Monatlicher Beitrag, tägliche Leistung Pflegegrad 5, Versicherungsbegin und -ende
+  - **Integration in Versicherungsübersicht**: Automatische Berücksichtigung in aggregierter Kostenübersicht
+  - **Optimierungsempfehlungen**: Hinweise bei fehlender Absicherung oder zu hohen Beiträgen
+  - **Helper-Funktionen verfügbar**: `calculateCareInsurance()`, `calculateRecommendedDailyBenefit()`, `comparePolicyTypes()`, `createDefaultCareInsuranceConfig()`
+  - **Umfassend getestet**: 19 Tests mit 100% Pass-Rate
+- **Verlustverrechnung (Tax-Loss Harvesting)** - Informations-Tool zur Berechnung von Steuerersparnissen durch Verlustverrechnung
+  - **Verlustverrechnungsregeln**: Detaillierte Darstellung der deutschen Verlustverrechnungsregeln nach EStG
+    - Aktienverluste können nur mit Aktiengewinnen verrechnet werden (separater Verlusttopf)
+    - Sonstige Kapitalverluste können mit allen Kapitalerträgen verrechnet werden
+    - Verluste können mit Vorabpauschale verrechnet werden
+    - Nicht genutzte Verluste werden unbegrenzt vorgetragen (Verlustvortrag)
+  - **Konfigurierbare Eingaben**:
+    - Realisierte Aktienverluste für das aktuelle Jahr
+    - Realisierte sonstige Verluste (Anleihen, Fonds, etc.)
+    - Verlustvortrag aus Vorjahren
+  - **Berechnungsergebnisse**:
+    - Verfügbare Verluste gesamt
+    - Genutzte Verluste zur Verrechnung
+    - Verbleibender Verlustvortrag fürs nächste Jahr
+    - Berechnete Steuerersparnis in Euro
+    - Detaillierte Aufschlüsselung nach Verlusttyp
+  - **Informations-Tool**: Berechnung basiert auf Beispielwerten (10.000 € Kapitalerträge + 500 € Vorabpauschale)
+  - **Steuerintegration**: Nutzt aktuelle Steuereinstellungen (Kapitalertragsteuer, Teilfreistellung) aus der Konfiguration
+- **Portfolio Tax Loss Harvesting Tracker** - Umfassender Portfolio-Tracker mit automatischer Verlust-Opportunitäts-Erkennung
+  - **Portfolio-Management**: Vollständige Verwaltung von Investment-Positionen
+    - Eingabe von Positionen mit Name, ISIN/Symbol, Asset-Klasse (Aktien, Anleihen, REITs, Rohstoffe, Mischfonds)
+    - Automatische Berechnung von unrealisierten Gewinnen/Verlusten
+    - Portfolio-Übersicht mit Gesamtwert, Kosten und Performance
+    - Flexible Positionsverwaltung (Hinzufügen, Löschen)
+  - **Automatische Verlust-Opportunitäts-Erkennung**: Intelligente Identifikation von Tax Loss Harvesting Möglichkeiten
+    - Erkennung aller Positionen mit unrealisierten Verlusten
+    - Berechnung von Transaktionskosten (prozentuale + fixe Gebühren)
+    - Automatische Berechnung von potentiellen Steuerersparnissen (nach Teilfreistellung)
+    - Net-Benefit-Analyse (Steuerersparnis minus Transaktionskosten)
+    - Filterung unprofitabler Opportunitäten (zu kleine Positionen, negative Net-Benefits)
+  - **Wash-Sale-Regel-Prüfung**: Berücksichtigung der 30-Tage-Regel (Gestaltungsmissbrauch § 42 AO)
+    - Automatische Erkennung substantiell identischer Positionen (ISIN-Match + Fuzzy-Name-Matching)
+    - Prüfung auf Käufe 30 Tage vor und nach geplantem Verkauf
+    - Anzeige des frühesten Verkaufsdatums ohne Wash-Sale-Risiko
+    - Warnung bei Wash-Sale-Verstößen in der Opportunity-Anzeige
+  - **Priorisierung nach Steuereffizienz**: 3-Level-Priorisierung (High/Medium/Low)
+    - Ranking basierend auf Net-Benefit, Verlustbetrag und Verlustprozent
+    - Wash-Sale-Risiko reduziert Priorität automatisch
+    - Priority-Score (0-100) für objektive Vergleichbarkeit
+    - Farbkodierte Anzeige (rot=high, gelb=medium, blau=low)
+  - **Ersatz-Investment-Vorschläge**: Asset-klassenspezifische Recommendations
+    - Vorschläge für Aktien (Alternativer World-ETF, Sektor-rotierte ETFs)
+    - Vorschläge für Anleihen (Alternativer Laufzeitenstruktur)
+    - Vorschläge für REITs (Alternativer geografischer/Sektor-Focus)
+    - Vorschläge für Rohstoffe (Diversifizierter Basket)
+    - Vorschläge für Mischfonds (Alternative Asset Allocation)
+    - Liquiditäts-Option (30-Tage-Pause mit Geldmarkt/Tagesgeld)
+  - **Comprehensive Opportunity Display**: Detaillierte Anzeige jeder Opportunität
+    - Prioritäts-Ranking (#1, #2, etc.)
+    - Unrealisierter Verlust in EUR
+    - Potentielle Steuerersparnis (nach Teilfreistellung)
+    - Transaktionskosten
+    - Net-Benefit
+    - Wash-Sale-Warnung mit frühestem Verkaufsdatum
+    - Top-2 Ersatz-Investment-Vorschläge mit Begründung
+  - **Two-Tab-Interface**: Integration in bestehendes Tax Loss Harvesting Card
+    - Tab 1: Einfacher Rechner (bestehende Funktionalität)
+    - Tab 2: Portfolio Tracker (neue erweiterte Funktionalität)
+  - **Deutsche Steuerintegration**:
+    - Vollständige Integration mit Kapitalertragsteuer
+    - Berücksichtigung der Teilfreistellungsquote (default 30% für Aktienfonds)
+    - Berücksichtigung von Transaktionskosten (default 0.25% Gebühr)
+    - Minimum Transaction Amount Filter (default 500 EUR)
+  - **Helper-Funktionen verfügbar**: `identifyLossHarvestingOpportunities()`, `checkWashSaleViolation()`, `generateReplacementSuggestions()`, `calculateTaxSavings()`, `createPortfolioPosition()`
+  - **Umfassend getestet**: 42 Tests (37 Helper + 5 Component) mit 100% Pass-Rate
+- **Verkaufsstrategie-Optimierung (Intelligente Verkaufsstrategie mit Steuerstundung)** - Optimierung des Verkaufszeitpunkts und der Verkaufsmethode zur Steuerminimierung
+  - **3 Verkaufsmethoden**:
+    - **FIFO (First In, First Out)** - Verkauf der ältesten Investments zuerst (Standardmethode nach deutschem Steuerrecht)
+    - **LIFO (Last In, First Out)** - Verkauf der neuesten Investments zuerst
+    - **Steueroptimiert** - Intelligente Auswahl zur Minimierung der Steuerlast
+      - Priorisiert Verlustpositionen (Tax Loss Harvesting)
+      - Wählt Lots mit kleinsten Gewinnen relativ zur Kostenbasis
+      - Berücksichtigt optimale Freibetragsnutzung
+  - **Konfigurierbare Parameter**:
+    - Zu verkaufender Betrag in Euro
+    - Startjahr für den Verkauf
+    - Verkauf über mehrere Jahre verteilen (für optimale Freibetragsnutzung)
+    - Anzahl der Jahre bei mehrjährigem Verkauf
+  - **Steuerliche Optimierungen**:
+    - Automatische Kostenbasis-Berechnung (FIFO/LIFO/steueroptimiert)
+    - Berücksichtigung der Teilfreistellung (30% für Aktienfonds)
+    - Optimale Nutzung des jährlichen Freibetrags (2.000 € pro Jahr)
+    - Mehrjährige Steueroptimierung durch zeitliche Streuung
+  - **Berechnungsergebnisse**:
+    - Verkaufter Gesamtbetrag
+    - Kostenbasis der verkauften Investments
+    - Steuerpflichtige Gewinne (nach Teilfreistellung)
+    - Gesamte Steuerlast
+    - Nettoerlös nach Steuern
+    - Steuereffizienz in Prozent
+  - **Jahr-für-Jahr Aufschlüsselung** (bei mehrjährigem Verkauf):
+    - Verkaufsbetrag pro Jahr
+    - Steuerlast pro Jahr
+    - Genutzter Freibetrag pro Jahr
+    - Nettoerlös pro Jahr
+  - **Methodenvergleich**: Interaktiver Vergleich der drei Verkaufsmethoden
+    - Gegenüberstellung der Steuerlast für FIFO, LIFO und steueroptimiert
+    - Automatische Identifikation der besten Methode
+    - Berechnung der Steuerersparnis gegenüber ungünstigster Methode
+  - **Beispiel-Investments**: Demonstration mit drei beispielhaften Investment-Lots unterschiedlicher Kaufzeitpunkte und Renditen
+  - **Anwendungsfälle**:
+    - Planung großer Verkäufe zur Eigenheimfinanzierung
+    - Optimierung von Entnahmen im Ruhestand
+    - Steueroptimierte Portfolio-Umschichtung
+    - Mehrjährige Verkaufsplanung zur Freibetragsmaximierung
+- **Tail-Risk Hedging** - Informations-Tool zur Bewertung von Absicherungsstrategien gegen extreme Marktverluste
+  - **4 Hedging-Strategien**:
+    - Protective Put (Put-Optionen) - Klassische Absicherung mit Put-Optionen zu bekannten Kosten
+    - CPPI (Constant Proportion Portfolio Insurance) - Dynamische Portfolioabsicherung durch Anpassung der Aktienquote
+    - Tail-Risk Fonds - Spezialisierte Fonds, die von extremen Marktbewegungen profitieren
+    - Systematisches Rebalancing - Regelbasierte Risikoverwaltung mit Stop-Loss-Mechanismen
+  - **Konfigurierbare Parameter**:
+    - Schutzniveau (50%-100%) - Definiert den Schwellenwert für Verlustabsicherung
+    - Absicherungsquote (0%-100%) - Anteil des Portfolios, der abgesichert wird
+    - Jährliche Kosten - Strategiespezifische Hedging-Kosten als Prozentsatz
+    - Rebalancing-Frequenz - Monatlich, quartalsweise, halbjährlich oder jährlich
+  - **Szenario-Simulation**: 10-Jahres-Periode mit realistischen Marktszenarien inkl. Crash-Jahr
+  - **Ergebnisanalyse**:
+    - Gesamtkosten der Hedging-Strategie
+    - Verhinderte Verluste durch Absicherung
+    - Nettovorteil (Verlustverhinderung minus Kosten)
+    - Anzahl der Jahre mit Hedge-Auslösung
+    - Portfolio-Vergleich (mit vs. ohne Hedging)
+  - **Interpretation**: Kontextabhängige Erklärung der Ergebnisse für verschiedene Marktszenarien
+  - **Kostenbereichs-Validierung**: Automatische Prüfung ob Kosten im typischen Bereich für gewählte Strategie liegen
+  - **Bildungsfunktion**: Hilft Anlegern zu verstehen, wann Tail-Risk Hedging sinnvoll ist und welche Strategiekosten angemessen sind
+- **Verlustverrechnungstöpfe (Loss Offset Accounts)** - Jahr-für-Jahr Tracking und Verrechnung von Verlusten in der Simulation
+  - **Automatisches Verlusttracking**: Verfolgung von Verlusten über die gesamte Simulationsdauer
+    - Separate Verwaltung von Aktienverlusttopf und sonstigem Verlusttopf
+    - Automatische Verrechnung mit Gewinnen und Vorabpauschale jedes Jahr
+    - Unbegrenzter Verlustvortrag in zukünftige Jahre
+  - **Integrierte Berechnung**: Nahtlose Integration in die Jahr-für-Jahr-Simulation
+    - Verluste reduzieren automatisch die Steuerlast in jedem Jahr
+    - Detaillierte Aufschlüsselung der Verlustverwendung pro Jahr
+    - Transparente Darstellung der Steuerersparnis durch Verlustverrechnung
+  - **Konfigurationsmöglichkeiten**:
+    - Initiale Verlustkonten (Verluste vor Simulationsbeginn)
+    - Realisierte Verluste pro Jahr (Aktienverluste und sonstige Verluste)
+    - Anpassbares Aktienanteil-Verhältnis (Standardwert: 70% Aktiengewinne)
+  - **Jahr-für-Jahr Visualisierung**:
+    - Kompakte Anzeige in der Simulationstabelle
+    - Detaillierte Tooltips mit Verlustverrechnung und Steuerersparnis
+    - Anzeige des Verlustvortrags für jedes Jahr
+  - **Steueroptimierung**: Hilft bei der strategischen Planung von Verlustverrechnung
+    - Verständnis der langfristigen Auswirkungen von realisierten Verlusten
+    - Optimierung des Timings von Verkäufen zur Verlustnutzung
+    - Transparente Darstellung der kumulativen Steuerersparnis über Jahre
+  - **Compliance**: Vollständig konform mit deutschem Steuerrecht (EStG)
+    - Korrekte Trennung von Aktienverlusttopf und sonstigem Verlusttopf
+    - Präzise Anwendung der Verlustverrechnungsregeln
+    - Unbegrenzte Verlustvortragsperiode wie im deutschen Steuerrecht
+- **Erweiterter Verlustvortrag-Strategie-Simulator** - Umfassende Mehrjahres-Planung für strategische Verlustverwendung
+  - **5 Verlustverwendungsstrategien**: Vergleich verschiedener Ansätze zur optimalen Verlustnutzung
+    - **Sofortige Realisierung**: Maximal mögliche Gewinne sofort realisieren wenn Verluste verfügbar
+    - **Schrittweise Realisierung**: Gleichmäßige Verteilung der Gewinnrealisierung über Planungszeitraum
+    - **Optimierte Realisierung**: Intelligente Balance zwischen vollständiger Verlustnutzung und zeitlicher Optimierung
+    - **Aggressive Strategie**: Frühzeitige Gewinnrealisierung zur schnellen Verlustverwendung
+    - **Konservative Strategie**: Erhalt eines Verlustvortragspuffers für zukünftige Flexibilität
+  - **Interaktive Konfiguration**:
+    - Verfügbare Aktienverluste und sonstige Verluste (Eröffnungsbilanz)
+    - Planungszeitraum (1-20 Jahre) mit flexibler Jahreszahl
+    - Maximal realisierbare Gewinne pro Jahr (Aktiengewinne und sonstige Gewinne)
+    - Integration mit globalen Steuereinstellungen (Kapitalertragsteuer, Teilfreistellung)
+  - **Strategievergleich mit Empfehlung**:
+    - Gesamte Steuerersparnisse pro Strategie über den Planungszeitraum
+    - Effizienzs core (Prozentsatz der genutzten Verluste)
+    - Anzahl der Jahre mit aktiver Verlustnutzung
+    - Durchschnittliche jährliche Steuerersparnisse
+    - Automatische Empfehlung der optimalen Strategie basierend auf Gesamteffizienz
+    - Badge-System zur Kennzeichnung: "Empfohlen", "Höchste Ersparnis", "Effizienteste"
+  - **Jahr-für-Jahr Timing-Empfehlungen**:
+    - Optimale Gewinnrealisierung pro Jahr mit Priorisierung (Hoch/Mittel/Niedrig)
+    - Empfohlene Aktiengewinne und sonstige Gewinne zur Realisierung
+    - Projizierte Steuerersparnis für jedes Jahr
+    - Begründung der Empfehlung (z.B. "Maximale Verlustnutzung möglich", "Verlustvortrag für Folgejahre optimieren")
+  - **Zeitachsen-Visualisierung**:
+    - Tabellarische Darstellung der Jahr-für-Jahr-Entwicklung
+    - Verfügbare Verluste zu Jahresbeginn
+    - Realisierte Gewinne nach gewählter Strategie
+    - Genutzte Verluste zur Steuerverrechnung
+    - Steuerersparnis pro Jahr
+    - Verlustvortrag ins nächste Jahr
+    - Gesamtsummen mit Abschlussübersicht
+  - **Strategische Analyse**:
+    - Detaillierte Beschreibung jeder Strategie mit Vor- und Nachteilen
+    - Kontextbezogene Empfehlungen basierend auf Verlusthöhe und Gewinnpotential
+    - Optimierungshinweise bei suboptimaler Konfiguration
+    - Warnungen bei ungenutzten Verlustpotenzialen
+  - **§ 20 Abs. 6 EStG konform**: Vollständige Berücksichtigung deutscher Verlustverrechnungsregeln
+    - Korrekte Trennung von Aktienverlusttopf und sonstigem Verlusttopf
+    - Unbegrenzte Verlustvortragsperiode
+    - Präzise Anwendung der Verrechnungshierarchie (erst Aktienverluste mit Aktiengewinnen, dann sonstige)
+  - **Umfassende Tests**: 47 Tests total (22 Helper-Tests + 25 UI-Tests) mit 100% Pass-Rate
+- **Abfindungs-Rechner (Fünftelregelung)** - Steueroptimierung für Abfindungszahlungen nach §34 EStG
+  - **Fünftelregelung (§34 EStG)**: Steuervergünstigung für außerordentliche Einkünfte
+    - Steuerberechnung als würde die Abfindung über 5 Jahre verteilt
+    - Formel: Steuer = 5 × (Steuer(Einkommen + Abfindung/5) - Steuer(Einkommen))
+    - Deutliche Steuerersparnisse gegenüber normaler Besteuerung möglich
+  - **Zwei Berechnungsmodi**:
+    - **Einzelberechnung**: Detaillierte Berechnung für ein spezifisches Jahr
+      - Eingabe von Abfindungshöhe, Jahr und Jahreseinkommen
+      - Optionale Berücksichtigung von Kapitalerträgen
+      - Vergleich: Fünftelregelung vs. Standardbesteuerung
+      - Anzeige der Steuerersparnis in Euro und Prozent
+    - **Jahresvergleich**: Optimaler Zeitpunkt für Abfindungserhalt finden
+      - Vergleich verschiedener Empfangsjahre
+      - Berücksichtigung unterschiedlicher Einkommenssituationen
+      - Automatische Identifikation des steuerlich günstigsten Jahres
+  - **Detaillierte Ergebnisanzeige**:
+    - Bruttoabfindung und Nettoabfindung nach Steuern
+    - Einkommensteuer mit Fünftelregelung
+    - Effektiver Steuersatz auf die Abfindung
+    - Vergleich mit normaler Besteuerung
+    - Steuerersparnis durch Fünftelregelung
+    - Gesamtsteuerlast inklusive Kapitalertragsteuer
+  - **Erweiterte Einstellungen**:
+    - Kapitalertragsteuersatz (default: 26,375% inkl. Soli)
+    - Sparerpauschbetrag (default: 1.000€ / 2.000€)
+    - Anpassbar für individuelle Steuersituationen
+  - **Steuerkonformes Berechnungsmodell**:
+    - Deutsches progressives Einkommensteuersystem (EStG §32a)
+    - Korrekte Berücksichtigung aller Steuerzonen
+    - Solidaritätszuschlag mit Freigrenze und Gleitzone
+    - Grundfreibetrag (10.908€ in 2023)
+  - **Praktische Anwendungsfälle**:
+    - Optimierung bei Jobwechsel oder Kündigung
+    - Planung des besten Auszahlungszeitpunkts
+    - Berücksichtigung von Sabbaticals oder Elternzeit
+    - Ruhestandsplanung mit Abfindung
+  - **Informations-Tool**: Rein informativer Rechner zur Steuerplanung
+  - **Umfassend getestet**: 30 Tests mit 100% Pass-Rate
+- **Progressionsvorbehalt** - Informations-Tool zur Berechnung der Steuerauswirkungen steuerfreier progressionsrelevanter Einkünfte
+  - **Jahr-für-Jahr Konfiguration**: Individuelle Eingabe progressionsrelevanter Einkünfte für jedes Jahr
+  - **Einkunftsarten**: Unterstützung verschiedener Einkunftsarten nach deutschem Steuerrecht
+    - Elterngeld (steuerfreie Leistung bei Elternzeit)
+    - Arbeitslosengeld I (Leistung bei Arbeitslosigkeit)
+    - Kurzarbeitergeld (Lohnersatzleistung bei Kurzarbeit)
+    - Ausländische Einkünfte (steuerfreie Einkünfte aus dem Ausland)
+    - Weitere progressionsrelevante Einkünfte
+  - **Steuerliche Auswirkungen**: Echtzeit-Berechnung des effektiven Steuersatzes mit Progressionsvorbehalt
+    - Berechnung erfolgt nach deutschem Einkommensteuergesetz (EStG)
+    - Berücksichtigung der progressiven Steuertarife
+    - Integration mit Kirchensteuer-Konfiguration
+  - **Vergleichsansicht**: Transparente Darstellung der Steuerlast mit und ohne Progressionsvorbehalt
+    - Steuersatz ohne Progression (reguläre Besteuerung)
+    - Steuersatz mit Progression (erhöhter Steuersatz)
+    - Zusätzliche Steuerlast in Euro und Prozentpunkten
+  - **Beispielszenarien**: Vordefinierte Szenarien für typische Progressionsvorbehalt-Situationen
+    - Elternzeit (1 Jahr mit 12.000 € Elterngeld)
+    - Kurzarbeit (6 Monate mit 6.000 € Kurzarbeitergeld)
+    - Arbeitslosigkeit (kurze Periode mit 4.500 € Arbeitslosengeld I)
+  - **Glossar-Integration**: Detaillierte Erklärung mit Beispielen im integrierten Glossar
+  - **Informations-Tool**: Beispielhafte Berechnung mit 40.000 € zu versteuerndem Einkommen
+- **Planungsmodus-abhängiger Sparerpauschbetrag** - Automatische Anpassung des Freibetrags basierend auf Individual- oder Paarplanung
+  - **Einzelperson**: 2.000€ jährlicher Sparerpauschbetrag
+  - **Ehepaar/Partner**: 4.000€ jährlicher Sparerpauschbetrag (2.000€ pro Person)
+  - **Automatische Aktualisierung**: Freibeträge werden automatisch angepasst beim Wechsel des Planungsmodus
+- **Freistellungsaufträge-Optimierung** - Optimale Verteilung der Freistellungsaufträge über mehrere Bankkonten
+  - **Multi-Bank-Verwaltung**: Verwaltung mehrerer Depot-/Bankkonten mit separaten Freistellungsaufträgen
+  - **Automatische Optimierung**: Intelligente Verteilung des Sparerpauschbetrags auf Konten mit höchsten erwarteten Erträgen
+  - **Echtzeit-Berechnungen**: Sofortige Berechnung der effektiven Steuersätze und eingesparten Steuern pro Konto
+  - **Validierung**: Automatische Prüfung der Freistellungsaufträge (maximale Summe darf Sparerpauschbetrag nicht überschreiten)
+  - **Empfehlungen**: Konkrete Vorschläge zur Optimierung der Freibetragsverteilung
+  - **Ein-Klick-Anwendung**: Optimale Verteilung kann mit einem Klick übernommen werden
+- **Einkommensteuer auf Renten** - Berücksichtigung der deutschen Rentenbesteuerung
+- **Basiszins-Konfiguration** - Verwaltung der offiziellen Basiszinssätze der Deutschen Bundesbank
+- **Bundesbank API Integration** - Automatischer Abruf aktueller Basiszinssätze über SDMX API
+- **Validierung und Fallbacks** - Intelligente Validierung mit automatischen Fallback-Mechanismen
+
+### Szenario-Verwaltung
+
+- **Speichern und Laden von Konfigurationen** - Persistent management of financial planning scenarios
+  - **Szenario-Speicherung** - Speichern der aktuellen Konfiguration mit Name und Beschreibung
+  - **localStorage-Persistenz** - Alle Szenarien werden lokal im Browser gespeichert (keine Cloud-Synchronisation)
+  - **Vollständige Konfigurationserfassung** - Alle Parameter werden gespeichert:
+    - Grundeinstellungen (Zeitraum, Berechnungsmodus, Renditekonfiguration)
+    - Sparpläne und Einmalzahlungen
+    - Steuer-Konfiguration (Freibeträge, Steuersätze, Teilfreistellung)
+    - Erweiterte Konfiguration (Inflation, Multi-Asset Portfolio, ESG-Filter)
+    - Entnahmestrategien und Lebensplanungs-Parameter
+  - **Szenario-Verwaltung** - Übersichtliche Darstellung aller gespeicherten Szenarien
+    - Szenario-Name und Beschreibung
+    - Erstellungs- und Änderungsdatum
+    - Ein-Klick Laden von Szenarien
+  - **Löschen mit Bestätigung** - AlertDialog zur Vermeidung versehentlichen Löschens
+  - **Import/Export-Funktionalität** - JSON-basierter Export und Import von Szenarien
+  - **Privacy-First** - Alle Daten bleiben lokal auf dem Gerät des Nutzers
+  - **shadcn/ui Design** - Moderne, barrierefreie Komponenten mit Collapsible Card
+
+### Interaktive Szenario-Bibliothek
+
+- **Vordefinierte Lebensszenarien** - Realistische Finanzplanungsszenarien zum direkten Import
+  - **9 Lebensszenarien** - Typische Lebenssituationen mit passenden Finanzparametern
+  - **Kategorisiert nach Lebensphase** - Berufsanfänger, Familie, Karrieremitte, Vor dem Ruhestand, Vermögensaufbau
+  - **Ein-Klick Import** - Szenarien können direkt auf die aktuelle Konfiguration angewendet werden
+  - **Detaillierte Beschreibungen** - Jedes Szenario enthält:
+    - **Zielgruppe** - Alter, Einkommen und Lebenssituation
+    - **Detaillierte Erklärung** - Ausführliche Beschreibung der Strategie und Annahmen
+    - **Wichtige Annahmen** - Liste der Kernannahmen (Sparrate, Rendite, Zeithorizont)
+    - **Konfigurationsdetails** - Anlagehorizont, erwartete Rendite, Renditemodus, Sparpläne
+  - **Kategoriefilterung** - Szenarien nach Lebensphase filtern
+  - **Suchfunktion** - Schnelles Finden passender Szenarien durch Keyword-Suche
+  - **Erfolgsbestätigung** - Visuelles Feedback nach erfolgreichem Import
+  - **Szenarien-Beispiele**:
+    - Berufsanfänger - Konservativ (200-400€/Monat, 5% Rendite, 40 Jahre)
+    - Berufsanfänger - Offensiv (500€/Monat, 7% Rendite, hohes Risiko)
+    - Junge Familie mit Kindern (150€/Monat, 5,5% Rendite, ausgewogen)
+    - Karrieremitte - Vermögensaufbau (800€/Monat + 20.000€ Einmalzahlung)
+    - DINK - Doppelverdiener ohne Kinder (1.500€/Monat + 50.000€ Startkapital)
+    - Kurz vor Ruhestand - Sicherheitsorientiert (150.000€ Bestandskapital, 4% Rendite)
+    - Spätstarter - Aufholphase (1.200€/Monat, aggressive Strategie)
+    - Erbschaft-Management (250.000€ Erbschaft professionell anlegen)
+    - Unternehmer nach Exit (500.000€ Exit-Erlös diversifizieren)
+
+### Was-wäre-wenn Szenarien
+
+- **Vordefinierte Finanzszenarien** - Lernszenarien zum Erkunden verschiedener Anlagestrategien
+  - **10+ Szenarien** - Konservative, ausgewogene, wachstumsorientierte und spezielle Situationen
+  - **Kategorisiert** - Szenarien nach Risikoprofil und Lebenssituation organisiert
+  - **Vollständig konfiguriert** - Jedes Szenario enthält realistische Parameter (Sparrate, Rendite, Laufzeit, Steuern)
+  - **Bildungsinhalte** - Lernpunkte, Risiken und Zielgruppen für jedes Szenario
+  - **Ein-Klick Anwendung** - Szenarien können direkt auf die aktuelle Simulation angewendet werden
+  - **Durchsuchbar** - Schnelles Finden relevanter Szenarien durch Suchfunktion
+  - **Detaillierte Beschreibungen** - Umfassende Informationen zu jedem Szenario in einem übersichtlichen Modal
+
+### Interaktive Tutorials
+
+- **Schritt-für-Schritt Anleitungen** - Geführte Tutorials für neue Benutzer
+  - **5 Haupt-Tutorials** - Welcome, Sparpläne, Steuern, Entnahme, Monte Carlo Analyse
+  - **Fortschrittsverfolgung** - Automatische Speicherung des Lernfortschritts in localStorage
+  - **Flexible Navigation** - Vor/Zurück-Navigation, Schritte überspringen, Tutorials jederzeit neu starten
+  - **Visuelle Fortschrittsanzeige** - Fortschrittsbalken und Schritt-Indikatoren zeigen aktuelle Position
+  - **Voraussetzungen-System** - Tutorials bauen logisch aufeinander auf
+  - **Deutsche Sprache** - Alle Inhalte in verständlichem Deutsch mit praktischen Beispielen
+  - **Kontextuelle Aktionen** - Hilfreiche Hinweise, welche Aktionen als nächstes durchzuführen sind
+  - **Kategorisierung** - Tutorials nach Themen gruppiert (Erste Schritte, Sparpläne, Entnahme, Steuern, Erweitert)
+  - **Zeitschätzungen** - Jedes Tutorial zeigt geschätzte Dauer (3-7 Minuten)
+  - **Abschluss-Tracking** - Markierung abgeschlossener Tutorials mit Wiederholungsmöglichkeit
+  - **shadcn/ui Design** - Moderne, barrierefreie Dialog-Komponenten
+
+### Glossar-Integration
+
+- **Interaktive Begriffserklärungen** - Kontextbezogene Tooltips für komplexe Finanzfachbegriffe
+  - **15+ Fachbegriffe** - Umfassende Erklärungen deutscher Steuerbegriffe (Vorabpauschale, Günstigerprüfung, Teilfreistellung, etc.)
+  - **Detaillierte Definitionen** - Kurz- und Langdefinitionen mit praktischen Beispielen
+  - **Verknüpfte Begriffe** - Verwandte Begriffe werden automatisch verlinkt
+  - **Überall verfügbar** - Tooltips in Konfigurationen und Simulationsausgaben
+  - **Barrierearm** - Tastatur-navigierbar und screenreader-freundlich
+  - **Moderne UI** - Integration mit shadcn/ui Design System
+
+### Finanzbildungs-Quiz
+
+- **Interaktives Lernwerkzeug** - Wissenstest zu deutschem Steuerrecht und Finanzplanung
+  - **24 Fragen** - Umfassende Fragensammlung zu wichtigen Finanzthemen
+    - **Steuern** - Vorabpauschale, Freibeträge, Kapitalertragsteuer, Teilfreistellung
+    - **Altersvorsorge** - Riester, Rürup, Rentenabschläge, private Vorsorge
+    - **Portfolio-Management** - Diversifikation, Rebalancing, Kosteneffizienz
+    - **Risikomanagement** - Volatilität, Korrelation, Absicherungsstrategien
+  - **3 Schwierigkeitsstufen** - Einsteiger, Fortgeschritten, Experte
+  - **Konfigurierbare Quiz-Sessions** - Anpassung nach Kategorie, Schwierigkeit und Fragenzahl (5/10/15 Fragen)
+  - **Sofortiges Feedback** - Ausführliche Erklärungen nach jeder Antwort
+  - **Detaillierte Auswertung** - Ergebnisanalyse nach Kategorien mit visuellen Fortschrittsbalken
+  - **Performance-Feedback** - Leistungseinschätzung und Verbesserungsvorschläge
+  - **Fortschrittsanzeige** - Visuelle Darstellung des Quiz-Fortschritts
+  - **Randomisierung** - Zufällige Fragenauswahl für wiederholbares Lernen
+  - **Bildungsfokus** - Keine Gamification, reiner Lernzweck
+  - **Deutsche Sprache** - Alle Inhalte in verständlichem Deutsch mit praktischen Erklärungen
+
+### Behavioral Finance Insights
+
+- **Häufige Anlegerfehler verstehen und vermeiden** - Bildungskomponente über psychologische Fallen beim Investieren
+  - **12 Behavioral Biases** - Umfassende Aufklärung über typische psychologische Fehler
+    - **Emotionale Biases** - Verlustaversion, Dispositionseffekt, FOMO
+    - **Kognitive Fehler** - Selbstüberschätzung, Anker-Effekt, Bestätigungsfehler, Verfügbarkeitsheuristik, Rückschaufehler, Home Bias, Kontrollillusion
+    - **Soziale Einflüsse** - Herdentrieb
+    - **Mentale Buchführung** - Fehlerhafte mentale Kategorisierung von Geld
+  - **Deutsche Kontextualisierung** - Alle Beispiele mit deutschem Finanzmarkt (DAX, ETFs, deutsche Aktien)
+  - **Praktische Vermeidungsstrategien** - Konkrete Tipps zur Vermeidung jedes Bias
+  - **Suchfunktion** - Schnelles Finden relevanter Biases
+  - **Kategorisierung** - Übersicht nach Emotional, Cognitive und Social
+  - **Verwandte Biases** - Verknüpfungen zwischen zusammenhängenden psychologischen Effekten
+  - **Detaillierte Erklärungen** - Jeder Bias mit Definition, deutschem Beispiel und Vermeidungsstrategie
+
+### Marktpsychologie-Indikatoren
+
+- **Fear & Greed Index und Sentiment-Indikatoren** - Bildungswerkzeug zur Einschätzung der Marktstimmung
+  - **Gesamtsentiment-Score** - Aggregierter Index von 0-100 (Extreme Angst bis Extreme Gier)
+  - **7 Einzelindikatoren** - Umfassende Sentiment-Analyse aus verschiedenen Perspektiven:
+    - **Volatilitätsindex (VIX)** - "Angstindex" des Marktes basierend auf S&P 500 Optionspreisen
+    - **Put/Call Ratio** - Verhältnis von Absicherung zu Spekulation
+    - **Marktdynamik** - Anzahl der Aktien mit 52-Wochen-Hochs vs. Tiefs
+    - **Hochzinsanleihen-Nachfrage** - Risikobereitschaft anhand von Junk-Bond-Spreads
+    - **Nachfrage nach sicheren Häfen** - Kapitalfluss in Gold, Staatsanleihen und sichere Währungen
+    - **Marktbreite** - Prozentsatz der Aktien über 50-Tage-Linie
+    - **Stimmungsumfragen** - Aggregierte Investor-Sentiment-Umfragen (AAII, etc.)
+  - **Farbcodierte Sentiment-Gauge** - Visuelle Darstellung der aktuellen Marktstimmung
+    - 5 Sentiment-Level: Extreme Angst, Angst, Neutral, Gier, Extreme Gier
+    - Dynamischer Indikator zeigt aktuelle Position auf der Skala
+  - **Kontextualisierte Interpretation** - Detaillierte Erklärung der aktuellen Marktsituation
+    - Bedeutung des aktuellen Sentiment-Scores
+    - Typische Marktverhalten bei diesem Sentiment-Level
+    - Historische Parallelen und Beispiele
+  - **Investmentempfehlungen** - Konkrete Handlungshinweise basierend auf Sentiment
+    - Antizyklische Investment-Strategien für extreme Phasen
+    - Risikomanagement-Empfehlungen
+    - Sparplan-Anpassungsvorschläge
+  - **Historischer Kontext** - Einordnung in vergangene Marktphasen
+    - Referenzen zu bekannten Ereignissen (Corona-Crash 2020, Finanzkrise 2008, Dotcom-Blase 2000)
+    - Langfristige Perspektive auf Sentiment-Zyklen
+  - **Suchfunktion** - Schnelles Finden spezifischer Indikatoren
+  - **Bildungszwecke** - Klare Kennzeichnung als pädagogisches Werkzeug
+    - Verwendung von Beispielwerten für Demonstrationszwecke
+    - Keine Anlageberatung oder Trading-Signale
+    - Fokus auf langfristige Perspektive und Verhaltenspsychologie
+  - **Nutzungsanleitung** - Umfassende Hinweise zur richtigen Verwendung
+    - Langfristige Perspektive bevorzugen
+    - Nicht isoliert betrachten (Fundamentaldaten bleiben wichtig)
+    - Konträrer Ansatz (Warren Buffett-Prinzip)
+    - Market-Timing-Schwierigkeiten verstehen
+
+### Finanzziele & Fortschrittsverfolgung
+
+- **SMART-Goals Integration** - Setzen und verfolgen Sie messbare Finanzziele
+  - **Zieltypen**: Altersvorsorge, Finanzielle Unabhängigkeit, Benutzerdefinierte Ziele
+  - **Meilensteine**: Automatische Meilenstein-Erstellung (25%, 50%, 75% des Ziels)
+  - **Fortschrittsanzeige**: Echtzeit-Tracking Ihres Fortschritts gegenüber definierten Zielen
+  - **Intelligente Anpassungsempfehlungen** - Automatische Empfehlungen bei Zielabweichungen
+    - **Regelbasierte Analyse** - Transparente mathematische Berechnungen ohne KI/ML
+    - **Fünf Empfehlungstypen** - Sparrate erhöhen, Zeithorizont anpassen, Ziel anpassen, Rendite optimieren, Kosten reduzieren
+    - **Severity-Level** - Farbcodierte Dringlichkeit (Niedrig, Mittel, Hoch, Kritisch)
+    - **Actionable Steps** - Konkrete Handlungsschritte für jede Empfehlung
+    - **Auswirkungs-Analyse** - Transparente Darstellung der erwarteten Effekte
+    - **On-Track Bestätigung** - Positive Bestärkung bei guter Fortschrittsentwicklung
+  - **KPI-Dashboard**: Prominente Anzeige der Zielverfolgung mit visuellen Fortschrittsbalken
+    - **Visuelle Indikatoren**: Farbcodierte Fortschrittsbalken (Blau für in Bearbeitung, Grün für erreicht)
+    - **Achievement-Badges**: Anzeige von "Erreicht"-Status bei vollständiger Zielerreichung
+    - **Nächster Meilenstein**: Automatische Anzeige des nächsten zu erreichenden Meilensteins
+    - **Verbleibender Betrag**: Anzeige des noch benötigten Betrags zur Zielerreichung
+    - **Responsive Layout**: Adaptive Darstellung für Desktop (3 Spalten), Tablet (2 Spalten) und Mobile (1 Spalte)
+    - **Automatische Integration**: Dashboard erscheint automatisch in den Simulationsergebnissen
+- **Aktive Ziele**: Nur aktive Ziele werden im Dashboard angezeigt
+- **Mehrere Ziele**: Gleichzeitiges Tracking mehrerer Finanzziele möglich
+  - **Drei Zieltypen** - Altersvorsorge, Finanzielle Unabhängigkeit, Benutzerdefinierte Ziele
+  - **Automatische Fortschrittsberechnung** - Echtzeit-Berechnung des Fortschritts basierend auf aktuellem Kapital
+  - **Meilenstein-Tracking** - Automatische Meilensteine bei 25%, 50% und 75% des Ziels
+  - **Visuelle Fortschrittsanzeige** - Intuitive Fortschrittsbalken und Prozentanzeigen
+  - **Ziel-Status** - Aktivieren/Deaktivieren einzelner Ziele nach Bedarf
+  - **Persistente Speicherung** - Ziele werden automatisch mit dem Profil gespeichert
+  - **Nächster Meilenstein** - Hervorhebung des nächsten zu erreichenden Meilensteins
+
+### Liquiditätsreserve / Notfallfonds-Planung
+
+- **Cash-Reserve-Strategien für Notfälle** - Planen Sie Ihre finanzielle Notfallreserve nach deutschen Standards
+  - **Beschäftigungsspezifische Empfehlungen** - Automatische Empfehlungen basierend auf Ihrer Situation
+    - Angestellte: 3-6 Monate Ausgaben
+    - Selbstständige: 6-12 Monate Ausgaben
+    - Rentner: 1-3 Monate Ausgaben
+  - **Drei Reserve-Strategien** - Wählen Sie zwischen konservativ, ausgewogen und aggressiv
+    - **Konservativ** - Hohe Liquidität mit Schwerpunkt auf sofort verfügbaren Mitteln (Girokonto, Tagesgeld)
+    - **Ausgewogen** - Mix aus sofort verfügbaren Mitteln und kurzfristigen Anlagen
+    - **Aggressiv** - Minimale Liquidität, höherer Anteil in kurzfristigen Anlagen mit Renditepotenzial
+  - **Echtzeit-Status-Tracking** - Fortschrittsanzeige mit visueller Darstellung
+  - **Monatliche Ausgaben-Konfiguration** - Anpassbarer Slider für Ihre durchschnittlichen Lebenshaltungskosten
+  - **Flexible Zielsetzung** - Frei wählbare Anzahl der abzudeckenden Monate (1-24)
+  - **Investitions-Integration** - Option zum Ausschluss des Notfallfonds von risikobehafteten Anlagen
+  - **Intelligente Empfehlungen** - Dynamische Anpassung der Empfehlung basierend auf Beschäftigungsstatus und Strategie
+
+- **🎯 Retirement-Readiness Score** - Umfassende Bewertung Ihrer Rentenbereitschaft
+  - **Gesamtscore (0-100%)** - Aussagekräftiger Score mit deutscher Bewertungsskala (Ausgezeichnet bis Verbesserungswürdig)
+  - **Drei Hauptmetriken** - Gewichtete Bewertung von Kapitaldeckung (40%), Einkommensersatz (30%) und Nachhaltigkeit (30%)
+  - **Kapitaldeckung** - Verhältnis zwischen vorhandenem Kapital und idealem Betrag nach der 4%-Regel
+  - **Einkommensersatz** - Bewertung, wie gut die monatliche Entnahme den Lebensstandard sichert
+  - **Nachhaltigkeit** - Analyse, wie lange das Kapital voraussichtlich reichen wird
+  - **Detaillierte Kennzahlen** - Übersicht über Gesamtkapital, monatliches Einkommen, jährliche Ausgaben und Restkapital
+  - **Personalisierte Empfehlungen** - Konkrete Handlungsempfehlungen basierend auf den einzelnen Metriken
+  - **Methodentransparenz** - Klare Erklärung der Berechnungsgrundlage und verwendeten Standards
+
+### Unterhaltszahlungen
+
+- **Kindesunterhalt, Ehegattenunterhalt und Trennungsunterhalt** - Integrierte Planung von Unterhaltszahlungen mit deutscher Steuerbehandlung
+  - **Drei Unterhaltszahl-Typen** - Kindesunterhalt, Nachehelicher Unterhalt, Trennungsunterhalt
+    - **Kindesunterhalt** - Nicht steuerlich absetzbar
+    - **Nachehelicher Unterhalt** - Absetzbar als Sonderausgaben (Realsplitting gem. §10 Abs. 1a Nr. 1 EStG)
+    - **Trennungsunterhalt** - Absetzbar als außergewöhnliche Belastungen (§33a EStG)
+  - **Steuerliche Behandlung nach deutschem Recht**
+    - **Realsplitting** - Bis zu 13.805€ jährlich als Sonderausgaben absetzbar (bei Vereinbarung)
+    - **Außergewöhnliche Belastungen** - Bis zu 10.908€ pro Empfänger absetzbar
+    - **Automatische Berechnung** - Steuerentlastung wird bei den Simulationen berücksichtigt
+  - **Flexible Konfiguration**
+    - **Mehrere Zahlungen** - Unbegrenzte Anzahl von Unterhaltszahlungen gleichzeitig
+    - **Zeitraum-Steuerung** - Startjahr und optionales Endjahr für jede Zahlung
+    - **Zahlungsfrequenz** - Monatlich, vierteljährlich oder jährlich
+    - **Empfänger-Verwaltung** - Mehrere Empfänger pro Zahlung möglich
+  - **Intelligente Validierung** - Automatische Prüfung der Realsplitting-Voraussetzungen
+  - **Informationshilfen** - Eingebaute Hilfestellungen zu steuerrechtlichen Aspekten
+
+### Eigenheim vs. Miete Vergleich
+
+- **Umfassender Kaufen-oder-Mieten-Rechner** - Detaillierte Analyse der finanziellen Auswirkungen von Eigenheim vs. Miete
+  - **Eigenheim-Szenario** - Vollständige Kostenberechnung für Immobilienkauf
+    - **Kaufpreis und Eigenkapital** - Flexible Konfiguration von Kaufpreis und Eigenkapitalanteil
+    - **Finanzierungsberechnung** - Präzise Darlehenszinsen und Tilgungsrechnung mit Amortisation
+    - **Nebenkosten** - Berücksichtigung von Grundsteuer, Instandhaltung, Versicherung und Hausgeld
+    - **Wertsteigerung** - Konfigurierbare jährliche Immobilienwertsteigerung
+    - **Kaufnebenkosten** - Integration von Notar, Grunderwerbsteuer und Maklergebühren
+  - **Miet-Szenario** - Realistische Mietkostenberechnung
+    - **Kaltmiete und Nebenkosten** - Separate Konfiguration von Grundmiete und Nebenkosten
+    - **Mietpreisentwicklung** - Jährliche Mieterhöhung mit konfigurierbarer Rate
+    - **Investitionsrechnung** - Automatische Berechnung alternativer Kapitalanlagen für gesparte Anzahlung
+    - **Kostendifferenz-Investment** - Intelligente Berechnung der Investition von Kostendifferenzen
+  - **Vergleichsanalyse** - Detaillierte finanzielle Gegenüberstellung
+    - **Break-Even-Analyse** - Automatische Ermittlung des Zeitpunkts, ab dem Eigenheim rentabler wird
+    - **Vermögensaufbau** - Gegenüberstellung von Eigenkapital vs. Miet-Vermögen über die Zeit
+    - **Gesamtkostenvergleich** - Vollständige Analyse aller kumulierten Kosten
+    - **30-Jahres-Simulation** - Flexibler Vergleichszeitraum von 5-40 Jahren
+  - **Intelligente Empfehlungen** - Datenbasierte Entscheidungshilfe
+    - **Finanzielle Vorteilhaftigkeit** - Klare Empfehlung basierend auf Vermögensaufbau
+    - **Monatskostenvergleich** - Gegenüberstellung der monatlichen Belastung im ersten Jahr
+    - **Persönliche Präferenzen** - Berücksichtigung nicht-finanzieller Faktoren in der Empfehlung
+  - **Moderne Visualisierung** - Übersichtliche Darstellung mit shadcn/ui
+    - **Zusammenfassungskarten** - Farbcodierte Cards für Eigenheim, Miete und Differenz
+    - **Interaktive Konfiguration** - Echtzeit-Update der Ergebnisse bei Parameteränderungen
+    - **Responsive Design** - Optimiert für Desktop und mobile Geräte
+
+### Immobilien-Leverage-Analyse
+
+- **Finanzierungsoptimierung für Kapitalanlage-Immobilien** - Vergleich unterschiedlicher Finanzierungsstrukturen für Mietimmobilien
+  - **4 Standard-Szenarien** - Vorkonfigurierte Finanzierungsoptionen zum sofortigen Vergleich
+    - **Konservativ (40% Eigenkapital)** - Niedrigster Beleihungsauslauf mit minimiertem Risiko
+    - **Ausgewogen (30% Eigenkapital)** - Empfohlene Balance aus Rendite und Risiko
+    - **Moderat gehebelt (20% Eigenkapital)** - Höherer Hebel für gesteigerte Eigenkapitalrendite
+    - **Stark gehebelt (10% Eigenkapital)** - Maximaler Leverage-Effekt bei erhöhtem Risiko
+  - **Umfassende Immobilien-Parameter** - Detaillierte Konfiguration aller relevanten Faktoren
+    - **Kaufpreis und Aufteilung** - Trennung in Gebäude- und Grundstückswert für AfA-Berechnung
+    - **Mieteinnahmen** - Konfiguration der jährlichen Bruttomieteinnahmen mit automatischer Renditeberechnung
+    - **Bewirtschaftungskosten** - Prozentuale Nebenkosten (Hausverwaltung, Instandhaltungsrücklage, Versicherung)
+    - **Wertsteigerung** - Erwartete jährliche Immobilienwertsteigerung
+  - **Deutsche Steuerbetrachtung** - Vollständige Integration steuerlicher Vorteile
+    - **AfA (Absetzung für Abnutzung)** - Automatische Berechnung nach Baujahr (2%, 2,5% oder 3%)
+    - **Werbungskosten** - Darlehenszinsen steuerlich absetzbar (§9 EStG)
+    - **Grenzsteuersatz** - Konfigurierbar für präzise Steuervorteils-Berechnung
+    - **Kapitalertragsteuer** - Berücksichtigung bei Verkaufsszenarien
+  - **Leverage-Metriken** - Umfassende Rentabilitätsanalyse
+    - **Cash-on-Cash Return** - Jährlicher Cashflow im Verhältnis zum eingesetzten Eigenkapital
+    - **Eigenkapitalrendite mit Hebeleffekt** - Vergleich gehebelte vs. ungehebelte Rendite
+    - **Hebeleffekt** - Quantifizierung der Renditesteigerung durch Fremdkapitalnutzung
+    - **Gesamtzinskosten** - Transparente Darstellung der Finanzierungskosten über Laufzeit
+  - **Risiko-Bewertung** - Automatische Risikoanalyse mit deutschen Bankrichtlinien
+    - **Loan-to-Value (Beleihungsauslauf)** - Verhältnis Darlehen zu Immobilienwert
+    - **Zinsdeckung** - Verhältnis Mieteinnahmen zu Darlehenszinsen
+    - **Schuldendienstdeckung** - Nettoertrag im Verhältnis zur Gesamtrate
+    - **Belastungsquote** - Monatliche Rate im Verhältnis zu Mieteinnahmen
+    - **Risikolevel** - Automatische Einstufung (niedrig/mittel/hoch/sehr hoch)
+    - **Warnhinweise** - Spezifische Risikofaktoren mit deutschen Schwellenwerten
+  - **Intelligente Empfehlung** - Datenbasierte Strategiewahl
+    - **Empfohlenes Szenario** - Optimale Balance aus Rendite und Risiko
+    - **Höchste Rendite** - Szenario mit maximalem Cash-on-Cash Return
+    - **Geringstes Risiko** - Szenario mit niedrigstem Beleihungsauslauf
+  - **Vergleichstabelle** - Übersichtliche Gegenüberstellung aller Szenarien
+    - **Finanzierungsstruktur** - Eigenkapital, Darlehen, LTV, Zinssatz
+    - **Renditekennzahlen** - Cash-on-Cash Return, Hebeleffekt
+    - **Risikoindikatoren** - Farbcodiertes Risikolevel je Szenario
+  - **Detaillierte Szenarien-Analyse** - Einzeldarstellung jedes Finanzierungsszenarios
+    - **Cashflow-Rechnung** - Jährlicher Netto-Cashflow inkl. Steuervorteile
+    - **Steuereffekt** - Separate Darstellung von Zins- und AfA-Steuervorteilen
+    - **Risikokennzahlen** - Vollständige Übersicht aller Risikometriken
+    - **Warnmeldungen** - Szenario-spezifische Risikohinweise
+  - **Echtzeit-Berechnung** - Sofortige Aktualisierung bei Parameteränderung
+  - **Responsive Darstellung** - Optimiert für Desktop und mobile Nutzung
+
+### Globale Planung (Einzelperson/Ehepaar)
+
+- **Planungsmodus** - Zentrale Auswahl zwischen Individual- und Paarplanung
+- **Geschlechtskonfiguration** - Geschlechtsspezifische Einstellungen für präzise Lebenserwartungsberechnung
+- **Lebensende-Berechnung** - Flexible Konfiguration mit manueller oder automatischer Berechnung
+  - **Manuelle Eingabe** - Direkte Jahreseingabe für das Lebensende
+  - **Automatische Berechnung** - Automatische Berechnung basierend auf Geburtsjahr und Lebenserwartung (ohne manuelle Buttons)
+  - **Geburtsjahr-Rechner** - Automatische Echtzeit-Berechnung der Lebenserwartung für Einzelpersonen und Paare
+  - **Gemeinsame Lebenserwartung** - Automatische Joint Life Expectancy Berechnung für Paare nach aktuariellen Methoden
+- **Deutsche Sterbetafeln** - Statistische Grundlagen vom Statistischen Bundesamt (2020-2022)
+  - Automatische geschlechtsspezifische Auswahl
+  - Unterstützung für Individual- und Paarplanung
+  - Benutzerdefinierte Lebenserwartung möglich
+- **🏥 Pflegekosten-Simulation** - Umfassende Planung für deutsche Pflegebedürftigkeit
+  - **Deutsche Pflegegrade** - Alle 5 Pflegegrade (1-5) mit korrekten Pflegegeld-Leistungen nach aktueller Gesetzgebung
+  - **Kosten-Nutzen-Rechnung** - Automatische Berechnung von Brutto-Pflegekosten, gesetzlichen Leistungen und Netto-Eigenanteil
+  - **Inflationsanpassung** - Konfigurierbare Inflationsrate für realistische Langzeit-Pflegekostenplanung (0-10% p.a.)
+  - **Private Pflegeversicherung** - Integration privater Pflegezusatzversicherungen mit monatlichen Leistungen
+  - **Steuerliche Absetzbarkeit** - Berücksichtigung außergewöhnlicher Belastungen nach deutschem Steuerrecht
+  - **Paar-Planung** - Separate Konfiguration für beide Partner mit individuellen Pflegegraden und Zeiträumen
+  - **Echtzeit-Kostenvorschau** - Sofortige Berechnung der erwarteten Pflegekosten mit detaillierter Aufschlüsselung
+  - **Flexible Pflegedauer** - Konfigurierbare Pflegedauer oder automatische Berechnung bis Lebensende
+
+### Interaktive Visualisierung
+
+- **📈 Interaktive Charts** - Moderne interaktive Diagramme für bessere Datenvisualisierung
+  - **Area Charts** - Gestapelte Flächendiagramme zeigen Kapitalentwicklung über Zeit
+  - **Interaktive Kontrollen** - Toggle für inflationsbereinigte Werte, Steuer-Anzeige, Detail-/Übersichts-Modus
+  - **Enhanced Tooltips** - Detaillierte Informationen mit Gesamtrendite-Berechnung beim Hover
+  - **Zoom & Brush** - Zeitraum-Auswahl im Detail-Modus für große Datensätze
+  - **Responsive Design** - Optimiert für Desktop und mobile Geräte
+  - **Real-Time Updates** - Charts aktualisieren sich automatisch bei Parameteränderungen
+  - **Professional Styling** - Integration mit shadcn/ui Design System
+- **📊 Erweiterte Visualisierungsoptionen** - Zusätzliche Chart-Typen für detaillierte Datenanalyse
+  - **Kapitalzusammensetzung (Area Chart)** - Gestapelte Darstellung von Einzahlungen, Gewinnen und Steuern
+    - Zeigt die Zusammensetzung des Kapitals über die Zeit
+    - Interaktive Legende zum Ein-/Ausblenden einzelner Bereiche
+    - Separate Bereiche für Beiträge, Gewinne vor Steuern und gezahlte Steuern
+    - Visualisierung der kumul ativen Entwicklung
+  - **Jahr-zu-Jahr Vergleich (Bar Chart)** - Balkendiagramme für jährliche Entwicklung
+    - Vergleich von Einzahlungen, Gewinnen und Steuern pro Jahr
+    - Umschaltbar zwischen gestapelter und gruppierter Darstellung
+    - Zeigt jährliche Veränderungen deutlich
+    - Ideal für Identifizierung von Trends und Mustern
+  - **PNG-Export** - Alle Diagramme können als PNG heruntergeladen werden
+  - **Inflationsbereinigung** - Toggle zwischen nominalen und realen (inflationsbereinigten) Werten
+  - **Chart-Typ-Wahl** - Einfacher Wechsel zwischen verschiedenen Visualisierungen
+  - **Verwendungshinweise** - Integrierte Hilfe für optimale Nutzung der Charts
+- **🎬 Portfolio-Animation** - Zeitbasierte Animation der Portfolioentwicklung
+  - **Jahr-für-Jahr Visualisierung** - Animierte Darstellung der jährlichen Kapitalentwicklung
+  - **Playback-Steuerung** - Play/Pause, Schrittweise Navigation (vor/zurück), Reset-Funktion
+  - **Interaktiver Timeline-Slider** - Direkte Auswahl und Navigation zu beliebigen Jahren
+  - **Echtzeit-Metriken** - Anzeige von Startkapital, Endkapital, Zinsen, Einzahlungen, Rendite und Steuern für jedes Jahr
+  - **Fortschrittsanzeige** - Visuelle Fortschrittsbalken zeigen Position in der Zeitlinie
+  - **Responsive Metriken-Grid** - Optimierte Darstellung für Desktop (3 Spalten) und Mobile (2 Spalten)
+  - **Konfigurierbare Geschwindigkeit** - Anpassbare Animationsgeschwindigkeit (Standard: 1 Sekunde pro Jahr)
+  - **Bildungsfördernd** - Hilft Benutzern, die Auswirkungen von Einzahlungen, Renditen und Steuern Jahr für Jahr zu verstehen
+
+### Tastaturkürzel (Keyboard Shortcuts)
+
+- **⌨️ Tastaturkürzel** - Effiziente Navigation und Bedienung durch Tastatur-Shortcuts
+  - **Alt+1, Alt+2, Alt+3** - Schnelles Wechseln zwischen den drei Hauptansichten (Sparen, Entnahme, Sonstiges)
+  - **Alt+T** - Sofortiges Scrollen zum Seitenanfang
+  - **Alt+O** - Direktes Scrollen zur Übersichtssektion
+  - **Shift+?** - Anzeige aller verfügbaren Tastaturkürzel in einem übersichtlichen Dialog
+  - **Kategorisierte Darstellung** - Shortcuts nach Kategorien gruppiert (Navigation, Aktionen, Hilfe)
+  - **Visuelles Feedback** - Tastenkombinationen werden in einer benutzerfreundlichen Oberfläche angezeigt
+  - **Plattformübergreifend** - Unterstützung für Windows (Strg), Mac (Cmd) und Linux
+  - **Intelligente Eingabeerkennung** - Shortcuts werden in Eingabefeldern automatisch deaktiviert
+  - **Barrierefreiheit** - Verbesserte Zugänglichkeit für Power-User und Menschen mit motorischen Einschränkungen
+
+### Dashboard-Anpassung (Dashboard Customization)
+
+- **🎨 Dashboard-Anpassung** - Personalisierbare Dashboard-Ansicht für individualisierte Benutzererfahrung
+  - **Sichtbarkeitskontrolle** - Beliebige Dashboard-Bereiche ein-/ausblenden für fokussierte Arbeit
+  - **Drag & Drop Sortierung** - Intuitive Neuanordnung von Bereichen per Drag & Drop
+  - **Auf-/Ab-Buttons** - Alternative manuelle Sortierung für präzise Positionierung
+  - **13 Konfigurierbare Bereiche** - Einführung, Zeitspanne, Sparplan-Eingabe, Rendite-Konfiguration, Steuer-Konfiguration, Simulationsergebnisse, Entnahmeplanung, Monte Carlo Analyse, Besondere Ereignisse, Risikoanalyse, Verhaltensfinanzierung, Globale Planung, Datenexport
+  - **Persistente Einstellungen** - Automatische Speicherung der Präferenzen im localStorage
+  - **Schneller Zugriff** - Anpassungs-Button im Hauptheader neben "Neu berechnen"
+  - **Validierung** - Verhindert das Ausblenden des letzten sichtbaren Bereichs
+  - **Zurücksetzen-Funktion** - Ein-Klick-Reset zu Standard-Einstellungen
+  - **Responsive Dialog** - Modern gestaltete shadcn/ui Dialog-Oberfläche
+  - **Live-Vorschau** - Sofortiges visuelles Feedback bei Änderungen
+  - **Deutsche Beschriftungen** - Vollständig deutsche Beschreibungen aller Bereiche
+  - **Barrierefreiheit** - Tastaturnavigation und Screen-Reader-Unterstützung
+
+### Finanz-KPIs & Dashboard-Widgets
+
+- **📊 Interaktive Finanz-KPI-Komponenten** - Wichtige Kennzahlen für die Altersvorsorgeplanung
+  - **Sparquote (Savings Rate)** - Prozentsatz des Einkommens, der gespart wird
+    - **Kategorisierung** - Ausgezeichnet (≥20%), Gut (15-20%), Durchschnittlich (10-15%), Niedrig (<10%)
+    - **Visualisierung** - Fortschrittsbalken und Farbcodierung für schnelle Einschätzung
+    - **Trend-Anzeige** - Vergleich mit vorheriger Periode optional
+    - **Empfehlungen** - Integrierte Hinweise zur Optimierung der Sparquote
+  - **Vermögensaufbau-Rate (Wealth Accumulation Rate)** - Erforderliches jährliches Wachstum zum Erreichen des Zielvermögens
+    - **Fortschritts-Tracking** - Visualisierung des Wegs zum Vermögensziel
+    - **Ziel-Erreichung** - Feiert automatisch das Erreichen des Ziels
+    - **Detaillierte Metriken** - Aktuelles Vermögen, Zielvermögen, verbleibende Zeit, erforderliches Wachstum
+    - **Realistische Planung** - Hilft bei der Einschätzung der Erreichbarkeit von Sparzielen
+  - **Erwartete Rentenlücke (Expected Pension Gap)** - Differenz zwischen Wunscheinkommen und gesetzlicher Rente
+    - **Lücken-Berechnung** - Monatliche und jährliche Darstellung der Versorgungslücke
+    - **4%-Regel Integration** - Automatische Berechnung des erforderlichen Portfolios zur Lückenschließung
+    - **Abdeckungsanalyse** - Prozentuale Darstellung der Rentendeckung
+    - **Surplus-Erkennung** - Positive Meldung bei Rentenüberschuss
+    - **Handlungsempfehlungen** - Konkrete Hinweise zur privaten Altersvorsorge
+  - **Demo-Seite** - Interaktive Demo-Umgebung zum Experimentieren mit allen KPIs
+    - **Live-Berechnungen** - Echtzeit-Updates bei Parametereränderungen
+    - **Responsive Design** - Optimiert für Desktop und mobile Geräte
+    - **Bildungsfokus** - Detaillierte Erklärungen für jede KPI
+
+### Auszahlungsphase
+
+- **Standard-Strategien**: 4% Regel, 3% Regel, variable Entnahme-Strategien
+- **Dynamische Entnahmestrategie** - Renditebasierte Anpassung der Entnahme
+- **Drei-Eimer-Strategie** - Cash-Polster für negative Rendite-Phasen
+- **RMD-ähnliche Entnahme** - Geschlechtsspezifische Entnahme basierend auf Lebenserwartung
+- **Kapitalverzehr (Capital Depletion)** - Geplanter vollständiger Kapitalverbrauch bis zum Zielalter
+  - **Altersbasierte Planung**: Zielalter für vollständigen Kapitalverzehr konfigurierbar (65-120 Jahre)
+  - **Sicherheitspuffer**: Zusätzliche Jahre (0-15) für Langlebigkeitsrisiko einplanbar
+  - **Mathematisch fundiert**: Verwendet Rentenbarwertformel für gleichmäßige Kapitalverteilung
+  - **Renditeanpassung**: Berücksichtigt erwartete Rendite für realistische Entnahmebeträge
+  - **Flexible Constraints**: Optionale Min/Max-Entnahmeraten zur Vermeidung extremer Werte
+  - **Dynamische Anpassung**: Jährliche Neuberechnung basierend auf aktuellem Kapital und verbleibenden Jahren
+  - **Realistische Planung**: Ideal für Ruheständler ohne Vererbungsabsicht oder mit definiertem Ausgabenhorizont
+  - **Deutsche Bedarfsdeckung**: Orientiert am Bedarfsdeckungsprinzip der deutschen Altersvorsorge
+- **Kapitalerhalt / Ewige Rente** - Strategie zum dauerhaften Erhalt des realen Kapitalwerts
+- **Zeitweise Rückkehr in den Arbeitsmarkt** - Simulation von Teilzeit-Arbeit im Ruhestand mit steuerlicher Integration ⭐⭐⭐
+  - **Flexible Arbeitsphasen**: Konfigurierbare Zeiträume mit Teilzeiteinkommen (Startjahr, Endjahr, monatliches Bruttoeinkommen, Wochenstunden)
+  - **Deutsche Steuerberechnung**: Progressiver Einkommensteuertarif 2024 mit 5 Steuerzonen (Grundfreibetrag bis Reichensteuer)
+  - **Sozialversicherungsbeiträge**: Automatische Berechnung von Krankenversicherung (7,3%) und Pflegeversicherung (3,05% + 0,6% Kinderlosenzuschlag)
+  - **Steuerliche Integration**: Kombinierte Besteuerung von Arbeitseinkommen, Renten und Kapitalerträgen
+  - **Portfolio-Schonung**: Konfigurierbare Reduzierung der Portfolio-Entnahmen (0-100%) während Arbeitsphasen
+  - **Multi-Phasen-Unterstützung**: Mehrere Arbeitsphasen mit Lücken dazwischen (z.B. 2025-2027, dann Pause, dann 2030-2032)
+  - **Echtzeit-Validierung**: Sofortiges Feedback bei ungültigen Eingaben mit deutschen Fehlermeldungen
+  - **Portfolio-Langlebigkeit**: Berechnung der zusätzlichen Jahre, die das Portfolio durch reduzierte Entnahmen länger hält
+  - **Jahresübersicht**: Detaillierte Jahr-für-Jahr-Aufschlüsselung mit Brutto-/Nettoeinkommen, Steuern, Sozialversicherung und angepassten Portfolio-Entnahmen
+  - **Vollständig getestet**: 38 Tests mit 100% Pass-Rate (23 Helper-Tests + 15 UI-Component-Tests)
+- **Dynamische Ausgabenanpassung im Ruhestand** - Realistische altersbasierte Ausgabenmuster im Ruhestand ⭐⭐⭐
+  - **Drei Ruhestandsphasen**: Wissenschaftlich fundierte Modellierung der Go-Go, Slow-Go und No-Go Phasen
+    - **Go-Go-Phase (67-75 Jahre)**: 100% Ausgaben - Aktiver Ruhestand mit Reisen, Hobbys und hoher Mobilität
+    - **Slow-Go-Phase (76-85 Jahre)**: 75% Ausgaben - Reduzierte Aktivitäten, weniger Reisen, mehr Zeit zu Hause
+    - **No-Go-Phase (85+ Jahre)**: 60% Ausgaben - Überwiegend häuslicher Lebensstil (teils kompensiert durch höhere Pflegekosten)
+  - **Konfigurierbare Phasenübergänge**: Flexible Anpassung der Altersgrenzen und Ausgabenmultiplikatoren nach persönlichen Erwartungen
+  - **Medizinische Kosten-Progression**: Automatische Berücksichtigung steigender Gesundheitsausgaben mit zunehmendem Alter
+    - Basis-Gesundheitskosten mit konfigurierbarer medizinischer Inflationsrate (typisch 4% p.a.)
+    - Beschleunigtes Wachstum ab konfigurierbarem Alter (Standard: 75 Jahre mit 6% p.a.)
+    - Realistische Abbildung der überproportional steigenden Gesundheitsausgaben im hohen Alter
+  - **Großausgaben-Planung**: Verwaltung einmaliger größerer Ausgaben (Weltreise, Auto, Renovierung, etc.)
+    - 6 Kategorien: Reise, Renovierung, Auto, Gesundheit, Familie, Sonstiges
+    - Jahr-für-Jahr Zuordnung mit individueller Beschreibung
+    - Automatische Berücksichtigung in Jahresberechnung
+  - **Jährliche Geschenke/Spenden**: Optionale Budgetierung regelmäßiger Zuwendungen an Familie oder wohltätige Zwecke
+  - **Live-Vorschau mit Metriken**: Echtzeit-Berechnung und Anzeige von:
+    - Durchschnittliche Jahresausgaben über gesamten Ruhestand
+    - Verteilung der Jahre auf Go-Go/Slow-Go/No-Go Phasen
+    - Gesamt-Ausgaben und Kostenaufschlüsselung (Basis, Medizin, Großausgaben)
+  - **Umfassende Validierung**: Automatische Prüfung aller Eingaben mit verständlichen deutschen Fehlermeldungen
+  - **Integration in Entnahmeplanung**: Nahtlose Verknüpfung mit bestehenden Entnahmestrategien für realistische Ruhestandsplanung
+  - **Forschungsbasis**: Basierend auf Studien zu Ausgabenmustern im Ruhestand (typisch ~1-2% realer Rückgang pro Jahr)
+  - **Vollständig getestet**: 117 Tests mit 100% Pass-Rate (58 Helper-Tests + 59 UI-Component-Tests)
+- **Ausgaben-Tracker für Ruhestandsplanung** - Detaillierte Ausgabenplanung mit kategorisierten Ausgaben ⭐⭐⭐
+  - **6 Ausgabenkategorien**: Fixkosten, Lebenshaltung, Gesundheit, Freizeit, Reisen, Einmalige Ausgaben
+  - **Individuelle Inflationsraten**: Jede Kategorie hat eigene Inflationsrate basierend auf historischen Daten
+    - Fixkosten (2,0% p.a.), Lebenshaltung (2,5% p.a.), Gesundheit (4,0% p.a.)
+    - Freizeit (2,0% p.a.), Reisen (3,0% p.a.), Einmalige Ausgaben (2,0% p.a.)
+  - **Lebensabschnitts-basierte Anpassungen**: Automatische Ausgabenanpassung nach Alter
+    - **Aktiver Ruhestand (65-74 Jahre)**: Höhere Reise- und Freizeitausgaben
+    - **Eingeschränkte Mobilität (75-84 Jahre)**: Reduzierte Reisen, erhöhte Gesundheitskosten
+    - **Pflegebedarf (85+ Jahre)**: Deutlich erhöhte Gesundheits- und Pflegekosten
+  - **Kategorie-spezifische Multiplikatoren**: Realistische Anpassung je Lebensabschnitt
+    - Reisen: 100% → 50% → 20% (vom aktiven Ruhestand bis Pflegebedarf)
+    - Gesundheit: 100% → 150% → 200% (steigende Gesundheitskosten im Alter)
+  - **Interaktive Konfiguration**: Monatliche Beträge und Inflationsraten pro Kategorie anpassbar
+  - **Live-Vorschau mit Statistiken**:
+    - Gesamtausgaben über gesamten Ruhestandszeitraum
+    - Durchschnittliche Jahresausgaben
+    - Höchstes und niedrigstes Ausgabenjahr
+  - **Jahr-für-Jahr Übersicht**: Detaillierte Tabelle mit Ausgaben, Lebensabschnitt und Alter
+  - **Validierung**: Automatische Prüfung der Konfiguration mit deutschen Fehlermeldungen
+  - **Integration**: Nahtlose Integration in Entnahmeplanung (WithdrawalVariablesCard)
+  - **Vollständig getestet**: 52 Tests mit 100% Pass-Rate (35 Helper-Tests + 17 UI-Component-Tests)
+- **Steueroptimierte Entnahme** - Automatische Optimierung zur Minimierung der Steuerlast
+  - **Drei Optimierungsmodi**: Steuerminimierung, Netto-Maximierung oder ausgewogener Ansatz
+  - **Freibetrag-Optimierung**: Intelligente Nutzung des Sparerpauschbetrags (85% Zielnutzung)
+  - **Deutsche Steuerregeln**: Integration von Vorabpauschale, Teilfreistellung und Basiszins
+  - **Dynamische Anpassung**: Jährliche Neukalibrierung basierend auf Portfolioentwicklung
+  - **Kapitalerhalt-Fokus**: Optimiert für langfristige Vermögenserhaltung mit Steuereffizienz
+  - **Multi-Source Tax Optimization** - Intelligente Entnahmestrategie über mehrere Kapitalquellen ⭐⭐⭐
+    - **4 Kapitalquellen**: Koordinierte Optimierung über Depot, Riester-Rente, Rürup-Rente und gesetzliche Rente
+    - **Unterschiedliche Steuerbehandlung**: Berücksichtigung von Kapitalertragsteuer (Depot) vs. Einkommensteuer (Renten)
+    - **3 Optimierungsstrategien**:
+      - `minimize_taxes`: Priorisiert Sparerpauschbetrag-Nutzung, dann Grundfreibetrag, minimiert Gesamtsteuerlast
+      - `maximize_after_tax`: Fokus auf Netto-Einkommen statt reiner Steuerminimierung
+      - `balanced`: Ausgewogene Verteilung mit Steuereffizienz und Diversifikation
+    - **Allowance Optimization**: Maximale Nutzung von Sparerpauschbetrag (€1.000/€2.000) und Grundfreibetrag (€11.604/€23.208)
+    - **Teilfreistellung**: Automatische Berücksichtigung der 30% Teilfreistellung für Aktienfonds im Depot
+    - **Comparison Capability**: Vergleich optimierte vs. naive Entnahme mit detaillierter Steuerersparnis-Berechnung
+    - **Programmatische API**: Verfügbar über `helpers/multi-source-tax-optimization.ts` für Integration
+    - **Vollständig getestet**: 23 Tests mit 100% Pass-Rate, umfasst Single-Source, Multi-Source, Edge Cases und realistische Szenarien
+- **Monatliche Entnahme-Strategien** - Feste monatliche Entnahmen mit Inflationsanpassung und Anzeige realer Kaufkraft
+- **Variable Renditen** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
+- **Geteilte Entnahme-Phasen** - Segmentierung in verschiedene Zeiträume mit unterschiedlichen Strategien
+- **Strategienvergleich** - Vergleich verschiedener Entnahmestrategien mit demselben Startkapital
+- **Entnahmestrategien-Vergleichsmatrix** - Umfassender Vergleich verschiedener Entnahmestrategien mit Rangfolge
+  - **Umfassende Kennzahlen**: Portfolio-Lebensdauer, Gesamtentnahme, Durchschnittliche jährliche Entnahme, Restkapital
+  - **Risikoanalyse**: Erfolgsrate (Portfolio überlebt geplante Dauer), Downside Risk (Volatilität der Entnahmen)
+  - **Side-by-Side Visualisierung**: Alle Strategien im direkten Vergleich mit farbcodierter Score-Visualisierung
+  - **Intelligentes Ranking**: Gewichtete Bewertung basierend auf Portfolio-Lebensdauer, Gesamtentnahme, Kapitalerhalt und Stabilität
+  - **Empfehlungsalgorithmus**: Personalisierte Empfehlungen basierend auf Risikoprofil
+    - **Konservativ**: Fokus auf Kapitalerhalt und Langlebigkeit des Portfolios (40% Gewichtung Portfolio-Lebensdauer)
+    - **Ausgewogen**: Ausgewogenes Verhältnis zwischen Entnahmen und Sicherheit (Standard-Profil)
+    - **Aggressiv**: Maximierung der Gesamtentnahmen (45% Gewichtung Gesamtentnahme)
+  - **Visuelle Indikatoren**: Farbcodierte Erfolgsraten (grün ≥90%, gelb ≥70%, rot <70%) und Risiko-Level
+  - **Transparente Bewertungskriterien**: Detaillierte Aufschlüsselung der Gewichtung je Risikoprofil
+  - **Trophy-Ranking**: Klare #1, #2, #3 Platzierungen mit visuellen Badges für Top-Strategien
+  - **Legend und Erklärungen**: Integrierte Erläuterungen aller Metriken und Bewertungskriterien
+- **Gesetzliche Rente Integration** - Vollständige Integration der deutschen gesetzlichen Rente
+  - **Konfiguration in der Entnahmephase**: Direkt im Variablen-Panel der Entnahmephase konfigurierbar
+  - **Einzel- und Paarplanung**: Separate Rentenkonfiguration für Einzelpersonen oder Paare mit individuellen Rentenbeginn-Zeitpunkten
+  - **Interaktiver Rentenpunkte-Rechner**: Berechnung der erworbenen Rentenpunkte basierend auf Bruttogehalt und Beitragsjahren
+    - **Zwei Eingabemodi**: Schnell-Konfiguration für einfache Prognosen oder manuelle Jahr-für-Jahr Eingabe
+    - **Schnell-Konfiguration**: Startjahr, Endjahr, Anfangsgehalt und jährliche Steigerung eingeben
+    - **Manuelle Eingabe**: Individuelle Gehälter für jedes Jahr einzeln erfassen
+    - Automatische Berechnung: (Ihr Gehalt) / (Durchschnittsgehalt) = Rentenpunkte pro Jahr
+    - **Gehaltshistorie mit Durchschnittsvergleich**: Anzeige des Durchschnittsgehalts für jedes Jahr
+    - Gehaltshistorie: Manuelle oder automatische Projektion der Gehaltsentwicklung
+    - Regionsunterscheidung: Separate Berechnung für Ost- und Westdeutschland
+    - Zukunftsprognose: Schätzung zukünftiger Durchschnittsgehälter mit konfigurierbarem Wachstum
+    - **Detaillierte Ergebnisanzeige**: Beitragsjahre, Gesamtrentenpunkte, monatliche und jährliche Rente
+    - **Ein-Klick-Übernahme**: Berechnete monatliche Rente direkt in die Konfiguration übernehmen
+    - Monatliche Rente: Automatische Berechnung aus Rentenpunkten × aktueller Rentenwert (≈37,60€ in 2024)
+    - **Informationskarte**: Integrierte Erklärung der Berechnung für besseres Verständnis
+- **EM-Rente (Erwerbsminderungsrente) Berechnungen** - Umfassende Kalkulation der gesetzlichen Erwerbsminderungsrente
+  - **Rentenarten**: Volle EM-Rente (unter 3 Std./Tag arbeitsfähig) und teilweise EM-Rente (3-6 Std./Tag arbeitsfähig)
+  - **Zurechnungszeiten**: Automatische Berechnung der Zurechnungszeiten bis zum 67. Lebensjahr
+    - Fiktive Beitragszeiten werden hinzugerechnet, als hätte die Person bis zum regulären Rentenalter gearbeitet
+    - Berechnung basierend auf durchschnittlichen Rentenpunkten der Beitragszeit
+  - **Abschlagsberechnung**: Korrekte Anwendung der Rentenabschläge für vorzeitigen Rentenbeginn
+    - 0,3% Abschlag pro Monat vor dem regulären Rentenalter
+    - Maximaler Abschlag: 10,8% (entspricht 36 Monaten)
+  - **Hinzuverdienstgrenzen**: Automatische Berechnung der zulässigen Hinzuverdienstgrenzen
+    - Volle EM-Rente: Hinzuverdienstgrenze basierend auf Formel (0,81 × Durchschnittsverdienst × 14) / 12
+    - Teilweise EM-Rente: Etwa doppelte Hinzuverdienstgrenze der vollen EM-Rente
+    - Automatische Rentenkürzung bei Überschreitung (40% des Überschreitungsbetrags)
+  - **Steuerberechnung**: Korrekte Besteuerung nach deutschem Einkommensteuerrecht
+    - Konfigurierbare Besteuerung (typisch 80% steuerpflichtiger Anteil)
+    - Berücksichtigung des Grundfreibetrags
+  - **Rentenwert-Integration**: Verwendung der aktuellen Rentenwerte (West/Ost ab 2024 identisch: 37,60 €)
+  - **Jährliche Rentenanpassungen**: Konfigurierbare jährliche Rentensteigerungen (Standard: 1%)
+  - **Pension Points Estimation**: Rückrechnung von Rentenpunkten aus erwarteter Rentenhöhe
+  - **Rentenlücken-Analyse** - Umfassende Analyse der Differenz zwischen gewünschtem Lebensstandard und verfügbarem Ruhestandseinkommen
+    - **Visualisierung der Einkommensquellen**: Grafische Darstellung von gesetzlicher Rente, Portfolio-Entnahmen und anderen Einkünften als Prozentsatz des gewünschten Einkommens
+    - **Detaillierte Zusammenfassung**: Übersicht über Jahre mit voller Deckung vs. Jahre mit Rentenlücke
+    - **Durchschnittliche Deckungsraten**: Berechnung der durchschnittlichen Rentendeckung und Portfolio-Entnahme-Rate
+    - **Lückenidentifikation**: Identifikation der größten Rentenlücke mit Jahr und Betrag
+    - **Jahr-für-Jahr Aufschlüsselung**: Detaillierte Analyse für jedes Jahr mit:
+      - Gewünschtes vs. verfügbares Einkommen
+      - Prozentualer Anteil jeder Einkommensquelle
+      - Gesetzliche Rente, Portfolio-Entnahmen, andere Einkünfte und Krankenversicherungskosten
+      - Status (vollständig gedeckt oder Rentenlücke mit Betrag)
+    - **Inflationsberücksichtigung**: Automatische Anpassung des gewünschten Einkommens an die Inflation
+    - **Intuitive Farbcodierung**: Grün für Rente, Blau für Portfolio, Lila für andere Einkünfte, Rot für Lücken
+    - **Konfigurierbare Anzeige**: Optionale detaillierte Aufschlüsselung mit konfigurierbarer Anzahl angezeigter Jahre
+- **Kranken- und Pflegeversicherung** - Umfassende Berücksichtigung von Kranken- und Pflegeversicherungsbeiträgen
+  - **Einzelplanung**: Individuelle Krankenversicherung mit konfigurierbaren Beitragssätzen und Beitragsbemessungsgrenzen
+  - **Paarplanung**: Optimierung für Paare mit automatischer Familienversicherung
+    - **Familienversicherung**: Automatische Prüfung der Familienversicherung (505€/Monat, 538€ bei Mini-Jobs für 2025)
+    - **Strategieoptimierung**: Automatische Wahl zwischen Einzelversicherung, Familienversicherung oder Optimierung
+    - **Einkommensaufteilung**: Konfigurierbare Aufteilung von Entnahmebetrag und anderen Einkünften zwischen den Partnern
+    - **Kostenvergleich**: Echtzeit-Vergleich verschiedener Versicherungsstrategien mit Einsparungsberechnung
+  - **Versicherungsarten**: Gesetzliche und private Krankenversicherung mit unterschiedlichen Beitragssystemen
+  - **Lebensphasen**: Unterscheidung zwischen Vorrente und Rente mit angepassten Beitragssätzen
+  - **Zusatzbeiträge**: Kinderloser-Zuschlag (0,6%) individuell konfigurierbar pro Person
+- **Andere Einkünfte** - Zusätzliche Einkommensquellen während der Entnahmephase
+  - **Kindergeld-Integration** - Automatische Berücksichtigung deutschen Kindergelds
+    - **Altersbasierte Berechnung**: Kindergeld endet automatisch mit dem 18. Geburtstag (oder 25 bei Ausbildung)
+    - **Steuerfrei**: Kindergeld ist steuerfrei und wird nicht auf das Einkommen angerechnet
+    - **Aktuelle Beträge**: 250€/Monat pro Kind (Stand 2024)
+    - **Mehrere Kinder**: Separate Konfiguration für jedes Kind mit individuellem Geburtsjahr
+    - **Ausbildungsberücksichtigung**: Option zur Verlängerung bis zum 25. Geburtstag bei Ausbildung/Studium
+  - **Elterngeld** - Deutsche Elterngeld-Planung nach BEEG (Bundeselterngeld- und Elternzeitgesetz)
+    - **Basiselterngeld**: 65-67% des vorherigen Nettoeinkommens (Minimum 300€, Maximum 1.800€/Monat)
+    - **Einkommensabhängige Berechnung**: Automatische Berechnung der Ersatzrate (67% bis 1.200€, 65% ab 1.240€)
+    - **ElterngeldPlus**: Halber Betrag bei doppelter Bezugsdauer (max. 24-28 Monate statt 12-14 Monate)
+    - **Partnerschaftsbonus**: Zusätzliche 2-4 Monate bei paralleler Teilzeitarbeit beider Eltern
+    - **Steuerfrei mit Progressionsvorbehalt**: Elterngeld ist steuerfrei, unterliegt aber dem Progressionsvorbehalt
+    - **Flexible Konfiguration**: Vorheriges Einkommen, Bezugsdauer, Geburtsjahr/-monat des Kindes individuell einstellbar
+    - **Realistische Planung**: Ermöglicht präzise Finanzplanung während der Elternzeit
+  - **BU-Renten-Integration** - Umfassende Berücksichtigung von Berufsunfähigkeitsrenten
+    - **Leibrenten-Besteuerung**: Korrekte steuerliche Behandlung nach § 22 EStG mit altersabhängigem Ertragsanteil
+    - **Flexible Zeiträume**: Konfigurierbare Start- und Endjahre für Berufsunfähigkeitsphasen
+    - **Automatische Steuerberechnung**: Nur der Ertragsanteil wird besteuert, Rest ist steuerfrei
+    - **Altersabhängige Besteuerung**: Ertragsanteil variiert je nach Alter bei Beginn der Berufsunfähigkeit (z.B. 36% bei 40 Jahren)
+    - **Dokumentation des BU-Grads**: Erfassung des Berufsunfähigkeitsgrades (0-100%) für Übersichtszwecke
+    - **Dauerhafte oder temporäre BU**: Unterstützung sowohl für permanente als auch zeitlich begrenzte Berufsunfähigkeit
+  - **Risikolebensversicherung** - Konfiguration von Term Life Insurance für Hinterbliebenenschutz
+    - **Reiner Todesfallschutz**: Absicherung ohne Sparanteil für maximale Effizienz
+    - **Steuerfreie Leistungen**: Todesfallleistungen sind steuerfrei nach § 20 Abs. 1 Nr. 6 EStG
+    - **Flexible Konfiguration**: Deckungssumme, Laufzeit und Versicherungsbeginn individuell anpassbar
+    - **Risikobasierte Prämienkalkulation**: Berücksichtigung von Alter, Geschlecht, Gesundheitszustand und Raucherstatus
+    - **Zwei Deckungsarten**: Konstante Deckungssumme (level) oder fallende Deckung (decreasing)
+    - **Familienplanung**: Separate Konfiguration für Einzelpersonen und Hinweis für Ehepaare
+    - **Automatische Geburtsjahr-Integration**: Synchronisation mit Globaler Planung für konsistente Berechnungen
+  - **Kapitallebensversicherung** - Vollständige Integration klassischer Lebensversicherungsprodukte mit deutscher Steuergesetzgebung
+    - **Einmalauszahlung bei Fälligkeit**: Konfigurierbare Auszahlungsbeträge und Zeitpunkte
+    - **Halbeinkünfteverfahren**: Unterstützung für ältere Verträge mit 50% Steuerbefreiung der Erträge
+    - **12-Jahres-Steuerfreiheit**: Automatische Prüfung der Steuerfreiheit nach § 20 Abs. 1 Nr. 6 EStG
+      - Vollständige Steuerbefreiung bei 12+ Jahren Laufzeit und Auszahlung ab Alter 60
+      - Altersabhängige Prüfung basierend auf Geburtsjahr des Versicherten
+    - **Ertragsberechnung**: Automatische Berechnung der Kapitalerträge (Auszahlung - gezahlte Beiträge)
+    - **Abgeltungsteuer**: Korrekte Anwendung der Kapitalertragsteuer (26,375%) auf steuerpflichtige Erträge
+    - **Echtzeit-Steuervorschau**: Interaktive Anzeige von Vertragslaufzeit, Alter bei Auszahlung und steuerlicher Behandlung
+    - **Flexible Konfiguration**: Individuelle Anpassung von Vertragsbeginn, Fälligkeit, Auszahlungsbetrag und gezahlten Beiträgen
+  - **Fondsgebundene Lebensversicherung (Calculation Library)** - Umfassende Berechnungsfunktionen für ETF-Sparpläne in Versicherungsmänteln
+    - **Jahr-für-Jahr Simulation**: Vollständige Portfolioentwicklung mit Beiträgen, Renditen und Kosten
+    - **Kostenmodellierung**: Abschlusskosten (Zillmerung über 5 Jahre), Verwaltungskosten, Garantiekosten, Sterblichkeitskosten
+    - **Steuervorteile**: Halbeinkünfteverfahren nach 12 Jahren Laufzeit + Alter 62 (nur 50% der Gewinne steuerpflichtig)
+    - **Garantieoptionen**: Konfigurierbare Mindestgarantien bei Fälligkeit
+    - **Todesfallschutz**: Altersabhängige Sterblichkeitskosten und konfigurierbare Todesfallleistung
+    - **Vergleichsrechnung**: Direkter Vergleich mit ETF-Direktanlage zur Bewertung des Versicherungsmantels
+    - **Effektivrendite-Berechnung**: Automatische Berechnung der Nettorendite nach allen Kosten
+    - **Kostenquote**: Transparente Darstellung des Kostenanteils an den Gesamtbeiträgen
+    - **Flexible Konfiguration**: Individuelle Anpassung von Beiträgen, Renditen, Kosten, Garantien und Laufzeiten
+    - **Umfassende Tests**: 24 Testszenarien sichern Berechnungskorrektheit und Zuverlässigkeit
+  - **Pflegezusatzversicherung** - Umfassende Pflegeversicherungs-Integration für Altersvorsorgeplanung
+    - **Pflegegrad-System**: Vollständige Unterstützung der deutschen Pflegegrade 1-5 mit detaillierten Beschreibungen
+      - Pflegegrad 1: Geringe Beeinträchtigung der Selbstständigkeit
+      - Pflegegrad 2: Erhebliche Beeinträchtigung der Selbstständigkeit
+      - Pflegegrad 3: Schwere Beeinträchtigung der Selbstständigkeit
+      - Pflegegrad 4: Schwerste Beeinträchtigung der Selbstständigkeit
+      - Pflegegrad 5: Schwerste Beeinträchtigung mit besonderen Anforderungen
+    - **Steuerfreie Leistungen**: Pflegeleistungen sind steuerfrei nach § 3 Nr. 1a EStG
+    - **Beitragsabsetzbarkeit**: Steuerliche Absetzbarkeit der Versicherungsbeiträge nach § 10 Abs. 1 Nr. 3 EStG
+      - Konfigurierbare maximale jährliche Absetzbarkeit (Standard: 1.900€)
+      - Automatische Berechnung des Steuervorteils durch Beitragsabzug
+    - **Flexible Pflegezeiträume**: Konfigurierbare Start- und Endjahre für Pflegebedürftigkeit
+    - **Dauerhafte oder temporäre Pflege**: Unterstützung sowohl für lebenslange als auch zeitlich begrenzte Pflegebedürftigkeit
+    - **Netto-Nutzen-Berechnung**: Automatische Berechnung von Leistungen minus Beiträge plus Steuervorteile
+    - **Altersbasierte Planung**: Berücksichtigung des Alters bei Pflegebeginn für realistische Szenarien
+    - **Echtzeit-Übersicht**: Interaktive Anzeige von monatlichen/jährlichen Leistungen, Beiträgen und Netto-Nutzen
+  - **Kinder-Bildungskosten** - Umfassende Finanzplanung für Ausbildungskosten von Kindern
+    - **Bildungsphasen-System**: Automatische Abbildung deutscher Bildungswege
+      - Kita/Kindergarten (ca. 1-6 Jahre)
+      - Grundschule (ca. 6-10 Jahre)
+      - Weiterführende Schule (ca. 10-19 Jahre)
+      - Berufsausbildung (ca. 16-19 Jahre)
+      - Studium/Universität (ca. 19-25 Jahre)
+    - **Zwei Standardbildungswege**: Regelweg (Studium) und Berufsausbildung mit vorkonfigurierten Phasen
+    - **Realistische Kostenschätzungen**: Durchschnittliche monatliche Kosten basierend auf deutschen Verhältnissen
+      - Kita: 300€/Monat, Grundschule: 50€/Monat, Weiterführend: 100€/Monat
+      - Ausbildung: 150€/Monat, Studium: 850€/Monat
+    - **BAföG-Integration**: Vollständige Berücksichtigung deutscher Studienförderung
+      - Automatische Berechnung der BAföG-Berechtigung basierend auf Elterneinkommen
+      - Unterscheidung zwischen Wohnen bei Eltern (max. 633€) und eigenem Haushalt (max. 934€)
+      - 50% Zuschuss, 50% zinsloses Darlehen gemäß BAföG-Regelungen 2024
+      - Einkommensabhängige Berechnung mit konfigurierbarem Elterneinkommen
+    - **§ 33a Ausbildungsfreibetrag**: Zusätzliche steuerliche Entlastung für Eltern
+      - 1.200€ jährlicher Freibetrag bei auswärtiger Unterbringung des Kindes
+      - Gültig für volljährige Kinder (18-25 Jahre) in Berufsausbildung oder Studium
+      - Automatische Prüfung der Anspruchsvoraussetzungen (Alter, Bildungsphase, Wohnsituation)
+      - Separate Darstellung in Steuerberechnung neben Sonderausgabenabzug (§ 10 Abs. 1 Nr. 7 EStG)
+      - Integration in Gesamtsteuerberechnung zur realistischen Kostenplanung
+    - **Inflationsanpassung**: Automatische Anpassung der Bildungskosten über die Zeit (Standard: 2% p.a.)
+    - **Steuerliche Absetzbarkeit**: Berufsausbildung und Studium als Sonderausgaben (max. 6.000€ p.a. nach § 10 Abs. 1 Nr. 7 EStG)
+    - **Altersbasierte Berechnung**: Automatische Zuordnung zu Bildungsphasen basierend auf Geburtsjahr
+    - **Geschätzte Gesamtkosten**: Echtzeit-Berechnung der erwarteten Gesamtkosten über alle Bildungsphasen
+    - **Netto-Kosten-Berechnung**: Bildungskosten minus BAföG-Unterstützung für realistische Finanzplanung
+  - **Depot-auf-Kind-Strategie** - Steueroptimierte Kapitalanlage zur Finanzierung der Ausbildung
+    - **Steuervorteile**: Nutzung persönlicher Freibeträge des Kindes
+      - **Sparerpauschbetrag**: 1.000€ jährlich steuerfrei für Kapitalerträge
+      - **Grundfreibetrag**: 11.604€ auf alle Einkünfte (Stand 2024)
+      - **Niedrigere Steuersätze**: Progressiver Steuersatz bei geringem Einkommen des Kindes
+    - **Vergleichsrechnung**: Automatischer Vergleich Kinder-Depot vs. Eltern-Depot
+      - Side-by-side Darstellung der Endkapital-Werte
+      - Berechnung der effektiven Steuersätze (Kind vs. Eltern)
+      - Visualisierung der Steuerersparnis über die Laufzeit
+    - **Flexible Anlagekonfiguration**:
+      - Auswahl zwischen Aktienfonds (30% Teilfreistellung), Mischfonds (15%), Rentenfonds und Sparkonto
+      - Konfigurierbare Anfangsinvestition und erwartete Rendite
+      - Simulation über beliebigen Zeitraum (typisch bis Studienbeginn oder -ende)
+    - **Elterliche Steuersituation**: Berücksichtigung des Grenzsteuersatzes der Eltern für realistischen Vergleich
+    - **Kinder mit eigenem Einkommen**: Optional konfigurierbar (z.B. Ausbildungsvergütung, Nebenjob)
+    - **Vorabpauschale-Berechnung**: Vollständige Integration deutscher Investmentsteuer mit Basiszins
+    - **Optimaler Übertragungszeitpunkt**: Empfehlung basierend auf Alter und Studienbeginn
+      - Maximierung steuerfreies Wachstum
+      - Berücksichtigung Volljährigkeit (18 Jahre)
+      - 2 Jahre vor Studienbeginn für optimale Liquidität
+    - **Realistische Szenarien**: Vergleich verschiedener Einkommensklassen und Anlagestrategien
+    - **Helper-Funktionen verfügbar**: `simulateDepotAufKind()`, `calculateOptimalTransferTiming()`, `validateDepotAufKindConfig()`, `createDefaultDepotAufKindConfig()`
+  - **Immobilien-Cashflow Integration** - Umfassende Immobilienertragsberechnung mit deutschen Steuerregeln
+    - **Realistische Kostenfaktoren**: Instandhaltungskosten (0-30%), Leerstandsquote (0-20%), Finanzierungskosten
+    - **Wertsteigerungsberechnung**: Optionale Berücksichtigung der Immobilienwertsteigerung als zusätzliches Einkommen
+    - **Deutsche Immobiliensteuer**: Vollständige Integration der steuerlichen Behandlung von Mieteinnahmen
+    - **Inflationsanpassung**: Automatische Mietanpassungen über die Entnahmephase
+  - **Weitere Einkommensarten**: Private Renten, Gewerbeeinkünfte, Kapitalerträge, sonstige Einkünfte
+  - **Brutto-/Netto-Konfiguration**: Flexible Eingabe mit automatischer Steuerberechnung
+  - **Zeitraum-Flexibilität**: Konfigurierbare Start- und Endjahre für zeitlich begrenzte Einkünfte
+- **Immobilien-Teilverkauf mit Nießbrauchrecht** - Alternative Liquiditätsgenerierung im Ruhestand
+  - **Teilverkauf-Simulation**: Verkauf von 20-50% der Immobilie bei lebenslangem Wohnrecht
+  - **Nießbrauch-Kalkulation**: Berechnung der jährlichen Nießbrauchgebühr für das Wohnrecht
+  - **Liquiditätsgewinn**: Sofortige Verfügbarkeit von Kapital ohne vollständigen Immobilienverkauf
+  - **Strategievergleich**: Automatischer Vergleich mit drei Alternativen
+    - **Teilverkauf**: Teilweiser Verkauf mit Nießbrauchrecht und Gebühren
+    - **Vollverkauf + Miete**: Kompletter Verkauf mit anschließender Mietzahlung
+    - **Leibrente**: Traditionelle Leibrente ohne Verkauf
+  - **Kostenberechnung**: Transparente Darstellung von Transaktionskosten, Nießbrauchgebühren und Mietkosten
+  - **Vermögensvergleich**: Vergleich des Endvermögens aller drei Strategien
+  - **Empfehlungssystem**: Automatische Empfehlung der optimalen Strategie basierend auf Endvermögen
+  - **Deutsche Steuerregeln**: Berücksichtigung von Grunderwerbsteuer und Notarkosten
+  - **Flexible Konfiguration**: Immobilienwert, Verkaufsanteil, Alter bei Verkauf, Wertsteigerung individuell einstellbar
+  - **Realistische Szenarien**: Konfigurierbare Mietsteigerung, Anlagerendite und Leibrenten-Zahlungen für Vergleich
+
+### Analyse und Simulation
+
+- **Finanzübersicht** - Kompakte Übersicht aller wichtigen Kennzahlen mit Sticky Navigation
+- **Interaktive Sankey-Diagramme** - Visualisierung von Geldflüssen in der Ansparphase
+  - **Geldfluss-Visualisierung** - Intuitive Darstellung wie Beiträge, Gewinne und Steuern durch das Portfolio fließen
+  - **Jahr-für-Jahr Navigation** - Interaktiver Slider zur Exploration der Vermögensströme über Zeit
+  - **Deutsche Labels** - Vollständig lokalisierte Beschriftungen (Beiträge, Kapital, Gewinne, Steuern, Endkapital)
+  - **Farbcodierte Flows** - Klare Unterscheidung verschiedener Geldströme durch Farben
+  - **Interaktive Tooltips** - Detaillierte Informationen zu jedem Geldfluss mit Währungsformatierung
+  - **Responsive Design** - Optimale Darstellung auf Desktop und mobilen Geräten
+  - **Integration in Sparplan-Verlauf** - Nahtlos eingebunden in bestehende Visualisierungen
+- **Strategievergleich** - Umfassende Vergleichsmöglichkeiten für Entnahmestrategien
+- **Historisches Backtesting** - Test mit 24 Jahren Marktdaten (DAX, S&P 500, MSCI World)
+- **Sequenz-Risiko-Analyse** - Detaillierte Analyse des Einflusses der Rendite-Reihenfolge auf die Portfolio-Nachhaltigkeit im Ruhestand
+  - **Drei Szenarien-Vergleich** - Günstige, durchschnittliche und ungünstige Rendite-Sequenzen mit identischer durchschnittlicher Rendite
+  - **Portfolio-Nachhaltigkeit** - Visualisierung wie viele Jahre das Portfolio in jedem Szenario überlebt
+  - **Risikobewertung** - Automatische Einstufung des Risikos (Niedrig/Mittel/Hoch/Kritisch) basierend auf Worst-Case-Szenario
+  - **Outcome-Differenz** - Berechnung und Darstellung des Unterschieds zwischen Best- und Worst-Case-Szenarien
+  - **Konfigurierbare Parameter** - Startkapital, jährliche Entnahme, Zeitraum, durchschnittliche Rendite und Volatilität
+  - **Personalisierte Empfehlungen** - Konkrete Handlungsempfehlungen zur Risikominderung
+    - Anpassung der Entnahmerate
+    - Dynamische Entnahmestrategien
+    - Cash-Puffer für schlechte Marktjahre
+    - Asset-Allokation Anpassungen (Glide Path)
+  - **Sequence of Returns Risk** - Erklärt warum die Reihenfolge der Renditen in den ersten Ruhestandsjahren kritisch ist
+  - **Interaktive Visualisierung** - Vergleich der Portfolio-Entwicklung über die Zeit in allen drei Szenarien
+- **Monte Carlo Analyse** - Statistische Auswertung verschiedener Rendite-Szenarien
+- **Kapitalwertentwicklungs-Szenario-Vergleich** - Interaktiver Vergleich mehrerer Spar-/Entnahmeszenarien side-by-side
+  - **Bis zu 5 Szenarien gleichzeitig** - Parallele Simulation unterschiedlicher Anlagestrategien (z.B. konservativ, ausgewogen, aggressiv)
+  - **Flexible Parametervariation** - Individuelle Konfiguration von Sparrate, Rendite, Entnahmestrategie und Steuersituation pro Szenario
+  - **Farbcodierte Visualisierung** - Überlagertes Liniendiagramm mit eindeutiger Szenario-Zuordnung
+  - **Delta-Hervorhebung** - Farbcodierte Tabellenzellen mit grüner Markierung für beste und roter Markierung für schlechteste Werte pro Kennzahl
+  - **Prozentuale Abweichungen** - Automatische Berechnung und Anzeige relativer Unterschiede vom Basis-Szenario mit +/- Vorzeichen
+  - **Intelligente Vergleichslogik** - Invertierte Bewertung für Kostenmetriken (niedrigere Steuern = besser)
+  - **Statistischer Vergleich**:
+    - Identifikation des besten und schlechtesten Szenarios
+    - Durchschnittswerte und Median-Berechnung
+    - Perzentil-Analyse (25., 50., 75. Perzentil)
+    - Standardabweichung und Spannweite der Ergebnisse
+  - **Echtzeit-Metriken** - Anzeige von Endkapital, annualisierter Rendite, Gesamtertrag und Steuerlast pro Szenario
+  - **Nominal vs. Real** - Umschaltbare Ansicht zwischen nominalen und inflationsbereinigten Werten
+  - **Vergleichstabelle** - Detaillierte Gegenüberstellung aller Szenarien mit wichtigsten Kennzahlen und visueller Hervorhebung
+  - **Integration mit Hauptkonfiguration** - Neue Szenarien basieren automatisch auf aktuellen Simulationseinstellungen
+  - **Ergänzung zu Monte Carlo** - Deterministische Szenario-Vergleiche als Gegenstück zur stochastischen Monte Carlo Analyse
+- **Sensitivitätsanalyse** - Analyse der Auswirkungen von Parameteränderungen
+  - **Parameter-Ranking** - Automatische Bewertung der einflussreichsten Faktoren
+  - **Interaktive Visualisierung** - Grafische Darstellung der Auswirkungen einzelner Parameter
+  - **Szenario-Vergleich** - Vergleich von niedrigsten, höchsten und Basis-Szenarien
+  - **Handlungsempfehlungen** - Praktische Tipps zur Optimierung der Finanzplanung
+  - **5 Parameter-Analysen** - Rendite, Sparrate, Steuerlast, Inflationsrate, Anlagedauer
+- **Black Swan Ereignisse** - Simulation extremer Markteinbrüche für Portfolio-Stresstests
+  - **Historische Krisen** - Dotcom-Blase (2000-2003), Finanzkrise (2008-2009), COVID-19 Pandemie (2020)
+  - **Detaillierte Ereignisprofile** - Jahr-für-Jahr Renditen basierend auf historischen Daten
+  - **Kumulativer Verlust** - Automatische Berechnung des Gesamtverlusts über die Krisendauer
+  - **Flexible Zeitplanung** - Wählbares Jahr für Krisensimulation innerhalb des Anlagezeitraums
+  - **Erholungszeit-Anzeige** - Historische Daten zur durchschnittlichen Markterholung
+  - **Widerstandsfähigkeitstest** - Bewertung der Portfolio-Robustheit in Extremszenarien
+- **Stress-Testing** - Systematische Tests extremer Szenarien zur Portfolio-Resilienz-Bewertung
+  - **Historische Krisenszenarien** - Automatische Simulation von Dotcom-Crash (2000-2003), Finanzkrise (2008-2009) und COVID-19 (2020)
+  - **Systematische Vergleiche** - Parallel-Testing aller Krisenszenarien für umfassende Risikobewertung
+  - **Portfolio-Resilienz-Metriken** - Schlimmstes Szenario, durchschnittlicher Verlust, durchschnittliche Erholungszeit
+  - **Verlust-Berechnung** - Absoluter und prozentualer Kapitalverlust gegenüber Baseline ohne Krise
+  - **Erholungszeit-Analyse** - Berechnung der benötigten Jahre zur Wiederherstellung des Baseline-Kapitals
+  - **Detaillierte Ergebnistabelle** - Übersicht aller Szenarien mit Verlust, Erholungszeit und Endkapital
+  - **Risiko-Visualisierung** - Farbcodierte Darstellung der Krisenschwere (gelb/orange/rot)
+- **Inflationsszenarien** - Simulation verschiedener Inflationsentwicklungen für realistische Altersvorsorge-Planung
+  - **Realistische Szenarien (für Altersvorsorge)**:
+    - **Optimistisch (1,5% p.a.)** - Niedrige Inflation unter dem EZB-Ziel für konservative Planungen
+    - **Moderat (2,0% p.a.)** - Stabile Inflation am EZB-Ziel als Baseline-Szenario
+    - **Pessimistisch (3,5% p.a.)** - Anhaltend erhöhte Inflation über dem EZB-Ziel
+    - **Historisch (2000-2023)** - Basierend auf tatsächlichen deutschen Inflationsraten (Durchschnitt ~1,7%)
+  - **Stress-Test Szenarien (für Krisenplanung)**:
+    - **Hyperinflation (8-12% p.a.)** - Extreme Inflation ähnlich der 1970er Jahre
+    - **Deflation (-2% bis 0%)** - Fallende Preise ähnlich Japan in den 1990er Jahren
+    - **Stagflation (6-8%)** - Kombination aus hoher Inflation und reduzierten Renditen
+  - **Kaufkraftverlust-Berechnung** - Automatische Berechnung des realen Kaufkraftverlusts über die Szenariodauer
+  - **Kumulative Inflation** - Gesamtinflation und durchschnittliche jährliche Inflationsrate
+  - **Rendite-Anpassungen** - Bei Stagflation werden Renditen automatisch reduziert
+  - **Flexible Zeitplanung** - Wählbares Startjahr für Inflationsszenario innerhalb des Anlagezeitraums
+  - **Kategorisierte Darstellung** - Übersichtliche Gruppierung in "Realistische Szenarien" und "Stress-Test Szenarien"
+  - **Kombinierbar mit variablen Renditen** - Integration in bestehende Variable-Renditen-Konfiguration
+- **Erweiterte Risikobewertung** - Value-at-Risk (5% & 1% VaR), Maximum Drawdown, Sharpe Ratio, Sortino Ratio, Calmar Ratio
+  - **Stress-Test-Analyse** - Systematische Tests mit extremen Marktszenarien für Portfolio-Resilienz
+    - **Historische Krisenszenarien** - Finanzkrise 2008 (-57%), COVID-19 Crash (-34%), Dotcom-Blase (-49%), Schwarzer Montag 1987 (-23%), Europäische Schuldenkrise (-37%)
+    - **Hypothetische Szenarien** - Leichte Korrektur (-10%), Moderater Crash (-20%), Schwerer Crash (-40%), Extremer Crash (-60%)
+    - **Worst-Case-Identifikation** - Automatische Identifikation des schlimmsten Szenarios mit detaillierter Erklärung
+    - **Durchschnittsverlust-Berechnung** - Durchschnittlicher Verlust über alle getesteten Szenarien
+    - **Restwert-Berechnung** - Portfolio-Wert nach Anwendung jedes Stress-Szenarios
+    - **Historische Referenzen** - Detaillierte Informationen zu historischen Markteinbrüchen und deren Zeiträumen
+    - **Mobile-Responsive Design** - Optimierte Darstellung auf mobilen Geräten und Desktop
+- **Risiko-Zeitreihen** - Detaillierte Drawdown- und Rendite-Serien für tiefere Analyse
+- **Detaillierte Simulation** - Jahr-für-Jahr Aufschlüsselung mit Vorabpauschale-Berechnungen
+- **Berechnungsaufschlüsselung** - Interaktive Erklärungen für Steuer- und Zinsberechnungen
+- **Finanzglossar** - Interaktives Glossar mit alphabetisch sortierten Finanzbegriffen für die deutsche Finanzplanung
+  - **19 Finanzbegriffe** - Umfassende Erklärungen wichtiger Begriffe (Vorabpauschale, Kapitalertragsteuer, Sparerpauschbetrag, etc.)
+  - **Such-Funktion** - Echtzeit-Suche über alle Begriffe mit automatischer Filterung
+  - **Kategorie-Filter** - Filterung nach 5 Kategorien (Steuern, Investitionen, Rente, Versicherungen, Allgemein)
+  - **Detaillierte Erklärungen** - Kurzbeschreibung, ausführliche Erläuterung und praktische Beispiele für jeden Begriff
+  - **Verwandte Begriffe** - Verlinkte Begriffe zur schnellen Navigation zwischen verwandten Themen
+  - **Kategorie-Badges** - Visuelle Kennzeichnung der Kategorie jedes Begriffs
+  - **Responsive Design** - Optimierte Darstellung auf Desktop und mobilen Geräten
+  - **Alphabetische Sortierung** - Automatische Sortierung aller Begriffe für schnelles Auffinden
+  - **Ergebnis-Zähler** - Anzeige der Anzahl gefundener Begriffe bei Suche und Filterung
+- **Daten Export** - CSV Export, Excel Export (mit Formeln), PDF Export (professionelle Berichte), Markdown Export, Parameter Export für alle Simulationsdaten (inkl. Sonderereignisse)
+  - **Automatisierte Portfolio-Berichte** - Umfassende Berichtsgenerierung mit einem Klick
+    - **Portfolio-Zusammenfassung** - Gesamtwert, Beiträge, Renditen, ROI und bezahlte Steuern
+    - **Performance-Metriken** - Durchschnittliche jährliche Rendite, beste/schlechteste Jahre, Volatilität, Sharpe Ratio
+    - **Steuerübersicht** - Vorabpauschale, Kapitalertragsteuer, Freibetrag-Nutzung mit deutscher Steuergesetzgebung
+    - **Risikoanalyse** - Volatilitätsbasierte Risikobewertung und maximaler Drawdown
+    - **Export-Formate** - Markdown-Berichte mit strukturierter Formatierung
+    - **Intelligente Datenextraktion** - Automatische Erfassung aller Simulationsergebnisse aus dem Context
+- **Profilverwaltung** - Umfassende Verwaltung mehrerer Konfigurationsprofile
+  - **Profile erstellen** - Neue Profile für verschiedene Familien oder Testszenarien
+  - **Profilwechsel** - Nahtloser Wechsel zwischen verschiedenen Konfigurationen mit einem Klick
+  - **Automatisches Speichern** - Alle Änderungen werden automatisch im aktiven Profil gespeichert
+  - **Profil-Aktionen** - Bearbeiten, Duplizieren und Löschen von Profilen
+  - **Rückwärtskompatibilität** - Automatische Migration von Legacy-Konfigurationen
+  - **Aktiver Profil-Status** - Klare Anzeige des aktuell aktiven Profils mit Zeitstempel
+- Echtzeit-Updates bei Parameteränderungen
+
+---
