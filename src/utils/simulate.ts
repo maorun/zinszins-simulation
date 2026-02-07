@@ -14,6 +14,7 @@ import {
   createDefaultRealizedLosses,
 } from '../../helpers/loss-offset-accounts'
 import { calculateDynamicSavingsRate } from '../../helpers/dynamic-savings-rate'
+import { FREIBETRAG_CONSTANTS } from './tax-constants'
 
 /**
  * Default financial constants used throughout the simulation.
@@ -103,7 +104,7 @@ export type SimulationResult = {
 const freibetrag: {
   [year: number]: number
 } = {
-  2023: 2000,
+  2023: FREIBETRAG_CONSTANTS.INDIVIDUAL,
 }
 
 /**
@@ -1000,7 +1001,7 @@ function applyTaxes(
     if (freibetragPerYear && freibetragPerYear[year] !== undefined) {
       return freibetragPerYear[year]
     }
-    return freibetrag[2023] || 2000
+    return freibetrag[2023] || FREIBETRAG_CONSTANTS.INDIVIDUAL
   }
 
   // Calculate loss offset if enabled
