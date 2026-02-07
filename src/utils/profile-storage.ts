@@ -1,4 +1,5 @@
 import type { SavedConfiguration } from './config-storage'
+import { loadFromStorage, saveToStorage } from './storage-helpers'
 
 /**
  * Interface for a user profile
@@ -63,37 +64,27 @@ function createDefaultProfile(config: SavedConfiguration): UserProfile {
  * Load profile storage from localStorage
  */
 export function loadProfileStorage(): ProfileStorage | null {
-  try {
-    const savedData = localStorage.getItem(PROFILE_STORAGE_KEY)
-    if (!savedData) {
-      return null
-    }
-
-    const parsedData = JSON.parse(savedData)
-
-    // Check version compatibility
-    if (parsedData.version !== PROFILE_STORAGE_VERSION) {
-      console.warn('Profile storage version mismatch, ignoring saved profiles')
-      return null
-    }
-
-    return parsedData as ProfileStorage
-  } catch (error) {
-    console.error('Failed to load profile storage from localStorage:', error)
+  const savedData = loadFromStorage<ProfileStorage>(PROFILE_STORAGE_KEY)
+  
+  if (!savedData) {
     return null
   }
+
+  // Check version compatibility
+  if (savedData.version !== PROFILE_STORAGE_VERSION) {
+    console.warn('Profile storage version mismatch, ignoring saved profiles')
+    return null
+  }
+
+  return savedData
 }
 
 /**
  * Save profile storage to localStorage
  */
 export function saveProfileStorage(storage: ProfileStorage): void {
-  try {
-    storage.updatedAt = new Date().toISOString()
-    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(storage))
-  } catch (error) {
-    console.error('Failed to save profile storage to localStorage:', error)
-  }
+  storage.updatedAt = new Date().toISOString()
+  saveToStorage(PROFILE_STORAGE_KEY, storage)
 }
 
 /**

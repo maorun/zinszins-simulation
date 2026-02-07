@@ -8,6 +8,7 @@ import type { SimulationResultElement } from './simulate'
 import type { ReadonlyRecord } from '../types'
 import { formatCurrency, formatPercentage, formatNumberGerman } from './currency'
 import { isEmpty } from './array-utils'
+import { EXPORT_ERRORS } from './error-messages'
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
@@ -60,7 +61,7 @@ export function exportSavingsDataToCSV(data: ExportData): string {
   const { savingsData, context } = data
 
   if (!savingsData?.sparplanElements) {
-    throw new Error('Keine Sparplan-Daten verfügbar')
+    throw new Error(EXPORT_ERRORS.NO_SAVINGS_DATA)
   }
 
   const lines: string[] = []
@@ -69,7 +70,7 @@ export function exportSavingsDataToCSV(data: ExportData): string {
   const simulationElements = savingsData.sparplanElements
 
   if (!simulationElements || simulationElements.length === 0) {
-    throw new Error('Keine Simulationselemente verfügbar')
+    throw new Error(EXPORT_ERRORS.NO_SIMULATION_ELEMENTS)
   }
 
   // Calculate the savings phase time period from savings plan configuration
@@ -807,7 +808,7 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
   const { withdrawalData, context } = data
 
   if (!withdrawalData) {
-    throw new Error('Keine Entnahme-Daten verfügbar')
+    throw new Error(EXPORT_ERRORS.NO_WITHDRAWAL_DATA)
   }
 
   const withdrawalConfig = context.withdrawalConfig

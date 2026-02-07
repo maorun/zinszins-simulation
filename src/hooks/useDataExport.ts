@@ -23,6 +23,7 @@ import {
   exportAllDataToPDF,
   downloadPDFBlob,
 } from '../utils/pdf-export'
+import { EXPORT_ERRORS } from '../utils/error-messages'
 
 export interface DataExportState {
   isExporting: boolean
@@ -109,7 +110,7 @@ function validateExportData(
   context: SimulationContextState,
 ) {
   if (!savingsData?.sparplanElements && !withdrawalData && !context.withdrawalConfig?.formValue) {
-    throw new Error('Keine Simulationsdaten verfügbar')
+    throw new Error(EXPORT_ERRORS.NO_SIMULATION_DATA)
   }
 }
 
@@ -186,7 +187,7 @@ async function performSavingsCSVExport(context: SimulationContextState, updateSt
   try {
     // Ensure we have savings data available
     if (!context.simulationData?.sparplanElements) {
-      throw new Error('Keine Sparplan-Daten verfügbar. Bitte führen Sie zuerst eine Simulation durch.')
+      throw new Error(EXPORT_ERRORS.NO_SAVINGS_DATA_WITH_INSTRUCTION)
     }
 
     const exportData: ExportData = {
@@ -275,7 +276,7 @@ async function performWithdrawalCSVExport(
     const withdrawalData = getWithdrawalDataHelper(context)
 
     if (!withdrawalData) {
-      throw new Error('Keine Entnahme-Daten verfügbar. Bitte konfigurieren Sie eine Entnahmestrategie.')
+      throw new Error(EXPORT_ERRORS.NO_WITHDRAWAL_DATA_WITH_INSTRUCTION)
     }
 
     const exportData: ExportData = {
@@ -380,7 +381,7 @@ async function performSavingsExcelExport(context: SimulationContextState, update
 
   try {
     if (!context.simulationData?.sparplanElements) {
-      throw new Error('Keine Sparplan-Daten verfügbar. Bitte führen Sie zuerst eine Simulation durch.')
+      throw new Error(EXPORT_ERRORS.NO_SAVINGS_DATA_WITH_INSTRUCTION)
     }
 
     exportSavingsDataToExcel(context.simulationData, context)
@@ -403,7 +404,7 @@ async function performWithdrawalExcelExport(context: SimulationContextState, upd
     const withdrawalData = getWithdrawalDataHelper(context)
 
     if (!withdrawalData) {
-      throw new Error('Keine Entnahme-Daten verfügbar.')
+      throw new Error(EXPORT_ERRORS.NO_WITHDRAWAL_DATA)
     }
 
     exportWithdrawalDataToExcel(withdrawalData, context)
@@ -424,13 +425,13 @@ async function performAllDataExcelExport(context: SimulationContextState, update
 
   try {
     if (!context.simulationData?.sparplanElements) {
-      throw new Error('Keine Sparplan-Daten verfügbar.')
+      throw new Error(EXPORT_ERRORS.NO_SAVINGS_DATA)
     }
 
     const withdrawalData = getWithdrawalDataHelper(context)
 
     if (!withdrawalData) {
-      throw new Error('Keine Entnahme-Daten verfügbar.')
+      throw new Error(EXPORT_ERRORS.NO_WITHDRAWAL_DATA)
     }
 
     exportCompleteDataToExcel(context.simulationData, withdrawalData, context)
@@ -451,7 +452,7 @@ async function performSavingsPDFExport(context: SimulationContextState, updateSt
 
   try {
     if (!context.simulationData?.sparplanElements) {
-      throw new Error('Keine Sparplan-Daten verfügbar. Bitte führen Sie zuerst eine Simulation durch.')
+      throw new Error(EXPORT_ERRORS.NO_SAVINGS_DATA_WITH_INSTRUCTION)
     }
 
     const exportData: ExportData = {
@@ -483,7 +484,7 @@ async function performWithdrawalPDFExport(context: SimulationContextState, updat
     const withdrawalData = getWithdrawalDataHelper(context)
 
     if (!withdrawalData) {
-      throw new Error('Keine Entnahme-Daten verfügbar.')
+      throw new Error(EXPORT_ERRORS.NO_WITHDRAWAL_DATA)
     }
 
     const exportData: ExportData = {
@@ -515,13 +516,13 @@ async function performAllDataPDFExport(context: SimulationContextState, updateSt
 
   try {
     if (!context.simulationData?.sparplanElements) {
-      throw new Error('Keine Sparplan-Daten verfügbar.')
+      throw new Error(EXPORT_ERRORS.NO_SAVINGS_DATA)
     }
 
     const withdrawalData = getWithdrawalDataHelper(context)
 
     if (!withdrawalData) {
-      throw new Error('Keine Entnahme-Daten verfügbar.')
+      throw new Error(EXPORT_ERRORS.NO_WITHDRAWAL_DATA)
     }
 
     const exportData: ExportData = {
@@ -572,7 +573,7 @@ function prepareMarkdownExportData(context: SimulationContextState) {
 
   // Validate we have some data to export
   if (!hasSavingsData && !hasWithdrawalData && !hasWithdrawalConfig) {
-    throw new Error('Keine Simulationsdaten verfügbar. Bitte führen Sie zuerst eine Simulation durch.')
+    throw new Error(EXPORT_ERRORS.NO_SIMULATION_DATA_WITH_INSTRUCTION)
   }
 
   return { withdrawalData, hasSavingsData, hasWithdrawalData }

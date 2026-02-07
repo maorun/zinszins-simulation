@@ -5,6 +5,8 @@
  * in localStorage. Users can control which sections are visible, collapsed, and their order.
  */
 
+import { loadFromStorage, saveToStorage, removeFromStorage } from './storage-helpers'
+
 const DASHBOARD_PREFERENCES_KEY = 'dashboard-preferences'
 const STORAGE_VERSION = 1
 
@@ -86,36 +88,30 @@ export function getDefaultPreferences(): DashboardPreferences {
  * Load dashboard preferences from localStorage
  */
 export function loadDashboardPreferences(): DashboardPreferences {
-  try {
-    const stored = localStorage.getItem(DASHBOARD_PREFERENCES_KEY)
-    if (!stored) {
-      return getDefaultPreferences()
-    }
-
-    const parsed = JSON.parse(stored) as DashboardPreferences
-
-    // Validate version
-    if (parsed.version !== STORAGE_VERSION) {
-      console.warn('Dashboard preferences version mismatch, using defaults')
-      return getDefaultPreferences()
-    }
-
-    // Validate structure
-    if (!parsed.sections || !Array.isArray(parsed.sections)) {
-      console.warn('Invalid dashboard preferences structure, using defaults')
-      return getDefaultPreferences()
-    }
-
-    // Merge with defaults to ensure all sections are present
-    const mergedSections = mergeSectionsWithDefaults(parsed.sections)
-
-    return {
-      ...parsed,
-      sections: mergedSections,
-    }
-  } catch (error) {
-    console.error('Failed to load dashboard preferences from localStorage:', error)
+  const stored = loadFromStorage<DashboardPreferences>(DASHBOARD_PREFERENCES_KEY)
+  
+  if (!stored) {
     return getDefaultPreferences()
+  }
+
+  // Validate version
+  if (stored.version !== STORAGE_VERSION) {
+    console.warn('Dashboard preferences version mismatch, using defaults')
+    return getDefaultPreferences()
+  }
+
+  // Validate structure
+  if (!stored.sections || !Array.isArray(stored.sections)) {
+    console.warn('Invalid dashboard preferences structure, using defaults')
+    return getDefaultPreferences()
+  }
+
+  // Merge with defaults to ensure all sections are present
+  const mergedSections = mergeSectionsWithDefaults(stored.sections)
+
+  return {
+    ...stored,
+    sections: mergedSections,
   }
 }
 
@@ -145,38 +141,26 @@ function mergeSectionsWithDefaults(storedSections: SectionPreference[]): Section
  * Save dashboard preferences to localStorage
  */
 export function saveDashboardPreferences(preferences: DashboardPreferences): void {
-  try {
-    const dataToSave: DashboardPreferences = {
-      ...preferences,
-      version: STORAGE_VERSION,
-      lastUpdated: Date.now(),
-    }
-    localStorage.setItem(DASHBOARD_PREFERENCES_KEY, JSON.stringify(dataToSave))
-  } catch (error) {
-    console.error('Failed to save dashboard preferences to localStorage:', error)
+  const dataToSave: DashboardPreferences = {
+    ...preferences,
+    version: STORAGE_VERSION,
+    lastUpdated: Date.now(),
   }
+  saveToStorage(DASHBOARD_PREFERENCES_KEY, dataToSave)
 }
 
 /**
  * Clear dashboard preferences from localStorage
  */
 export function clearDashboardPreferences(): void {
-  try {
-    localStorage.removeItem(DASHBOARD_PREFERENCES_KEY)
-  } catch (error) {
-    console.error('Failed to clear dashboard preferences from localStorage:', error)
-  }
+  removeFromStorage(DASHBOARD_PREFERENCES_KEY)
 }
 
 /**
  * Check if dashboard preferences exist in localStorage
  */
 export function hasSavedPreferences(): boolean {
-  try {
-    return localStorage.getItem(DASHBOARD_PREFERENCES_KEY) !== null
-  } catch {
-    return false
-  }
+  return loadFromStorage(DASHBOARD_PREFERENCES_KEY) !== null
 }
 
 /**
