@@ -72,6 +72,7 @@ Vollständige Integration deutscher Steuervorschriften:
 - **Kirchensteuer** - Optional mit Bundesland-spezifischen Sätzen
 - **Progressionsvorbehalt** - Für Rentner mit ausländischen Einkünften
 - **Grenzfälle** - Sozialversicherungsoptimierung
+- **Einzel- vs. Gemeinschaftsdepot** - Steuervergleich für Ehepaare zwischen getrennten Depots (2 × 2.000€) und Gemeinschaftsdepot (1 × 4.000€)
 
 ### 📊 Planung & Analyse
 

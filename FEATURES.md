@@ -8,14 +8,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung & Finanzplanung
 
-- **Abgeltungsteuer-Optimierung bei Kontoaufteilung** - Intelligente Depot-Strukturierung zur Steuerminimierung (Hoch ⭐⭐⭐)
-  - Vergleich von Einzel- vs. Gemeinschaftsdepot für Ehepaare
-  - Optimale Nutzung mehrerer Depots bei verschiedenen Banken
-  - Freibetragsaufteilung zwischen Konten (Freistellungsauftrag-Management)
-  - Verlusttopf-Strategien über mehrere Depots hinweg
-  - Ertrags- und Verlustquellen intelligent auf Depots verteilen
-
-(Kapitalertragsteuer-Vorauszahlungen, Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation, Sozialversicherungs-Optimierung für Grenzfälle, Tax Loss Harvesting Tracker, Kirchensteuer-Optimierung bereits implementiert)
+(Einzel- vs. Gemeinschaftsdepot Vergleich, Kapitalertragsteuer-Vorauszahlungen, Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation, Sozialversicherungs-Optimierung für Grenzfälle, Tax Loss Harvesting Tracker, Kirchensteuer-Optimierung, Freistellungsauftrag-Management bereits implementiert)
 
 ### Erweiterte Finanzplanung
 
