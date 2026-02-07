@@ -45,6 +45,24 @@ interface ChartContext {
 }
 
 /**
+ * Type-safe Sankey chart options based on Chart.js configuration
+ */
+interface SankeyChartOptions {
+  responsive: boolean
+  maintainAspectRatio: boolean
+  plugins: {
+    legend: {
+      display: boolean
+    }
+    tooltip: {
+      callbacks: {
+        label: (context: TooltipContext) => string
+      }
+    }
+  }
+}
+
+/**
  * Prepare Sankey diagram data from simulation results for a specific year
  */
 function prepareSankeyDataForYear(
@@ -262,8 +280,7 @@ function SankeyChartDisplay({
 }: {
   sankeyData: SankeyData
   chartData: ReturnType<typeof convertToChartData>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  chartOptions: any
+  chartOptions: SankeyChartOptions
   selectedYear: number
 }) {
   return (
@@ -296,7 +313,7 @@ function useSankeyDiagram(simulationData: SimulationResult, mode: 'savings' | 'w
 
   const chartData = useMemo(() => convertToChartData(sankeyData), [sankeyData])
 
-  const chartOptions = useMemo(
+  const chartOptions: SankeyChartOptions = useMemo(
     () => ({
       responsive: true,
       maintainAspectRatio: false,

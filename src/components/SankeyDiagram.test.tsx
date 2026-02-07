@@ -5,7 +5,7 @@ import type { SimulationResult } from '../utils/simulate'
 
 // Mock Chart component from react-chartjs-2
 vi.mock('react-chartjs-2', () => ({
-  Chart: ({ data, options, type }: any) => (
+  Chart: ({ data, options, type }: { data: unknown; options: unknown; type: string }) => (
     <div data-testid="sankey-chart" data-chart-type={type}>
       {JSON.stringify({ data, options })}
     </div>
