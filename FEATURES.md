@@ -10,6 +10,18 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 (Einzel- vs. Gemeinschaftsdepot Vergleich, Kapitalertragsteuer-Vorauszahlungen, Progressionsvorbehalt, Verlusttopf-Management, Unternehmensverkauf-Simulation, Sozialversicherungs-Optimierung für Grenzfälle, Tax Loss Harvesting Tracker, Kirchensteuer-Optimierung, Freistellungsauftrag-Management bereits implementiert)
 
+##### Neue implementierbare Features
+
+- **Erweiterte Kapitalflussrechnung (Cash Flow Statement)** - Visuelle Übersicht aller Einnahmen- und Ausgabenströme über die Zeit mit farbcodierter Kategorisierung. Zeigt monatliche/jährliche Liquidität, kumulierte Beträge, und identifiziert Engpässe oder Überschüsse. Integration mit Sparplänen, Entnahmen, Steuern, und sonstigen Einnahmen für vollständige Transparenz über alle Geldflüsse.
+
+- **Kryptowährung-Steueroptimierung** - Berücksichtigung deutscher Steuerbesonderheiten für Kryptowährungen: 1-Jahres-Haltefrist für Steuerfreiheit, FIFO-Verrechnung, Freigrenze von 600€ für private Veräußerungsgeschäfte, und Dokumentation für Steuererklärung. Warnung bei vorzeitigem Verkauf innerhalb der Haltefrist mit Berechnung der anfallenden Einkommensteuer.
+
+- **Spenden-Optimierung** - Steueroptimierung durch Spenden mit Berechnung der maximalen Abzugsfähigkeit (20% des Gesamtbetrags der Einkünfte), Vergleich von Einzelspenden vs. kumulierten Spenden über mehrere Jahre, und Berücksichtigung von erhöhten Grenzen für gemeinnützige Zwecke. Integration mit Steuerlastberechnung zur Maximierung der Steuerersparnis.
+
+- **Steuerbescheinigung-Simulator** - Vorschau der jährlichen Steuerbescheinigung für Kapitalerträge mit detaillierter Aufschlüsselung: Thesaurierte/Ausgeschüttete Erträge, Vorabpauschale, gezahlte Kapitalertragsteuer, Solidaritätszuschlag, Kirchensteuer, Verlustverrechnung, und verbleibender Freibetrag. Export-Funktion für Steuererklärung (Anlage KAP).
+
+- **Automatische Steueroptimierungsvorschläge** - Regelbasiertes System zur Identifikation von Optimierungsmöglichkeiten: Ausschöpfung des Freibetrags, Tax Loss Harvesting Chancen, optimaler Zeitpunkt für Umschichtungen, Nutzung von Teilfreistellungen, und Freistellungsauftrags-Optimierung über mehrere Depots. Konkrete Handlungsempfehlungen mit geschätzter Steuerersparnis.
+
 ### Erweiterte Finanzplanung
 
 #### Asset Allocation & Portfolio-Management
