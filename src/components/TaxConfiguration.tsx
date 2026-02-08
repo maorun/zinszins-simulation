@@ -37,6 +37,7 @@ import { SellingStrategyCard } from './SellingStrategyCard'
 import { MultiYearFreibetragOptimizationCard } from './MultiYearFreibetragOptimizationCard'
 import { FinancialEducationQuiz } from './FinancialEducationQuiz'
 import { RebalancingComparisonCard } from './RebalancingComparisonCard'
+import { TaxStatementSimulatorCard } from './TaxStatementSimulatorCard'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -145,6 +146,7 @@ function FreistellungsauftragSection({
 function TaxOptimizationCards({ simulation }: { simulation: ReturnType<typeof useSimulation> }) {
   return (
     <>
+      <TaxStatementSimulatorCard />
       <AccountTypeComparisonCard
         kapitalertragsteuer={simulation.steuerlast}
         teilfreistellungsquote={simulation.teilfreistellungsquote}
