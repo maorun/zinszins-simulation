@@ -18,8 +18,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 - **Spenden-Optimierung** - Steueroptimierung durch Spenden mit Berechnung der maximalen Abzugsfähigkeit (20% des Gesamtbetrags der Einkünfte), Vergleich von Einzelspenden vs. kumulierten Spenden über mehrere Jahre, und Berücksichtigung von erhöhten Grenzen für gemeinnützige Zwecke. Integration mit Steuerlastberechnung zur Maximierung der Steuerersparnis.
 
-- **Steuerbescheinigung-Simulator** - Vorschau der jährlichen Steuerbescheinigung für Kapitalerträge mit detaillierter Aufschlüsselung: Thesaurierte/Ausgeschüttete Erträge, Vorabpauschale, gezahlte Kapitalertragsteuer, Solidaritätszuschlag, Kirchensteuer, Verlustverrechnung, und verbleibender Freibetrag. Export-Funktion für Steuererklärung (Anlage KAP).
-
 - **Automatische Steueroptimierungsvorschläge** - Regelbasiertes System zur Identifikation von Optimierungsmöglichkeiten: Ausschöpfung des Freibetrags, Tax Loss Harvesting Chancen, optimaler Zeitpunkt für Umschichtungen, Nutzung von Teilfreistellungen, und Freistellungsauftrags-Optimierung über mehrere Depots. Konkrete Handlungsempfehlungen mit geschätzter Steuerersparnis.
 
 ### Erweiterte Finanzplanung

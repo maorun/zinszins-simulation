@@ -73,6 +73,7 @@ Vollständige Integration deutscher Steuervorschriften:
 - **Progressionsvorbehalt** - Für Rentner mit ausländischen Einkünften
 - **Grenzfälle** - Sozialversicherungsoptimierung
 - **Einzel- vs. Gemeinschaftsdepot** - Steuervergleich für Ehepaare zwischen getrennten Depots (2 × 2.000€) und Gemeinschaftsdepot (1 × 4.000€)
+- **Steuerbescheinigung-Simulator** - Vorschau der jährlichen Steuerbescheinigung für Kapitalerträge mit detaillierter Aufschlüsselung von Erträgen, Freibeträgen, Vorabpauschale und gezahlten Steuern. Export-Funktion für Steuererklärung (Anlage KAP)
 
 ### 📊 Planung & Analyse
 
