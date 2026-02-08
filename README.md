@@ -138,6 +138,7 @@ Vollständige Integration deutscher Steuervorschriften:
 
 - **Charts** - Kapitalentwicklung, Renditeverteilungen, Monte Carlo Simulationen
 - **Heatmaps** - Korrelationsmatrizen, Sensitivitätsanalysen
+- **3D-Visualisierung** - Dreidimensionale Darstellung von Zeit-Rendite-Kapital-Zusammenhängen mit interaktiven Steuerelementen
 - **Datentabellen** - Detaillierte Jahr-für-Jahr Aufschlüsselungen
 
 #### Tastaturkürzel

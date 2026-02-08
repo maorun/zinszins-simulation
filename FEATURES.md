@@ -49,7 +49,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Reporting & Visualisierung
 
-- **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
+(3D-Visualisierungen für Zeit-Rendite-Kapital-Zusammenhänge bereits implementiert)
 
 ### Beratungs- & Bildungsfeatures
 
@@ -205,7 +205,6 @@ Nice-to-have Features für spezielle Anwendungsfälle:
 - **ESG-Integration** - Nachhaltiges Investieren
 - **Behavioral Finance Komponenten** - Anlegerpsychologie
 - **Erweiterte Bildungsfeatures** - Tutorials und Glossar
-- **3D-Visualisierungen** - Spektakulär, aber nicht essentiell
 - **Makroökonomische Szenarien** - Sehr komplex zu implementieren
 
 ---
