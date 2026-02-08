@@ -44,6 +44,159 @@ function TaxStatementInfoBox() {
 }
 
 /**
+ * Capital Summary Section
+ */
+interface CapitalSummaryProps {
+  statement: ReturnType<typeof generateTaxStatement>
+}
+
+function CapitalSummary({ statement }: CapitalSummaryProps) {
+  if (!statement) return null
+
+  return (
+    <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+      <h4 className="font-medium text-purple-900 mb-3 flex items-center gap-2">
+        <FileText className="h-4 w-4" />
+        💼 Kapitalübersicht
+      </h4>
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between">
+          <span className="text-purple-800">Anfangskapital:</span>
+          <span className="font-medium text-purple-900">{formatCurrency(statement.startingCapital)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-purple-800">Endkapital:</span>
+          <span className="font-medium text-purple-900">{formatCurrency(statement.endingCapital)}</span>
+        </div>
+        <div className="flex justify-between pt-2 border-t border-purple-300">
+          <span className="text-purple-800 font-medium">Gesamte Kapitalerträge:</span>
+          <span className="font-semibold text-purple-900">{formatCurrency(statement.totalCapitalGains)}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Tax Calculation Section
+ */
+interface TaxCalculationProps {
+  statement: ReturnType<typeof generateTaxStatement>
+}
+
+function TaxCalculation({ statement }: TaxCalculationProps) {
+  if (!statement) return null
+
+  return (
+    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+      <h4 className="font-medium text-green-900 mb-3">💰 Steuerberechnung</h4>
+      <div className="space-y-2 text-sm">
+        {statement.vorabpauschale > 0 && (
+          <div className="flex justify-between">
+            <span className="text-green-800">Vorabpauschale:</span>
+            <span className="font-medium text-green-900">{formatCurrency(statement.vorabpauschale)}</span>
+          </div>
+        )}
+        <div className="flex justify-between">
+          <span className="text-green-800">Genutzter Freibetrag:</span>
+          <span className="font-medium text-green-900">{formatCurrency(statement.usedAllowance)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-green-800">Verbleibender Freibetrag:</span>
+          <span className="font-medium text-green-900">{formatCurrency(statement.remainingAllowance)}</span>
+        </div>
+        <div className="flex justify-between pt-2 border-t border-green-300">
+          <span className="text-green-800 font-medium">Steuerpflichtiger Betrag:</span>
+          <span className="font-semibold text-green-900">{formatCurrency(statement.taxableAmount)}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Tax Paid Section
+ */
+interface TaxPaidProps {
+  statement: ReturnType<typeof generateTaxStatement>
+}
+
+function TaxPaid({ statement }: TaxPaidProps) {
+  if (!statement) return null
+
+  return (
+    <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+      <h4 className="font-medium text-orange-900 mb-3">📊 Gezahlte Steuern</h4>
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between">
+          <span className="text-orange-800">Kapitalertragsteuer (inkl. Soli):</span>
+          <span className="font-medium text-orange-900">{formatCurrency(statement.capitalGainsTax)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-orange-800 text-xs ml-4">davon Solidaritätszuschlag:</span>
+          <span className="font-medium text-orange-900 text-xs">{formatCurrency(statement.solidaritySurcharge)}</span>
+        </div>
+        {statement.churchTax !== undefined && statement.churchTax > 0 && (
+          <div className="flex justify-between">
+            <span className="text-orange-800">Kirchensteuer:</span>
+            <span className="font-medium text-orange-900">{formatCurrency(statement.churchTax)}</span>
+          </div>
+        )}
+        <div className="flex justify-between pt-2 border-t border-orange-300">
+          <span className="text-orange-800 font-semibold">Gesamte Steuerlast:</span>
+          <span className="font-bold text-orange-900">{formatCurrency(statement.totalTaxPaid)}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Loss Carryforward Section
+ */
+interface LossCarryforwardProps {
+  statement: ReturnType<typeof generateTaxStatement>
+}
+
+interface LossRowProps {
+  label: string
+  amount: number
+  isBorderTop?: boolean
+}
+
+function LossRow({ label, amount, isBorderTop }: LossRowProps) {
+  return (
+    <div className={`flex justify-between ${isBorderTop ? 'pt-2 border-t border-red-300' : ''}`}>
+      <span className={`text-red-800 ${isBorderTop ? 'font-medium' : ''}`}>{label}</span>
+      <span className={`text-red-900 ${isBorderTop ? 'font-semibold' : 'font-medium'}`}>{formatCurrency(amount)}</span>
+    </div>
+  )
+}
+
+function LossCarryforward({ statement }: LossCarryforwardProps) {
+  if (!statement) return null
+
+  const lossItems = [
+    { label: 'Verlustvortrag Vorjahr:', amount: statement.lossCarryforwardPreviousYear, isBorderTop: false },
+    { label: 'Realisierte Verluste:', amount: statement.realizedLosses, isBorderTop: false },
+    { label: 'Verlustvortrag Folgejahr:', amount: statement.lossCarryforwardNextYear, isBorderTop: true },
+  ].filter(item => item.amount !== undefined && item.amount > 0)
+
+  if (lossItems.length === 0) return null
+
+  return (
+    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+      <h4 className="font-medium text-red-900 mb-3">📉 Verlusttöpfe</h4>
+      <div className="space-y-2 text-sm">
+        {lossItems.map((item, index) => (
+          <LossRow key={item.label} label={item.label} amount={item.amount!} isBorderTop={item.isBorderTop && index > 0} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/**
  * Display section for capital gains and taxation details
  */
 interface TaxStatementDetailsProps {
@@ -61,106 +214,10 @@ function TaxStatementDetails({ statement }: TaxStatementDetailsProps) {
 
   return (
     <div className="space-y-4">
-      {/* Capital Summary Section */}
-      <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-        <h4 className="font-medium text-purple-900 mb-3 flex items-center gap-2">
-          <FileText className="h-4 w-4" />
-          💼 Kapitalübersicht
-        </h4>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-purple-800">Anfangskapital:</span>
-            <span className="font-medium text-purple-900">{formatCurrency(statement.startingCapital)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-purple-800">Endkapital:</span>
-            <span className="font-medium text-purple-900">{formatCurrency(statement.endingCapital)}</span>
-          </div>
-          <div className="flex justify-between pt-2 border-t border-purple-300">
-            <span className="text-purple-800 font-medium">Gesamte Kapitalerträge:</span>
-            <span className="font-semibold text-purple-900">{formatCurrency(statement.totalCapitalGains)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Tax Calculation Section */}
-      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-        <h4 className="font-medium text-green-900 mb-3">💰 Steuerberechnung</h4>
-        <div className="space-y-2 text-sm">
-          {statement.vorabpauschale > 0 && (
-            <div className="flex justify-between">
-              <span className="text-green-800">Vorabpauschale:</span>
-              <span className="font-medium text-green-900">{formatCurrency(statement.vorabpauschale)}</span>
-            </div>
-          )}
-          <div className="flex justify-between">
-            <span className="text-green-800">Genutzter Freibetrag:</span>
-            <span className="font-medium text-green-900">{formatCurrency(statement.usedAllowance)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-green-800">Verbleibender Freibetrag:</span>
-            <span className="font-medium text-green-900">{formatCurrency(statement.remainingAllowance)}</span>
-          </div>
-          <div className="flex justify-between pt-2 border-t border-green-300">
-            <span className="text-green-800 font-medium">Steuerpflichtiger Betrag:</span>
-            <span className="font-semibold text-green-900">{formatCurrency(statement.taxableAmount)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Tax Paid Section */}
-      <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-        <h4 className="font-medium text-orange-900 mb-3">📊 Gezahlte Steuern</h4>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-orange-800">Kapitalertragsteuer (inkl. Soli):</span>
-            <span className="font-medium text-orange-900">{formatCurrency(statement.capitalGainsTax)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-orange-800 text-xs ml-4">davon Solidaritätszuschlag:</span>
-            <span className="font-medium text-orange-900 text-xs">{formatCurrency(statement.solidaritySurcharge)}</span>
-          </div>
-          {statement.churchTax !== undefined && statement.churchTax > 0 && (
-            <div className="flex justify-between">
-              <span className="text-orange-800">Kirchensteuer:</span>
-              <span className="font-medium text-orange-900">{formatCurrency(statement.churchTax)}</span>
-            </div>
-          )}
-          <div className="flex justify-between pt-2 border-t border-orange-300">
-            <span className="text-orange-800 font-semibold">Gesamte Steuerlast:</span>
-            <span className="font-bold text-orange-900">{formatCurrency(statement.totalTaxPaid)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Loss Carryforward Section (if applicable) */}
-      {(statement.lossCarryforwardPreviousYear !== undefined ||
-        statement.lossCarryforwardNextYear !== undefined ||
-        statement.realizedLosses !== undefined) && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-          <h4 className="font-medium text-red-900 mb-3">📉 Verlusttöpfe</h4>
-          <div className="space-y-2 text-sm">
-            {statement.lossCarryforwardPreviousYear !== undefined && statement.lossCarryforwardPreviousYear > 0 && (
-              <div className="flex justify-between">
-                <span className="text-red-800">Verlustvortrag Vorjahr:</span>
-                <span className="font-medium text-red-900">{formatCurrency(statement.lossCarryforwardPreviousYear)}</span>
-              </div>
-            )}
-            {statement.realizedLosses !== undefined && statement.realizedLosses > 0 && (
-              <div className="flex justify-between">
-                <span className="text-red-800">Realisierte Verluste:</span>
-                <span className="font-medium text-red-900">{formatCurrency(statement.realizedLosses)}</span>
-              </div>
-            )}
-            {statement.lossCarryforwardNextYear !== undefined && statement.lossCarryforwardNextYear > 0 && (
-              <div className="flex justify-between pt-2 border-t border-red-300">
-                <span className="text-red-800 font-medium">Verlustvortrag Folgejahr:</span>
-                <span className="font-semibold text-red-900">{formatCurrency(statement.lossCarryforwardNextYear)}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <CapitalSummary statement={statement} />
+      <TaxCalculation statement={statement} />
+      <TaxPaid statement={statement} />
+      <LossCarryforward statement={statement} />
     </div>
   )
 }
@@ -222,15 +279,11 @@ offiziellen Bescheinigungen Ihrer Bank.
 }
 
 /**
- * Main Tax Statement Simulator Card Component
+ * Custom hook for tax statement data
  */
-export function TaxStatementSimulatorCard() {
+function useTaxStatementData() {
   const simulation = useSimulation()
-  const [isOpen, setIsOpen] = useState(false)
   const [selectedYear, setSelectedYear] = useState<string>('')
-
-  // Generate unique form IDs
-  const yearInputId = useMemo(() => generateFormId('tax-statement-simulator', 'year'), [])
 
   // Convert simulation data to SimulationResult format
   const simulationResult = useMemo(() => {
@@ -241,10 +294,9 @@ export function TaxStatementSimulatorCard() {
   // Get available years from simulation results
   const availableYears = useMemo(() => {
     if (!simulationResult) return []
-    const years = Object.keys(simulationResult)
+    return Object.keys(simulationResult)
       .map(Number)
-      .sort((a, b) => b - a) // Sort descending (newest first)
-    return years
+      .sort((a, b) => b - a)
   }, [simulationResult])
 
   // Set initial selected year
@@ -277,7 +329,73 @@ export function TaxStatementSimulatorCard() {
     return generateTaxStatement(simulationResult, parseInt(selectedYear), taxStatementConfig)
   }, [simulationResult, selectedYear, taxStatementConfig])
 
-  // Don't show card if no simulation results
+  return {
+    simulationResult,
+    availableYears,
+    selectedYear,
+    setSelectedYear,
+    statement,
+  }
+}
+
+/**
+ * Year selection input component
+ */
+interface YearSelectorProps {
+  yearInputId: string
+  selectedYear: string
+  availableYears: number[]
+  onYearChange: (e: { target: { value: string } }) => void
+}
+
+function YearSelector({ yearInputId, selectedYear, availableYears, onYearChange }: YearSelectorProps) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={yearInputId} className="text-sm font-medium">
+        Jahr auswählen:
+      </Label>
+      <div className="flex gap-2 items-center">
+        <Input
+          id={yearInputId}
+          type="number"
+          min={availableYears[availableYears.length - 1]}
+          max={availableYears[0]}
+          value={selectedYear}
+          onChange={onYearChange}
+          className="max-w-xs"
+          placeholder="Jahr eingeben"
+        />
+        <span className="text-xs text-muted-foreground">
+          ({availableYears[availableYears.length - 1]} - {availableYears[0]})
+        </span>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Legal disclaimer component
+ */
+function LegalDisclaimer() {
+  return (
+    <div className="text-xs text-muted-foreground bg-gray-50 border border-gray-200 rounded-lg p-3">
+      <p className="font-medium mb-1">⚠️ Hinweis:</p>
+      <p>
+        Diese Steuerbescheinigung ist eine Simulation basierend auf Ihren Eingaben und dient nur zu Informationszwecken.
+        Für Ihre Steuererklärung verwenden Sie bitte die offiziellen Bescheinigungen Ihrer Bank oder Ihres Brokers.
+      </p>
+    </div>
+  )
+}
+
+/**
+ * Main Tax Statement Simulator Card Component
+ */
+export function TaxStatementSimulatorCard() {
+  const [isOpen, setIsOpen] = useState(false)
+  const yearInputId = useMemo(() => generateFormId('tax-statement-simulator', 'year'), [])
+  const { simulationResult, availableYears, selectedYear, setSelectedYear, statement } = useTaxStatementData()
+
   if (!simulationResult || availableYears.length === 0) {
     return null
   }
@@ -292,51 +410,20 @@ export function TaxStatementSimulatorCard() {
   return (
     <Card>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleCardHeader titleClassName="text-left">
-          📄 Steuerbescheinigung-Simulator
-        </CollapsibleCardHeader>
+        <CollapsibleCardHeader titleClassName="text-left">📄 Steuerbescheinigung-Simulator</CollapsibleCardHeader>
         <CollapsibleContent>
           <CardContent>
             <div className="space-y-4">
               <TaxStatementInfoBox />
-
-              {/* Year Selection */}
-              <div className="space-y-2">
-                <Label htmlFor={yearInputId} className="text-sm font-medium">
-                  Jahr auswählen:
-                </Label>
-                <div className="flex gap-2 items-center">
-                  <Input
-                    id={yearInputId}
-                    type="number"
-                    min={availableYears[availableYears.length - 1]}
-                    max={availableYears[0]}
-                    value={selectedYear}
-                    onChange={handleYearChange}
-                    className="max-w-xs"
-                    placeholder="Jahr eingeben"
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    ({availableYears[availableYears.length - 1]} - {availableYears[0]})
-                  </span>
-                </div>
-              </div>
-
-              {/* Tax Statement Details */}
+              <YearSelector
+                yearInputId={yearInputId}
+                selectedYear={selectedYear}
+                availableYears={availableYears}
+                onYearChange={handleYearChange}
+              />
               <TaxStatementDetails statement={statement} />
-
-              {/* Export Button */}
               <ExportButton statement={statement} />
-
-              {/* Legal Disclaimer */}
-              <div className="text-xs text-muted-foreground bg-gray-50 border border-gray-200 rounded-lg p-3">
-                <p className="font-medium mb-1">⚠️ Hinweis:</p>
-                <p>
-                  Diese Steuerbescheinigung ist eine Simulation basierend auf Ihren Eingaben und dient nur zu
-                  Informationszwecken. Für Ihre Steuererklärung verwenden Sie bitte die offiziellen Bescheinigungen
-                  Ihrer Bank oder Ihres Brokers.
-                </p>
-              </div>
+              <LegalDisclaimer />
             </div>
           </CardContent>
         </CollapsibleContent>
