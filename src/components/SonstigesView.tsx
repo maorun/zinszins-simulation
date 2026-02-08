@@ -1,4 +1,4 @@
-import { lazy } from 'react'
+import { lazy, useMemo } from 'react'
 import type { SensitivityAnalysisConfig } from '../utils/sensitivity-analysis'
 import type { ReturnConfiguration } from '../utils/random-returns'
 import type { FinancialScenario } from '../data/scenarios'
@@ -6,6 +6,7 @@ import { TutorialManager } from './TutorialManager'
 import { HomePageSpecialEvents } from './HomePageSpecialEvents'
 import { BehavioralFinanceInsights } from './BehavioralFinanceInsights'
 import { MarketPsychologyIndicators } from './MarketPsychologyIndicators'
+import { ThreeDVisualizationCard } from './ThreeDVisualizationCard'
 import { ConfigurationSection } from './sonstiges-sections/ConfigurationSection'
 import { GrundeinstellungenSection } from './sonstiges-sections/GrundeinstellungenSection'
 import { SteuerKonfigurationSection } from './sonstiges-sections/SteuerKonfigurationSection'
@@ -13,6 +14,7 @@ import { PlanningConfigurations } from './sonstiges-sections/PlanningConfigurati
 import { RealEstateConfigurations } from './sonstiges-sections/RealEstateConfigurations'
 import { AnalysenWerkzeugeSection } from './sonstiges-sections/AnalysenWerkzeugeSection'
 import { useSimulation } from '../contexts/useSimulation'
+import { convertSparplanElementsToSimulationResult } from '../utils/chart-data-converter'
 
 // Lazy load scenario selector
 const ScenarioSelector = lazy(() => import('./ScenarioSelector'))
@@ -36,6 +38,7 @@ interface SonstigesViewProps {
  * - Financial Planning & Life Situations
  * - Behavioral Finance Insights
  * - Market Psychology Indicators
+ * - 3D Visualization (Zeit-Rendite-Kapital)
  * - Real Estate Analyses
  * - Analysis & Tools (Export, Sensitivity Analysis, Profiles)
  */
@@ -46,7 +49,13 @@ export function SonstigesView({
   handleApplyScenario,
   startOfIndependence,
 }: SonstigesViewProps) {
-  const { planningMode } = useSimulation()
+  const { planningMode, sparplanElemente } = useSimulation()
+
+  // Convert sparplan elements to simulation result for 3D visualization
+  const simulationResult = useMemo(
+    () => convertSparplanElementsToSimulationResult(sparplanElemente),
+    [sparplanElemente]
+  )
 
   return (
     <div className="space-y-4">
@@ -76,6 +85,9 @@ export function SonstigesView({
 
       {/* 📈 Marktpsychologie-Indikatoren */}
       <MarketPsychologyIndicators />
+
+      {/* 📦 3D-Visualisierung: Zeit-Rendite-Kapital */}
+      <ThreeDVisualizationCard simulationResult={simulationResult} />
 
       {/* 🏠 Immobilien-Analysen (category) */}
       <RealEstateConfigurations />
