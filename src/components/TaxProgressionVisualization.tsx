@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Line } from 'react-chartjs-2'
-import type { ChartOptions } from 'chart.js'
+import type { ChartOptions, TooltipItem } from 'chart.js'
 import { Card, CardContent } from './ui/card'
 import { Collapsible, CollapsibleContent } from './ui/collapsible'
 import { CollapsibleCardHeader } from './ui/collapsible-card'
@@ -335,20 +335,20 @@ function createYAxisScales(viewMode: ViewMode) {
 function createTooltipConfig(progressionData: TaxProgressionDataPoint[]) {
   return {
     callbacks: {
-      title: (context: Array<{ dataIndex: number }>) => {
+      title: (context: Array<TooltipItem<'line'>>) => {
         const index = context[0].dataIndex
         return `Einkommen: ${formatCurrency(progressionData[index].income)}`
       },
-      label: (context: { dataset: { label?: string }; parsed: { y: number } }) => {
+      label: (context: TooltipItem<'line'>) => {
         const label = context.dataset.label || ''
-        const value = context.parsed.y
+        const value = context.parsed.y ?? 0
         if (label.includes('Steuerbetrag')) {
           return `${label}: ${formatCurrency(value)}`
         } else {
           return `${label}: ${value.toFixed(2)}%`
         }
       },
-      afterBody: (context: Array<{ dataIndex: number }>) => {
+      afterBody: (context: Array<TooltipItem<'line'>>) => {
         const index = context[0].dataIndex
         const point = progressionData[index]
         return ['', `Zone: ${getTaxZoneLabel(point.zone)}`, `Netto: ${formatCurrency(point.income - point.taxAmount)}`]

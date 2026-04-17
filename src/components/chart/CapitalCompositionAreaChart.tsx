@@ -5,7 +5,7 @@
 
 import { useMemo } from 'react'
 import { Line } from 'react-chartjs-2'
-import { type ChartOptions, type ChartData } from 'chart.js'
+import { type ChartOptions, type ChartData, type TooltipItem } from 'chart.js'
 import { formatCurrency } from '../../utils/currency'
 import { Download } from 'lucide-react'
 import { Button } from '../ui/button'
@@ -107,18 +107,16 @@ function createChartData(
  */
 function createTooltipCallbacks() {
   return {
-    title: (tooltipItems: unknown[]) => {
-      const items = tooltipItems as Array<{ label: string }>
-      return `Jahr ${items[0].label}`
+    title: (tooltipItems: Array<TooltipItem<'line'>>) => {
+      return `Jahr ${tooltipItems[0].label}`
     },
-    label: (context: { dataset: { label?: string }; parsed: { y: number } }) => {
+    label: (context: TooltipItem<'line'>) => {
       const label = context.dataset.label || ''
-      const value = context.parsed.y
+      const value = context.parsed.y ?? 0
       return `${label}: ${formatCurrency(value)}`
     },
-    footer: (tooltipItems: unknown[]) => {
-      const items = tooltipItems as Array<{ parsed: { y: number } }>
-      const total = items.reduce((sum, item) => sum + item.parsed.y, 0)
+    footer: (tooltipItems: Array<TooltipItem<'line'>>) => {
+      const total = tooltipItems.reduce((sum, item) => sum + (item.parsed.y ?? 0), 0)
       return `Gesamt: ${formatCurrency(total)}`
     },
   }

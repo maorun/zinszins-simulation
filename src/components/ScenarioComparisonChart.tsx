@@ -15,6 +15,7 @@ import {
   Tooltip,
   Legend,
   type ChartOptions,
+  type TooltipItem,
 } from 'chart.js'
 import { formatCurrency } from '../utils/currency'
 import type {
@@ -130,9 +131,9 @@ function createChartOptions(showRealValues: boolean): ChartOptions<'line'> {
       },
       tooltip: {
         callbacks: {
-          label: (context) => {
+          label: (context: TooltipItem<'line'>) => {
             const label = context.dataset.label || ''
-            const value = context.parsed.y
+            const value = context.parsed.y ?? 0
             return `${label}: ${formatCurrency(value)}`
           },
         },

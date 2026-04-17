@@ -5,7 +5,7 @@
 
 import { useMemo, useState } from 'react'
 import { Bar } from 'react-chartjs-2'
-import { type ChartOptions, type ChartData } from 'chart.js'
+import { type ChartOptions, type ChartData, type TooltipItem } from 'chart.js'
 import { formatCurrency } from '../../utils/currency'
 import { Download } from 'lucide-react'
 import { Button } from '../ui/button'
@@ -100,19 +100,17 @@ function createChartData(
  */
 function createTooltipCallbacks(isStacked: boolean) {
   return {
-    title: (tooltipItems: unknown[]) => {
-      const items = tooltipItems as Array<{ label: string }>
-      return `Jahr ${items[0].label}`
+    title: (tooltipItems: Array<TooltipItem<'bar'>>) => {
+      return `Jahr ${tooltipItems[0].label}`
     },
-    label: (context: { dataset: { label?: string }; parsed: { y: number } }) => {
+    label: (context: TooltipItem<'bar'>) => {
       const label = context.dataset.label || ''
-      const value = context.parsed.y
+      const value = context.parsed.y ?? 0
       return `${label}: ${formatCurrency(value)}`
     },
-    footer: (tooltipItems: unknown[]) => {
+    footer: (tooltipItems: Array<TooltipItem<'bar'>>) => {
       if (isStacked) {
-        const items = tooltipItems as Array<{ parsed: { y: number } }>
-        const total = items.reduce((sum, item) => sum + item.parsed.y, 0)
+        const total = tooltipItems.reduce((sum, item) => sum + (item.parsed.y ?? 0), 0)
         return `Gesamt: ${formatCurrency(total)}`
       }
       return ''

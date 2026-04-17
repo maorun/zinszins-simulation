@@ -45,7 +45,7 @@ function createSensitivityPluginsConfig(): ChartOptions<'line'>['plugins'] {
       callbacks: {
         label: (context: TooltipItem<'line'>) => {
           const label = context.dataset.label || ''
-          const value = context.parsed.y
+          const value = context.parsed.y ?? 0
           return `${label}: ${formatCurrency(value)}`
         },
       },
