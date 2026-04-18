@@ -8,6 +8,8 @@
   "MD033": false,
   "MD034": false,
   "MD036": false,
-  "MD060": false,
+  "MD060": {
+    "style": "spaced"
+  },
   "MD041": false
 }
