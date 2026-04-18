@@ -132,7 +132,7 @@ function createChartOptions(showRealValues: boolean): ChartOptions<'line'> {
         callbacks: {
           label: (context) => {
             const label = context.dataset.label || ''
-            const value = context.parsed.y
+            const value = context.parsed.y ?? 0
             return `${label}: ${formatCurrency(value)}`
           },
         },

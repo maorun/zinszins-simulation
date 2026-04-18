@@ -175,7 +175,7 @@ function createTooltipCallbacks(
     },
     label: (context: TooltipItem<'line'>) => {
       const label = context.dataset.label || ''
-      const value = context.parsed.y
+      const value = context.parsed.y ?? 0
 
       // For stacked datasets, show the actual value (not cumulative)
       if (label === zinsenLabel) {
