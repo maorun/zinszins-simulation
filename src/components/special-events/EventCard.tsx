@@ -189,13 +189,12 @@ function DescriptionField({ description }: { description?: string }) {
  * Render BU case-specific fields
  */
 function BUCaseEventFields({ sparplan }: { sparplan: Sparplan }) {
-  const buStartYear = sparplan.specialEventData?.buStartYear
-  const buEndYear = sparplan.specialEventData?.buEndYear
-  const monthlyBUPension = sparplan.specialEventData?.monthlyBUPension
-  const monthlyIncomeReduction = sparplan.specialEventData?.monthlyIncomeReduction
-  const isTemporary = buEndYear !== null && buEndYear !== undefined
+  const data = sparplan.specialEventData
+  if (!data || !data.buStartYear) return null
 
-  if (!buStartYear) return null
+  const { buStartYear, buEndYear, monthlyBUPension, monthlyIncomeReduction } = data
+  const isTemporary = buEndYear != null
+  const durationText = isTemporary ? `bis ${buEndYear} (${(buEndYear as number) - buStartYear} Jahre)` : 'Dauerhaft'
 
   return (
     <>
@@ -205,9 +204,7 @@ function BUCaseEventFields({ sparplan }: { sparplan: Sparplan }) {
       </div>
       <div className="flex justify-between items-center">
         <span className="text-sm font-medium text-gray-600">⏱️ Dauer:</span>
-        <span className="text-sm font-semibold text-purple-600">
-          {isTemporary ? `bis ${buEndYear} (${(buEndYear as number) - buStartYear} Jahre)` : 'Dauerhaft'}
-        </span>
+        <span className="text-sm font-semibold text-purple-600">{durationText}</span>
       </div>
       {monthlyBUPension !== undefined && (
         <div className="flex justify-between items-center">

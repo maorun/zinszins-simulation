@@ -230,47 +230,46 @@ function isBUCaseValid(formValues: EventFormValues): boolean {
   return Boolean(formValues.buStartYear && formValues.monthlyBUPension && formValues.buBirthYear)
 }
 
+function createValidatedResult(
+  isValid: boolean,
+  createSparplan: () => Sparplan,
+  message: string,
+): { sparplan: Sparplan; message: string } | null {
+  if (!isValid) return null
+  return { sparplan: createSparplan(), message }
+}
+
 function createEventSparplan(
   formValues: EventFormValues,
   nextId: number,
 ): { sparplan: Sparplan; message: string } | null {
-  const { eventType } = formValues
-
-  switch (eventType) {
+  switch (formValues.eventType) {
     case 'inheritance':
-      if (!isInheritanceValid(formValues)) return null
-      return {
-        sparplan: createInheritanceSparplan(formValues, nextId),
-        message: 'Erbschaft erfolgreich hinzugefügt!',
-      }
-
+      return createValidatedResult(
+        isInheritanceValid(formValues),
+        () => createInheritanceSparplan(formValues, nextId),
+        'Erbschaft erfolgreich hinzugefügt!',
+      )
     case 'expense':
-      if (!isExpenseValid(formValues)) return null
-      return {
-        sparplan: createExpenseSparplan(formValues, nextId),
-        message: 'Ausgabe erfolgreich hinzugefügt!',
-      }
-
+      return createValidatedResult(
+        isExpenseValid(formValues),
+        () => createExpenseSparplan(formValues, nextId),
+        'Ausgabe erfolgreich hinzugefügt!',
+      )
     case 'care_costs':
-      return {
-        sparplan: createCareCostSparplan(formValues, nextId),
-        message: 'Pflegekosten erfolgreich hinzugefügt!',
-      }
-
+      return { sparplan: createCareCostSparplan(formValues, nextId), message: 'Pflegekosten erfolgreich hinzugefügt!' }
     case 'business_sale':
-      if (!isBusinessSaleValid(formValues)) return null
-      return {
-        sparplan: createBusinessSaleSparplan(formValues, nextId),
-        message: 'Unternehmensverkauf erfolgreich hinzugefügt!',
-      }
-
+      return createValidatedResult(
+        isBusinessSaleValid(formValues),
+        () => createBusinessSaleSparplan(formValues, nextId),
+        'Unternehmensverkauf erfolgreich hinzugefügt!',
+      )
     case 'bu_case':
-      if (!isBUCaseValid(formValues)) return null
-      return {
-        sparplan: createBUCaseSparplan(formValues, nextId),
-        message: 'BU-Fall erfolgreich hinzugefügt!',
-      }
-
+      return createValidatedResult(
+        isBUCaseValid(formValues),
+        () => createBUCaseSparplan(formValues, nextId),
+        'BU-Fall erfolgreich hinzugefügt!',
+      )
     default:
       return null
   }
