@@ -9,7 +9,7 @@ type EventPhase = 'sparphase' | 'entsparphase'
 
 export interface EventFormValues {
   date: Date
-  eventType: 'inheritance' | 'expense' | 'care_costs' | 'business_sale'
+  eventType: 'inheritance' | 'expense' | 'care_costs' | 'business_sale' | 'bu_case'
   phase: EventPhase
   relationshipType: RelationshipType
   grossAmount: string
@@ -30,6 +30,13 @@ export interface EventFormValues {
   permanentlyDisabled: boolean
   businessSaleOtherIncome: string
   applyFifthRule: boolean
+  // BU-Fall fields (Berufsunfähigkeitsfall)
+  buStartYear: string
+  buEndYear: string // leer = dauerhaft
+  monthlyBUPension: string
+  monthlyIncomeReduction: string
+  buBirthYear: string
+  applyLeibrentenBesteuerung: boolean
   description: string
 }
 

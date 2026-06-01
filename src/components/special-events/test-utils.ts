@@ -26,6 +26,13 @@ export function createMockEventFormValues(overrides?: Partial<EventFormValues>):
     permanentlyDisabled: false,
     businessSaleOtherIncome: '',
     applyFifthRule: true,
+    // BU-Fall default values
+    buStartYear: '',
+    buEndYear: '',
+    monthlyBUPension: '',
+    monthlyIncomeReduction: '',
+    buBirthYear: '',
+    applyLeibrentenBesteuerung: true,
     description: '',
     ...overrides,
   }

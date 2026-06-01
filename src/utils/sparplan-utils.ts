@@ -61,6 +61,14 @@ export type SpecialEventData = {
   businessSaleOtherIncome?: number // Other taxable income in sale year
   applyFifthRule?: boolean // Whether to apply Fünftelregelung
 
+  // BU-Fall-specific fields (Berufsunfähigkeitsfall)
+  buStartYear?: number // Year BU begins
+  buEndYear?: number | null // Year BU ends (null = permanent/unlimited)
+  monthlyBUPension?: number // Monthly BU insurance pension (€)
+  monthlyIncomeReduction?: number // Monthly income lost due to BU (€)
+  buBirthYear?: number // Birth year of insured person
+  applyLeibrentenBesteuerung?: boolean // Apply Leibrenten taxation (§ 22 EStG)
+
   // General event fields
   description?: string
   taxRelevant?: boolean // Whether this event affects tax calculations
@@ -77,7 +85,7 @@ export type Sparplan = {
   transactionCostPercent?: number // Transaction cost as percentage (e.g., 0.25 for 0.25%)
   transactionCostAbsolute?: number // Transaction cost as absolute amount (e.g., 1.5 for 1.50€)
   // Special events data
-  eventType?: 'normal' | 'inheritance' | 'expense' | 'care_costs' | 'business_sale' // Event type classification
+  eventType?: 'normal' | 'inheritance' | 'expense' | 'care_costs' | 'business_sale' | 'bu_case' // Event type classification
   specialEventData?: SpecialEventData // Additional data for special events
   // Fluctuating income pattern for self-employed
   incomePattern?: IncomePattern // Optional income pattern for irregular contributions
@@ -96,7 +104,7 @@ export type SparplanElement =
       transactionCostPercent?: number
       transactionCostAbsolute?: number
       // Special events data
-      eventType?: 'normal' | 'inheritance' | 'expense' | 'care_costs' | 'business_sale'
+      eventType?: 'normal' | 'inheritance' | 'expense' | 'care_costs' | 'business_sale' | 'bu_case'
       specialEventData?: SpecialEventData
       // Dynamic savings rate configuration
       dynamicSavingsConfig?: DynamicSavingsRateConfig
@@ -112,7 +120,7 @@ export type SparplanElement =
       transactionCostPercent?: number
       transactionCostAbsolute?: number
       // Special events data
-      eventType?: 'normal' | 'inheritance' | 'expense' | 'care_costs' | 'business_sale'
+      eventType?: 'normal' | 'inheritance' | 'expense' | 'care_costs' | 'business_sale' | 'bu_case'
       specialEventData?: SpecialEventData
       // Dynamic savings rate configuration (not applicable for one-time payments)
       dynamicSavingsConfig?: DynamicSavingsRateConfig

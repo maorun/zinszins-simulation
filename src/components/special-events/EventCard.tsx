@@ -16,7 +16,7 @@ interface EventStyle {
   amountColor: string
 }
 
-function getEventStyle(isInheritance: boolean, isExpense: boolean, isCareCost: boolean): EventStyle {
+function getEventStyle(isInheritance: boolean, isExpense: boolean, isCareCost: boolean, isBUCase: boolean): EventStyle {
   if (isInheritance) {
     return {
       cardClasses: 'bg-green-50 border-green-200',
@@ -41,6 +41,15 @@ function getEventStyle(isInheritance: boolean, isExpense: boolean, isCareCost: b
       title: '🏥 Pflegekosten',
       amountLabel: '💸 Jährliche Nettokosten:',
       amountColor: 'text-orange-600',
+    }
+  }
+
+  if (isBUCase) {
+    return {
+      cardClasses: 'bg-purple-50 border-purple-200',
+      title: '🦽 Berufsunfähigkeitsfall',
+      amountLabel: '📊 Jährl. Nettoeffekt:',
+      amountColor: 'text-purple-600',
     }
   }
 
@@ -177,12 +186,54 @@ function DescriptionField({ description }: { description?: string }) {
 }
 
 /**
+ * Render BU case-specific fields
+ */
+function BUCaseEventFields({ sparplan }: { sparplan: Sparplan }) {
+  const data = sparplan.specialEventData
+  if (!data || !data.buStartYear) return null
+
+  const { buStartYear, buEndYear, monthlyBUPension, monthlyIncomeReduction } = data
+  const isTemporary = buEndYear != null
+  const durationText = isTemporary ? `bis ${buEndYear} (${(buEndYear as number) - buStartYear} Jahre)` : 'Dauerhaft'
+
+  return (
+    <>
+      <div className="flex justify-between items-center">
+        <span className="text-sm font-medium text-gray-600">📅 BU-Beginn:</span>
+        <span className="text-sm font-semibold text-purple-600">{buStartYear}</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="text-sm font-medium text-gray-600">⏱️ Dauer:</span>
+        <span className="text-sm font-semibold text-purple-600">{durationText}</span>
+      </div>
+      {monthlyBUPension !== undefined && (
+        <div className="flex justify-between items-center">
+          <span className="text-sm font-medium text-gray-600">💰 BU-Rente monatl.:</span>
+          <span className="text-sm font-semibold text-purple-600">
+            {monthlyBUPension.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+          </span>
+        </div>
+      )}
+      {monthlyIncomeReduction !== undefined && monthlyIncomeReduction > 0 && (
+        <div className="flex justify-between items-center">
+          <span className="text-sm font-medium text-gray-600">📉 Einkommensverlust monatl.:</span>
+          <span className="text-sm font-semibold text-red-600">
+            {monthlyIncomeReduction.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+          </span>
+        </div>
+      )}
+    </>
+  )
+}
+
+/**
  * Event details section
  */
 function EventDetails({
   isInheritance,
   isExpense,
   isCareCost,
+  isBUCase,
   style,
   formattedDate,
   formattedAmount,
@@ -191,6 +242,7 @@ function EventDetails({
   isInheritance: boolean
   isExpense: boolean
   isCareCost: boolean
+  isBUCase: boolean
   style: ReturnType<typeof getEventStyle>
   formattedDate: string
   formattedAmount: string
@@ -213,6 +265,8 @@ function EventDetails({
       {isExpense && <ExpenseTypeField sparplan={sparplan} />}
 
       {isCareCost && <CareCostFields sparplan={sparplan} />}
+
+      {isBUCase && <BUCaseEventFields sparplan={sparplan} />}
 
       <DescriptionField description={sparplan.specialEventData?.description} />
 
@@ -251,9 +305,10 @@ export function EventCard({ sparplan, onDelete }: EventCardProps) {
   const isInheritance = sparplan.eventType === 'inheritance'
   const isExpense = sparplan.eventType === 'expense'
   const isCareCost = sparplan.eventType === 'care_costs'
+  const isBUCase = sparplan.eventType === 'bu_case'
   const eventPhase = sparplan.specialEventData?.phase || 'sparphase'
 
-  const style = getEventStyle(isInheritance, isExpense, isCareCost)
+  const style = getEventStyle(isInheritance, isExpense, isCareCost, isBUCase)
   const phase = getPhaseInfo(eventPhase)
   const formattedDate = new Date(sparplan.start).toLocaleDateString('de-DE')
   const formattedAmount = Math.abs(sparplan.einzahlung).toLocaleString('de-DE', {
@@ -271,6 +326,7 @@ export function EventCard({ sparplan, onDelete }: EventCardProps) {
             isInheritance={isInheritance}
             isExpense={isExpense}
             isCareCost={isCareCost}
+            isBUCase={isBUCase}
             style={style}
             formattedDate={formattedDate}
             formattedAmount={formattedAmount}

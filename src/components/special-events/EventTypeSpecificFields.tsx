@@ -3,6 +3,7 @@ import { InheritanceFields } from './InheritanceFields'
 import { ExpenseFields } from './ExpenseFields'
 import { CareCostFields } from './CareCostFields'
 import { BusinessSaleFields } from './BusinessSaleFields'
+import { BUCaseFields } from './BUCaseFields'
 
 interface EventTypeSpecificFieldsProps {
   formValues: EventFormValues
@@ -27,6 +28,10 @@ export function EventTypeSpecificFields({
 
   if (formValues.eventType === 'business_sale') {
     return <BusinessSaleFields formValues={formValues} onFormChange={onFormChange} />
+  }
+
+  if (formValues.eventType === 'bu_case') {
+    return <BUCaseFields formValues={formValues} onFormChange={onFormChange} />
   }
 
   return null
