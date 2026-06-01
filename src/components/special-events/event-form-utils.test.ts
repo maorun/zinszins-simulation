@@ -173,6 +173,60 @@ describe('event-form-utils', () => {
         expect(isSubmitDisabled(formValues)).toBe(false)
       })
     })
+
+    describe('bu_case events', () => {
+      it('should be disabled when buStartYear is empty', () => {
+        const formValues = createMockEventFormValues({
+          eventType: 'bu_case',
+          buStartYear: '',
+          monthlyBUPension: '2000',
+          buBirthYear: '1980',
+        })
+        expect(isSubmitDisabled(formValues)).toBe(true)
+      })
+
+      it('should be disabled when monthlyBUPension is empty', () => {
+        const formValues = createMockEventFormValues({
+          eventType: 'bu_case',
+          buStartYear: '2025',
+          monthlyBUPension: '',
+          buBirthYear: '1980',
+        })
+        expect(isSubmitDisabled(formValues)).toBe(true)
+      })
+
+      it('should be disabled when buBirthYear is empty', () => {
+        const formValues = createMockEventFormValues({
+          eventType: 'bu_case',
+          buStartYear: '2025',
+          monthlyBUPension: '2000',
+          buBirthYear: '',
+        })
+        expect(isSubmitDisabled(formValues)).toBe(true)
+      })
+
+      it('should be enabled when all required fields are provided (permanent case)', () => {
+        const formValues = createMockEventFormValues({
+          eventType: 'bu_case',
+          buStartYear: '2025',
+          buEndYear: '',
+          monthlyBUPension: '2000',
+          buBirthYear: '1980',
+        })
+        expect(isSubmitDisabled(formValues)).toBe(false)
+      })
+
+      it('should be enabled when all required fields are provided (time-limited case)', () => {
+        const formValues = createMockEventFormValues({
+          eventType: 'bu_case',
+          buStartYear: '2025',
+          buEndYear: '2030',
+          monthlyBUPension: '2000',
+          buBirthYear: '1980',
+        })
+        expect(isSubmitDisabled(formValues)).toBe(false)
+      })
+    })
   })
 
   describe('getSubmitButtonText', () => {
@@ -186,6 +240,10 @@ describe('event-form-utils', () => {
 
     it('should return correct text for care_costs event', () => {
       expect(getSubmitButtonText('care_costs')).toBe('🏥 Pflegekosten hinzufügen')
+    })
+
+    it('should return correct text for bu_case event', () => {
+      expect(getSubmitButtonText('bu_case')).toBe('🦽 BU-Fall hinzufügen')
     })
 
     it('should return default text for unknown event type', () => {

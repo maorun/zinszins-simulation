@@ -5,6 +5,7 @@ import { calculateInheritanceTax } from '../../helpers/inheritance-tax'
 import { getDefaultCreditTerms } from '../../helpers/credit-calculation'
 import { calculateCareCostsForYear } from '../../helpers/care-cost-simulation'
 import { calculateBusinessSaleTax } from '../../helpers/business-sale'
+import { calculateBUCaseForYear } from '../../helpers/bu-case'
 import type { EventFormValues } from '../components/special-events/EventFormFields'
 
 const INITIAL_FORM_VALUES: EventFormValues = {
@@ -30,6 +31,13 @@ const INITIAL_FORM_VALUES: EventFormValues = {
   permanentlyDisabled: false,
   businessSaleOtherIncome: '',
   applyFifthRule: true,
+  // BU-Fall default values
+  buStartYear: '',
+  buEndYear: '',
+  monthlyBUPension: '',
+  monthlyIncomeReduction: '',
+  buBirthYear: '',
+  applyLeibrentenBesteuerung: true,
   description: '',
 }
 
@@ -162,6 +170,48 @@ function createBusinessSaleSparplan(formValues: EventFormValues, nextId: number)
   }
 }
 
+function createBUCaseSparplan(formValues: EventFormValues, nextId: number): Sparplan {
+  const buStartYear = Number(formValues.buStartYear)
+  const buEndYear = formValues.buEndYear.trim() !== '' ? Number(formValues.buEndYear) : null
+  const monthlyBUPension = Number(formValues.monthlyBUPension)
+  const monthlyIncomeReduction = formValues.monthlyIncomeReduction ? Number(formValues.monthlyIncomeReduction) : 0
+  const birthYear = Number(formValues.buBirthYear)
+
+  // Calculate the first year's net effect for display purposes
+  const firstYearResult = calculateBUCaseForYear(
+    {
+      startYear: buStartYear,
+      endYear: buEndYear,
+      monthlyBUPension,
+      monthlyIncomeReduction,
+      birthYear,
+      applyLeibrentenBesteuerung: formValues.applyLeibrentenBesteuerung,
+    },
+    buStartYear,
+  )
+
+  // Use the start year as the date for the sparplan entry
+  const startDate = new Date(buStartYear, 0, 1)
+
+  return {
+    id: nextId,
+    start: startDate,
+    end: startDate,
+    einzahlung: firstYearResult.annualNetEffect,
+    eventType: 'bu_case',
+    specialEventData: {
+      buStartYear,
+      buEndYear,
+      monthlyBUPension,
+      monthlyIncomeReduction,
+      buBirthYear: birthYear,
+      applyLeibrentenBesteuerung: formValues.applyLeibrentenBesteuerung,
+      description: formValues.description,
+      phase: formValues.phase,
+    },
+  }
+}
+
 function isInheritanceValid(formValues: EventFormValues): boolean {
   return Boolean(formValues.grossAmount)
 }
@@ -174,6 +224,10 @@ function isBusinessSaleValid(formValues: EventFormValues): boolean {
   return Boolean(
     formValues.businessSalePrice && formValues.businessBookValue && formValues.sellerAge,
   )
+}
+
+function isBUCaseValid(formValues: EventFormValues): boolean {
+  return Boolean(formValues.buStartYear && formValues.monthlyBUPension && formValues.buBirthYear)
 }
 
 function createEventSparplan(
@@ -208,6 +262,13 @@ function createEventSparplan(
       return {
         sparplan: createBusinessSaleSparplan(formValues, nextId),
         message: 'Unternehmensverkauf erfolgreich hinzugefügt!',
+      }
+
+    case 'bu_case':
+      if (!isBUCaseValid(formValues)) return null
+      return {
+        sparplan: createBUCaseSparplan(formValues, nextId),
+        message: 'BU-Fall erfolgreich hinzugefügt!',
       }
 
     default:

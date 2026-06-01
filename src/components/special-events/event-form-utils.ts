@@ -8,6 +8,8 @@ export function isSubmitDisabled(formValues: EventFormValues): boolean {
       return !formValues.expenseAmount
     case 'care_costs':
       return !formValues.careLevel
+    case 'bu_case':
+      return !formValues.buStartYear || !formValues.monthlyBUPension || !formValues.buBirthYear
     default:
       return false
   }
@@ -21,6 +23,8 @@ export function getSubmitButtonText(eventType: EventFormValues['eventType']): st
       return '💸 Ausgabe hinzufügen'
     case 'care_costs':
       return '🏥 Pflegekosten hinzufügen'
+    case 'bu_case':
+      return '🦽 BU-Fall hinzufügen'
     default:
       return 'Hinzufügen'
   }
