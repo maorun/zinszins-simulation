@@ -10,23 +10,23 @@ import type { SimulationContextState } from '../contexts/SimulationContext'
 
 // Mock jsPDF
 vi.mock('jspdf', () => ({
-  jsPDF: vi.fn().mockImplementation(() => ({
-    setFontSize: vi.fn(),
-    setFont: vi.fn(),
-    text: vi.fn(),
-    setLineWidth: vi.fn(),
-    line: vi.fn(),
-    addPage: vi.fn(),
-    getNumberOfPages: vi.fn().mockReturnValue(1),
-    setPage: vi.fn(),
-    output: vi.fn().mockReturnValue(new Blob(['mock pdf'], { type: 'application/pdf' })),
-    internal: {
+  jsPDF: class {
+    setFontSize = vi.fn()
+    setFont = vi.fn()
+    text = vi.fn()
+    setLineWidth = vi.fn()
+    line = vi.fn()
+    addPage = vi.fn()
+    getNumberOfPages = vi.fn().mockReturnValue(1)
+    setPage = vi.fn()
+    output = vi.fn().mockReturnValue(new Blob(['mock pdf'], { type: 'application/pdf' }))
+    internal = {
       pageSize: {
         width: 210,
         height: 297,
       },
-    },
-  })),
+    }
+  },
 }))
 
 describe('PDF Export', () => {
@@ -203,19 +203,8 @@ describe('PDF Export', () => {
       const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as unknown as Node)
       const removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as unknown as Node)
 
-      // Mock URL methods - define them if they don't exist
-      if (!global.URL) {
-        global.URL = {} as typeof URL
-      }
-      if (!global.URL.createObjectURL) {
-        global.URL.createObjectURL = vi.fn()
-      }
-      if (!global.URL.revokeObjectURL) {
-        global.URL.revokeObjectURL = vi.fn()
-      }
-
-      const createObjectURLMock = vi.mocked(global.URL.createObjectURL).mockReturnValue('blob:mock-url')
-      const revokeObjectURLMock = vi.mocked(global.URL.revokeObjectURL).mockImplementation(() => undefined)
+      const createObjectURLMock = vi.spyOn(global.URL, 'createObjectURL').mockReturnValue('blob:mock-url')
+      const revokeObjectURLMock = vi.spyOn(global.URL, 'revokeObjectURL').mockImplementation(() => undefined)
 
       downloadPDFBlob(mockBlob, filename)
 

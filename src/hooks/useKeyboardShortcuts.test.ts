@@ -3,10 +3,10 @@ import { renderHook } from '@testing-library/react'
 import { useKeyboardShortcuts, formatShortcut, type KeyboardShortcut } from './useKeyboardShortcuts'
 
 describe('useKeyboardShortcuts', () => {
-  let actionMock: ReturnType<typeof vi.fn>
+  let actionMock: ReturnType<typeof vi.fn<() => void>>
 
   beforeEach(() => {
-    actionMock = vi.fn()
+    actionMock = vi.fn<() => void>()
   })
 
   afterEach(() => {
@@ -38,8 +38,8 @@ describe('useKeyboardShortcuts', () => {
   })
 
   it('should handle multiple shortcuts', () => {
-    const action1 = vi.fn()
-    const action2 = vi.fn()
+    const action1 = vi.fn<() => void>()
+    const action2 = vi.fn<() => void>()
 
     const shortcuts: KeyboardShortcut[] = [
       {

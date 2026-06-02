@@ -21,14 +21,7 @@ export default defineConfig({
 
     // Performance optimizations for faster test execution
     pool: 'threads', // Use worker threads (faster than forks)
-    poolOptions: isCI
-      ? {
-          threads: {
-            minThreads: maxWorkers,
-            maxThreads: maxWorkers,
-          },
-        }
-      : undefined, // Let Vitest use defaults for local development
+    maxWorkers, // Let Vitest use defaults for local development
     fileParallelism: true, // Run test files in parallel (enabled by default, explicit for clarity)
 
     coverage: {
