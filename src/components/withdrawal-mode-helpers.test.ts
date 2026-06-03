@@ -11,12 +11,12 @@ import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
 
 describe('withdrawal-mode-helpers', () => {
   describe('handleWithdrawalModeChange', () => {
-    let mockUpdateConfig: ReturnType<typeof vi.fn>
+    let mockUpdateConfig: ReturnType<typeof vi.fn<(updates: Record<string, any>) => void>>
     const startOfIndependence = 2040
     const globalEndOfLife = 2070
 
     beforeEach(() => {
-      mockUpdateConfig = vi.fn()
+      mockUpdateConfig = vi.fn<(updates: Record<string, any>) => void>()
     })
 
     it('should enable comparison mode when mode is "comparison"', () => {
@@ -220,10 +220,10 @@ describe('withdrawal-mode-helpers', () => {
   })
 
   describe('handleAddComparisonStrategy', () => {
-    let mockUpdateConfig: ReturnType<typeof vi.fn>
+    let mockUpdateConfig: ReturnType<typeof vi.fn<(updates: Record<string, any>) => void>>
 
     beforeEach(() => {
-      mockUpdateConfig = vi.fn()
+      mockUpdateConfig = vi.fn<(updates: Record<string, any>) => void>()
     })
 
     it('should add new strategy to empty comparison strategies', () => {
@@ -326,10 +326,10 @@ describe('withdrawal-mode-helpers', () => {
   })
 
   describe('handleRemoveComparisonStrategy', () => {
-    let mockUpdateConfig: ReturnType<typeof vi.fn>
+    let mockUpdateConfig: ReturnType<typeof vi.fn<(updates: Record<string, any>) => void>>
 
     beforeEach(() => {
-      mockUpdateConfig = vi.fn()
+      mockUpdateConfig = vi.fn<(updates: Record<string, any>) => void>()
     })
 
     it('should remove strategy by id', () => {
@@ -484,7 +484,7 @@ describe('withdrawal-mode-helpers', () => {
 
   describe('Integration: Complete Workflow', () => {
     it('should support switching between different modes', () => {
-      const mockUpdateConfig = vi.fn()
+      const mockUpdateConfig = vi.fn<(updates: Record<string, any>) => void>()
       const startOfIndependence = 2040
       const globalEndOfLife = 2070
 
@@ -520,7 +520,7 @@ describe('withdrawal-mode-helpers', () => {
     })
 
     it('should support adding and removing comparison strategies', () => {
-      const mockUpdateConfig = vi.fn()
+      const mockUpdateConfig = vi.fn<(updates: Record<string, any>) => void>()
       
       // Add first strategy
       handleAddComparisonStrategy({

@@ -11,11 +11,11 @@ vi.mock('sonner', () => ({
 }))
 
 describe('OtherIncomeConfiguration', () => {
-  let mockOnChange: ReturnType<typeof vi.fn>
+  let mockOnChange: (config: OtherIncomeConfiguration) => void
   let defaultConfig: OtherIncomeConfiguration
 
   beforeEach(() => {
-    mockOnChange = vi.fn()
+    mockOnChange = vi.fn<(config: OtherIncomeConfiguration) => void>()
     defaultConfig = {
       enabled: false,
       sources: [],

@@ -381,7 +381,7 @@ describe('data-export', () => {
       global.URL.revokeObjectURL = vi.fn()
     })
 
-    it('should create and trigger download with UTF-8 BOM and charset', () => {
+    it('should create and trigger download with UTF-8 BOM and charset', async () => {
       const mockLink = {
         href: '',
         download: '',
@@ -395,15 +395,17 @@ describe('data-export', () => {
         .mockImplementation(() => mockLink as unknown as Node)
       const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockLink as unknown as HTMLElement)
 
-      // Mock Blob constructor to capture the content and options
       const originalBlob = global.Blob
       let blobContent: Array<string | ArrayBuffer | ArrayBufferView | Blob> | undefined
       let blobOptions: { type?: string; endings?: 'transparent' | 'native' } | undefined
-      global.Blob = vi.fn().mockImplementation((content, options) => {
-        blobContent = content
-        blobOptions = options
-        return new originalBlob(content, options)
-      }) as unknown as typeof Blob
+      class MockBlob extends originalBlob {
+        constructor(content: any[], options?: { type?: string; endings?: 'transparent' | 'native' }) {
+          blobContent = content as Array<string | ArrayBuffer | ArrayBufferView | Blob>
+          blobOptions = options
+          super(content, options)
+        }
+      }
+      global.Blob = MockBlob as unknown as typeof Blob
 
       downloadTextAsFile('test content with äöü and €', 'test.txt')
 
@@ -417,7 +419,6 @@ describe('data-export', () => {
       expect(blobContent?.[0]).toBe('\uFEFFtest content with äöü and €')
       // Verify charset is added to MIME type
       expect(blobOptions?.type).toBe('text/plain;charset=utf-8')
-
       global.Blob = originalBlob
     })
 
@@ -429,15 +430,17 @@ describe('data-export', () => {
 
       const originalBlob = global.Blob
       let blobOptions: { type?: string; endings?: 'transparent' | 'native' } | undefined
-      global.Blob = vi.fn().mockImplementation((content, options) => {
-        blobOptions = options
-        return new originalBlob(content, options)
-      }) as unknown as typeof Blob
+      class MockBlob extends originalBlob {
+        constructor(content: any[], options?: { type?: string; endings?: 'transparent' | 'native' }) {
+          blobOptions = options
+          super(content, options)
+        }
+      }
+      global.Blob = MockBlob as unknown as typeof Blob
 
       downloadTextAsFile('test', 'test.md', 'text/markdown;charset=utf-8')
 
       expect(blobOptions?.type).toBe('text/markdown;charset=utf-8')
-
       global.Blob = originalBlob
     })
   })
