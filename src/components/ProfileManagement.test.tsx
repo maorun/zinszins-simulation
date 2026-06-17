@@ -77,6 +77,8 @@ const mockProfiles = [
 ]
 
 describe('ProfileManagement', () => {
+  const getCollapseTrigger = (container: HTMLElement) => container.querySelector('[aria-expanded]')
+
   // Helper function to render and expand the component
   const renderAndExpand = () => {
     const result = render(
@@ -86,7 +88,7 @@ describe('ProfileManagement', () => {
     )
 
     // Expand the component
-    const trigger = result.container.querySelector('[aria-controls]')
+    const trigger = getCollapseTrigger(result.container)
     if (trigger) {
       fireEvent.click(trigger)
     }
@@ -144,7 +146,7 @@ describe('ProfileManagement', () => {
         </TestWrapper>,
       )
 
-      const trigger = container.querySelector('[aria-controls]')
+      const trigger = getCollapseTrigger(container)
       fireEvent.click(trigger!)
 
       expect(screen.getByText(/Profile:/)).toBeInTheDocument()
@@ -382,7 +384,7 @@ describe('ProfileManagement', () => {
       )
 
       // Expand the component
-      const trigger = container.querySelector('[aria-controls]')
+      const trigger = getCollapseTrigger(container)
       fireEvent.click(trigger!)
 
       // When only one profile exists, that single profile should not have a delete button
@@ -441,7 +443,7 @@ describe('ProfileManagement', () => {
         </TestWrapper>,
       )
 
-      const trigger = container.querySelector('[aria-controls]')
+      const trigger = getCollapseTrigger(container)
       fireEvent.click(trigger!)
 
       const clearButtons = screen.getAllByText('🗑️ Alle Profile löschen')
