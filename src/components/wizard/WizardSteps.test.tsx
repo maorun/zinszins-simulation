@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import React from 'react'
 import { WizardStep1Zeitspanne } from './WizardStep1Zeitspanne'
 import { WizardStep2Sparplan } from './WizardStep2Sparplan'
@@ -8,7 +8,6 @@ import { WizardStep4Ergebnis } from './WizardStep4Ergebnis'
 import { SimulationProvider } from '../../contexts/SimulationContext'
 import { NavigationProvider } from '../../contexts/NavigationContext'
 import { DashboardPreferencesProvider } from '../../contexts/DashboardPreferencesProvider'
-import { vi } from 'vitest'
 
 function renderWithProviders(ui: React.ReactElement) {
   return render(
