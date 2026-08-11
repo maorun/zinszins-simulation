@@ -46,15 +46,11 @@ describe('HomePage Integration Tests - Optimized', () => {
   it('renders the main calculator interface', async () => {
     renderWithRouter(<HomePage />)
 
-    // Wait for lazy-loaded components to render - use getAllByRole to find tabs
+    // Wait for wizard navigation to render
     await waitFor(
       () => {
-        const tabs = screen.getAllByRole('tab')
-        expect(tabs.length).toBeGreaterThanOrEqual(3)
-        const tabTexts = tabs.map(tab => tab.textContent)
-        expect(tabTexts.some(text => text?.includes('Sparen'))).toBe(true)
-        expect(tabTexts.some(text => text?.includes('Entnahme'))).toBe(true)
-        expect(tabTexts.some(text => text?.includes('Sonstiges'))).toBe(true)
+        expect(screen.getByText(/Zeitspanne festlegen/i)).toBeInTheDocument()
+        expect(screen.getByText(/Schritt 1 von 4/i)).toBeInTheDocument()
       },
       { timeout: 5000 },
     )
@@ -64,37 +60,23 @@ describe('HomePage Integration Tests - Optimized', () => {
     expect(finanzuebersicht).toBeInTheDocument()
   })
 
-  it('has working tab navigation between Sparen, Entnahme, and Sonstiges', async () => {
+  it('has working wizard navigation between steps', async () => {
     renderWithRouter(<HomePage />)
 
-    // Wait for lazy-loaded components - use getAllByRole to be safe
+    // Wait for wizard to load
     await waitFor(
       () => {
-        const tabs = screen.getAllByRole('tab')
-        expect(tabs.length).toBeGreaterThanOrEqual(3)
+        expect(screen.getByText(/Zeitspanne festlegen/i)).toBeInTheDocument()
       },
       { timeout: 5000 },
     )
 
-    // Get tabs by role to find the navigation tabs specifically
-    const tabs = screen.getAllByRole('tab')
-    const sparenTab = tabs.find(tab => tab.textContent?.includes('💰 Sparen'))
-    const entnahmeTab = tabs.find(tab => tab.textContent?.includes('🏦 Entnahme'))
-    const sonstigesTab = tabs.find(tab => tab.textContent?.includes('⚙️ Sonstiges'))
+    // Advance to next step
+    const nextButton = screen.getByRole('button', { name: /^Weiter$/ })
+    fireEvent.click(nextButton)
 
-    // Should have all three tabs
-    expect(sparenTab).toBeDefined()
-    expect(entnahmeTab).toBeDefined()
-    expect(sonstigesTab).toBeDefined()
-
-    // Click on Entnahme tab - should not crash
-    fireEvent.click(entnahmeTab!)
-
-    // Click on Sonstiges tab - should not crash
-    fireEvent.click(sonstigesTab!)
-
-    // Click back on Sparen tab - should not crash
-    fireEvent.click(sparenTab!)
+    // Should now show step 2 (Sparplan)
+    expect(screen.getByText(/Sparplan festlegen/i)).toBeInTheDocument()
   })
 
   it('displays financial overview when enhanced summary is available', () => {
@@ -124,79 +106,52 @@ describe('HomePage Integration Tests - Optimized', () => {
     expect(formElements.length).toBeGreaterThan(0)
   })
 
-  it('shows collapsible configuration section', async () => {
+  it('shows wizard navigation with step progress', async () => {
     renderWithRouter(<HomePage />)
 
-    // The Grundeinstellungen category should always be present in the Sonstiges tab
+    // The wizard navigation should be present with step indicators
     await waitFor(
       () => {
-        const configHeading = screen.getByText(/📊 Grundeinstellungen/)
-        expect(configHeading).toBeInTheDocument()
+        expect(screen.getByText(/Zeitspanne festlegen/i)).toBeInTheDocument()
+        expect(screen.getByText(/Schritt 1 von 4/i)).toBeInTheDocument()
       },
       { timeout: 1000 },
     )
 
-    // Simply verify that the collapsible mechanism works by checking it has data-state
-    const configSection = screen.getByText(/📊 Grundeinstellungen/).closest('[data-state]')
-    expect(configSection).toBeInTheDocument()
-
-    // The configuration should be collapsible (has a clickable parent element)
-    const clickableParent = screen.getByText(/📊 Grundeinstellungen/).closest('button, [role="button"], [aria-expanded]')
-    expect(clickableParent).toBeInTheDocument()
+    // The wizard should have navigation buttons
+    expect(screen.getByRole('button', { name: /zurück/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /^Weiter$/ })).toBeInTheDocument()
   })
 
-  it('displays savings plan creation interface', async () => {
+  it('displays savings plan configuration in wizard step 2', async () => {
     const user = userEvent.setup()
     const { container } = renderWithRouter(<HomePage />)
 
-    // First ensure we're on the correct tab (Sparen)
+    // Wait for wizard to load
     await waitFor(
       () => {
-        const sparenTab = screen.getByText(/💰 Sparen/)
-        expect(sparenTab).toBeInTheDocument()
+        expect(screen.getByText(/Zeitspanne festlegen/i)).toBeInTheDocument()
       },
       { timeout: 1000 },
     )
 
-    // Click the Sparen tab to make sure it's active
-    const sparenTab = screen.getByText(/💰 Sparen/)
-    await user.click(sparenTab)
-    await new Promise(resolve => setTimeout(resolve, 200))
+    // Navigate to step 2 (Sparplan)
+    const nextButton = screen.getByRole('button', { name: /^Weiter$/ })
+    await user.click(nextButton)
 
-    // Find and expand the outer "💼 Sparpläne erstellen" section
+    // Should now show sparplan configuration
     await waitFor(
       () => {
-        const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/)
-        expect(sparplanHeading).toBeInTheDocument()
-      },
-      { timeout: 1000 },
-    )
-
-    const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/)
-    await user.click(sparplanHeading)
-    await new Promise(resolve => setTimeout(resolve, 500))
-
-    // Now find and expand the inner "💰 Sparpläne erstellen" section (the actual form)
-    await waitFor(
-      () => {
-        const innerSparplanHeading = screen.getByText(/💰 Sparpläne erstellen/)
-        expect(innerSparplanHeading).toBeInTheDocument()
-      },
-      { timeout: 1000 },
-    )
-
-    const innerSparplanHeading = screen.getByText(/💰 Sparpläne erstellen/)
-    await user.click(innerSparplanHeading)
-    await new Promise(resolve => setTimeout(resolve, 500))
-
-    // Now the input elements should be visible
-    await waitFor(
-      () => {
-        const inputElements = container.querySelectorAll('input')
-        expect(inputElements.length).toBeGreaterThan(0)
+        expect(screen.getByText(/Sparplan festlegen/i)).toBeInTheDocument()
+        // "Monatliche Sparrate" appears in both label and summary section
+        expect(screen.getAllByText(/Monatliche Sparrate/i).length).toBeGreaterThanOrEqual(1)
       },
       { timeout: 2000 },
     )
+
+    // Should have input elements
+    const inputElements = container.querySelectorAll('input')
+    expect(inputElements.length).toBeGreaterThan(0)
   })
 
   it('renders without performance issues', () => {
