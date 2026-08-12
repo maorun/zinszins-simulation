@@ -18,6 +18,17 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 
 Der Zinseszins-Rechner bietet umfassende Funktionen für die langfristige Finanzplanung mit Fokus auf deutsches Steuerrecht:
 
+### 🧭 Schritt-für-Schritt-Navigation (Wizard)
+
+Neue Nutzer starten mit einer geführten Schritt-für-Schritt-Navigation, die die wichtigsten Einstellungen übersichtlich abfragt:
+
+1. **Zeitspanne** – Sparphase und Entnahmephase festlegen
+2. **Sparplan** – Monatliche Sparrate und Renditeerwartung eingeben
+3. **Entnahme-Strategie** – Entnahmestrategie für die Rentenphase wählen
+4. **Ergebnis** – Wichtigste Kennzahlen auf einen Blick
+
+Über den Button **„Erweiterte Ansicht"** lassen sich alle Detaileinstellungen (Steuern, Monte-Carlo, Szenarien, Export u.v.m.) aufrufen. Mit **„Zur einfachen Ansicht"** kehrt man jederzeit zum Wizard zurück.
+
 ### 🎯 Kern-Features
 
 #### Zeitspanne und Berechnungsmodus

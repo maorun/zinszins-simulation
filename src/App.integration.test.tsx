@@ -39,14 +39,9 @@ describe('App Integration Tests - Optimized', () => {
         expect(screen.getByRole('heading', { name: /Zinseszins-Simulation/ })).toBeInTheDocument()
         // Check for main button
         expect(screen.getByText(/Neu berechnen/)).toBeInTheDocument()
-        // Check for navigation tabs - use getAllByRole since there are multiple role="tab" elements
-        const tabs = screen.getAllByRole('tab')
-        expect(tabs.length).toBeGreaterThanOrEqual(3)
-        // Verify the tab names
-        const tabTexts = tabs.map(tab => tab.textContent)
-        expect(tabTexts.some(text => text?.includes('Sparen'))).toBe(true)
-        expect(tabTexts.some(text => text?.includes('Entnahme'))).toBe(true)
-        expect(tabTexts.some(text => text?.includes('Sonstiges'))).toBe(true)
+        // Check for wizard navigation - the new step-by-step UI
+        expect(screen.getByText(/Zeitspanne festlegen/i)).toBeInTheDocument()
+        expect(screen.getByText(/Schritt 1 von 4/i)).toBeInTheDocument()
       },
       { timeout: 10000 }, // Increased timeout for lazy loading
     )
@@ -75,8 +70,8 @@ describe('App Integration Tests - Optimized', () => {
       { timeout: 2500 }, // Reduced from 5000ms to fit within test timeout
     )
 
-    // Check that configuration sections exist
-    const configElements = screen.getAllByText(/Konfiguration/)
-    expect(configElements.length).toBeGreaterThan(0)
+    // Check that wizard navigation sections exist
+    const wizardElements = screen.getAllByText(/Zeitspanne festlegen|Sparplan festlegen|Ende der Sparphase/)
+    expect(wizardElements.length).toBeGreaterThan(0)
   }, 10000) // Increase timeout for this entire test to 10 seconds
 })
