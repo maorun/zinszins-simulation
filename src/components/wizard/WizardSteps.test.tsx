@@ -44,6 +44,7 @@ describe('WizardStep2Sparplan', () => {
     // "Monatliche Sparrate" appears in both label and summary - use getAllByText
     expect(screen.getAllByText(/Monatliche Sparrate/i).length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText(/Erwartete jährliche Rendite/i)).toBeInTheDocument()
+    expect(screen.getByText(/Erwartete jährliche Inflation/i)).toBeInTheDocument()
   })
 
   it('shows monthly amount input', () => {
@@ -52,6 +53,13 @@ describe('WizardStep2Sparplan', () => {
     const input = screen.getByLabelText(/Monatliche Sparrate/i)
     expect(input).toBeInTheDocument()
     expect(input).toHaveAttribute('type', 'number')
+  })
+
+  it('shows real return in summary', () => {
+    renderWithProviders(<WizardStep2Sparplan />)
+
+    expect(screen.getByText(/Realrendite/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/Inflation/i).length).toBeGreaterThanOrEqual(1)
   })
 })
 

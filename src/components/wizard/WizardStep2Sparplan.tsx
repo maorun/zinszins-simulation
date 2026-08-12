@@ -5,6 +5,10 @@ import { Input } from '../ui/input'
 import { useSimulation } from '../../contexts/useSimulation'
 import { convertSparplanToElements } from '../../utils/sparplan-utils'
 
+const INFLATION_MIN = 0
+const INFLATION_MAX = 5
+const INFLATION_STEP = 0.1
+
 function MonthlyAmountInput({
   value,
   onChange,
@@ -52,7 +56,44 @@ function RenditeSlider({ rendite, onValueChange }: { rendite: number; onValueCha
   )
 }
 
-function SparplanSummary({ monatlich, renditeFormatted }: { monatlich: number; renditeFormatted: string }) {
+function InflationSlider({
+  inflation,
+  onValueChange,
+}: {
+  inflation: number
+  onValueChange: (v: number[]) => void
+}) {
+  return (
+    <div className="space-y-3">
+      <Label className="text-base font-medium">Erwartete jährliche Inflation</Label>
+      <Slider
+        min={INFLATION_MIN}
+        max={INFLATION_MAX}
+        step={INFLATION_STEP}
+        value={[inflation]}
+        onValueChange={onValueChange}
+        className="w-full"
+      />
+      <div className="flex justify-between text-sm text-muted-foreground">
+        <span>0 %</span>
+        <span className="font-semibold text-foreground text-base">{inflation.toFixed(1)} %</span>
+        <span>5 %</span>
+      </div>
+      <p className="text-sm text-muted-foreground">Historische Durchschnittsinflation in Deutschland liegt bei ca. 2 % p.a.</p>
+    </div>
+  )
+}
+
+function SparplanSummary({
+  monatlich,
+  renditeFormatted,
+  inflation,
+}: {
+  monatlich: number
+  renditeFormatted: string
+  inflation: number
+}) {
+  const realrendite = (parseFloat(renditeFormatted) - inflation).toFixed(1)
   return (
     <div className="rounded-lg bg-muted p-4 space-y-1 text-sm">
       <div className="flex justify-between">
@@ -67,13 +108,30 @@ function SparplanSummary({ monatlich, renditeFormatted }: { monatlich: number; r
         <span className="text-muted-foreground">Erwartete Rendite:</span>
         <span className="font-medium">{renditeFormatted} % p.a.</span>
       </div>
+      <div className="flex justify-between">
+        <span className="text-muted-foreground">Inflation:</span>
+        <span className="font-medium">{inflation.toFixed(1)} % p.a.</span>
+      </div>
+      <div className="flex justify-between border-t pt-1 mt-1">
+        <span className="text-muted-foreground">Realrendite (nach Inflation):</span>
+        <span className="font-semibold">{realrendite} % p.a.</span>
+      </div>
     </div>
   )
 }
 
 export function WizardStep2Sparplan() {
-  const { sparplan, setSparplan, setSparplanElemente, startEnd, simulationAnnual, rendite, setRendite } =
-    useSimulation()
+  const {
+    sparplan,
+    setSparplan,
+    setSparplanElemente,
+    startEnd,
+    simulationAnnual,
+    rendite,
+    setRendite,
+    inflationsrateSparphase,
+    setInflationsrateSparphase,
+  } = useSimulation()
 
   const monatlicheEinzahlung = Math.round((sparplan[0]?.einzahlung ?? 24000) / 12)
   const renditeFormatted = useMemo(() => rendite.toFixed(1), [rendite])
@@ -89,6 +147,10 @@ export function WizardStep2Sparplan() {
   )
 
   const handleRenditeChange = useCallback(([value]: number[]) => setRendite(value), [setRendite])
+  const handleInflationChange = useCallback(
+    ([value]: number[]) => setInflationsrateSparphase(value),
+    [setInflationsrateSparphase],
+  )
 
   return (
     <div className="space-y-8">
@@ -101,7 +163,12 @@ export function WizardStep2Sparplan() {
       <div className="space-y-6">
         <MonthlyAmountInput value={monatlicheEinzahlung} onChange={handleMonthlyAmountChange} />
         <RenditeSlider rendite={rendite} onValueChange={handleRenditeChange} />
-        <SparplanSummary monatlich={monatlicheEinzahlung} renditeFormatted={renditeFormatted} />
+        <InflationSlider inflation={inflationsrateSparphase} onValueChange={handleInflationChange} />
+        <SparplanSummary
+          monatlich={monatlicheEinzahlung}
+          renditeFormatted={renditeFormatted}
+          inflation={inflationsrateSparphase}
+        />
       </div>
     </div>
   )
