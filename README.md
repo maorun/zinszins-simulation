@@ -241,6 +241,12 @@ Umfassende Planung der Entnahmephase mit deutschen Steuerbesonderheiten:
 - **CSV-Export** - Jahreswerte für Excel-Analysen
 - **Markdown-Export** - Dokumentation für Reports
 
+#### Progressive Web App & Offline-Nutzung
+
+- **Installierbare App** - Unterstützt die Installation auf Desktop und Mobilgeräten
+- **Offline-fähig** - Bereits geladene Anwendung und statische Assets funktionieren auch ohne Internetverbindung
+- **Automatische Updates** - Service Worker aktualisiert die Anwendung im Hintergrund
+
 ---
 
 ## Detaillierte Feature-Beschreibungen
