@@ -1,7 +1,8 @@
+import type React from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
 import { Button } from './ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { ChevronDown, Download, FileText, Copy, Info, FileBarChart } from 'lucide-react'
+import { ChevronDown, Download, FileText, Copy, Info, FileBarChart, Upload } from 'lucide-react'
 import { useParameterExport } from '../hooks/useParameterExport'
 import { useDataExport } from '../hooks/useDataExport'
 import { useDataAvailability } from '../hooks/useDataAvailability'
@@ -15,22 +16,33 @@ interface ParameterExportSectionProps {
   isExporting: boolean
   lastExportResult: 'success' | 'error' | null
   onExport: () => Promise<boolean>
+  onExportFile: () => void
+  onImportFile: (file: File) => Promise<boolean>
 }
 
-function ParameterExportSection({ isExporting, lastExportResult, onExport }: ParameterExportSectionProps) {
-  const getButtonText = () => {
-    if (isExporting) return 'Exportiere...'
-    if (lastExportResult === 'success') return '✓ Kopiert!'
-    if (lastExportResult === 'error') return '✗ Fehler'
-    return '📋 Parameter kopieren'
-  }
+async function handleParameterImport(
+  event: React.ChangeEvent<HTMLInputElement>,
+  onImportFile: (file: File) => Promise<boolean>,
+) {
+  const file = event.target.files?.[0]
+  if (file) await onImportFile(file)
+  event.target.value = ''
+}
 
-  const getButtonVariant = (): ButtonVariant => {
-    if (lastExportResult === 'success') return 'secondary'
-    if (lastExportResult === 'error') return 'destructive'
-    return 'outline'
-  }
+function getParameterExportButtonText(isExporting: boolean, result: ParameterExportSectionProps['lastExportResult']) {
+  if (isExporting) return 'Exportiere...'
+  if (result === 'success') return '✓ Kopiert!'
+  if (result === 'error') return '✗ Fehler'
+  return '📋 Parameter kopieren'
+}
 
+function getParameterExportButtonVariant(result: ParameterExportSectionProps['lastExportResult']): ButtonVariant {
+  if (result === 'success') return 'secondary'
+  if (result === 'error') return 'destructive'
+  return 'outline'
+}
+
+function ParameterExportSection({ isExporting, lastExportResult, onExport, onExportFile, onImportFile }: ParameterExportSectionProps) {
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -41,14 +53,32 @@ function ParameterExportSection({ isExporting, lastExportResult, onExport }: Par
         Exportiert alle Konfigurationsparameter in die Zwischenablage für Entwicklung und Fehlerbeschreibung.
       </p>
       <Button
-        variant={getButtonVariant()}
+        variant={getParameterExportButtonVariant(lastExportResult)}
         size="sm"
         onClick={onExport}
         disabled={isExporting}
         className="w-full sm:w-auto"
       >
-        {getButtonText()}
+        {getParameterExportButtonText(isExporting, lastExportResult)}
       </Button>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <Button variant="outline" size="sm" onClick={onExportFile}>
+          <Download className="h-4 w-4 mr-1" />
+          JSON-Datei herunterladen
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <label className="cursor-pointer">
+            <Upload className="h-4 w-4 mr-1" />
+            JSON-Datei importieren
+            <input
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={event => handleParameterImport(event, onImportFile)}
+            />
+          </label>
+        </Button>
+      </div>
       <div className="block sm:hidden text-xs text-gray-500">💡 Kopiert alle Parameter in die Zwischenablage</div>
     </div>
   )
@@ -608,6 +638,8 @@ function useDataExportHooks() {
 
   return {
     exportParameters: parameterExport.exportParameters,
+    exportParametersFile: parameterExport.exportParametersFile,
+    importParametersFile: parameterExport.importParametersFile,
     isParameterExporting: parameterExport.isExporting,
     parameterExportResult: parameterExport.lastExportResult,
     exportResult: lastExportResult,
@@ -625,6 +657,8 @@ interface DataExportContentProps {
   isParameterExporting: boolean
   parameterExportResult: 'success' | 'error' | null
   exportParameters: () => Promise<boolean>
+  exportParametersFile: () => void
+  importParametersFile: (file: File) => Promise<boolean>
   isReportGenerating: boolean
   reportGenerationResult: { success: boolean; format: string; filename?: string; error?: string } | null
   generateReport: () => void
@@ -648,7 +682,7 @@ interface DataExportContentProps {
   nestingLevel: number
 }
 
-function buildDataExportSectionProps(props: Omit<DataExportContentProps, 'isParameterExporting' | 'parameterExportResult' | 'exportParameters' | 'isReportGenerating' | 'reportGenerationResult' | 'generateReport' | 'nestingLevel'>): DataExportSectionProps {
+function buildDataExportSectionProps(props: Omit<DataExportContentProps, 'isParameterExporting' | 'parameterExportResult' | 'exportParameters' | 'exportParametersFile' | 'importParametersFile' | 'isReportGenerating' | 'reportGenerationResult' | 'generateReport' | 'nestingLevel'>): DataExportSectionProps {
   const {
     hasAnyData,
     hasSavingsData,
@@ -695,6 +729,8 @@ function DataExportContent(props: DataExportContentProps) {
     isParameterExporting, 
     parameterExportResult, 
     exportParameters, 
+    exportParametersFile,
+    importParametersFile,
     isReportGenerating,
     reportGenerationResult,
     generateReport,
@@ -707,7 +743,13 @@ function DataExportContent(props: DataExportContentProps) {
     <CollapsibleContent>
       <CardContent nestingLevel={nestingLevel}>
         <div className="space-y-6">
-          <ParameterExportSection isExporting={isParameterExporting} lastExportResult={parameterExportResult} onExport={exportParameters} />
+          <ParameterExportSection
+            isExporting={isParameterExporting}
+            lastExportResult={parameterExportResult}
+            onExport={exportParameters}
+            onExportFile={exportParametersFile}
+            onImportFile={importParametersFile}
+          />
           <AutomatedReportSection 
             isGenerating={isReportGenerating}
             lastResult={reportGenerationResult}
