@@ -46,13 +46,16 @@ function isConfiguration(value: unknown): value is SavedConfiguration {
 }
 
 function hasRequiredConfigurationValues(config: Partial<SavedConfiguration>): boolean {
-  return isFiniteNumber(config.rendite) &&
-    isFiniteNumber(config.steuerlast) &&
-    isFiniteNumber(config.teilfreistellungsquote) &&
-    isValidYearRange(config.startEnd) &&
-    Array.isArray(config.sparplan) &&
-    typeof config.simulationAnnual === 'string' &&
-    typeof config.returnMode === 'string'
+  const checks = [
+    isFiniteNumber(config.rendite),
+    isFiniteNumber(config.steuerlast),
+    isFiniteNumber(config.teilfreistellungsquote),
+    isValidYearRange(config.startEnd),
+    Array.isArray(config.sparplan),
+    typeof config.simulationAnnual === 'string',
+    typeof config.returnMode === 'string',
+  ]
+  return checks.every(Boolean)
 }
 
 function isFiniteNumber(value: unknown): value is number {
