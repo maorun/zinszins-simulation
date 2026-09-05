@@ -93,6 +93,7 @@ Vollständige Integration deutscher Steuervorschriften:
 - **Szenario-Bibliothek** - Vordefinierte und eigene Szenarien
 - **Was-wäre-wenn Analysen** - Vergleich verschiedener Szenarien
 - **Export/Import** - Speicherung und Austausch von Szenarien
+- **Parameter-Import und -Export** - Vollständige Konfiguration als JSON-Datei herunterladen und später wieder importieren
 
 #### Interaktive Tutorials
 

@@ -1,6 +1,70 @@
 import type { SimulationContextState } from '../contexts/SimulationContext'
 import type { SpecialEventData, Sparplan } from './sparplan-utils'
 import { formatCurrency } from './currency'
+import type { SavedConfiguration } from './config-storage'
+
+export const PARAMETER_EXPORT_VERSION = 1
+
+export interface ParameterExportFile {
+  version: number
+  exportedAt: string
+  configuration: SavedConfiguration
+}
+
+export function createParameterExport(context: SimulationContextState): ParameterExportFile {
+  return {
+    version: PARAMETER_EXPORT_VERSION,
+    exportedAt: new Date().toISOString(),
+    configuration: context.getCurrentConfiguration(),
+  }
+}
+
+export function parseParameterImport(json: string): SavedConfiguration {
+  let data: unknown
+  try {
+    data = JSON.parse(json)
+  } catch {
+    throw new Error('Die Datei enthält kein gültiges JSON.')
+  }
+
+  const candidate =
+    typeof data === 'object' && data !== null && 'configuration' in data
+      ? (data as { configuration: unknown }).configuration
+      : data
+
+  if (!isConfiguration(candidate)) {
+    throw new Error('Die Datei enthält keine gültige Simulation-Konfiguration.')
+  }
+
+  return candidate
+}
+
+function isConfiguration(value: unknown): value is SavedConfiguration {
+  if (typeof value !== 'object' || value === null) return false
+  const config = value as Partial<SavedConfiguration>
+  return hasRequiredConfigurationValues(config)
+}
+
+function hasRequiredConfigurationValues(config: Partial<SavedConfiguration>): boolean {
+  const checks = [
+    isFiniteNumber(config.rendite),
+    isFiniteNumber(config.steuerlast),
+    isFiniteNumber(config.teilfreistellungsquote),
+    isValidYearRange(config.startEnd),
+    Array.isArray(config.sparplan),
+    typeof config.simulationAnnual === 'string',
+    typeof config.returnMode === 'string',
+  ]
+  return checks.every(Boolean)
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+function isValidYearRange(value: unknown): value is [number, number] {
+  return Array.isArray(value) && value.length === 2 && value.every(isFiniteNumber)
+}
 
 /**
  * Helper function to format basic financial parameters

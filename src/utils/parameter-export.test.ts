@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { formatParametersForExport, copyParametersToClipboard } from './parameter-export'
+import { createParameterExport, formatParametersForExport, copyParametersToClipboard, parseParameterImport } from './parameter-export'
 import type { SimulationContextState } from '../contexts/SimulationContext'
 
 // Mock the navigator.clipboard API
@@ -88,6 +88,38 @@ describe('Parameter Export', () => {
       expect(result).toContain('Rendite: 5.00 %')
       expect(result).toContain('Kapitalertragsteuer: 26.38 %')
       expect(result).toContain('Teilfreistellungsquote: 30.00 %')
+    })
+
+    describe('JSON parameter import/export', () => {
+      it('round-trips the current configuration', () => {
+        mockContext.getCurrentConfiguration = vi.fn(() => ({
+          rendite: mockContext.rendite,
+          steuerlast: mockContext.steuerlast,
+          teilfreistellungsquote: mockContext.teilfreistellungsquote,
+          freibetragPerYear: mockContext.freibetragPerYear,
+          returnMode: mockContext.returnMode,
+          averageReturn: mockContext.averageReturn,
+          standardDeviation: mockContext.standardDeviation,
+          variableReturns: mockContext.variableReturns,
+          startEnd: mockContext.startEnd,
+          sparplan: mockContext.sparplan,
+          simulationAnnual: mockContext.simulationAnnual,
+        })) as any
+
+        const file = createParameterExport(mockContext)
+        const imported = parseParameterImport(JSON.stringify(file))
+
+        expect(file.version).toBe(1)
+        expect(imported.startEnd).toEqual([2023, 2040])
+        expect(imported.rendite).toBe(5)
+      })
+
+      it('rejects malformed JSON and incomplete configurations', () => {
+        expect(() => parseParameterImport('not json')).toThrow('gültiges JSON')
+        expect(() => parseParameterImport(JSON.stringify({ configuration: { rendite: 5 } }))).toThrow(
+          'keine gültige Simulation-Konfiguration',
+        )
+      })
     })
 
     it('should format time range and simulation settings', () => {
