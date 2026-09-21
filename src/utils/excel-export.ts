@@ -11,7 +11,7 @@
  * For future improvements, consider upgrading to xlsx from https://cdn.sheetjs.com when available in npm.
  */
 
-import * as XLSX from 'xlsx'
+import * as XLSX from '@e965/xlsx'
 import type { SimulationContextState } from '../contexts/SimulationContext'
 import type { SavingsData } from './data-export'
 import { formatNumberGerman, formatPercentageGerman } from './currency'

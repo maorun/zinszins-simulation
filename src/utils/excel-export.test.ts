@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import * as XLSX from 'xlsx'
+import * as XLSX from '@e965/xlsx'
 import {
   generateSavingsExcelWithFormulas,
   generateWithdrawalExcelWithFormulas,
@@ -33,8 +33,8 @@ interface WithdrawalDataForExcel {
 }
 
 // Mock XLSX.writeFile
-vi.mock('xlsx', async () => {
-  const actual = await vi.importActual('xlsx')
+vi.mock('@e965/xlsx', async () => {
+  const actual = await vi.importActual<typeof import('@e965/xlsx')>('@e965/xlsx')
   return {
     ...actual,
     writeFile: vi.fn(),
